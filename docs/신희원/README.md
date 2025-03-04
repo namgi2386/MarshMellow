@@ -4,9 +4,11 @@
 2. 테스트 용으로 docs push 후 MR 요청 해볼게요.
 
 - MR 및 취소
+
 ![alt text](mrTest.png)
 - MM 반응
-![alt text](mmtest.png)
+
+![alt text](MMTest.png)
 
 - 내일 할 일
     1. 깃랩 지라 연동

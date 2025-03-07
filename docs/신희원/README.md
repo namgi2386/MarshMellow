@@ -37,3 +37,43 @@
 #### 해결책
 실제로 구현하기<br>
 https://obtuse.kr/dev/free-phone-verification/
+
+## 03-07 SWAGGER
+### 학습 계기
+컨설턴트님의 강의를 통해 프로젝트에 적용하고자 학습함.
+### 구현 과정
+1. build.gradle 의존성 추가
+2. 접속 url: localhost:8080/swagger-ui/index.html
+3. SwaggerConfig 생성(JWT버전)
+   ```java
+   @Configuration
+    public class SwaggerConfig {
+    @Bean
+    public OpenAPI openAPI() {
+        String jwt = "JWT";
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwt);
+        Components components = new Components().addSecuritySchemes(jwt, new SecurityScheme()
+                .name(jwt)
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT")
+        );
+        return new OpenAPI()
+                .components(new Components())
+                .info(apiInfo())
+                .addSecurityItem(securityRequirement)
+                .components(components);
+    }
+    private Info apiInfo() {
+        return new Info()
+                .title("API Test") // API의 제목
+                .description("Let's practice Swagger UI") // API에 대한 설명
+                .version("1.0.0"); // API의 버전
+        }
+    }
+   ```
+4. 관련 출처 <br>
+https://velog.io/@gmlstjq123/SpringBoot-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%EC%97%90-Swagger-UI-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0
+
+### 향후 계획
+SWAGGER API를 통해 백엔드 및 프론트엔드의 테스트를 위한 매개체로 사용.   

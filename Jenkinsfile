@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // GitLab 레포지토리에서 소스코드 체크아웃 (인증 필요)
-                git branch: 'main', url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21C108.git', credentialsId: "${env.GITLAB_CREDENTIALS}"
+                git branch: 'master', url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21C108.git', credentialsId: "${env.GITLAB_CREDENTIALS}"
             }
         }
         stage('Build Spring Boot App') {

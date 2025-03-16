@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Build Spring Boot App') {
             steps {
-                dir('spring-boot-app') {
+                dir('gbh_cert') {
                     // Gradle Wrapper를 사용하여 빌드 (테스트는 필요 시 옵션 수정)
                     sh './gradlew clean build -x test'
                 }

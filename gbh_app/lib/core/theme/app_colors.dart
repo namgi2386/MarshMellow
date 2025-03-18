@@ -2,42 +2,30 @@ import 'package:flutter/material.dart';
 
 // 앱 색상 정의
 class AppColors {
-
   // 배경 색상
-  static const Color background = Color(0xFFFDF7E2); // 배경 색상
+  static const Color background = Color(0xFFFBF8EE); // 배경 색상
   static const Color backgroundBlack = Color(0xFF333232);
 
-
-  
   // 텍스트 색상
   static const Color textPrimary = Color(0xFF333232); // 메인 컬러
   static const Color textSecondary = Color(0xFF8C8C8C); // 서브 컬러러
   static const Color textLight = Color(0xFFABABAB);
 
-
   // 버튼 색상
   static const Color buttonActive = Color(0xFFFDF7E2); // 버튼 클릭 시
-  static const Color buttonBlack = Color(0xFF333232);  // 버튼 클릭 전
+  static const Color buttonBlack = Color(0xFF333232); // 버튼 클릭 전
   static const Color buttonDelete = Color(0xFFF87147); // 삭제 버튼튼
-  
 
   // 모달 색상
   static const Color modalBackground = Color(0xFFFFFFFF); // 모달 위에서 모달 띄우는 경우우
 
-
-
-   // Warnning
+  // Warnning
   static const Color warnning = Color(0xFFFF5151); // 입력창 경고 및 삭제 버튼
   static const Color warnningLight = Color(0xFFFF9595); // 입력창 경고 및 삭제 버튼 라이트
-
-  
-
 
   // 기타 색상
   static const Color disabled = Color(0xFFABABAB); // 입력창 비활성화
   static const Color divider = Color(0xFF8C8C8C); // 구분선
-
-
 
   // 주요 색상
   // 검정
@@ -74,14 +62,12 @@ class AppColors {
   static const Color greenPrimary = Color(0xFFA2AC70);
   static const Color greenLight = Color(0xFFE1E8BF);
   static const Color greenDark = Color(0xFF8D9857);
-  
- 
 }
 
 // 사용 예시
 
 /*
-import  '../core/theme/app_colors.dart';
+import 'package:test0316_1/core/theme/app_colors.dart';
 
 
 appBarTheme: AppBarTheme(

@@ -8,5 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ChildRequestAndResponse {
+
     private int childId;
+    
 }

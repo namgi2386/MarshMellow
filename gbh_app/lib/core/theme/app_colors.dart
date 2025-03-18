@@ -14,7 +14,7 @@ class AppColors {
   // 버튼 색상
   static const Color buttonActive = Color(0xFFFDF7E2); // 버튼 클릭 시
   static const Color buttonBlack = Color(0xFF333232); // 버튼 클릭 전
-  static const Color buttonDelete = Color(0xFFF87147); // 삭제 버튼튼
+  static const Color buttonDelete = Color(0xFFFF5151); // 삭제 버튼튼
 
   // 모달 색상
   static const Color modalBackground = Color(0xFFFFFFFF); // 모달 위에서 모달 띄우는 경우우

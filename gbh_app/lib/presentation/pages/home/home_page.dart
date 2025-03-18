@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test0316_1/core/config/app_config.dart';
 import 'package:test0316_1/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
+import 'package:test0316_1/core/theme/app_text_styles.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -12,7 +13,8 @@ class HomePage extends ConsumerWidget {
     final lifecycleState = ref.watch(lifecycleStateProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MMApp'),
+        title: const Text('위시리스트'),
+        titleTextStyle: AppTextStyles.appBar,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
@@ -21,13 +23,13 @@ class HomePage extends ConsumerWidget {
           children: [
             const Text(
               '환경 설정 테스트3',
-              style: TextStyle(fontSize: 24),
+              style: AppTextStyles.mainTitle,
             ),
             // CounterPage(),
             const SizedBox(height: 20),
             Text(
               '현재 환경: ${AppConfig.isDevelopment() ? "개발" : "프로덕션"}',
-              style: const TextStyle(fontSize: 16),
+              style: AppTextStyles.bodyMedium,
             ),
             const SizedBox(height: 10),
             // 라이프사이클 상태 표시 추가
@@ -39,12 +41,12 @@ class HomePage extends ConsumerWidget {
               ),
               child: Text(
                 '라이프사이클 상태: $lifecycleState',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: AppTextStyles.subTitle,
               ),
             ),
             Text(
               'API URL: ${AppConfig.apiBaseUrl}',
-              style: const TextStyle(fontSize: 16),
+              style: AppTextStyles.bodyExtraSmall,
             ),
             // 서비스 로케이터 테스트를 위한 버튼 추가
             const SizedBox(height: 20),
@@ -56,7 +58,7 @@ class HomePage extends ConsumerWidget {
                   const SnackBar(content: Text('의존성 주입 테스트 성공')),
                 );
               },
-              child: const Text('의존성 주입 테스트'),
+              child: const Text('의존성 주입 테스트', style: AppTextStyles.button),
             ),
           ],
         ),

@@ -4,7 +4,7 @@ import 'package:test0316_1/core/theme/app_text_styles.dart'; // 텍스트 스타
 import 'package:test0316_1/core/theme/app_colors.dart'; // 테마 import 추가
 import 'core/config/app_config.dart';
 
-import 'di/providers/lifecycle_provider.dart'; 
+import 'di/providers/lifecycle_provider.dart';
 
 import 'package:test0316_1/presentation/pages/home/home_page.dart'; // 홈페이지 경로 수정
 
@@ -29,11 +29,12 @@ class _AppState extends ConsumerState<App> {
       title: 'MMApp',
       debugShowCheckedModeBanner: AppConfig.isDevelopment(),
       theme: ThemeData(
-        primaryColor: AppColors.primary,
+        primaryColor: AppColors.background,
         scaffoldBackgroundColor: AppColors.background,
+        fontFamily: AppTextStyles.fontFamily,
         textTheme: TextTheme(
           bodyLarge: AppTextStyles.bodyLarge,
-          titleLarge: AppTextStyles.title1,
+          titleLarge: AppTextStyles.appBar,
         ),
         useMaterial3: true,
       ),

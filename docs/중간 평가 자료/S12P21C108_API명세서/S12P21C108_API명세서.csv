@@ -1,0 +1,46 @@
+﻿대분류,소분류,이름,설명,HTTP Method,요청경로,API CODE
+마이 데이터,계좌,보유 계좌 조회,사용자가 보유한 전체 계좌 목록 조회,GET,/api/account,MY-01
+마이 데이터,계좌,계좌 생성,계좌를 등록할 수 있습니다.,POST,/api/account,MY-02
+마이 데이터,계좌,거래 내역 조회,해당 계좌의 거래 내역을 조회합니다.,GET,/api/account/transaction,MY-03
+마이 데이터,계좌,"계좌송금 ",다른 계좌로 송금합니다.,POST,/api/account/transaction,MY-04
+마이 데이터,계좌,자동이체 조회,사용자의 자동이체 목록을 조회합니다.,GET,/api/account/auto-transaction,MY-05
+마이 데이터,계좌,자동이체 등록,자동이체를 등록합니다,POST,/api/account/auto-transaction,MY-06
+마이 데이터,계좌,자동이체 해지,자동이체를 해지합니다.,DELETE,/api/account/auto-transaction,MY-07
+마이 데이터,계좌,출금 계좌 조회,출금 계좌 목록을 조회합니다.,GET,/api/account/withdrawal,MY-09
+마이 데이터,계좌,출금 계좌 등록,출금 계좌를 등록합니다.,POST,/api/account/withdrawal,MY-08
+마이 데이터,계좌,출금 계좌 삭제,등록된 출금 계좌를 삭제합니다,DELETE,/api/account/withdrawal,MY-10
+마이 데이터,카드,카드 상품 조회,등록된 카드 상품의 목록을 조회합니다.,GET,/api/card,MY-11
+마이 데이터,카드,카드 상품 등록,가입할 수 있는 카드 상품을 등록합니다.,POST,/api/card,MY-12
+마이 데이터,카드,보유 카드 조회,사용자가 보유한 카드를 조회합니다.,GET,/api/card/user-card,MY-13
+마이 데이터,카드,카드 가입,사용자가 카드 상품을 가입합니다.,POST,/api/card/user-card,MY-14
+마이 데이터,카드,카드 내역 조회,해당 카드의 거래 내역을 조회합니다.,GET,/api/card/transaction,MY-15
+마이 데이터,카드,혜택 조회,전체 혜택을 조회합니다.,GET,/api/card/benefit,MY-16
+마이 데이터,인증,전자서명 생성,전자서명 생성을 요청합니다.,POST,/api/electron-signature,MY-17
+마이 데이터,대출,보유 대출 조회,,GET,,
+마이 데이터,대출,대출 정보 조회,,GET,,
+마이 데이터,대출,대출 계좌 조회,,GET,,
+마이 데이터,대출,대출 가입,,POST,,
+마이 데이터,대출,대출금 납입,,POST,,
+,,,,,,
+MM,회원,본인확인,본인확인 생성 모듈을 통해 인증을 신청합니다.,POST,/api/mm/auth/identity-verification,MM-01
+MM,회원,이메일 알림,이메일 알림 데이터를 수신합니다.,GET,/api/mm/auth/email-notifications,MM-02
+MM,회원,인증 상태 연결,SSE연결을 통해 실시간 인증 상태 업데이트를 제공합니다.,GET,/api/mm/auth/identity-verification/{verificationId},MM-03
+MM,회원,회원가입,회원가입을 신청합니다(본인확인 완료 후),POST,/api/mm/auth/sign-up,MM-04
+MM,회원,핀번호 로그인," ",POST,/api/auth/login/pin,MM-05
+,,,,,,
+MM,예산,전체 예산 조회,사용자의 총 예산을 조회합니다.,GET,/api/mm/budget/total/{userPk},MM-10
+MM,예산,총 예산 수정,사용자의 총 예산을 수정합니다.,POST,/api/mm/budget/total/{userPk},
+MM,예산,세부 예산 조회,한 예산의 카테고리별 금액을 조회,GET,/api/mm/budget/detail/{budgetPk},MM-11
+MM,예산,세부 예산 수정,세부 예산을 수정합니다.,PUT,/api/mm/budget/detail/{budgetCategoryPk},MM-12
+MM,가계부,가계부 전체 내역 조회,사용자의 가계부 내역을 조회합니다.,GET,/api/mm/household/{userPk},MM-13
+MM,가계부,가계부 상세 내역 추가,사용자의 가계부 내역을 생성합니다.,POST,/api/mm/household/{userPk},MM-14
+MM,가계부,가계부 상세 내역 조회,사용자의 가계부 상세내역을 조회합니다.,GET,/api/mm/household/{householdLedgerPk},MM-14
+MM,가계부,가계부 상세 내역 수정,사용자의 가계부 내역을 수정합니다.,PUT,/api/mm/household/{householdLedgerPk},MM-15
+MM,가계부,가계부 상세 내역 삭제,사용자의 가계부 내역을 삭제합니다.,DELETE,/api/mm/household/{householdLedgerPk},MM-16
+MM,위시리스트,위시리스트 생성,사용자의 위시리스트를 생성합니다.,POST,/api/mm/wishlist/{userPk},MM-17
+MM,위시리스트,위시리스트 조회,사용자의 위시리스트를 조회합니다.,GET,/api/mm/wishlist/{userPk},MM-18
+MM,위시리스트,위시리스트 상세 조회,사용자의 위시리스트 중 한 가지를 조회합니다.,GET,/api/mm/wishlist/{wishListPk},MM-19
+MM,위시리스트,위시리스트 수정,사용자의 위시리스트 중 한 가지를 수정합니다.,PUT,/api/mm/wishlist/{wishListPk},MM-20
+MM,위시리스트,위시리스트 삭제,사용자의 위시리스트를 삭제합니다.,DELETE,/api/mm/wishlist/{wishlistPk},MM-21
+,,,,,,
+,,,,,,

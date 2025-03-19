@@ -1,12 +1,14 @@
+import com.dabsquared.gitlabjenkins.trigger.filter.BranchFilterType
+
 pipeline {
     agent any
-    // GitLab Webhook 트리거 설정 추가
     triggers {
-        // push 이벤트가 발생하면 빌드를 시작합니다.
         gitlab(
             triggerOnPush: true, 
-            branchFilterType: 'NameRegex',
-            branchFilterValue: '^master$')
+            branchFilterType: BranchFilterType.NameRegex,
+            branchFilterName: '^master$', 
+            triggerOnMergeRequest: true
+        )
     }
     environment {
         // Docker Hub 사용자명과 이미지명 (실제 값으로 수정)

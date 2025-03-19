@@ -5,7 +5,7 @@ pipeline {
         // push 이벤트가 발생하면 빌드를 시작합니다.
         gitlab(
             triggerOnPush: true, 
-            branshFilterType: 'NameRegex',
+            branchFilterType: 'NameRegex',
             branchFilterValue: '^master$')
     }
     environment {

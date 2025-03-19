@@ -14,6 +14,20 @@ pipeline {
                 git branch: 'master', url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21C108.git', credentialsId: "${env.GITLAB_CREDENTIALS}"
             }
         }
+        stage('Prepare Application Config') {
+            steps {
+                // Jenkins Credentials에 'app-config'라는 ID로 Secret Text 자격증명을 등록한 후,
+                // 해당 자격증명의 내용으로 application.yml 파일을 생성
+                withCredentials([string(credentialsId: 'cert-config', variable: 'APP_CONFIG')]) {
+                    sh '''
+                        # 필요한 폴더가 없으면 생성
+                        mkdir -p gbh_cert/src/main/resources
+                        # 저장된 설정 값을 application.yml 파일로 작성
+                        echo "$APP_CONFIG" > gbh_cert/src/main/resources/application.yml
+                    '''
+                }
+            }
+        }
         stage('Build Spring Boot App') {
             steps {
                 dir('gbh_cert') {

@@ -1,5 +1,10 @@
 pipeline {
     agent any
+    // GitLab Webhook 트리거 설정 추가
+    triggers {
+        // push 이벤트가 발생하면 빌드를 시작합니다.
+        gitlab(triggerOnPush: true, triggerOnMergeRequest: false)
+    }
     environment {
         // Docker Hub 사용자명과 이미지명 (실제 값으로 수정)
         IMAGE_NAME = "yunjaeeun12/gbh-cert"
@@ -14,41 +19,54 @@ pipeline {
                 git branch: 'master', url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21C108.git', credentialsId: "${env.GITLAB_CREDENTIALS}"
             }
         }
+        stage('Prepare Application Config') {
+            steps {
+                // 'cert_config_file'이라는 ID로 파일 Credential을 등록해두었음을 전제로 함.
+                withCredentials([file(credentialsId: 'cert_config_file', variable: 'APP_CONFIG_FILE')]) {
+                    sh 'mkdir -p gbh_cert/src/main/resources'
+                    sh 'cp $APP_CONFIG_FILE gbh_cert/src/main/resources/application.yml'
+                }
+            }
+        }
         stage('Build Spring Boot App') {
             steps {
                 dir('gbh_cert') {
-                    // Gradle Wrapper를 사용하여 빌드 (테스트는 필요 시 옵션 수정)
+                    sh 'chmod +x gradlew'
                     sh './gradlew clean build -x test'
                 }
             }
         }
         stage('Build Docker Image') {
             steps {
-                dir('spring-boot-app') {
-                    // Dockerfile을 이용해 Docker 이미지를 생성, 빌드 번호를 태그로 활용
-                    sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                dir('gbh_cert') {
+                    withEnv(["PATH=/usr/local/bin:$PATH"]) {
+                        // Dockerfile은 gbh_cert 디렉토리 내에 있으므로 현재 디렉토리(.)를 빌드 컨텍스트로 사용
+                        sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                    }
                 }
             }
         }
         stage('Push Docker Image') {
             steps {
-                // Docker Hub Credentials를 사용해 로그인 후 이미지 push
                 withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS,
-                                                  passwordVariable: 'DOCKERHUB_PASS',
-                                                  usernameVariable: 'DOCKERHUB_USER')]) {
-                    sh "echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin"
-                    sh "docker push ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                                                    passwordVariable: 'DOCKERHUB_PASS',
+                                                    usernameVariable: 'DOCKERHUB_USER')]) {
+                    withEnv(["PATH=/usr/local/bin:$PATH"]) {
+                        sh """
+                            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                            docker push ${IMAGE_NAME}:${env.BUILD_NUMBER}
+                        """
+                    }
                 }
             }
         }
         stage('Deploy') {
             steps {
-                // Docker Hub에서 해당 이미지 pull
-                sh "docker pull ${IMAGE_NAME}:${env.BUILD_NUMBER}"
-                // 기존 실행 중인 컨테이너 정리 (있을 경우)
-                sh "docker stop spring-boot-app || true && docker rm spring-boot-app || true"
-                // 새 컨테이너 실행 (포트 8080 사용 예)
-                sh "docker run -d --name spring-boot-app -p 9000:9000 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                withEnv(["PATH=/usr/local/bin:$PATH"]) {
+                    sh "docker pull ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    sh "docker stop gbh_cert || true && docker rm gbh_cert || true"
+                    sh "docker run -d --name gbh_cert -p 9001:9001 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                }
             }
         }
     }

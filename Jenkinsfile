@@ -16,22 +16,19 @@ pipeline {
         }
         stage('Prepare Application Config') {
             steps {
-                // Jenkins Credentials에 'app-config'라는 ID로 Secret Text 자격증명을 등록한 후,
-                // 해당 자격증명의 내용으로 application.yml 파일을 생성
                 withCredentials([string(credentialsId: 'cert-config', variable: 'APP_CONFIG')]) {
-                    sh '''
-                        # 필요한 폴더가 없으면 생성
-                        mkdir -p gbh_cert/src/main/resources
-                        # 저장된 설정 값을 application.yml 파일로 작성
-                        echo "$APP_CONFIG" > gbh_cert/src/main/resources/application.yml
-                    '''
+                    script {
+                        // 필요한 폴더 생성
+                        sh 'mkdir -p gbh_cert/src/main/resources'
+                        // Jenkins Credential에 저장된 내용을 application.yml 파일로 작성
+                        writeFile file: 'gbh_cert/src/main/resources/application.yml', text: "${APP_CONFIG}"
+                    }
                 }
             }
         }
         stage('Build Spring Boot App') {
             steps {
                 dir('gbh_cert') {
-                    // Gradle Wrapper를 사용하여 빌드 (테스트는 필요 시 옵션 수정)
                     sh 'chmod +x gradlew'
                     sh './gradlew clean build -x test'
                 }
@@ -41,7 +38,6 @@ pipeline {
             steps {
                 dir('gbh_cert') {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                        // Dockerfile은 gbh_cert 디렉토리 내에 존재하므로 현재 디렉토리(.)를 빌드 컨텍스트로 사용
                         sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
                     }
                 }
@@ -64,11 +60,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                    // Docker Hub에서 해당 이미지 pull
                     sh "docker pull ${IMAGE_NAME}:${env.BUILD_NUMBER}"
-                    // 기존 실행 중인 컨테이너 정리 (있을 경우)
                     sh "docker stop gbh_cert || true && docker rm gbh_cert || true"
-                    // 새 컨테이너 실행 (포트 9000 사용 예)
                     sh "docker run -d --name gbh_cert -p 9000:9000 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                 }
             }

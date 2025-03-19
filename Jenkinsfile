@@ -35,15 +35,14 @@ pipeline {
         }
         stage('Push Docker Image') {
             steps {
-                // Docker Hub Credentials를 사용해 로그인 후 이미지 push
                 withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS,
-                                                  passwordVariable: 'DOCKERHUB_PASS',
-                                                  usernameVariable: 'DOCKERHUB_USER')]) {
+                                                    passwordVariable: 'DOCKERHUB_PASS',
+                                                    usernameVariable: 'DOCKERHUB_USER')]) {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                        sh '''
+                        sh """
                             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
                             docker push ${IMAGE_NAME}:${env.BUILD_NUMBER}
-                        '''
+                        """
                     }
                 }
             }

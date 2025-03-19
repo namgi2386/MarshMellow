@@ -16,13 +16,10 @@ pipeline {
         }
         stage('Prepare Application Config') {
             steps {
-                withCredentials([string(credentialsId: 'cert-config', variable: 'APP_CONFIG')]) {
-                    script {
-                        // 필요한 폴더 생성
-                        sh 'mkdir -p gbh_cert/src/main/resources'
-                        // Jenkins Credential에 저장된 내용을 application.yml 파일로 작성
-                        writeFile file: 'gbh_cert/src/main/resources/application.yml', text: "${APP_CONFIG}"
-                    }
+                // 'cert-config'라는 ID로 파일 Credential을 등록해두었음을 전제로 함.
+                withCredentials([file(credentialsId: 'cert_config_file', variable: 'APP_CONFIG_FILE')]) {
+                    sh 'mkdir -p gbh_cert/src/main/resources'
+                    sh 'cp $APP_CONFIG_FILE gbh_cert/src/main/resources/application.yml'
                 }
             }
         }

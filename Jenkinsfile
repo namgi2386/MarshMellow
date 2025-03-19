@@ -3,7 +3,10 @@ pipeline {
     // GitLab Webhook 트리거 설정 추가
     triggers {
         // push 이벤트가 발생하면 빌드를 시작합니다.
-        gitlab(triggerOnPush: true, triggerOnMergeRequest: false)
+        gitlab(
+            triggerOnPush: true, 
+            branshFilterType: 'NameRegex',
+            branchFilterValue: '^master$')
     }
     environment {
         // Docker Hub 사용자명과 이미지명 (실제 값으로 수정)

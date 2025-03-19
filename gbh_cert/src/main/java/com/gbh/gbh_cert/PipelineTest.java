@@ -10,6 +10,6 @@ public class PipelineTest {
 
     @GetMapping
     public String test() {
-        return "is WebHook Running? test123123123";
+        return "is WebHook Running?";
     }
 }

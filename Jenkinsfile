@@ -59,7 +59,7 @@ pipeline {
                 withEnv(["PATH=/usr/local/bin:$PATH"]) {
                     sh "docker pull ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                     sh "docker stop gbh_cert || true && docker rm gbh_cert || true"
-                    sh "docker run -d --name gbh_cert -p 9000:9000 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    sh "docker run -d --name gbh_cert -p 9001:9001 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                 }
             }
         }

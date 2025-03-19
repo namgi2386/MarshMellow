@@ -1,28 +1,29 @@
-import com.dabsquared.gitlabjenkins.trigger.filter.BranchFilterType
-
 pipeline {
     agent any
-    triggers {
-        gitlab(
-            triggerOnPush: true,
-            branchFilterType: BranchFilterType.NameExact,
-            branchFilterName: 'master',
-            triggerOnMergeRequest: false
-        )
-    }
+    
+    // GitLab Webhook 관련 트리거는 제거하고,
+    // Jenkins는 GitLab에서 오는 push 이벤트를 그대로 받아 빌드만 수행
+    
     environment {
+        // Docker Hub 사용자명과 이미지명 (실제 값으로 수정)
         IMAGE_NAME = "yunjaeeun12/gbh-cert"
+        // Docker Hub와 GitLab의 Jenkins Credentials ID
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id'
         GITLAB_CREDENTIALS = 'gitlab-credentials-id'
     }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21C108.git', credentialsId: "${env.GITLAB_CREDENTIALS}"
+                // GitLab 레포지토리에서 소스코드 체크아웃 (인증 필요)
+                // master 브랜치만 Webhook이 온다고 가정하므로, 여기서는 master로 체크아웃
+                git branch: 'master',
+                    url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21C108.git',
+                    credentialsId: "${env.GITLAB_CREDENTIALS}"
             }
         }
         stage('Prepare Application Config') {
             steps {
+                // 'cert_config_file'이라는 ID로 파일 Credential을 등록해두었음을 전제로 함.
                 withCredentials([file(credentialsId: 'cert_config_file', variable: 'APP_CONFIG_FILE')]) {
                     sh 'mkdir -p gbh_cert/src/main/resources'
                     sh 'cp $APP_CONFIG_FILE gbh_cert/src/main/resources/application.yml'
@@ -41,6 +42,7 @@ pipeline {
             steps {
                 dir('gbh_cert') {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
+                        // Dockerfile은 gbh_cert 디렉토리 내에 있으므로 현재 디렉토리(.)를 빌드 컨텍스트로 사용
                         sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
                     }
                 }
@@ -48,9 +50,13 @@ pipeline {
         }
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS,
-                                                    passwordVariable: 'DOCKERHUB_PASS',
-                                                    usernameVariable: 'DOCKERHUB_USER')]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: env.DOCKERHUB_CREDENTIALS,
+                        passwordVariable: 'DOCKERHUB_PASS',
+                        usernameVariable: 'DOCKERHUB_USER'
+                    )
+                ]) {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
                         sh """
                             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin

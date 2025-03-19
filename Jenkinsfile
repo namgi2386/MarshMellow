@@ -18,6 +18,7 @@ pipeline {
             steps {
                 dir('gbh_cert') {
                     // Gradle Wrapper를 사용하여 빌드 (테스트는 필요 시 옵션 수정)
+                    sh 'chmod +x gradlew'
                     sh './gradlew clean build -x test'
                 }
             }

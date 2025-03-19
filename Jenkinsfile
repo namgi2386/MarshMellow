@@ -26,8 +26,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('spring-boot-app') {
-                    // Dockerfile을 이용해 Docker 이미지를 생성, 빌드 번호를 태그로 활용
-                    sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                    withEnv(["PATH=/usr/local/bin:$PATH"]) {
+                        // Dockerfile을 이용해 Docker 이미지를 생성, 빌드 번호를 태그로 활용
+                        sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                    }
                 }
             }
         }

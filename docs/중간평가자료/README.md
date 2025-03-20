@@ -12,7 +12,6 @@
     - [회원](#회원)
   - [ERD](#erd)
     - [회원](#회원-1)
-    - [금융](#금융-1)
     - [MM](#mm-2)
   - [플로우차트](#플로우차트)
     - [MM 시작](#mm-시작)
@@ -22,7 +21,7 @@
   - [아키텍처](#아키텍처)
 
 ## 기획서
-PDF 파일 참고 
+PDF 파일 참고 부탁드립니다.
 
 ## 요구사항 명세서
 ![요구사항 명세서](./readmeimage/REQUIRE_STATEMENT.gif)
@@ -38,9 +37,6 @@ PDF 파일 참고
 ## ERD
 ### 회원
 ![회원 ERD](./readmeimage/CERT_ERD.png)
-
-### 금융
-![금융 ERD](./readmeimage/FINANCE_ERD.png)
 
 ### MM
 ![MM ERD](./readmeimage/MM_ERD.png)

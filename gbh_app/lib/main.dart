@@ -1,8 +1,16 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:marshmellow/presentation/widgets/bottom_navbar.dart';
+import 'package:marshmellow/presentation/pages/ledger/ledger_page.dart';
+import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
+import 'package:marshmellow/presentation/pages/budget/budget_page.dart';
+import 'package:marshmellow/presentation/pages/cookie/cookie_page.dart';
+import 'package:marshmellow/presentation/pages/my/my_page.dart';
+
 
 // 환경설정 import
 import 'core/config/environment_loader.dart';
@@ -50,4 +58,80 @@ Future<void> main() async {
       child: const App(),
     ),
   );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: '네브바',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity
+      ),
+      home: const MainNavigator(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+// 하단 네브바 관리 위젯
+class MainNavigator extends StatefulWidget {
+  const MainNavigator({Key? key}) : super(key: key);
+
+  @override
+  _MainNavigatorState createState() => _MainNavigatorState();
+}
+
+class _MainNavigatorState extends State<MainNavigator> {
+  int _selectedIndex = 0;
+
+  // 아이콘 경로
+  final List<String> _iconPaths = const [
+    'assets/icons/nav/ledger_bk.svg',
+    'assets/icons/nav/finance_bk.svg',
+    'assets/icons/nav/budget_bk.svg',
+    'assets/icons/nav/cookie_bk.svg',
+    'assets/icons/nav/user_bk.svg',
+  ];
+
+  // 탭 이름
+  final List<String> _labels = const [
+    '가계',
+    '자산',
+    '예산',
+    '쿠키',
+    '마이',
+  ];
+
+  // 각 탭 페이지들
+  final List<Widget> _pages = const [
+    LedgerPage(),
+    FinancePage(),
+    BudgetPage(),
+    CookiePage(),
+    MyPage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: CustomBottomNavBar(
+        selectedIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        iconPaths: _iconPaths,
+        labels: _labels,
+      ),
+    );
+  }
+
 }

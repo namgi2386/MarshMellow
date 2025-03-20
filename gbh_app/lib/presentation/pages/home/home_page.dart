@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test0316_1/core/config/app_config.dart';
-import 'package:test0316_1/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
-import 'package:test0316_1/core/theme/app_text_styles.dart';
+import 'package:marshmellow/core/config/app_config.dart';
+import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});

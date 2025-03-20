@@ -4,8 +4,8 @@ import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 
-class HomePage extends ConsumerWidget {
-  const HomePage({super.key});
+class MyPage extends ConsumerWidget {
+  const MyPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -13,7 +13,7 @@ class HomePage extends ConsumerWidget {
     final lifecycleState = ref.watch(lifecycleStateProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('위시리스트'),
+        title: const Text('마이마이!'),
         titleTextStyle: AppTextStyles.appBar,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),

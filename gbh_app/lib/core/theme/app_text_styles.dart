@@ -177,6 +177,17 @@ class AppTextStyles {
 /*
 import 'package:test0316_1/core/theme/app_text_styles.dart';
 
+// 커스텀 하는 경우 CopyWith 사용
+child: Text(
+                widget.errorText!,
+                style: AppTextStyles.bodySmall.copyWith(
+                  fontWeight: FontWeight.w300,
+                  color: AppColors.warnning,
+                  
+                ),
+              ),
+
+
 // 앱바에 적용
 AppBar(
   title: Text('앱 제목', style: AppTextStyles.appBar),

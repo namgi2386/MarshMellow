@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/widgets/modal.dart';
-
-typedef ItemBuilder<T> = Widget Function(
-    BuildContext context, T item, bool isSelected);
+import 'package:marshmellow/core/widgets/select_input_logic.dart';
 
 class SelectInput<T> extends StatefulWidget {
   final String label;
@@ -15,6 +13,9 @@ class SelectInput<T> extends StatefulWidget {
   final List<T> items;
   final ItemBuilder<T> itemBuilder;
   final String Function(T)? displayStringForItem;
+  final bool showDividers;
+  final String? modalTitle;
+  final bool showTitleDivider;
 
   const SelectInput({
     super.key,
@@ -26,6 +27,9 @@ class SelectInput<T> extends StatefulWidget {
     this.readOnly = true,
     this.width,
     this.displayStringForItem,
+    this.showDividers = true,
+    this.modalTitle,
+    this.showTitleDivider = false,
   });
 
   @override
@@ -33,24 +37,21 @@ class SelectInput<T> extends StatefulWidget {
 }
 
 class _SelectInputState<T> extends State<SelectInput<T>> {
-  bool _isFocused = false;
-  T? _selectedItem;
-  final FocusNode _focusNode = FocusNode(); 
+  late final SelectInputController<T> _controller;
 
   @override
   void initState() {
     super.initState();
-
-    _focusNode.addListener(() {
-      setState(() {
-        _isFocused = _focusNode.hasFocus;
-      });
-    });
+    _controller = SelectInputController<T>(
+      textController: widget.controller,
+      onItemSelected: widget.onItemSelected,
+      displayStringForItem: widget.displayStringForItem,
+    );
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -62,40 +63,43 @@ class _SelectInputState<T> extends State<SelectInput<T>> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _controller.clearFocus();
+        });
         return Modal(
           backgroundColor: AppColors.whiteLight,
+          title: widget.modalTitle,
+          showDivider: widget.showTitleDivider,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
-                child: ListView.builder(
+                child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: widget.items.length,
+                  separatorBuilder: (context, index) {
+                    return widget.showDividers
+                        ? Divider(
+                            height: 1,
+                            thickness: 0.5,
+                            color: AppColors.textSecondary.withOpacity(0.3),
+                          )
+                        : SizedBox.shrink();
+                  },
                   itemBuilder: (context, index) {
                     final item = widget.items[index];
-                    final isSelected = _selectedItem == item;
+                    final isSelected = _controller.selectedItem == item;
 
                     return InkWell(
                       onTap: () {
-                        setState(() {
-                          _selectedItem = item;
-                          if (widget.displayStringForItem != null) {
-                            widget.controller.text =
-                                widget.displayStringForItem!(item);
-                          } else {
-                            widget.controller.text = item.toString();
-                          }
-                        });
-
-                        if (widget.onItemSelected != null) {
-                          widget.onItemSelected!(item);
-                        }
-
+                        _controller.selectItem(item);
+                        _controller.clearFocus();
                         Navigator.pop(context);
                       },
                       child: Container(
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 15),
                         child: Text(
                           widget.displayStringForItem != null
                               ? widget.displayStringForItem!(item)
@@ -119,10 +123,6 @@ class _SelectInputState<T> extends State<SelectInput<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final Color borderColor =
-        _isFocused ? AppColors.textPrimary : AppColors.textSecondary;
-    final Color textColor =
-        _isFocused ? AppColors.textPrimary : AppColors.textSecondary;
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Center(
@@ -131,7 +131,7 @@ class _SelectInputState<T> extends State<SelectInput<T>> {
         children: [
           GestureDetector(
             onTap: () {
-              FocusScope.of(context).requestFocus(_focusNode);
+              FocusScope.of(context).requestFocus(_controller.focusNode);
               _showBottomSheet();
             },
             child: Container(
@@ -139,25 +139,30 @@ class _SelectInputState<T> extends State<SelectInput<T>> {
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 15),
               decoration: BoxDecoration(
-                border: Border.all(color: borderColor),
+                border: Border.all(
+                    color: _controller.isFocused
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary),
                 borderRadius: BorderRadius.circular(5),
                 color: AppColors.whiteLight,
               ),
               child: Stack(
                 children: [
                   TextField(
-                    focusNode: _focusNode,
+                    focusNode: _controller.focusNode,
                     controller: widget.controller,
                     readOnly: true,
                     onTap: _showBottomSheet,
-                    cursorColor: textColor,
+                    cursorColor: _controller.isFocused
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
                     decoration: InputDecoration(
                       labelText: widget.label,
                       labelStyle: AppTextStyles.bodySmall.copyWith(
-                        color: textColor,
+                        color: _controller.isFocused
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary,
                       ),
-                      // 텍스트 필드 위젯이 container 안에 있기 때문에 기존에 정의된 테두리 없애기
-                      // 자체적으로 정의한 테두리를 사용하기 위함함
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -169,7 +174,9 @@ class _SelectInputState<T> extends State<SelectInput<T>> {
                       ),
                     ),
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: textColor,
+                      color: _controller.isFocused
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
                     ),
                   ),
                   Positioned(
@@ -188,7 +195,6 @@ class _SelectInputState<T> extends State<SelectInput<T>> {
   }
 }
 
-
 // ===================== 사용 예시 =====================
 /*
 // SelectInput 위젯 사용 예시
@@ -205,63 +211,18 @@ SelectInput<String>(
   onItemSelected: (value) {
     print("선택된 국가: $value");
   },
-),
+), SelectInput<String>(
+   label: "국가 선택",
+   modalTitle: "국가 선택",
+   controller: _countryController,
+   items: ["미국", "캐나다", "영국", "호주", "일본", "한국"],
+   itemBuilder: (context, item, isSelected) =>
+      ListTile(title: Text(item)),
+   onItemSelected: (value) {
+      print("선택된 국가: $value");
+      },
+       ),
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-// 1. 기본 사용법 (문자열 리스트)
-final TextEditingController _countryController = TextEditingController();
-
-SelectInput<String>(
-  label: '국가 선택',
-  controller: _countryController,
-  items: ['미국', '캐나다', '영국', '호주', '일본', '한국'],
-  itemBuilder: (context, item, isSelected) => ListTile(
-    title: Text(item),
-    trailing: isSelected ? Icon(Icons.check, color: Colors.green) : null,
-  ),
-  onItemSelected: (value) {
-    print('선택된 국가: $value');
-  },
-)
-
-// 2. 객체 리스트 사용
-class Country {
-  final String code;
-  final String name;
-  
-  Country(this.code, this.name);
-  
-  @override
-  String toString() => name;
-}
-
-final List<Country> countries = [
-  Country('US', '미국'),
-  Country('CA', '캐나다'),
-  Country('UK', '영국'),
-  Country('AU', '호주'),
-  Country('JP', '일본'),
-  Country('KR', '한국'),
-];
-
-final TextEditingController _countryObjectController = TextEditingController();
-
-SelectInput<Country>(
-  label: '국가 선택',
-  controller: _countryObjectController,
-  items: countries,
-  itemBuilder: (context, country, isSelected) => ListTile(
-    title: Text(country.name),
-    subtitle: Text(country.code),
-    trailing: isSelected ? Icon(Icons.check, color: Colors.green) : null,
-  ),
-  displayStringForItem: (country) => country.name, // 표시될 텍스트 지정
-  onItemSelected: (selectedCountry) {
-    print('선택된 국가 코드: ${selectedCountry.code}');
-    print('선택된 국가 이름: ${selectedCountry.name}');
-  },
-)
 
 */

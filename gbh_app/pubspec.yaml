@@ -75,6 +75,7 @@ dependencies:
   syncfusion_flutter_datepicker: ^28.2.11
   # UI
   flutter_svg: ^2.0.7  # SVG 이미지 렌더링
+  convex_bottom_bar: ^3.2.0  # 컨벡스 디자인 하단 탭바
 
 dev_dependencies:
   flutter_test:

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart'; // 텍스트 스타일 import 추가
 import 'package:marshmellow/core/theme/app_colors.dart'; // 테마 import 추가
 import 'package:marshmellow/main.dart';
-import 'package:marshmellow/presentation/widgets/bottom_navbar_logic.dart';
+import 'package:marshmellow/presentation/widgets/bottom_navbar/bottom_navbar_logic.dart';
 import 'core/config/app_config.dart';
 
 import 'di/providers/lifecycle_provider.dart';

@@ -11,9 +11,17 @@ import com.gbh.gbh_mm.asset.model.dto.DemandDepositListDto;
 import com.gbh.gbh_mm.asset.model.dto.DepositListDto;
 import com.gbh.gbh_mm.asset.model.dto.LoanListDto;
 import com.gbh.gbh_mm.asset.model.dto.SavingsListDto;
+import com.gbh.gbh_mm.asset.model.entity.Card;
+import com.gbh.gbh_mm.asset.model.entity.DemandDeposit;
+import com.gbh.gbh_mm.asset.model.entity.Deposit;
+import com.gbh.gbh_mm.asset.model.entity.Loan;
+import com.gbh.gbh_mm.asset.model.entity.Savings;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindAssetList;
+import com.gbh.gbh_mm.finance.card.vo.request.RequestFindBilling;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindUserCardList;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +51,7 @@ public class AssetServiceImpl implements AssetService {
         ResponseFindAssetList response = new ResponseFindAssetList();
 
         try {
+            /* 목록 조회 API 호출 */
             Map<String, Object> responseCardData =
                 cardAPI.findUserCardList(request.getUserKey());
             Map<String, Object> responseDepositDemandData =
@@ -65,8 +74,6 @@ public class AssetServiceImpl implements AssetService {
             Map<String, Object> depositApiData =
                 (Map<String, Object>) responseDepositData.get("apiResponse");
 
-            System.out.println(depositApiData);
-
             List<Map<String, Object>> responseCardList =
                 (List<Map<String, Object>>) cardApiData.get("REC");
             List<Map<String, Object>> responseDemandDepositList =
@@ -82,28 +89,111 @@ public class AssetServiceImpl implements AssetService {
             List<Map<String, Object>> deposits =
                 (List<Map<String, Object>>) responseDepositList.get("list");
 
-            List<CardListDto> cardListDtos = responseCardList.stream()
-                .map(cardMap -> mapper.map(cardMap, CardListDto.class))
-                .collect(Collectors.toList());
-            List<DemandDepositListDto> demandDepositListDtos = responseDemandDepositList.stream()
-                .map(demandDepositMap ->
-                    mapper.map(demandDepositMap, DemandDepositListDto.class))
-                .collect(Collectors.toList());
-            List<LoanListDto> loanListDtos = responseLoanList.stream()
-                .map(loanMap -> mapper.map(loanMap, LoanListDto.class))
-                .collect(Collectors.toList());
-            List<SavingsListDto> savingsListDtos = savings.stream()
-                .map(savingsMap -> mapper.map(savingsMap, SavingsListDto.class))
-                .collect(Collectors.toList());
-            List<DepositListDto> depositListDtos = deposits.stream()
-                .map(depositMap -> mapper.map(depositMap, DepositListDto.class))
+            List<Card> cardList = responseCardList.stream()
+                .map(cardMap -> mapper.map(cardMap, Card.class))
                 .collect(Collectors.toList());
 
-            response.setCardList(cardListDtos);
-            response.setDemandDepositList(demandDepositListDtos);
-            response.setLoanList(loanListDtos);
-            response.setSavingsList(savingsListDtos);
-            response.setDepositList(depositListDtos);
+            YearMonth current = YearMonth.now();
+            YearMonth lastMonth = current.minusMonths(1);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+            String currentString = current.format(formatter);
+            String lastMonthString = lastMonth.format(formatter);
+
+            long cardAmount = 0;
+            for (int i = 0; i < cardList.size(); i++) {
+                RequestFindBilling requestFindBilling = RequestFindBilling.builder()
+                    .cvc(cardList.get(i).getCvc())
+                    .cardNo(cardList.get(i).getCardNo())
+                    .startMonth(lastMonthString)
+                    .endMonth(currentString)
+                    .userKey(request.getUserKey())
+                    .build();
+                Map<String, Object> cardBillApi = cardAPI.findBilling(requestFindBilling);
+                Map<String, Object> cardBillData =
+                    (Map<String, Object>) cardBillApi.get("apiResponse");
+                List<Map<String, Object>> recList =
+                    (List<Map<String, Object>>) cardBillData.get("REC");
+
+                if (recList.size() > 0) {
+                    Map<String, Object> bill = recList.get(0);
+                    List<Map<String, Object>> billingList =
+                        (List<Map<String, Object>>) bill.get("billingList");
+                    Map<String, Object> billing = billingList.get(0);
+                    long totalAmount = (long) billing.get("totalBalance");
+
+                    cardAmount += totalAmount;
+                    cardList.get(i).setCardBalance(totalAmount);
+                }
+            }
+
+            CardListDto responseCard = CardListDto.builder()
+                .totalAmount(cardAmount)
+                .cardList(cardList)
+                .build();
+
+            /* 데이터 매핑(직렬화) */
+            List<DemandDeposit> demandDepositList = responseDemandDepositList.stream()
+                .map(demandDepositMap ->
+                    mapper.map(demandDepositMap, DemandDeposit.class))
+                .collect(Collectors.toList());
+
+            /* 총 금액 계산 */
+            long demandDepositTotal = demandDepositList.stream()
+                .mapToLong(DemandDeposit::getAccountBalance)
+                .sum();
+            DemandDepositListDto responseDemandDeposit = DemandDepositListDto.builder()
+                .demandDepositList(demandDepositList)
+                .totalAmount(demandDepositTotal)
+                .build();
+
+            /* 데이터 매핑(직렬화) */
+            List<Loan> loanList = responseLoanList.stream()
+                .map(loanMap -> mapper.map(loanMap, Loan.class))
+                .collect(Collectors.toList());
+
+            /* 총 금액 계산 */
+            long loanTotalAmount = loanList.stream()
+                .mapToLong(Loan::getLoanBalance)
+                .sum();
+            LoanListDto responseLoan = LoanListDto.builder()
+                .totalAmount(loanTotalAmount)
+                .loanList(loanList)
+                .build();
+
+            /* 데이터 매핑(직렬화) */
+            List<Savings> savingsList = savings.stream()
+                .map(savingsMap -> mapper.map(savingsMap, Savings.class))
+                .collect(Collectors.toList());
+
+            /* 총 금액 계산 */
+            long savingTotalAmount = savingsList.stream()
+                .mapToLong(Savings::getTotalBalance)
+                .sum();
+            SavingsListDto responseSavings = SavingsListDto.builder()
+                .totalAmount(savingTotalAmount)
+                .savingsList(savingsList)
+                .build();
+
+            /* 데이터 직렬화 */
+            List<Deposit> depositList = deposits.stream()
+                .map(depositMap -> mapper.map(depositMap, Deposit.class))
+                .collect(Collectors.toList());
+
+            /* 총 금액 계산 */
+            long depositTotalAmount = depositList.stream()
+                .mapToLong(Deposit::getDepositBalance)
+                .sum();
+            DepositListDto responseDeposit = DepositListDto.builder()
+                .totalAmount(depositTotalAmount)
+                .depositList(depositList)
+                .build();
+
+            response.setCardData(responseCard);
+            response.setDemandDepositData(responseDemandDeposit);
+            response.setLoanData(responseLoan);
+            response.setSavingsData(responseSavings);
+            response.setDepositData(responseDeposit);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

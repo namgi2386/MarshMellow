@@ -1,12 +1,13 @@
 package com.gbh.gbh_mm.asset.model.dto;
 
+import com.gbh.gbh_mm.asset.model.entity.Card;
+import java.util.List;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class CardListDto {
-    private String cardNo;
-    private String cvc;
-    private String cardIssuerCode;
-    private String cardIssuerName;
-    private String cardName;
+    private long totalAmount;
+    private List<Card> cardList;
 }

@@ -24,4 +24,8 @@ public class AssetController {
 
         return ResponseEntity.ok(response);
     }
+
+    /* 계좌 내역 조회 */
+
+    /* 카드 내역 조회 */
 }

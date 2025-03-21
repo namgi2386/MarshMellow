@@ -10,9 +10,9 @@ import lombok.Data;
 
 @Data
 public class ResponseFindAssetList {
-    List<CardListDto> cardList;
-    List<DemandDepositListDto> demandDepositList;
-    List<LoanListDto> loanList;
-    List<SavingsListDto> savingsList;
-    List<DepositListDto> depositList;
+    private CardListDto cardData;
+    private DemandDepositListDto demandDepositData;
+    private LoanListDto loanData;
+    private SavingsListDto savingsData;
+    private DepositListDto depositData;
 }

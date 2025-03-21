@@ -5,7 +5,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 
 /*
-  하단 네비게이션바 UI
+  하단 네비게이션바 UI - 텍스트 크기만 조절한 버전
 */
 class CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;
@@ -28,23 +28,32 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConvexAppBar(
-      style: TabStyle.reactCircle,
-      // 네브바 배경색 지정
-      backgroundColor: AppColors.backgroundBlack, 
-      // 선택탭 튀어나온 부분 색상 지정
-      gradient: LinearGradient( 
-        colors: [AppColors.backgroundBlack, AppColors.backgroundBlack],
-      ),
-      // 그림자 제거
-      shadowColor: Colors.transparent,
-      activeColor: AppColors.whiteLight,
-      height: 50,
-      top: -20,
-      items: _buildTabItems(),
-      initialActiveIndex: selectedIndex,
-      onTap: onTap,
-      curve: Curves.easeInOut,
+    return Builder(
+      builder: (context) {
+        final appBar = ConvexAppBar(
+          style: TabStyle.reactCircle,
+          backgroundColor: AppColors.backgroundBlack,
+          gradient: LinearGradient(
+            colors: [AppColors.backgroundBlack, AppColors.backgroundBlack],
+          ),
+          shadowColor: Colors.transparent,
+          activeColor: AppColors.whiteLight,
+          color: AppColors.whiteLight,
+          height: 55,
+          top: -20,
+          items: _buildTabItems(),
+          initialActiveIndex: selectedIndex,
+          onTap: onTap,
+          curve: Curves.easeInOut,
+        );
+        
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(0.65),
+          ), 
+          child: appBar,
+        );
+      },
     );
   }
 
@@ -57,14 +66,10 @@ class CustomBottomNavBar extends StatelessWidget {
           height: 24,
           child: SvgPicture.asset(
             selectedIndex == index ? iconPaths[index] : getWhiteIconPath(iconPaths[index]),
-            // 아이콘 크기 조정 
             fit: BoxFit.scaleDown,
           ),
         ),
-        title:labels[index],
-        textStyle: AppTextStyles.bodyExtraSmall.copyWith(
-          color: AppColors.whiteLight,
-        ),
+        title: labels[index],
       ),
     );
   }

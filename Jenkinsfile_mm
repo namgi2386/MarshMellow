@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        JAVA_HOME = '/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home'
+        JAVA_HOME = '/usr/lib/jvm/temurin-21-jdk-amd64'
         IMAGE_NAME = "yunjaeeun12/gbh-mm"
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id'
         GITLAB_CREDENTIALS = 'git_lab'

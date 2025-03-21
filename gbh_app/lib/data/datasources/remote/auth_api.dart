@@ -1,7 +1,7 @@
 // data/datasources/remote/auth_api.dart
 import 'package:dio/dio.dart';
-import 'package:test0316_1/core/constants/api_constants.dart';
-import 'package:test0316_1/core/config/app_config.dart';
+import 'package:marshmellow/core/constants/api_constants.dart';
+import 'package:marshmellow/core/config/app_config.dart';
 
 class AuthApi {
   final Dio _dio;

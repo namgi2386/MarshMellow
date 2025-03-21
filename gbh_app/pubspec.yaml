@@ -1,4 +1,4 @@
-name: test0316_1
+name: marshmellow
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -71,6 +71,9 @@ dependencies:
   # 코드 생성 관련
   build_runner: ^2.3.0  # 최신 버전보다 약간 낮은 버전  # 코드 생성 실행 도구 (개발 의존성)
 
+  # UI
+  flutter_svg: ^2.0.7  # SVG 이미지 렌더링
+
 
 dev_dependencies:
   flutter_test:
@@ -98,6 +101,15 @@ flutter:
   assets:
     - .env.dev
     - .env.prod
+    - assets/
+    - assets/fonts/
+    - assets/images/
+    - assets/images/mm/
+    - assets/icons/
+    - assets/icons/nav/
+    - assets/icons/bank/
+    - assets/icons/expense/
+    - assets/icons/income/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

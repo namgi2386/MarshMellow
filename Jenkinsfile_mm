@@ -19,6 +19,8 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'mm_config_file', variable: 'APP_CONFIG_FILE')]) {
                     sh 'mkdir -p gbh_mm/src/main/resources'
+                    // 권한 부여: 디렉토리에 쓰기 권한을 모두에게 부여 (필요에 따라 적절한 권한으로 변경)
+                    sh 'chmod -R 777 gbh_mm/src/main/resources'
                     sh 'cp $APP_CONFIG_FILE gbh_mm/src/main/resources/application.yml'
                 }
             }

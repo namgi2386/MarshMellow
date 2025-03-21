@@ -75,6 +75,8 @@ dependencies:
   syncfusion_flutter_datepicker: ^28.2.11
   # UI
   flutter_svg: ^2.0.7  # SVG 이미지 렌더링
+  #router
+  go_router: ^14.8.1
 
 dev_dependencies:
   flutter_test:

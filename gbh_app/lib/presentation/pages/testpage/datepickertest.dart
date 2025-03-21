@@ -1,6 +1,7 @@
 // lib/presentation/pages/test/datepickertest.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/widgets/datepicker/date_picker_button.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -67,7 +68,7 @@ class Datepickertest extends ConsumerWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  context.pop();
                 },
                 child: const Text('홈으로 돌아가기'),
               ),

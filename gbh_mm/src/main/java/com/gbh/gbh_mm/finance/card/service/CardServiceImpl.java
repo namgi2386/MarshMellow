@@ -57,7 +57,7 @@ public class CardServiceImpl implements CardService {
     @Override
     public Map<String, Object> findUserCardList(RequestFindUserCardList request)
         throws JsonProcessingException {
-        return cardAPI.findUserCardList(request);
+        return cardAPI.findUserCardList(request.getUserKey());
     }
 
     @Override

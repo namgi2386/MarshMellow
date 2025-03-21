@@ -39,7 +39,7 @@ public class SavingsServiceImpl implements SavingsService {
     @Override
     public Map<String, Object> findAccountList(RequestFindSavingsAccountList request)
         throws JsonProcessingException {
-        return savingsAPI.findAccountList(request);
+        return savingsAPI.findAccountList(request.getUserKey());
     }
 
     @Override

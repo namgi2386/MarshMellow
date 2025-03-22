@@ -5,7 +5,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 
 /*
-  하단 네비게이션바 UI - 텍스트 크기만 조절한 버전
+  하단 네비게이션바 UI
 */
 class CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;
@@ -46,10 +46,10 @@ class CustomBottomNavBar extends StatelessWidget {
           onTap: onTap,
           curve: Curves.easeInOut,
         );
-        
+
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(0.65),
+            textScaler: TextScaler.linear(0.6),
           ), 
           child: appBar,
         );

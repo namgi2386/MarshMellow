@@ -17,7 +17,9 @@ import com.gbh.gbh_mm.asset.model.entity.Deposit;
 import com.gbh.gbh_mm.asset.model.entity.Loan;
 import com.gbh.gbh_mm.asset.model.entity.Savings;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindDepositDemandTransactionList;
 import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindAssetList;
+import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindDepositDemandTransactionList;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindBilling;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindUserCardList;
 import java.time.YearMonth;
@@ -27,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -194,6 +198,22 @@ public class AssetServiceImpl implements AssetService {
             response.setLoanData(responseLoan);
             response.setSavingsData(responseSavings);
             response.setDepositData(responseDeposit);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return response;
+    }
+
+    @Override
+    public ResponseFindDepositDemandTransactionList findDepositDemandTransactionList(RequestFindTransactionList request) {
+        ResponseFindDepositDemandTransactionList response = new ResponseFindDepositDemandTransactionList();
+        try {
+            Map<String, Object> apiData = demandDepositAPI.findTransactionList(request);
+            Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
+            Map<String, Object> transactionData = (Map<String, Object>) responseData.get("REC");
+            List<Map<String, Object>> transactionList = (List<Map<String, Object>>) transactionData.get("list");
+            response.setTransactionList(transactionList);
+
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

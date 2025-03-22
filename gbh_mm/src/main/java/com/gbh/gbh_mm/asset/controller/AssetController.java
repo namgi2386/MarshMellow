@@ -1,8 +1,10 @@
 package com.gbh.gbh_mm.asset.controller;
 
+import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindDepositDemandTransactionList;
 import com.gbh.gbh_mm.asset.service.AssetService;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindAssetList;
+import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +27,21 @@ public class AssetController {
         return ResponseEntity.ok(response);
     }
 
-    /* 계좌 내역 조회 */
+    /* 입출금 계좌 내역 조회 */
+    @GetMapping("/deposit-demand-transaction")
+    public ResponseEntity<ResponseFindDepositDemandTransactionList> findDepositDemandTransactionList(
+            @RequestBody RequestFindTransactionList request
+    ) {
+        ResponseFindDepositDemandTransactionList response = assetService.findDepositDemandTransactionList(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /* 적금 계좌 내역 조회 */
+
+    /* 예금 계좌 내역 조회 */
+
+    /* 대출 계좌 내역 조회 */
 
     /* 카드 내역 조회 */
 }

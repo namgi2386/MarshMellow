@@ -156,13 +156,12 @@ public class DemandDepositAPI {
 
     /* 4. 입출금 계좌 목록 */
     public Map<String, Object> findDemandDepositAccountList(
-        RequestFindDemandDepositAccountList request) throws JsonProcessingException {
+        String userKey) throws JsonProcessingException {
 
         Map<String, Object> requestBody = new HashMap<>();
 
-        System.out.println(request.getUserKey());
         Map<String, Object> header = getDefaltHeader("inquireDemandDepositAccountList");
-        header.put("userKey", request.getUserKey());
+        header.put("userKey", userKey);
 
         requestBody.put("Header", header);
 

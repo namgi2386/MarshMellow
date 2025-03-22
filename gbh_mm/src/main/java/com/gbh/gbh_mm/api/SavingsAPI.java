@@ -153,14 +153,14 @@ public class SavingsAPI {
         return responseJson;
     }
 
-    public Map<String, Object> findAccountList(RequestFindSavingsAccountList request)
+    public Map<String, Object> findAccountList(String userKey)
         throws JsonProcessingException {
         Map<String, Object> requestBody = new HashMap<>();
 
         String apiName = "inquireAccountList";
 
         Map<String, Object> header = getDefaltHeader(apiName);
-        header.put("userKey", request.getUserKey());
+        header.put("userKey", userKey);
         requestBody.put("Header", header);
 
         Map<String, Object> responseJson = new LinkedHashMap<>(); // 반환할 JSON 객체

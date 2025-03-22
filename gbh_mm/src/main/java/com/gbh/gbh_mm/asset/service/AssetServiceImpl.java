@@ -20,6 +20,7 @@ import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindDepositDemandTransactionList;
 import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindDepositPayment;
+import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindSavingsPaymentList;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindBilling;
 
 import java.time.YearMonth;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
+import com.gbh.gbh_mm.finance.savings.vo.request.RequestFindSavingsPayment;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -229,6 +231,24 @@ public class AssetServiceImpl implements AssetService {
             Map<String, Object> paymentData = (Map<String, Object>) responseData.get("REC");
 
             response.setPayment(paymentData);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return response;
+    }
+
+    @Override
+    public ResponseFindSavingsPaymentList findSavingsPaymentList(RequestFindSavingsPayment request) {
+        ResponseFindSavingsPaymentList response = new ResponseFindSavingsPaymentList();
+
+        try {
+            Map<String, Object> apiData = savingsAPI.findPayment(request);
+            Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
+            List<Map<String, Object>> paymentList = (List<Map<String, Object>>) responseData.get("REC");
+            response.setPaymentList(paymentList);
+
+
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

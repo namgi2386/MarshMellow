@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart'; // 텍스트 스타일 import 추가
 import 'package:marshmellow/core/theme/app_colors.dart'; // 테마 import 추가
-import 'package:marshmellow/main.dart';
-import 'package:marshmellow/presentation/widgets/bottom_navbar/bottom_navbar_logic.dart';
-import 'core/config/app_config.dart';
+import 'package:marshmellow/core/config/app_config.dart';
+import 'package:marshmellow/router/app_router.dart'; // 라우터 import
+import 'package:marshmellow/di/providers/lifecycle_provider.dart';
 
-import 'di/providers/lifecycle_provider.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -25,7 +24,7 @@ class _AppState extends ConsumerState<App> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'MMApp',
       debugShowCheckedModeBanner: AppConfig.isDevelopment(),
       theme: ThemeData(
@@ -38,7 +37,7 @@ class _AppState extends ConsumerState<App> {
         ),
         useMaterial3: true,
       ),
-      home: const MainNavigator(),
+      routerConfig: goRouter,
     );
   }
 }

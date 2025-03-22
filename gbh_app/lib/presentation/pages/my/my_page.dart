@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/presentation/pages/testpage/datepickertest.dart'; // 이 줄 추가
-import 'package:marshmellow/presentation/widgets/datepicker/date_picker_overlay.dart';
+import 'package:marshmellow/router/routes/my_routes.dart';
 
 class MyPage extends ConsumerWidget {
   const MyPage({super.key});
-  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 라이프사이클 상태 구독
@@ -65,12 +65,8 @@ class MyPage extends ConsumerWidget {
             const SizedBox(height: 20), // 남기 datepicker 테스트페이지
             ElevatedButton(
               onPressed: () {
-                // 직접 테스트 페이지로 이동
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => DatePickerOverlay(
-                    child: const Datepickertest(),
-                  ),),
-                );
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(MyRoutes.datepickerTest);
               },
               child: const Text('테스트 페이지로 이동'),
             ),

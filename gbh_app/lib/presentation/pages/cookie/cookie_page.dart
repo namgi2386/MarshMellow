@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 
 class CookiePage extends ConsumerWidget {
   const CookiePage({super.key});
@@ -12,10 +13,8 @@ class CookiePage extends ConsumerWidget {
     // 라이프사이클 상태 구독
     final lifecycleState = ref.watch(lifecycleStateProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('내가만든쿠키~~~'),
-        titleTextStyle: AppTextStyles.appBar,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      appBar: CustomAppbar(
+        title: '내가만든쿠키🍪',
       ),
       body: Center(
         child: Column(

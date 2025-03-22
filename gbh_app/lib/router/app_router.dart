@@ -9,6 +9,7 @@ import 'routes/finance_routes.dart';
 import 'routes/budget_routes.dart';
 import 'routes/cookie_routes.dart';
 import 'routes/my_routes.dart';
+import 'routes/notification_routes.dart';
 
 // 라우터 설정
 final goRouter = GoRouter(
@@ -26,6 +27,7 @@ final goRouter = GoRouter(
         ...budgetRoutes,
         ...cookieRoutes,
         ...myRoutes,
+        ...notificationRoutes,
       ],
     ),
   ],

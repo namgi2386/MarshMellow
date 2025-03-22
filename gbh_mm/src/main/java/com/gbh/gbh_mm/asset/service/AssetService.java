@@ -2,6 +2,8 @@ package com.gbh.gbh_mm.asset.service;
 
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
+import com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth;
+import com.gbh.gbh_mm.finance.auth.vo.request.RequestCreateAccountAuth;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
@@ -22,4 +24,8 @@ public interface AssetService {
     ResponseFindLoanPaymentList findLoanPaymentList(RequestFindRepaymentList request);
 
     ResponseFindCardTransactionList findCardTransactionList(RequestFindCardTransactionList request);
+
+    ResponseOpenAccountAuth openAccountAuth(RequestCreateAccountAuth request);
+
+    ResponseCheckAccountAuth checkAccountAuth(RequestCheckAccountAuth request);
 }

@@ -1,25 +1,21 @@
 package com.gbh.gbh_mm.asset.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gbh.gbh_mm.api.CardAPI;
-import com.gbh.gbh_mm.api.DemandDepositAPI;
-import com.gbh.gbh_mm.api.DepositAPI;
-import com.gbh.gbh_mm.api.LoanAPI;
-import com.gbh.gbh_mm.api.SavingsAPI;
+import com.gbh.gbh_mm.api.*;
 import com.gbh.gbh_mm.asset.model.dto.CardListDto;
 import com.gbh.gbh_mm.asset.model.dto.DemandDepositListDto;
 import com.gbh.gbh_mm.asset.model.dto.DepositListDto;
 import com.gbh.gbh_mm.asset.model.dto.LoanListDto;
 import com.gbh.gbh_mm.asset.model.dto.SavingsListDto;
-import com.gbh.gbh_mm.asset.model.entity.Card;
-import com.gbh.gbh_mm.asset.model.entity.DemandDeposit;
-import com.gbh.gbh_mm.asset.model.entity.Deposit;
-import com.gbh.gbh_mm.asset.model.entity.Loan;
-import com.gbh.gbh_mm.asset.model.entity.Savings;
+import com.gbh.gbh_mm.asset.model.entity.*;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
+import com.gbh.gbh_mm.asset.repo.WithdrawalAccountRepository;
+import com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth;
+import com.gbh.gbh_mm.finance.auth.vo.request.RequestCreateAccountAuth;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindBilling;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -31,6 +27,8 @@ import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionLis
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
 import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
 import com.gbh.gbh_mm.finance.savings.vo.request.RequestFindSavingsPayment;
+import com.gbh.gbh_mm.user.model.entity.User;
+import com.gbh.gbh_mm.user.repo.UserRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -45,8 +43,12 @@ public class AssetServiceImpl implements AssetService {
     private final LoanAPI loanAPI;
     private final SavingsAPI savingsAPI;
     private final DepositAPI depositAPI;
+    private final AuthAPI authAPI;
 
     private final ModelMapper mapper;
+
+    private final UserRepository userRepository;
+    private final WithdrawalAccountRepository withdrawalAccountRepository;
 
     @Override
     public ResponseFindAssetList findAssetList(RequestFindAssetList request) {
@@ -282,6 +284,84 @@ public class AssetServiceImpl implements AssetService {
             ResponseFindCardTransactionList response = mapper.map(recData, ResponseFindCardTransactionList.class);
 
             return response;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ResponseOpenAccountAuth openAccountAuth(RequestCreateAccountAuth request) {
+        try {
+            authAPI.createAccountAuth(request);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            LocalDate currentDate = LocalDate.now();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            String currentString = currentDate.format(formatter);
+
+            RequestFindTransactionList requestTransaction = new RequestFindTransactionList();
+            requestTransaction.setAccountNo(request.getAccountNo());
+            requestTransaction.setUserKey(request.getUserKey());
+            requestTransaction.setOrderByType("DESC");
+            requestTransaction.setTransactionType("M");
+            requestTransaction.setEndDate(currentString);
+            requestTransaction.setStartDate(currentString);
+
+            Map<String, Object> apiData = demandDepositAPI.findTransactionList(requestTransaction);
+            Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
+            Map<String, Object> recData = (Map<String, Object>) responseData.get("REC");
+            List<Map<String, Object>> transacionList = (List<Map<String, Object>>) recData.get("list");
+            Map<String, Object> transactionData = transacionList.get(0);
+            String transactionSummary = (String) transactionData.get("transactionSummary");
+            String[] authCodeSplit = transactionSummary.split(" ");
+
+            ResponseOpenAccountAuth response = new ResponseOpenAccountAuth();
+            response.setAuthCode(authCodeSplit[1]);
+
+            return response;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ResponseCheckAccountAuth checkAccountAuth(RequestCheckAccountAuth request) {
+        try {
+            Map<String, Object> apiData = authAPI.checkAccountAuth(request);
+            Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
+            Map<String, Object> recData = (Map<String, Object>) responseData.get("REC");
+            String checkStatus = (String) recData.get("status");
+            if (checkStatus.equals("SUCCESS")) {
+                User user = userRepository.findByUserKey(request.getUserKey());
+
+                if (user.getUserKey() != null) {
+                    WithdrawalAccount withdrawalAccount = WithdrawalAccount.builder()
+                            .accountNo(request.getAccountNo())
+                            .user(user)
+                            .build();
+
+                    WithdrawalAccount savedWithdrawalAccount = withdrawalAccountRepository.save(withdrawalAccount);
+
+                    ResponseCheckAccountAuth response = ResponseCheckAccountAuth.builder()
+                            .status("SUCCESS")
+                            .withdrawalAccountId(savedWithdrawalAccount.getWithdrawalAccountId())
+                            .build();
+
+                    return response;
+                } else {
+                    ResponseCheckAccountAuth response = ResponseCheckAccountAuth.builder()
+                            .status("FAIL")
+                            .build();
+
+                    return response;
+                }
+            } else {
+                return null;
+            }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

@@ -3,6 +3,8 @@ package com.gbh.gbh_mm.asset.controller;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
 import com.gbh.gbh_mm.asset.service.AssetService;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
+import com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth;
+import com.gbh.gbh_mm.finance.auth.vo.request.RequestCreateAccountAuth;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
@@ -10,10 +12,7 @@ import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
 import com.gbh.gbh_mm.finance.savings.vo.request.RequestFindSavingsPayment;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/asset")
@@ -80,4 +79,24 @@ public class AssetController {
 
         return ResponseEntity.ok(response);
     }
+
+    /* 1원 송금 */
+    @PostMapping("/open-account-auth")
+    public ResponseEntity<ResponseOpenAccountAuth> openAccountAuth(
+            @RequestBody RequestCreateAccountAuth request
+    ) {
+        ResponseOpenAccountAuth response = assetService.openAccountAuth(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/check-account-auth")
+    public ResponseEntity<ResponseCheckAccountAuth> checkAccountAuth(
+            @RequestBody RequestCheckAccountAuth request
+    ) {
+        ResponseCheckAccountAuth response = assetService.checkAccountAuth(request);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

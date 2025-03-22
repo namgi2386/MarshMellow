@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 
-import 'package:marshmellow/presentation/widgets/bottom_navbar.dart';
+import 'package:marshmellow/presentation/widgets/bottom_navbar/bottom_navbar.dart';
 import 'package:marshmellow/presentation/pages/ledger/ledger_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/budget/budget_page.dart';
@@ -19,7 +19,7 @@ class MainNavigator extends StatefulWidget {
 }
 
 class _MainNavigatorState extends State<MainNavigator> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   // 아이콘 경로
   final List<String> _iconPaths = const [

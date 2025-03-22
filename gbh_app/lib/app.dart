@@ -6,6 +6,7 @@ import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/router/app_router.dart'; // 라우터 import
 import 'package:marshmellow/di/providers/lifecycle_provider.dart';
 
+
 class App extends ConsumerStatefulWidget {
   const App({super.key});
 

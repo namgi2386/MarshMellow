@@ -25,6 +25,7 @@ public class BudgetService {
     @Autowired
     private BudgetCategoryRepository budgetCategoryRepository;
 
+    // 전체 예산 조회
     public List<ResponseFindBudgetList.BudgetData> getBudgetList(Long userPk) {
         List<Budget> budgets = budgetRepository.findAllByUser_UserPk(userPk);
         List<ResponseFindBudgetList.BudgetData> budgetDataList = budgets.stream()
@@ -41,6 +42,7 @@ public class BudgetService {
         return budgetDataList;
     }
 
+    // 예산 생성
     @Transactional
     public Budget createBudget(Long userPk, Budget budget) {
 
@@ -52,6 +54,7 @@ public class BudgetService {
         return budgetRepository.save(budget);
     }
 
+    // 세부 예산 생성
     @Transactional
     public BudgetCategory createBudgetCategory(Long budgetPk, BudgetCategory budgetCategory) {
 
@@ -63,7 +66,9 @@ public class BudgetService {
         return budgetCategoryRepository.save(budgetCategory);
     }
 
+    // 세부 예산 조회
     public List<ResponseFindBudgetCategoryList.BudgetCategoryData> getBudgetCategoryList(Long budgetPk) {
+
         List<BudgetCategory> budgetCategories = budgetCategoryRepository.findAllByBudget_BudgetPk(budgetPk);
         List<ResponseFindBudgetCategoryList.BudgetCategoryData> budgetCategoryDataList = budgetCategories.stream()
                 .map(budgetCategory -> ResponseFindBudgetCategoryList.BudgetCategoryData.builder()
@@ -78,4 +83,18 @@ public class BudgetService {
         return budgetCategoryDataList;
 
     }
+    // 세부 예산 수정
+    public BudgetCategory updateBudgetCategory(Long budgetCategoryPk, BudgetCategory budgetCategory) {
+        BudgetCategory oldBudgetCategory = budgetCategoryRepository.findById(budgetCategoryPk)
+                .orElseThrow(() -> new RuntimeException("Budget Category Not Found"));
+
+        oldBudgetCategory.setBudgetCategoryName(budgetCategory.getBudgetCategoryName());
+        oldBudgetCategory.setBudgetCategoryPrice(budgetCategory.getBudgetCategoryPrice());
+        oldBudgetCategory.setBudgetExpendAmount(budgetCategory.getBudgetExpendAmount());
+        return budgetCategoryRepository.save(oldBudgetCategory);
+
+
+
+    }
+
 }

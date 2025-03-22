@@ -2,10 +2,7 @@ package com.gbh.gbh_mm.budget.controller;
 
 import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
-import com.gbh.gbh_mm.budget.model.response.ResponseCreateBudget;
-import com.gbh.gbh_mm.budget.model.response.ResponseCreateBudgetCategory;
-import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetCategoryList;
-import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetList;
+import com.gbh.gbh_mm.budget.model.response.*;
 import com.gbh.gbh_mm.budget.service.BudgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,21 +45,8 @@ public class BudgetController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // 세부 예산 생성
-    @PostMapping("/detail/{budgetPk}")
-    public ResponseEntity<ResponseCreateBudgetCategory> createBudgetCategory(@PathVariable Long budgetPk, @RequestBody BudgetCategory budgetCategory) {
-        budgetService.createBudgetCategory(budgetPk, budgetCategory);
-
-        ResponseCreateBudgetCategory response = ResponseCreateBudgetCategory.builder()
-                .code(200)
-                .message("세부 예산 생성")
-                .data(budgetCategory)
-                .build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
     // 세부 예산 리스트 조회
-    @GetMapping("detail/{budgetPk}")
+    @GetMapping("/detail/{budgetPk}")
     public ResponseEntity<ResponseFindBudgetCategoryList> getBudgetCategoryList(@PathVariable Long budgetPk) {
         List<ResponseFindBudgetCategoryList.BudgetCategoryData> budgetCategoryData = budgetService.getBudgetCategoryList(budgetPk);
 
@@ -72,5 +56,35 @@ public class BudgetController {
                 .data(budgetCategoryData)
                 .build();
         return ResponseEntity.ok(response);
+    }
+
+    // 세부 예산 생성
+    @PostMapping("/detail/{budgetPk}")
+    public ResponseEntity<ResponseCreateBudgetCategory> createBudgetCategory(@PathVariable Long budgetPk, @RequestBody BudgetCategory budgetCategory) {
+        budgetService.createBudgetCategory(budgetPk, budgetCategory);
+
+        ResponseCreateBudgetCategory response = ResponseCreateBudgetCategory.builder()
+                .code(200)
+                .message("세부 예산 생성 완료")
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // 세부 예산 수정
+    @PutMapping("/detail/{budgetCategoryPk}")
+    public ResponseEntity<ResponseUpdateBudgetCategory> updateBudgetCategory(@PathVariable Long budgetCategoryPk, @RequestBody BudgetCategory budgetCategory) {
+
+        try {
+            BudgetCategory updateBudgetCategory = budgetService.updateBudgetCategory(budgetCategoryPk, budgetCategory);
+            return new ResponseEntity<>(ResponseUpdateBudgetCategory.builder()
+                    .code(200)
+                    .message("예산 카테고리 수정 완료")
+                    .build(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ResponseUpdateBudgetCategory.builder()
+                    .code(500)
+                    .message("예산 카테고리 수정 실패: " + e.getMessage())
+                    .build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

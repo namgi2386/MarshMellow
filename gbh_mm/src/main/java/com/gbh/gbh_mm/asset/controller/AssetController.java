@@ -1,5 +1,6 @@
 package com.gbh.gbh_mm.asset.controller;
 
+import com.gbh.gbh_mm.asset.model.vo.request.RequestDeleteWithdrawalAccount;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindWithdrawalAccountList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
 import com.gbh.gbh_mm.asset.service.AssetService;
@@ -110,5 +111,17 @@ public class AssetController {
 
         return ResponseEntity.ok(response);
     }
+
+    /* 출금 계좌 삭제 */
+    @DeleteMapping("/withdrawal-account")
+    public ResponseEntity<ResponseDeleteWithdrawalAccount> deleteWithdrawalAccount(
+            @RequestBody RequestDeleteWithdrawalAccount request
+    ) {
+        ResponseDeleteWithdrawalAccount response = assetService.deleteWithdrawalAccount(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+//    @PostMapping("/account-transfer")
 
 }

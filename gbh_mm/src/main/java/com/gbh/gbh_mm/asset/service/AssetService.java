@@ -1,5 +1,6 @@
 package com.gbh.gbh_mm.asset.service;
 
+import com.gbh.gbh_mm.asset.model.vo.request.RequestDeleteWithdrawalAccount;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindWithdrawalAccountList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
@@ -31,4 +32,6 @@ public interface AssetService {
     ResponseCheckAccountAuth checkAccountAuth(RequestCheckAccountAuth request);
 
     ResponseFindWithdrawalAccountList findWithdrawalAccountList(RequestFindWithdrawalAccountList request);
+
+    ResponseDeleteWithdrawalAccount deleteWithdrawalAccount(RequestDeleteWithdrawalAccount request);
 }

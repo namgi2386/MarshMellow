@@ -8,6 +8,7 @@ import com.gbh.gbh_mm.asset.model.dto.DepositListDto;
 import com.gbh.gbh_mm.asset.model.dto.LoanListDto;
 import com.gbh.gbh_mm.asset.model.dto.SavingsListDto;
 import com.gbh.gbh_mm.asset.model.entity.*;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestDeleteWithdrawalAccount;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindWithdrawalAccountList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
@@ -21,6 +22,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
@@ -30,6 +32,7 @@ import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
 import com.gbh.gbh_mm.finance.savings.vo.request.RequestFindSavingsPayment;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -60,45 +63,45 @@ public class AssetServiceImpl implements AssetService {
         try {
             /* 목록 조회 API 호출 */
             Map<String, Object> responseCardData =
-                cardAPI.findUserCardList(request.getUserKey());
+                    cardAPI.findUserCardList(request.getUserKey());
             Map<String, Object> responseDepositDemandData =
-                demandDepositAPI.findDemandDepositAccountList(request.getUserKey());
+                    demandDepositAPI.findDemandDepositAccountList(request.getUserKey());
             Map<String, Object> responseLoanData =
-                loanAPI.findAccountList(request.getUserKey());
+                    loanAPI.findAccountList(request.getUserKey());
             Map<String, Object> responseSavingsData =
-                savingsAPI.findAccountList(request.getUserKey());
+                    savingsAPI.findAccountList(request.getUserKey());
             Map<String, Object> responseDepositData =
-                depositAPI.findAccountList(request.getUserKey());
+                    depositAPI.findAccountList(request.getUserKey());
 
             Map<String, Object> cardApiData =
-                (Map<String, Object>) responseCardData.get("apiResponse");
+                    (Map<String, Object>) responseCardData.get("apiResponse");
             Map<String, Object> depositDemandApiData =
-                (Map<String, Object>) responseDepositDemandData.get("apiResponse");
+                    (Map<String, Object>) responseDepositDemandData.get("apiResponse");
             Map<String, Object> loanApiData =
-                (Map<String, Object>) responseLoanData.get("apiResponse");
+                    (Map<String, Object>) responseLoanData.get("apiResponse");
             Map<String, Object> savingsApiData =
-                (Map<String, Object>) responseSavingsData.get("apiResponse");
+                    (Map<String, Object>) responseSavingsData.get("apiResponse");
             Map<String, Object> depositApiData =
-                (Map<String, Object>) responseDepositData.get("apiResponse");
+                    (Map<String, Object>) responseDepositData.get("apiResponse");
 
             List<Map<String, Object>> responseCardList =
-                (List<Map<String, Object>>) cardApiData.get("REC");
+                    (List<Map<String, Object>>) cardApiData.get("REC");
             List<Map<String, Object>> responseDemandDepositList =
-                (List<Map<String, Object>>) depositDemandApiData.get("REC");
+                    (List<Map<String, Object>>) depositDemandApiData.get("REC");
             List<Map<String, Object>> responseLoanList =
-                (List<Map<String, Object>>) loanApiData.get("REC");
+                    (List<Map<String, Object>>) loanApiData.get("REC");
             Map<String, Object> responseSavingsList =
-                (Map<String, Object>) savingsApiData.get("REC");
+                    (Map<String, Object>) savingsApiData.get("REC");
             List<Map<String, Object>> savings =
-                (List<Map<String, Object>>) responseSavingsList.get("list");
+                    (List<Map<String, Object>>) responseSavingsList.get("list");
             Map<String, Object> responseDepositList =
-                (Map<String, Object>) depositApiData.get("REC");
+                    (Map<String, Object>) depositApiData.get("REC");
             List<Map<String, Object>> deposits =
-                (List<Map<String, Object>>) responseDepositList.get("list");
+                    (List<Map<String, Object>>) responseDepositList.get("list");
 
             List<Card> cardList = responseCardList.stream()
-                .map(cardMap -> mapper.map(cardMap, Card.class))
-                .collect(Collectors.toList());
+                    .map(cardMap -> mapper.map(cardMap, Card.class))
+                    .collect(Collectors.toList());
 
             YearMonth current = YearMonth.now();
             YearMonth lastMonth = current.minusMonths(1);
@@ -110,22 +113,22 @@ public class AssetServiceImpl implements AssetService {
             long cardAmount = 0;
             for (int i = 0; i < cardList.size(); i++) {
                 RequestFindBilling requestFindBilling = RequestFindBilling.builder()
-                    .cvc(cardList.get(i).getCvc())
-                    .cardNo(cardList.get(i).getCardNo())
-                    .startMonth(lastMonthString)
-                    .endMonth(currentString)
-                    .userKey(request.getUserKey())
-                    .build();
+                        .cvc(cardList.get(i).getCvc())
+                        .cardNo(cardList.get(i).getCardNo())
+                        .startMonth(lastMonthString)
+                        .endMonth(currentString)
+                        .userKey(request.getUserKey())
+                        .build();
                 Map<String, Object> cardBillApi = cardAPI.findBilling(requestFindBilling);
                 Map<String, Object> cardBillData =
-                    (Map<String, Object>) cardBillApi.get("apiResponse");
+                        (Map<String, Object>) cardBillApi.get("apiResponse");
                 List<Map<String, Object>> recList =
-                    (List<Map<String, Object>>) cardBillData.get("REC");
+                        (List<Map<String, Object>>) cardBillData.get("REC");
 
                 if (recList.size() > 0) {
                     Map<String, Object> bill = recList.get(0);
                     List<Map<String, Object>> billingList =
-                        (List<Map<String, Object>>) bill.get("billingList");
+                            (List<Map<String, Object>>) bill.get("billingList");
                     Map<String, Object> billing = billingList.get(0);
                     long totalAmount = (long) billing.get("totalBalance");
 
@@ -135,66 +138,66 @@ public class AssetServiceImpl implements AssetService {
             }
 
             CardListDto responseCard = CardListDto.builder()
-                .totalAmount(cardAmount)
-                .cardList(cardList)
-                .build();
+                    .totalAmount(cardAmount)
+                    .cardList(cardList)
+                    .build();
 
             /* 데이터 매핑(직렬화) */
             List<DemandDeposit> demandDepositList = responseDemandDepositList.stream()
-                .map(demandDepositMap ->
-                    mapper.map(demandDepositMap, DemandDeposit.class))
-                .collect(Collectors.toList());
+                    .map(demandDepositMap ->
+                            mapper.map(demandDepositMap, DemandDeposit.class))
+                    .collect(Collectors.toList());
 
             /* 총 금액 계산 */
             long demandDepositTotal = demandDepositList.stream()
-                .mapToLong(DemandDeposit::getAccountBalance)
-                .sum();
+                    .mapToLong(DemandDeposit::getAccountBalance)
+                    .sum();
             DemandDepositListDto responseDemandDeposit = DemandDepositListDto.builder()
-                .demandDepositList(demandDepositList)
-                .totalAmount(demandDepositTotal)
-                .build();
+                    .demandDepositList(demandDepositList)
+                    .totalAmount(demandDepositTotal)
+                    .build();
 
             /* 데이터 매핑(직렬화) */
             List<Loan> loanList = responseLoanList.stream()
-                .map(loanMap -> mapper.map(loanMap, Loan.class))
-                .collect(Collectors.toList());
+                    .map(loanMap -> mapper.map(loanMap, Loan.class))
+                    .collect(Collectors.toList());
 
             /* 총 금액 계산 */
             long loanTotalAmount = loanList.stream()
-                .mapToLong(Loan::getLoanBalance)
-                .sum();
+                    .mapToLong(Loan::getLoanBalance)
+                    .sum();
             LoanListDto responseLoan = LoanListDto.builder()
-                .totalAmount(loanTotalAmount)
-                .loanList(loanList)
-                .build();
+                    .totalAmount(loanTotalAmount)
+                    .loanList(loanList)
+                    .build();
 
             /* 데이터 매핑(직렬화) */
             List<Savings> savingsList = savings.stream()
-                .map(savingsMap -> mapper.map(savingsMap, Savings.class))
-                .collect(Collectors.toList());
+                    .map(savingsMap -> mapper.map(savingsMap, Savings.class))
+                    .collect(Collectors.toList());
 
             /* 총 금액 계산 */
             long savingTotalAmount = savingsList.stream()
-                .mapToLong(Savings::getTotalBalance)
-                .sum();
+                    .mapToLong(Savings::getTotalBalance)
+                    .sum();
             SavingsListDto responseSavings = SavingsListDto.builder()
-                .totalAmount(savingTotalAmount)
-                .savingsList(savingsList)
-                .build();
+                    .totalAmount(savingTotalAmount)
+                    .savingsList(savingsList)
+                    .build();
 
             /* 데이터 직렬화 */
             List<Deposit> depositList = deposits.stream()
-                .map(depositMap -> mapper.map(depositMap, Deposit.class))
-                .collect(Collectors.toList());
+                    .map(depositMap -> mapper.map(depositMap, Deposit.class))
+                    .collect(Collectors.toList());
 
             /* 총 금액 계산 */
             long depositTotalAmount = depositList.stream()
-                .mapToLong(Deposit::getDepositBalance)
-                .sum();
+                    .mapToLong(Deposit::getDepositBalance)
+                    .sum();
             DepositListDto responseDeposit = DepositListDto.builder()
-                .totalAmount(depositTotalAmount)
-                .depositList(depositList)
-                .build();
+                    .totalAmount(depositTotalAmount)
+                    .depositList(depositList)
+                    .build();
 
             response.setCardData(responseCard);
             response.setDemandDepositData(responseDemandDeposit);
@@ -378,5 +381,27 @@ public class AssetServiceImpl implements AssetService {
                 .build();
 
         return response;
+    }
+
+    @Override
+    public ResponseDeleteWithdrawalAccount deleteWithdrawalAccount(RequestDeleteWithdrawalAccount request) {
+
+        try {
+            Optional<WithdrawalAccount> withdrawalAccount =
+                    withdrawalAccountRepository.findById(request.getWithdrawalAccountId());
+            if (withdrawalAccount.isPresent()) {
+                withdrawalAccountRepository.delete(withdrawalAccount.get());
+
+                ResponseDeleteWithdrawalAccount response = ResponseDeleteWithdrawalAccount.builder()
+                        .message("삭제 성공")
+                        .build();
+
+                return response;
+            }
+
+        } catch (Exception e) {
+            new EntityNotFoundException("존재하지 않는 출금계좌");
+        }
+        return null;
     }
 }

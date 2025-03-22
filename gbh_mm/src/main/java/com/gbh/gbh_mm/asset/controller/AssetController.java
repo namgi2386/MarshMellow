@@ -1,13 +1,11 @@
 package com.gbh.gbh_mm.asset.controller;
 
-import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindDepositDemandTransactionList;
-import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindDepositPayment;
-import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindSavingsPaymentList;
+import com.gbh.gbh_mm.asset.model.vo.response.*;
 import com.gbh.gbh_mm.asset.service.AssetService;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
-import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindAssetList;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
+import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
 import com.gbh.gbh_mm.finance.savings.vo.request.RequestFindSavingsPayment;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -56,13 +54,21 @@ public class AssetController {
     @GetMapping("/savings-payment")
     public ResponseEntity<ResponseFindSavingsPaymentList> findSavingsPaymentList(
             @RequestBody RequestFindSavingsPayment request
-            ) {
+    ) {
         ResponseFindSavingsPaymentList response = assetService.findSavingsPaymentList(request);
 
         return ResponseEntity.ok(response);
     }
 
-    /* 대출 계좌 내역 조회 */
+    /* 대출 상환 내역 조회 */
+    @GetMapping("/loan-payment")
+    public ResponseEntity<ResponseFindLoanPaymentList> findLoanPaymentList(
+            @RequestBody RequestFindRepaymentList request
+    ) {
+        ResponseFindLoanPaymentList response = assetService.findLoanPaymentList(request);
+
+        return ResponseEntity.ok(response);
+    }
 
     /* 카드 내역 조회 */
 }

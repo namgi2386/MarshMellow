@@ -1,5 +1,6 @@
 package com.gbh.gbh_mm.asset.controller;
 
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindWithdrawalAccountList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
 import com.gbh.gbh_mm.asset.service.AssetService;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
@@ -90,11 +91,22 @@ public class AssetController {
         return ResponseEntity.ok(response);
     }
 
+    /* 1원 송금 인증 */
     @PostMapping("/check-account-auth")
     public ResponseEntity<ResponseCheckAccountAuth> checkAccountAuth(
             @RequestBody RequestCheckAccountAuth request
     ) {
         ResponseCheckAccountAuth response = assetService.checkAccountAuth(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /* 출금 계좌 목록 */
+    @GetMapping("/withdrawal-account")
+    public ResponseEntity<ResponseFindWithdrawalAccountList> findWithdrawalAccountList(
+            @RequestBody RequestFindWithdrawalAccountList request
+    ) {
+        ResponseFindWithdrawalAccountList response = assetService.findWithdrawalAccountList(request);
 
         return ResponseEntity.ok(response);
     }

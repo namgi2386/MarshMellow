@@ -9,6 +9,7 @@ import com.gbh.gbh_mm.asset.model.dto.LoanListDto;
 import com.gbh.gbh_mm.asset.model.dto.SavingsListDto;
 import com.gbh.gbh_mm.asset.model.entity.*;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindWithdrawalAccountList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
 import com.gbh.gbh_mm.asset.repo.WithdrawalAccountRepository;
 import com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth;
@@ -365,5 +366,17 @@ public class AssetServiceImpl implements AssetService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public ResponseFindWithdrawalAccountList findWithdrawalAccountList(RequestFindWithdrawalAccountList request) {
+        List<WithdrawalAccount> withdrawalAccountList =
+                withdrawalAccountRepository.findByUser_UserPk(request.getUserPk());
+
+        ResponseFindWithdrawalAccountList response = ResponseFindWithdrawalAccountList.builder()
+                .withdrawalAccountList(withdrawalAccountList)
+                .build();
+
+        return response;
     }
 }

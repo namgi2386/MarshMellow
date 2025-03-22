@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:marshmellow/presentation/widgets/bottom_navbar/bottom_navbar.dart';
+import 'package:marshmellow/presentation/widgets/bottom_navbar/bottom_navbar.dart'; // ui
 
 // 라우트 클래스들 import
 import 'routes/ledger_routes.dart';

@@ -25,7 +25,7 @@ public class Budget {
 
     private String endDate;
 
-    private String isSelected;
+    private String isSelected = "Y";
 
     @ManyToOne
     @JoinColumn(name = "user_pk")  // 예산이 속한 사용자와의 관계를 설정

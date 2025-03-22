@@ -4,6 +4,7 @@ import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.ResponseCreateBudget;
 import com.gbh.gbh_mm.budget.model.response.ResponseCreateBudgetCategory;
+import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetCategoryList;
 import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetList;
 import com.gbh.gbh_mm.budget.service.BudgetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,6 @@ public class BudgetController {
                 .message("예산 리스트 조회")
                 .data(budgetData)
                 .build();
-        System.out.println("hi");
         return ResponseEntity.ok(response);
     }
 
@@ -59,5 +59,18 @@ public class BudgetController {
                 .data(budgetCategory)
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // 세부 예산 리스트 조회
+    @GetMapping("detail/{budgetPk}")
+    public ResponseEntity<ResponseFindBudgetCategoryList> getBudgetCategoryList(@PathVariable Long budgetPk) {
+        List<ResponseFindBudgetCategoryList.BudgetCategoryData> budgetCategoryData = budgetService.getBudgetCategoryList(budgetPk);
+
+        ResponseFindBudgetCategoryList response = ResponseFindBudgetCategoryList.builder()
+                .code(200)
+                .message("세부 예산 리스트 조회")
+                .data(budgetCategoryData)
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

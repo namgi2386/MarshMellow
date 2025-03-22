@@ -6,7 +6,7 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-@Table(name = "category")
+@Table(name = "budgetCategory")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -18,13 +18,14 @@ public class BudgetCategory {
 
     private String budgetCategoryName;
 
-    private Long budgetCategoryPrice;
+    private Long budgetCategoryPrice = 0L;
 
-    private Long budgetExpendAmount;
+    private Long budgetExpendAmount = 0L;
 
     @ManyToOne
     @JoinColumn(name = "budget_pk")
     private Budget budget;
+
 
 
 }

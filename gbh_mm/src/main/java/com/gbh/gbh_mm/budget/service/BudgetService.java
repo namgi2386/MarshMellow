@@ -2,6 +2,7 @@ package com.gbh.gbh_mm.budget.service;
 
 import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
+import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetCategoryList;
 import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetList;
 import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
 import com.gbh.gbh_mm.budget.repo.BudgetRepository;
@@ -60,5 +61,21 @@ public class BudgetService {
         budgetCategory.setBudget(budget);
 
         return budgetCategoryRepository.save(budgetCategory);
+    }
+
+    public List<ResponseFindBudgetCategoryList.BudgetCategoryData> getBudgetCategoryList(Long budgetPk) {
+        List<BudgetCategory> budgetCategories = budgetCategoryRepository.findAllByBudget_BudgetPk(budgetPk);
+        List<ResponseFindBudgetCategoryList.BudgetCategoryData> budgetCategoryDataList = budgetCategories.stream()
+                .map(budgetCategory -> ResponseFindBudgetCategoryList.BudgetCategoryData.builder()
+                        .budgetCategoryPk(budgetCategory.getBudgetCategoryPk())
+                        .budgetCategoryName(budgetCategory.getBudgetCategoryName())
+                        .budgetCategoryPrice(budgetCategory.getBudgetCategoryPrice())
+                        .budgetExpendAmount(budgetCategory.getBudgetExpendAmount())
+                        .build()
+                )
+                .collect(Collectors.toList());
+
+        return budgetCategoryDataList;
+
     }
 }

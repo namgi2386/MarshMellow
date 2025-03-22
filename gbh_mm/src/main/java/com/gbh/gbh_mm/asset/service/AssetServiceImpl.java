@@ -17,20 +17,19 @@ import com.gbh.gbh_mm.asset.model.entity.Deposit;
 import com.gbh.gbh_mm.asset.model.entity.Loan;
 import com.gbh.gbh_mm.asset.model.entity.Savings;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
-import com.gbh.gbh_mm.asset.model.vo.request.RequestFindDepositDemandTransactionList;
 import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindDepositDemandTransactionList;
+import com.gbh.gbh_mm.asset.model.vo.response.ResponseFindDepositPayment;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindBilling;
-import com.gbh.gbh_mm.finance.card.vo.request.RequestFindUserCardList;
+
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
+import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -217,6 +216,23 @@ public class AssetServiceImpl implements AssetService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+        return response;
+    }
+
+    @Override
+    public ResponseFindDepositPayment findDepositPayment(RequestFindPayment request) {
+        ResponseFindDepositPayment response = new ResponseFindDepositPayment();
+
+        try {
+            Map<String, Object> apiData = depositAPI.findPayment(request);
+            Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
+            Map<String, Object> paymentData = (Map<String, Object>) responseData.get("REC");
+
+            response.setPayment(paymentData);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
         return response;
     }
 }

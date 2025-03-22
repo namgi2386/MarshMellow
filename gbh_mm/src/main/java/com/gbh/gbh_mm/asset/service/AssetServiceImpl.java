@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
+import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestAccountTransfer;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
 import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
@@ -403,5 +404,20 @@ public class AssetServiceImpl implements AssetService {
             new EntityNotFoundException("존재하지 않는 출금계좌");
         }
         return null;
+    }
+
+    @Override
+    public ResponseAccountTransfer accountTransger(RequestAccountTransfer request) {
+        try {
+            demandDepositAPI.accountTransfer(request);
+
+            ResponseAccountTransfer response = ResponseAccountTransfer.builder()
+                    .message("이체 성공")
+                    .build();
+
+            return response;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

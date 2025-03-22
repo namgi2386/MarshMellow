@@ -7,6 +7,7 @@ import com.gbh.gbh_mm.asset.model.vo.response.*;
 import com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth;
 import com.gbh.gbh_mm.finance.auth.vo.request.RequestCreateAccountAuth;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
+import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestAccountTransfer;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
 import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
@@ -34,4 +35,6 @@ public interface AssetService {
     ResponseFindWithdrawalAccountList findWithdrawalAccountList(RequestFindWithdrawalAccountList request);
 
     ResponseDeleteWithdrawalAccount deleteWithdrawalAccount(RequestDeleteWithdrawalAccount request);
+
+    ResponseAccountTransfer accountTransger(RequestAccountTransfer request);
 }

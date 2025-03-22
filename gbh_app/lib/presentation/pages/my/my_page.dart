@@ -66,9 +66,9 @@ class MyPage extends ConsumerWidget {
             ElevatedButton(
               onPressed: () {
                 // GoRouter를 사용하여 테스트 페이지로 이동
-                context.push(MyRoutes.datepickerTest);
+                context.push(MyRoutes.getDatepickerTestPath());
               },
-              child: const Text('테스트 페이지로 이동'),
+              child: const Text('데이트피커 테스트페이지'),
             ),
           ],
         ),

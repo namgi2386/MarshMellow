@@ -16,6 +16,7 @@ public class Budget {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "budget_pk")
     private Long budgetPk;
 
     private Long budgetAmount;

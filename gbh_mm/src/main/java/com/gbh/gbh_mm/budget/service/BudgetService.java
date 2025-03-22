@@ -1,7 +1,9 @@
 package com.gbh.gbh_mm.budget.service;
 
 import com.gbh.gbh_mm.budget.model.entity.Budget;
+import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetList;
+import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
 import com.gbh.gbh_mm.budget.repo.BudgetRepository;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
@@ -16,9 +18,11 @@ import java.util.stream.Collectors;
 public class BudgetService {
 
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
     private BudgetRepository budgetRepository;
     @Autowired
-    private UserRepository userRepository;
+    private BudgetCategoryRepository budgetCategoryRepository;
 
     public List<ResponseFindBudgetList.BudgetData> getBudgetList(Long userPk) {
         List<Budget> budgets = budgetRepository.findAllByUser_UserPk(userPk);
@@ -45,5 +49,16 @@ public class BudgetService {
         budget.setUser(user);
 
         return budgetRepository.save(budget);
+    }
+
+    @Transactional
+    public BudgetCategory createBudgetCategory(Long budgetPk, BudgetCategory budgetCategory) {
+
+        Budget budget = budgetRepository.findById(budgetPk)
+                .orElseThrow(() -> new IllegalArgumentException("Budget Not Found"));
+
+        budgetCategory.setBudget(budget);
+
+        return budgetCategoryRepository.save(budgetCategory);
     }
 }

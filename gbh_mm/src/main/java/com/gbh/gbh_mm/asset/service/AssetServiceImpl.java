@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
 import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
@@ -263,6 +264,22 @@ public class AssetServiceImpl implements AssetService {
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             Map<String, Object> recData = (Map<String, Object>) responseData.get("REC");
             ResponseFindLoanPaymentList response = mapper.map(recData, ResponseFindLoanPaymentList.class);
+
+            return response;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ResponseFindCardTransactionList findCardTransactionList(RequestFindCardTransactionList request) {
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        try {
+            Map<String, Object> apiData = cardAPI.findTransactionList(request);
+            Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
+            Map<String, Object> recData = (Map<String, Object>) responseData.get("REC");
+
+            ResponseFindCardTransactionList response = mapper.map(recData, ResponseFindCardTransactionList.class);
 
             return response;
         } catch (JsonProcessingException e) {

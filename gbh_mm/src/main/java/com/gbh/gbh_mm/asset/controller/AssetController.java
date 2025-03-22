@@ -3,6 +3,7 @@ package com.gbh.gbh_mm.asset.controller;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
 import com.gbh.gbh_mm.asset.service.AssetService;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
+import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
 import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
@@ -71,4 +72,12 @@ public class AssetController {
     }
 
     /* 카드 내역 조회 */
+    @GetMapping("/card-transaction")
+    public ResponseEntity<ResponseFindCardTransactionList> findCardTransactionList(
+            @RequestBody RequestFindCardTransactionList request
+    ) {
+        ResponseFindCardTransactionList response = assetService.findCardTransactionList(request);
+
+        return ResponseEntity.ok(response);
+    }
 }

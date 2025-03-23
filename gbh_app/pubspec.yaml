@@ -81,6 +81,11 @@ dependencies:
 
   convex_bottom_bar: ^3.2.0  # 컨벡스 디자인 하단 탭바
 
+  # 키보드관련
+  flutter_secure_keyboard: ^4.0.0 # 보안키보드
+  simple_numpad: ^1.0.5 # 숫자키보드/계산기키보드
+  keyboard_actions: ^4.2.0 # 기본키보드 액션추가전용
+
 
 dev_dependencies:
   flutter_test:

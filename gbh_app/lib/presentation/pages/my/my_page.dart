@@ -70,6 +70,14 @@ class MyPage extends ConsumerWidget {
               },
               child: const Text('데이트피커 테스트페이지'),
             ),
+            const SizedBox(height: 20), // 남기 datepicker 테스트페이지
+            ElevatedButton(
+              onPressed: () {
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(MyRoutes.getDatepickerTestPath());
+              },
+              child: const Text('데이트피커 테스트페이지'),
+            ),
           ],
         ),
       ),

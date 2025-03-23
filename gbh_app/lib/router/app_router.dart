@@ -15,6 +15,13 @@ import 'routes/notification_routes.dart';
 final goRouter = GoRouter(
   initialLocation: BudgetRoutes.root,
   debugLogDiagnostics: true, // 개발 중에는 디버그 모드 활성화
+  // 루트 경로에 대한 리다이렉트 추가
+  redirect: (context, state) {
+    if (state.matchedLocation == '/') {
+      return BudgetRoutes.root; // 원하는 기본 경로로 리다이렉트
+    }
+    return null; // 다른 경로는 정상 처리
+  },
   routes: [
     // 쉘 라우트 - 하단 네비게이션 바를 포함한 레이아웃
     ShellRoute(

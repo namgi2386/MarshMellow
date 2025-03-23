@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart'; 
 
+import 'package:go_router/go_router.dart'; // 이제 라우트 할거면 필수
+import 'package:marshmellow/router/routes/finance_routes.dart'; // 경로 상수 import
+
 class FinanceTestPage extends StatelessWidget {
   const FinanceTestPage({Key? key}) : super(key: key);
 
@@ -23,6 +26,16 @@ class FinanceTestPage extends StatelessWidget {
               },
               child: const Text('돌아가기'),
             ),
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<< 키보드 테스트 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // 테스트 페이지로 이동
+                context.push(FinanceRoutes.getKeyboardTestPath());
+              },
+              child: const Text('키보드 테스트'),
+            ),
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>> 키보드 테스트 >>>>>>>>>>>>>>>>>>>>>>>>>>>>
           ],
         ),
       ),

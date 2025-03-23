@@ -2,15 +2,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/widgets/text_input.dart';
 import 'package:marshmellow/presentation/widgets/datepicker/date_picker_button.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-class Datepickertest extends ConsumerWidget {
+// StatefulWidget으로 변경
+class Datepickertest extends ConsumerStatefulWidget {
   const Datepickertest({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<Datepickertest> createState() => _DatepickertestState();
+}
+
+class _DatepickertestState extends ConsumerState<Datepickertest> {
+  // TextEditingController 추가
+  final TextEditingController _nameController = TextEditingController();
+
+  // dispose 메서드 추가
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // 현재 선택된 날짜 범위 가져오기
     final datePickerState = ref.watch(datePickerProvider);
     String selectedRange = "날짜를 선택하세요";
@@ -64,7 +81,6 @@ class Datepickertest extends ConsumerWidget {
                   print("선택된 날짜 범위: $range");
                 },
               ),
-              
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -72,6 +88,16 @@ class Datepickertest extends ConsumerWidget {
                 },
                 child: const Text('홈으로 돌아가기'),
               ),
+
+              // TextInput 위젯 추가
+              TextInput(
+                label: '이름',
+                controller: _nameController,
+                onChanged: (value) {
+                  print('입력된 이름: $value');
+                },
+              ),
+              
             ],
           ),
         ),

@@ -29,8 +29,8 @@ public class BudgetService {
     public List<ResponseFindBudgetList.BudgetData> getBudgetList(Long userPk) {
         List<Budget> budgets = budgetRepository.findAllByUser_UserPk(userPk);
         List<ResponseFindBudgetList.BudgetData> budgetDataList = budgets.stream()
-                .map(budget -> ResponseFindBudgetList.BudgetData.builder().
-                        budgetPk(budget.getBudgetPk())
+                .map(budget -> ResponseFindBudgetList.BudgetData.builder()
+                        .budgetPk(budget.getBudgetPk())
                         .budgetAmount(budget.getBudgetAmount())
                         .startDate(budget.getStartDate())
                         .endDate(budget.getEndDate())
@@ -83,6 +83,7 @@ public class BudgetService {
         return budgetCategoryDataList;
 
     }
+
     // 세부 예산 수정
     public BudgetCategory updateBudgetCategory(Long budgetCategoryPk, BudgetCategory budgetCategory) {
         BudgetCategory oldBudgetCategory = budgetCategoryRepository.findById(budgetCategoryPk)
@@ -92,7 +93,6 @@ public class BudgetService {
         oldBudgetCategory.setBudgetCategoryPrice(budgetCategory.getBudgetCategoryPrice());
         oldBudgetCategory.setBudgetExpendAmount(budgetCategory.getBudgetExpendAmount());
         return budgetCategoryRepository.save(oldBudgetCategory);
-
 
 
     }

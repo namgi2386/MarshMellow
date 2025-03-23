@@ -2,6 +2,7 @@ package com.gbh.gbh_mm.wishlist.controller;
 
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
 import com.gbh.gbh_mm.wishlist.model.response.ResponseCreateWishlist;
+import com.gbh.gbh_mm.wishlist.model.response.ResponseFindDetailWishlist;
 import com.gbh.gbh_mm.wishlist.model.response.ResponseFindWishlist;
 import com.gbh.gbh_mm.wishlist.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,5 +43,24 @@ public class WishlistController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    // 위시리스트 상세 조회
+    @GetMapping("/detail/{wishlistPk}")
+    public ResponseEntity<ResponseFindDetailWishlist> getWishlistDetail(@PathVariable Long wishlistPk) {
+        Wishlist wishlist = wishlistService.getWishlistDetail(wishlistPk);
+        ResponseFindDetailWishlist response = ResponseFindDetailWishlist.builder()
+                .wishlistPk(wishlist.getWishlistPk())
+                .productNickname(wishlist.getProductNickname())
+                .productName(wishlist.getProductName())
+                .productPrice(wishlist.getProductPrice())
+                .productImageUrl(wishlist.getProductImageUrl())
+                .productUrl(wishlist.getProductUrl())
+                .isSelected(wishlist.getIsSelected())
+                .isCompleted(wishlist.getIsCompleted())
+                .depositAccountCode(wishlist.getDepositAccountCode())
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
     }
 }

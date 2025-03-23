@@ -3,6 +3,7 @@ package com.gbh.gbh_mm.wishlist.service;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
+import com.gbh.gbh_mm.wishlist.model.response.ResponseFindDetailWishlist;
 import com.gbh.gbh_mm.wishlist.model.response.ResponseFindWishlist;
 import com.gbh.gbh_mm.wishlist.repo.WishlistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,5 +55,9 @@ public class WishlistService {
 
     }
 
-
+    // 위시리스트 상세 조회
+    public Wishlist getWishlistDetail(Long wishlistPk) {
+        return wishlistRepository.findById(wishlistPk)
+                .orElseThrow(() -> new RuntimeException("Wishlist not found"));
+    }
 }

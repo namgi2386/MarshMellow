@@ -1,10 +1,7 @@
 package com.gbh.gbh_mm.wishlist.controller;
 
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
-import com.gbh.gbh_mm.wishlist.model.response.ResponseCreateWishlist;
-import com.gbh.gbh_mm.wishlist.model.response.ResponseFindDetailWishlist;
-import com.gbh.gbh_mm.wishlist.model.response.ResponseFindWishlist;
-import com.gbh.gbh_mm.wishlist.model.response.ResponseUpdateWishlist;
+import com.gbh.gbh_mm.wishlist.model.response.*;
 import com.gbh.gbh_mm.wishlist.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -79,6 +76,23 @@ public class WishlistController {
             return new ResponseEntity<>(ResponseUpdateWishlist.builder()
                     .code(500)
                     .message("위시리스트 수정 실패: " + e.getMessage())
+                    .build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // 위시리스트 삭제
+    @DeleteMapping("/detail/{wishlistPk}")
+    public ResponseEntity<ResponseDeleteWishlist> deleteWishlist(@PathVariable Long wishlistPk) {
+        try {
+            wishlistService.deleteWishlist(wishlistPk);
+            return new ResponseEntity<>(ResponseDeleteWishlist.builder()
+                    .code(200)
+                    .message("위시리스트 삭제 완료")
+                    .build(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ResponseDeleteWishlist.builder()
+                    .code(500)
+                    .message("위시리스트 삭제 실패: " + e.getMessage())
                     .build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -79,4 +79,14 @@ public class WishlistService {
 
 
     }
+
+    // 위시리스트 삭제
+    @Transactional
+    public void deleteWishlist(Long wishlistPk) {
+        Wishlist wishlist = wishlistRepository.findById(wishlistPk)
+                .orElseThrow(() -> new RuntimeException("Wishlist not found"));
+
+        wishlistRepository.delete(wishlist);
+
+    }
 }

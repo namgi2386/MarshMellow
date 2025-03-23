@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/widgets/text_input.dart';
 import 'package:marshmellow/core/widgets/select_input.dart';
 import 'package:marshmellow/core/widgets/round_input.dart';
 import 'package:marshmellow/core/widgets/button.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/core/widgets/card.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 
 class InputPage extends StatefulWidget {
   const InputPage({Key? key}) : super(key: key);
@@ -62,19 +66,60 @@ class _InputPageState extends State<InputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('텍스트 인풋'),
+      appBar: CustomAppbar(
+        title: '텍스트 인풋',
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextInput(
-              label: '이름',
-              controller: _nameController,
-              onChanged: (value) {
-                print('이름: $value');
+            CustomCard(
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.25,
+              backgroundColor: AppColors.bluePrimary,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '제목',
+                    style: AppTextStyles.bodySmall,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '여기에 카드 내용을 적습니다. 여러 줄의 텍스트와 다양한 위젯을 포함할 수 있습니다.',
+                    style: AppTextStyles.bodyMedium
+                        .copyWith(fontWeight: FontWeight.w300),
+                  ),
+                ],
+              ),
+              onTap: () {
+                print('카드가 탭됨');
               },
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomCard(
+                  width: MediaQuery.of(context).size.width * 0.45,
+                  height: MediaQuery.of(context).size.height * 0.13,
+                  backgroundColor: AppColors.pinkPrimary,
+                  onTap: () {
+                    print('카드가 탭됨');
+                  },
+                  child: const Text('카드 내용'),
+                ),
+                SizedBox(width: MediaQuery.of(context).size.width * 0.01),
+                CustomCard(
+                  width: MediaQuery.of(context).size.width * 0.45,
+                  height: MediaQuery.of(context).size.height * 0.13,
+                  backgroundColor: AppColors.bluePrimary,
+                  onTap: () {
+                    print('카드가 탭됨');
+                  },
+                  child: const Text('카드 내용'),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
             SelectInput<String>(

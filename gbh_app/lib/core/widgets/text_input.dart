@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/core/widgets/input_logic.dart';
+import 'package:marshmellow/core/widgets/logics/input_logic.dart';
 
 class TextInput extends StatefulWidget {
   final String label;

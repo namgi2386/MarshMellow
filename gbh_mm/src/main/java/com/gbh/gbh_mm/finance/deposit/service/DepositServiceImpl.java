@@ -40,7 +40,7 @@ public class DepositServiceImpl implements DepositService{
     @Override
     public Map<String, Object> findAccountList(RequestFindAccountList request)
         throws JsonProcessingException {
-        return depositAPI.findAccountList(request);
+        return depositAPI.findAccountList(request.getUserKey());
     }
 
     @Override

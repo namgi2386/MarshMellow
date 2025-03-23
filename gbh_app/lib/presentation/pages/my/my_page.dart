@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/router/routes/my_routes.dart';
 
 class MyPage extends ConsumerWidget {
@@ -14,10 +15,9 @@ class MyPage extends ConsumerWidget {
     // 라이프사이클 상태 구독
     final lifecycleState = ref.watch(lifecycleStateProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('마이마이!'),
-        titleTextStyle: AppTextStyles.appBar,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      appBar: CustomAppbar(
+        title: '마이마이',
+
       ),
       body: Center(
         child: Column(

@@ -4,6 +4,7 @@ import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/testpage/input_page.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 
 class LedgerPage extends ConsumerWidget {
   const LedgerPage({super.key});
@@ -13,10 +14,8 @@ class LedgerPage extends ConsumerWidget {
     // 라이프사이클 상태 구독
     final lifecycleState = ref.watch(lifecycleStateProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('가계부다!'),
-        titleTextStyle: AppTextStyles.appBar,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      appBar: CustomAppbar(
+        title: '가계부',
       ),
       body: Center(
         child: Column(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<< 라우터 테스트 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 import 'package:go_router/go_router.dart'; // 이제 라우트 할거면 필수
@@ -17,10 +18,17 @@ class FinancePage extends ConsumerWidget {
     // 라이프사이클 상태 구독
     final lifecycleState = ref.watch(lifecycleStateProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('자산이다!'),
-        titleTextStyle: AppTextStyles.appBar,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      appBar: CustomAppbar(
+        title: '자산',
+        actions: [
+          // 추가할 아이콘
+          IconButton(
+            icon: const Icon(Icons.stacked_bar_chart_rounded),
+            onPressed: () {
+              // 추가할 기능
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(

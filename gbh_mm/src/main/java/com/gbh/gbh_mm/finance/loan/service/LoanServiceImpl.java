@@ -62,7 +62,7 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public Map<String, Object> findAccountList(RequestFindAccountList request)
         throws JsonProcessingException {
-        return loanAPI.findAccountList(request);
+        return loanAPI.findAccountList(request.getUserKey());
     }
 
     @Override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:marshmellow/core/widgets/text_input.dart';
 import 'package:marshmellow/core/widgets/select_input.dart';
 import 'package:marshmellow/core/widgets/round_input.dart';
+import 'package:marshmellow/core/widgets/button.dart';
 
 class InputPage extends StatefulWidget {
   const InputPage({Key? key}) : super(key: key);
@@ -96,12 +97,12 @@ class _InputPageState extends State<InputPage> {
             const SizedBox(height: 30),
             RoundInput(
               controller: _roundController,
-              height: 40,
+              height: 50,
               onChanged: (value) {
                 print('이름: $value');
               },
             ),
-            ElevatedButton(
+            Button(
               onPressed: () {
                 _validateEmail(); // 버튼 클릭 시 한번 더 검증
                 if (_emailError == null && _emailController.text.isNotEmpty) {
@@ -109,7 +110,59 @@ class _InputPageState extends State<InputPage> {
                       '폼 제출: 이름=${_nameController.text}, 이메일=${_emailController.text}, 국가=${_countryController.text}');
                 }
               },
-              child: const Text('확인'),
+            ),
+            const SizedBox(height: 10),
+            Button(
+              text: '확인',
+              borderRadius: 30,
+              onPressed: () {
+                print('확인');
+              },
+            ),
+            const SizedBox(height: 10),
+            // 네/아니오 버튼 가로로 나란히 배치
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Button(
+                  text: '네',
+                  width: MediaQuery.of(context).size.width * 0.43, // 화면 너비의 43%
+                  borderRadius: 30,
+                  onPressed: () {
+                    print('네 선택됨');
+                  },
+                ),
+                const SizedBox(width: 10), // 버튼 사이 간격
+                Button(
+                  text: '아니오',
+                  width: MediaQuery.of(context).size.width * 0.43, // 화면 너비의 43%
+                  borderRadius: 30,
+                  onPressed: () {
+                    print('아니오 선택됨');
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Button(
+                  text: '확인',
+                  width: MediaQuery.of(context).size.width * 0.43, // 화면 너비의 43%
+                  onPressed: () {
+                    print('네 선택됨');
+                  },
+                ),
+                const SizedBox(width: 10), // 버튼 사이 간격
+                Button(
+                  text: '취소',
+                  width: MediaQuery.of(context).size.width * 0.43, // 화면 너비의 43%
+                  onPressed: () {
+                    print('아니오 선택됨');
+                  },
+                ),
+              ],
             ),
           ],
         ),

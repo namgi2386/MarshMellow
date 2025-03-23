@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/widgets/text_input.dart';
 import 'package:marshmellow/core/widgets/select_input.dart';
+import 'package:marshmellow/core/widgets/round_input.dart';
 
 class InputPage extends StatefulWidget {
   const InputPage({Key? key}) : super(key: key);
@@ -12,8 +13,8 @@ class InputPage extends StatefulWidget {
 class _InputPageState extends State<InputPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _countryController =
-      TextEditingController(); // 새로 추가
+  final TextEditingController _countryController = TextEditingController();
+  final TextEditingController _roundController = TextEditingController();
 
   String? _emailError;
 
@@ -27,7 +28,8 @@ class _InputPageState extends State<InputPage> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _countryController.dispose(); // 추가된 컨트롤러 dispose
+    _countryController.dispose();
+    _roundController.dispose();
     super.dispose();
   }
 
@@ -62,7 +64,7 @@ class _InputPageState extends State<InputPage> {
       appBar: AppBar(
         title: const Text('텍스트 인풋'),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -92,6 +94,13 @@ class _InputPageState extends State<InputPage> {
               errorText: _emailError,
             ),
             const SizedBox(height: 30),
+            RoundInput(
+              controller: _roundController,
+              height: 40,
+              onChanged: (value) {
+                print('이름: $value');
+              },
+            ),
             ElevatedButton(
               onPressed: () {
                 _validateEmail(); // 버튼 클릭 시 한번 더 검증

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/pages/testpage/input_page.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 
 class LedgerPage extends ConsumerWidget {
   const LedgerPage({super.key});
@@ -12,10 +14,8 @@ class LedgerPage extends ConsumerWidget {
     // 라이프사이클 상태 구독
     final lifecycleState = ref.watch(lifecycleStateProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('가계부다!'),
-        titleTextStyle: AppTextStyles.appBar,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      appBar: CustomAppbar(
+        title: '가계부',
       ),
       body: Center(
         child: Column(
@@ -59,6 +59,17 @@ class LedgerPage extends ConsumerWidget {
                 );
               },
               child: const Text('의존성 주입 테스트', style: AppTextStyles.button),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // 서비스 로케이터가 제대로 설정되었는지 확인
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => InputPage(),
+                  ),
+                );
+              },
+              child: const Text('테스트 페이지 이동', style: AppTextStyles.button),
             ),
           ],
         ),

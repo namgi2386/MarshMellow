@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/router/routes/my_routes.dart';
 
 class MyPage extends ConsumerWidget {
   const MyPage({super.key});
@@ -12,10 +15,9 @@ class MyPage extends ConsumerWidget {
     // 라이프사이클 상태 구독
     final lifecycleState = ref.watch(lifecycleStateProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('마이마이!'),
-        titleTextStyle: AppTextStyles.appBar,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      appBar: CustomAppbar(
+        title: '마이마이',
+
       ),
       body: Center(
         child: Column(
@@ -59,6 +61,22 @@ class MyPage extends ConsumerWidget {
                 );
               },
               child: const Text('의존성 주입 테스트', style: AppTextStyles.button),
+            ),
+            const SizedBox(height: 20), // 남기 datepicker 테스트페이지
+            ElevatedButton(
+              onPressed: () {
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(MyRoutes.getDatepickerTestPath());
+              },
+              child: const Text('데이트피커 테스트페이지'),
+            ),
+            const SizedBox(height: 20), // 남기 datepicker 테스트페이지
+            ElevatedButton(
+              onPressed: () {
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(MyRoutes.getDatepickerTestPath());
+              },
+              child: const Text('데이트피커 테스트페이지'),
             ),
           ],
         ),

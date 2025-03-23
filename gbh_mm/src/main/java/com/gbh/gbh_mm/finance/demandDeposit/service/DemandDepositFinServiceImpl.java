@@ -49,7 +49,7 @@ public class DemandDepositFinServiceImpl implements DemandDepositFinService {
     public Map<String, Object> findDemandDespositAccountList(
         RequestFindDemandDepositAccountList request
     ) throws JsonProcessingException {
-        return demandDepositAPI.findDemandDepositAccountList(request);
+        return demandDepositAPI.findDemandDepositAccountList(request.getUserKey());
     }
 
     @Override

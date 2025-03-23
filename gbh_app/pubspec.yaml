@@ -71,8 +71,23 @@ dependencies:
   # 코드 생성 관련
   build_runner: ^2.3.0  # 최신 버전보다 약간 낮은 버전  # 코드 생성 실행 도구 (개발 의존성)
 
+  # date picker
+  syncfusion_flutter_datepicker: ^28.2.11
   # UI
   flutter_svg: ^2.0.7  # SVG 이미지 렌더링
+
+  #router
+  go_router: ^14.8.1
+
+  convex_bottom_bar: ^3.2.0  # 컨벡스 디자인 하단 탭바
+
+  # 키보드관련
+  flutter_secure_keyboard: ^4.0.0 # 보안키보드
+  simple_numpad: ^1.0.5 # 숫자키보드/계산기키보드
+  keyboard_actions: ^4.2.0 # 기본키보드 액션추가전용
+
+  # lottie : 로딩인디케이터
+  lottie: ^3.3.1
 
 
 dev_dependencies:
@@ -105,6 +120,7 @@ flutter:
     - assets/fonts/
     - assets/images/
     - assets/images/mm/
+    - assets/images/loading/
     - assets/icons/
     - assets/icons/nav/
     - assets/icons/bank/

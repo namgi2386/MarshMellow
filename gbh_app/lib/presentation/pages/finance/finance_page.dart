@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/config/app_config.dart';
-import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
+import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<< 라우터 테스트 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+import 'package:go_router/go_router.dart'; // 이제 라우트 할거면 필수
+import 'package:marshmellow/router/routes/finance_routes.dart'; // 경로 상수 import
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>> 라우터 테스트 >>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 class FinancePage extends ConsumerWidget {
   const FinancePage({super.key});
@@ -12,10 +18,17 @@ class FinancePage extends ConsumerWidget {
     // 라이프사이클 상태 구독
     final lifecycleState = ref.watch(lifecycleStateProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('자산이다!'),
-        titleTextStyle: AppTextStyles.appBar,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      appBar: CustomAppbar(
+        title: '자산',
+        actions: [
+          // 추가할 아이콘
+          IconButton(
+            icon: const Icon(Icons.stacked_bar_chart_rounded),
+            onPressed: () {
+              // 추가할 기능
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -60,6 +73,17 @@ class FinancePage extends ConsumerWidget {
               },
               child: const Text('의존성 주입 테스트', style: AppTextStyles.button),
             ),
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 라우터 테스트 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // 테스트 페이지로 이동
+                context.push(FinanceRoutes.getTestPath());
+              },
+              child: const Text('테스트 페이지로 이동'),
+            ),
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 라우터 테스트 >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
           ],
         ),
       ),

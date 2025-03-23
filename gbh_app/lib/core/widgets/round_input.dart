@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
-import 'package:marshmellow/core/widgets/input_logic.dart';
+import 'package:marshmellow/core/widgets/logics/round_input_logic.dart';
 
 class RoundInput extends StatefulWidget {
   final ValueChanged<String>? onChanged;
@@ -11,6 +11,11 @@ class RoundInput extends StatefulWidget {
   final String? errorText;
   final double? height;
   final double? width;
+  final String? hintText;
+  final String? label;
+  final double? labelWidth;
+  final bool showDropdown; // 드롭다운 표시 여부
+  final VoidCallback? onDropdownTap; // 드롭다운 클릭 이벤트 콜백
 
   const RoundInput({
     super.key,
@@ -21,6 +26,11 @@ class RoundInput extends StatefulWidget {
     this.errorText,
     this.width,
     this.height,
+    this.hintText,
+    this.label,
+    this.labelWidth,
+    this.showDropdown = false, // 기본값은 드롭다운 표시 안 함
+    this.onDropdownTap,
   });
 
   @override
@@ -28,30 +38,40 @@ class RoundInput extends StatefulWidget {
 }
 
 class _RoundInputState extends State<RoundInput> {
-  late InputLogic _inputLogic;
+  late RoundInputLogic _inputLogic;
 
   @override
   void initState() {
     super.initState();
-    _inputLogic = InputLogic(
+    _initializeLogic();
+  }
+
+  void _initializeLogic() {
+    _inputLogic = RoundInputLogic(
       externalFocusNode: widget.focusNode,
       externalController: widget.controller,
-      onStateChanged: () => setState(() {}),
+      isDropdownMode: widget.showDropdown,
+      onStateChanged: () {
+        if (mounted) {
+          setState(() {});
+        }
+      },
     );
   }
 
   @override
   void didUpdateWidget(RoundInput oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.focusNode != oldWidget.focusNode) {
+
+    // 중요한 속성이 변경되면 로직을 재초기화
+    if (widget.focusNode != oldWidget.focusNode ||
+        widget.showDropdown != oldWidget.showDropdown) {
       _inputLogic.dispose();
-      _inputLogic = InputLogic(
-        externalFocusNode: widget.focusNode,
-        externalController: widget.controller,
-        onStateChanged: () => setState(() {}),
-      );
+      _initializeLogic();
     }
-    if (widget.controller != oldWidget.controller) {
+
+    // controller만 변경된 경우 컨트롤러만 업데이트
+    else if (widget.controller != oldWidget.controller) {
       _inputLogic.updateController(widget.controller);
     }
   }
@@ -64,145 +84,171 @@ class _RoundInputState extends State<RoundInput> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-
     return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: widget.width ?? screenWidth * 0.9,
-            height: widget.height ?? 50,
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.textPrimary, width: 1.5),
-              borderRadius: BorderRadius.circular(30),
-              color: AppColors.whiteLight,
-            ),
-            child: TextField(
-              controller: _inputLogic.controller,
-              focusNode: _inputLogic.focusNode,
-              onChanged: (value) {
-                if (widget.onChanged != null) {
-                  widget.onChanged!(value);
-                }
-              },
-              onTap: widget.onTap,
-              cursorColor: AppColors.textPrimary,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-              ),
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ),
-          if (widget.errorText != null)
-            Container(
-              width: widget.width ?? screenWidth * 0.9,
-              padding: const EdgeInsets.only(left: 16, top: 4),
-              margin: const EdgeInsets.only(bottom: 23),
-              child: Text(
-                widget.errorText!,
-                style: AppTextStyles.bodySmall.copyWith(
-                  fontWeight: FontWeight.w300,
-                  color: AppColors.warnning,
-                ),
-              ),
-            ),
-          if (widget.errorText == null) const SizedBox(height: 23),
+          _buildInputContainer(context),
+          _buildErrorText(context),
         ],
       ),
     );
   }
-}
 
+  // 입력 컨테이너 위젯
+  Widget _buildInputContainer(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
 
-// ===================== 사용 예시 =====================
-/*
-// RoundInput 위젯 사용 예시
+    // 포커스 상태에 따른 테두리 색상 결정
+    final borderColor =
+        _inputLogic.isFocused ? AppColors.textPrimary : AppColors.textLight;
 
-// 1. 기본 사용법
-RoundInput(
-  onChanged: (value) {
-    print('입력값: $value');
-  },
-)
+    // 입력 상태 확인 (텍스트가 있고 포커스가 없는 경우 = 입력 완료 상태)
+    final bool isInputComplete = _inputLogic.hasText && !_inputLogic.isFocused;
 
-// 2. 컨트롤러를 사용한 방법
-final TextEditingController _roundController = TextEditingController();
+    return GestureDetector(
+      onTap: () =>
+          _inputLogic.handleDropdownTap(widget.onDropdownTap, widget.onTap),
+      child: Container(
+        width: widget.width ?? screenWidth * 0.9,
+        height: widget.height ?? 50,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        decoration: BoxDecoration(
+          border: Border.all(color: borderColor, width: 1.5),
+          borderRadius: BorderRadius.circular(30),
+          color: AppColors.whiteLight,
+        ),
+        child: Row(
+          children: [
+            // 라벨과 입력 필드 영역
+            Expanded(
+              child: isInputComplete
+                  ? _buildCompletedInput()
+                  : _buildEditingInput(),
+            ),
 
-RoundInput(
-  controller: _roundController,
-  onChanged: (value) {
-    print('입력된 값: $value');
-    // 컨트롤러를 통해서도 접근 가능: _roundController.text
-  },
-)
-
-// 3. 유효성 검증 사용 예시
-String? _searchError;
-
-void _validateSearch(String search) {
-  if (search.isEmpty) {
-    setState(() => _searchError = null);
-  } else if (search.length < 2) {
-    setState(() => _searchError = '최소 2자 이상 입력해주세요');
-  } else {
-    setState(() => _searchError = null);
-  }
-}
-
-RoundInput(
-  errorText: _searchError,
-  onChanged: (value) {
-    _validateSearch(value);
-    print('검색어: $value');
-  },
-)
-
-// 4. 높이 및 너비 조정 예시
-RoundInput(
-  height: 30, // 지정된 높이로 설정
-  width: 250, // 지정된 너비로 설정
-  onChanged: (value) {
-    print('입력값: $value');
-  },
-)
-
-// 5. 탭 이벤트 사용 예시
-RoundInput(
-  controller: _locationController,
-  onTap: () {
-    // 위치 선택 다이얼로그 표시
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => LocationPickerSheet(
-        onLocationSelected: (location) {
-          _locationController.text = location;
-        },
+            // 드롭다운 아이콘 (showDropdown이 true일 때만 표시)
+            if (widget.showDropdown)
+              GestureDetector(
+                onTap: widget.onDropdownTap ?? widget.onTap,
+                child: Icon(
+                  Icons.expand_circle_down_outlined,
+                  size: 15,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+          ],
+        ),
       ),
     );
-  },
-)
+  }
 
-// 6. 포커스 노드 사용 예시
-final FocusNode _searchFocusNode = FocusNode();
+  // 에러 텍스트 영역
+  Widget _buildErrorText(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
 
-@override
-void dispose() {
-  _searchFocusNode.dispose();
-  super.dispose();
+    if (widget.errorText != null) {
+      return Container(
+        width: widget.width ?? screenWidth * 0.9,
+        padding: const EdgeInsets.only(left: 16, top: 4),
+        margin: const EdgeInsets.only(bottom: 23),
+        child: Text(
+          widget.errorText!,
+          style: AppTextStyles.bodySmall.copyWith(
+            fontWeight: FontWeight.w300,
+            color: AppColors.warnning,
+          ),
+        ),
+      );
+    } else {
+      return const SizedBox(height: 23);
+    }
+  }
+
+  // 입력 완료 상태의 UI (라벨 + 값)
+  Widget _buildCompletedInput() {
+    return Row(
+      children: [
+        // 라벨이 있는 경우 라벨 표시
+        if (widget.label != null)
+          SizedBox(
+            width: widget.labelWidth ?? 80,
+            child: Text(
+              widget.label!,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textLight,
+              ),
+            ),
+          ),
+
+        // 라벨과 입력값 사이의 간격
+        if (widget.label != null) const SizedBox(width: 20),
+
+        // 입력된 값 표시 영역
+        Expanded(
+          child: widget.showDropdown
+              ? _buildReadOnlyField() // 드롭다운 표시 시 읽기 전용 필드 사용
+              : _buildTextField(),
+        ),
+      ],
+    );
+  }
+
+  // 입력 중 또는 초기 상태의 UI (힌트 또는 입력 중)
+  Widget _buildEditingInput() {
+    return widget.showDropdown
+        ? _buildReadOnlyField() // 드롭다운 표시 시 읽기 전용 필드 사용
+        : _buildTextField();
+  }
+
+  // 텍스트 필드 위젯
+  Widget _buildTextField() {
+    return TextField(
+      controller: _inputLogic.controller,
+      focusNode: _inputLogic.focusNode,
+      onChanged: (value) {
+        if (widget.onChanged != null) {
+          widget.onChanged!(value);
+        }
+      },
+      onTap: widget.onTap,
+      cursorColor: AppColors.textPrimary,
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        hintText: widget.hintText,
+        hintStyle: AppTextStyles.bodySmall.copyWith(
+          color: AppColors.textPrimary.withOpacity(0.5),
+        ),
+        contentPadding: EdgeInsets.zero,
+      ),
+      style: AppTextStyles.bodyMediumLight,
+      textAlign: TextAlign.left,
+    );
+  }
+
+  // 읽기 전용 필드 (showDropdown=true일 때 사용)
+  Widget _buildReadOnlyField() {
+    // 로직 클래스를 사용하여 텍스트와 스타일 결정
+    final String displayText = _inputLogic.getDisplayText(widget.hintText);
+
+    final TextStyle textStyle = _inputLogic.getTextStyle(
+      AppTextStyles.bodyMediumLight,
+      AppTextStyles.bodySmall.copyWith(
+        color: AppColors.textPrimary.withOpacity(0.5),
+      ),
+    );
+
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        displayText,
+        style: textStyle,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
 }
-
-RoundInput(
-  focusNode: _searchFocusNode,
-  onChanged: (value) {
-    print('검색어: $value');
-  },
-)
-*/

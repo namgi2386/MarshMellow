@@ -1,5 +1,6 @@
-// lib/presentation/widgets/keyboard/numeric_keyboard.dart
 import 'package:flutter/material.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:simple_numpad/simple_numpad.dart';
 
 class NumericKeyboard extends StatefulWidget {
@@ -30,32 +31,64 @@ class _NumericKeyboardState extends State<NumericKeyboard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(8.0),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
+        ),
+        border: Border.all(
+          color: Colors.black,
+          width: 1.0,
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(18.0, 16.0, 18.0, 28.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 상단 바
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(width: 40),
-              Text('숫자 입력', style: Theme.of(context).textTheme.titleMedium),
-              IconButton(
-                icon: const Icon(Icons.keyboard_arrow_down),
-                onPressed: widget.onClose,
-              ),
-            ],
+          // 상단 바 (드래그 핸들)
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 16.0),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+          ),
+          
+          // 표시창
+          Container(
+            width: 240,
+            margin: const EdgeInsets.only(bottom: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color.fromARGB(255, 247, 247, 247)),
+              color: const Color.fromARGB(255, 247, 247, 247),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Text(
+              _currentValue,
+              style: const TextStyle(fontSize: 24),
+              textAlign: TextAlign.right,
+            ),
           ),
           
           // 키패드
           SimpleNumpad(
-            buttonWidth: 80,
+            buttonWidth: 60,
             buttonHeight: 60,
-            gridSpacing: 10,
-            buttonBorderRadius: 8,
+            gridSpacing: 20,
+            buttonBorderRadius: 30,
+            foregroundColor: Colors.red,
+            buttonBorderSide: const BorderSide(
+              color: AppColors.blackLight,
+              width: 1,
+            ),
+            textStyle: AppTextStyles.appBar,
             useBackspace: true,
-            optionText: '전체삭제',
+            optionText: 'clear',
             onPressed: (str) {
               _handleKeyPress(str);
             },
@@ -74,7 +107,7 @@ class _NumericKeyboardState extends State<NumericKeyboard> {
           });
         }
         break;
-      case '전체삭제':
+      case 'clear':
         setState(() {
           _currentValue = '';
         });

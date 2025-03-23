@@ -88,7 +88,7 @@ class _KeyboardTestPageState extends State<KeyboardTestPage> {
               // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  
         
               // <<<<<<<<<<<<<<<<<<<<<<< 보안 키보드 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-              const Text('보안키보드'),
+              Text('보안키보드 :  $_secureValue'),
               TextInput(
                 label: '보안키보드',
                 readOnly: true, // (필수)시스템 키보드 방지
@@ -115,10 +115,8 @@ class _KeyboardTestPageState extends State<KeyboardTestPage> {
               ),
               // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  
               
-              // 보안키보드 입력된건지 테스트
-              const SizedBox(height: 8),
-              Text('입력된 실제 값(테스트용): $_secureValue', style: TextStyle(fontSize: 12)),
               // 일반 키보드 비교 
+              const Text('시스템 기본 키보드'),
               TextInput(
                 label: '이름',
                 controller: _nameController,

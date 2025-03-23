@@ -1,6 +1,7 @@
 // lib/presentation/widgets/keyboard/calculator_keyboard.dart
 import 'package:flutter/material.dart';
-import 'package:simple_numpad/simple_numpad.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 
 class CalculatorKeyboard extends StatefulWidget {
   final Function(String) onValueChanged;
@@ -32,101 +33,155 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(8.0),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
+        ),
+        border: Border.all(
+          color: Colors.black,
+          width: 1.0,
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 상단 바
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(width: 40),
-              Text('계산기', style: Theme.of(context).textTheme.titleMedium),
-              IconButton(
-                icon: const Icon(Icons.keyboard_arrow_down),
-                onPressed: widget.onClose,
+          // 표시창 (옵션)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color.fromARGB(255, 247, 247, 247),),
+                color: const Color.fromARGB(255, 247, 247, 247),
+                borderRadius: BorderRadius.circular(8.0),
               ),
-            ],
+              child: Text(
+                _displayValue,
+                style: const TextStyle(fontSize: 24),
+                textAlign: TextAlign.right,
+              ),
+            ),
           ),
           
-          // 계산기 키패드 커스텀 구현
-          // 여기서는 simple_numpad를 확장해 사칙연산 버튼 추가 필요
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          // 계산기 버튼 그리드
+          GridView.count(
+            crossAxisCount: 4,
+            shrinkWrap: true,
+            childAspectRatio: 1.3,
+            mainAxisSpacing: 8.0,
+            crossAxisSpacing: 0.0,
+            physics: const NeverScrollableScrollPhysics(),
             children: [
-              _buildOperatorButton('+'),
-              const SizedBox(width: 10),
-              _buildOperatorButton('-'),
-              const SizedBox(width: 10),
-              _buildOperatorButton('×'),
-              const SizedBox(width: 10),
-              _buildOperatorButton('÷'),
+              // 첫 번째 행
+              _buildButton('AC', isFunction: true),
+              _buildButton('+/-', isFunction: true),
+              _buildButton('%', isFunction: true),
+              _buildButton('/', isOperator: true),
+              
+              // 두 번째 행
+              _buildButton('1'),
+              _buildButton('2'),
+              _buildButton('3'),
+              _buildButton('×', isOperator: true),
+              
+              // 세 번째 행
+              _buildButton('4'),
+              _buildButton('5'),
+              _buildButton('6'),
+              _buildButton('+', isOperator: true),
+              
+              // 네 번째 행
+              _buildButton('7'),
+              _buildButton('8'),
+              _buildButton('9'),
+              _buildButton('-', isOperator: true),
+              
+              // 다섯 번째 행
+              _buildButton('00'),
+              _buildButton('0'),
+              _buildButton('BACKSPACE', icon: Icons.backspace_outlined),
+              _buildButton('=', isOperator: true),
             ],
-          ),
-          const SizedBox(height: 10),
-          SimpleNumpad(
-            buttonWidth: 80,
-            buttonHeight: 60,
-            gridSpacing: 10,
-            buttonBorderRadius: 8,
-            useBackspace: true,
-            optionText: '전체삭제',
-            onPressed: (str) {
-              _handleKeyPress(str);
-            },
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: _calculate,
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
-            child: const Text('=', style: TextStyle(fontSize: 24)),
           ),
         ],
       ),
     );
   }
   
-  Widget _buildOperatorButton(String operator) {
+  Widget _buildButton(String text, {bool isOperator = false, bool isFunction = false, IconData? icon}) {
     return ElevatedButton(
-      onPressed: () => _handleKeyPress(operator),
+      onPressed: () => _handleKeyPress(text),
       style: ElevatedButton.styleFrom(
-        fixedSize: const Size(60, 60),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: const CircleBorder(),
+        padding: EdgeInsets.zero,
+        backgroundColor: isOperator ? Colors.white : Colors.white,
+        foregroundColor: isOperator ? Colors.black : isFunction ? Colors.black54 : Colors.black,
+        elevation: 2,
+        side: BorderSide(color: AppColors.blackLight, width: 1),
       ),
-      child: Text(operator, style: const TextStyle(fontSize: 24)),
+      child: icon != null 
+          ? Icon(icon, size: 24 , color: AppColors.blackPrimary,) 
+          : Text(
+              text, 
+              style: AppTextStyles.appBar
+            ),
     );
   }
   
   void _handleKeyPress(String str) {
     switch(str) {
+      case 'AC':
+        setState(() {
+          _currentExpression = '';
+          _displayValue = '0';
+        });
+        break;
       case 'BACKSPACE':
         if (_currentExpression.isNotEmpty) {
           setState(() {
             _currentExpression = _currentExpression.substring(0, _currentExpression.length - 1);
-            _displayValue = _currentExpression;
+            _displayValue = _currentExpression.isEmpty ? '0' : _currentExpression;
           });
         }
         break;
-      case '전체삭제':
+      case '+/-':
         setState(() {
-          _currentExpression = '';
-          _displayValue = '';
+          if (_currentExpression.startsWith('-')) {
+            _currentExpression = _currentExpression.substring(1);
+          } else if (_currentExpression.isNotEmpty) {
+            _currentExpression = '-' + _currentExpression;
+          }
+          _displayValue = _currentExpression.isEmpty ? '0' : _currentExpression;
         });
+        break;
+      case '%':
+        try {
+          final value = double.parse(_currentExpression) / 100;
+          setState(() {
+            _currentExpression = value.toString();
+            _displayValue = _currentExpression;
+          });
+        } catch (e) {
+          // 변환 실패 시 무시
+        }
+        break;
+      case '=':
+        _calculate();
         break;
       case '+':
       case '-':
       case '×':
-      case '÷':
+      case '/':
         setState(() {
           // 마지막 문자가 연산자라면 교체, 아니면 추가
           if (_currentExpression.isNotEmpty) {
             final lastChar = _currentExpression[_currentExpression.length - 1];
-            if (lastChar == '+' || lastChar == '-' || lastChar == '×' || lastChar == '÷') {
+            if (lastChar == '+' || lastChar == '-' || lastChar == '×' || lastChar == '/') {
               _currentExpression = _currentExpression.substring(0, _currentExpression.length - 1) + str;
             } else {
               _currentExpression += str;
@@ -155,14 +210,13 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
       // 곱셈/나눗셈 기호 변환
       expression = expression.replaceAll('×', '*').replaceAll('÷', '/');
       
-      // 계산 결과 구하기 (간단한 계산기 로직 - 실제로는 더 복잡할 수 있음)
-      // 여기서는 간단한 계산만 시도
+      // 계산 결과 구하기
       List<String> numbers = [];
       List<String> operators = [];
       
       String currentNumber = '';
       for (int i = 0; i < expression.length; i++) {
-        if ('0123456789'.contains(expression[i])) {
+        if ('0123456789.'.contains(expression[i])) {
           currentNumber += expression[i];
         } else if ('+-*/'.contains(expression[i])) {
           if (currentNumber.isNotEmpty) {

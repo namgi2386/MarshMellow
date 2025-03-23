@@ -4,6 +4,7 @@ import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
 import com.gbh.gbh_mm.wishlist.model.response.ResponseCreateWishlist;
 import com.gbh.gbh_mm.wishlist.model.response.ResponseFindDetailWishlist;
 import com.gbh.gbh_mm.wishlist.model.response.ResponseFindWishlist;
+import com.gbh.gbh_mm.wishlist.model.response.ResponseUpdateWishlist;
 import com.gbh.gbh_mm.wishlist.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,5 +63,23 @@ public class WishlistController {
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
+    }
+
+    // 위시리스트 수정
+    @PutMapping("/detail/{wishlistPk}")
+    public ResponseEntity<ResponseUpdateWishlist> updateWishlist(@PathVariable Long wishlistPk, @RequestBody Wishlist wishlist) {
+        try {
+
+            wishlistService.updateWishlist(wishlistPk, wishlist);
+            return new ResponseEntity<>(ResponseUpdateWishlist.builder()
+                    .code(200)
+                    .message("위시리스트 수정 완료")
+                    .build(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ResponseUpdateWishlist.builder()
+                    .code(500)
+                    .message("위시리스트 수정 실패: " + e.getMessage())
+                    .build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -60,4 +60,23 @@ public class WishlistService {
         return wishlistRepository.findById(wishlistPk)
                 .orElseThrow(() -> new RuntimeException("Wishlist not found"));
     }
+
+    // 위시리스트 수정
+    public Wishlist updateWishlist(Long wishlistPk, Wishlist wishlist) {
+        Wishlist oldWishlist = wishlistRepository.findById(wishlistPk)
+                .orElseThrow(() -> new RuntimeException("Wishlist not found"));
+
+        oldWishlist.setProductNickname(wishlist.getProductNickname());
+        oldWishlist.setProductName(wishlist.getProductName());
+        oldWishlist.setProductPrice(wishlist.getProductPrice());
+        oldWishlist.setProductImageUrl(wishlist.getProductImageUrl());
+        oldWishlist.setProductUrl(wishlist.getProductUrl());
+        oldWishlist.setIsSelected(wishlist.getIsSelected());
+        oldWishlist.setIsCompleted(wishlist.getIsCompleted());
+        oldWishlist.setDepositAccountCode(wishlist.getDepositAccountCode());
+        return wishlistRepository.save(oldWishlist);
+
+
+
+    }
 }

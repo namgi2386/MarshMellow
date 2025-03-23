@@ -1,19 +1,21 @@
 package com.gbh.gbh_mm.asset.controller;
 
+import com.gbh.gbh_mm.asset.model.vo.request.RequestDeleteWithdrawalAccount;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindWithdrawalAccountList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
 import com.gbh.gbh_mm.asset.service.AssetService;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
+import com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth;
+import com.gbh.gbh_mm.finance.auth.vo.request.RequestCreateAccountAuth;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
+import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestAccountTransfer;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
 import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
 import com.gbh.gbh_mm.finance.savings.vo.request.RequestFindSavingsPayment;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/asset")
@@ -80,4 +82,55 @@ public class AssetController {
 
         return ResponseEntity.ok(response);
     }
+
+    /* 1원 송금 */
+    @PostMapping("/open-account-auth")
+    public ResponseEntity<ResponseOpenAccountAuth> openAccountAuth(
+            @RequestBody RequestCreateAccountAuth request
+    ) {
+        ResponseOpenAccountAuth response = assetService.openAccountAuth(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /* 1원 송금 인증 */
+    @PostMapping("/check-account-auth")
+    public ResponseEntity<ResponseCheckAccountAuth> checkAccountAuth(
+            @RequestBody RequestCheckAccountAuth request
+    ) {
+        ResponseCheckAccountAuth response = assetService.checkAccountAuth(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /* 출금 계좌 목록 */
+    @GetMapping("/withdrawal-account")
+    public ResponseEntity<ResponseFindWithdrawalAccountList> findWithdrawalAccountList(
+            @RequestBody RequestFindWithdrawalAccountList request
+    ) {
+        ResponseFindWithdrawalAccountList response = assetService.findWithdrawalAccountList(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /* 출금 계좌 삭제 */
+    @DeleteMapping("/withdrawal-account")
+    public ResponseEntity<ResponseDeleteWithdrawalAccount> deleteWithdrawalAccount(
+            @RequestBody RequestDeleteWithdrawalAccount request
+    ) {
+        ResponseDeleteWithdrawalAccount response = assetService.deleteWithdrawalAccount(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /* 계좌 송금 */
+    @PostMapping("/account-transfer")
+    public ResponseEntity<ResponseAccountTransfer> accountTransfer(
+            @RequestBody RequestAccountTransfer request
+    ) {
+        ResponseAccountTransfer response = assetService.accountTransger(request);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

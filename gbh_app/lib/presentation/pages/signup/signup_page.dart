@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbols.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; 
@@ -10,6 +11,8 @@ import 'package:marshmellow/core/widgets/modal.dart';
 import 'package:marshmellow/core/widgets/text_input.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
+import 'package:marshmellow/router/routes/signup_routes.dart';
+import 'package:marshmellow/presentation/pages/signup/widgets/custom_button.dart';
 
 // 본인인증 단계 관리 Provider
 final verificationStepProvider = StateProvider<int>((ref) => 0);
@@ -90,51 +93,6 @@ class SignupPage extends ConsumerWidget {
           maxHeight: MediaQuery.of(context).size.height * 0.7,
           child: TermsAgreementModal(),
           ),
-      ),
-    );
-  }
-}
-
-// 커스텀 버튼 위젯
-class CustomButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isEnabled;
-
-  const CustomButton({
-    required this.text,
-    required this.onPressed,
-    this.isEnabled = true,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    return Center(
-      child: SizedBox(
-        width: screenWidth * 0.9,
-        height: 60,
-        child: ElevatedButton(
-          onPressed: isEnabled ? onPressed : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isEnabled ? AppColors.backgroundBlack : AppColors.textSecondary.withOpacity(0.5),
-            foregroundColor: AppColors.whiteLight,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-            elevation: 0,
-          ),
-          child: Text(
-            text,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.whiteLight,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -558,7 +516,13 @@ class _TermsAgreementModalState extends ConsumerState<TermsAgreementModal> {
           onPressed: (agreeTerms && agreePrivacy) 
               ? () {
                   Navigator.pop(context);
-                  //[edit] 본인인증 로직 추가
+                  // 인증 메시지 보내러 가기
+                  context.go(SignupRoutes.getAuthMessagePath(), extra: {
+                    'name': ref.read(nameProvider),
+                    'idNum': ref.read(idNumProvider),
+                    'phone': ref.read(phoneProvider),
+                    'carrier': ref.read(carrierProvider),
+                  });
                 } 
               : null,
           isEnabled: agreeTerms && agreePrivacy,

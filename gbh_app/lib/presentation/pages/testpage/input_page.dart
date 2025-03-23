@@ -7,6 +7,7 @@ import 'package:marshmellow/core/widgets/button.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/core/widgets/card.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/core/widgets/modal.dart';
 
 class InputPage extends StatefulWidget {
   const InputPage({Key? key}) : super(key: key);
@@ -20,8 +21,18 @@ class _InputPageState extends State<InputPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _roundController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
 
   String? _emailError;
+
+  // 카테고리 예시 데이터
+  final List<String> categories = [
+    '식사',
+    '카페/디저트',
+    '쇼핑',
+    '문화/여가',
+    '교통',
+  ];
 
   @override
   void initState() {
@@ -141,12 +152,61 @@ class _InputPageState extends State<InputPage> {
             ),
             const SizedBox(height: 30),
             RoundInput(
+              height: 50,
+              onChanged: (value) {
+                print('이름: $value');
+              },
+            ),
+            const SizedBox(height: 10),
+            RoundInput(
+              hintText: '입금자명 4글자',
+              height: 50,
+              onChanged: (value) {
+                print('이름: $value');
+              },
+            ),
+            const SizedBox(height: 10),
+            RoundInput(
+              label: '입금자명',
+              hintText: '입금자명 4글자',
               controller: _roundController,
               height: 50,
               onChanged: (value) {
                 print('이름: $value');
               },
             ),
+            const SizedBox(height: 10),
+            RoundInput(
+              label: '카테고리',
+              controller: _categoryController,
+              hintText: '카테고리 선택',
+              showDropdown: true,
+              onDropdownTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  isScrollControlled: true,
+                  builder: (context) => Modal(
+                    backgroundColor: AppColors.whiteLight,
+                    title: '카테고리 선택',
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: categories.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(categories[index]),
+                          onTap: () {
+                            _categoryController.text = categories[index];
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 10),
             Button(
               onPressed: () {
                 _validateEmail(); // 버튼 클릭 시 한번 더 검증

@@ -188,15 +188,20 @@ class _InputPageState extends State<InputPage> {
                   isScrollControlled: true,
                   builder: (context) => Modal(
                     backgroundColor: AppColors.whiteLight,
-                    title: '카테고리 선택',
                     child: ListView.builder(
                       shrinkWrap: true,
                       itemCount: categories.length,
                       itemBuilder: (context, index) {
                         return ListTile(
-                          title: Text(categories[index]),
+                          title: Text(
+                            categories[index],
+                            style: AppTextStyles.bodyMediumLight.copyWith(
+                                fontWeight: FontWeight.w300), 
+                          ),
                           onTap: () {
-                            _categoryController.text = categories[index];
+                            setState(() {
+                              _categoryController.text = categories[index];
+                            });
                             Navigator.pop(context);
                           },
                         );

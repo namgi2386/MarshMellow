@@ -1,10 +1,10 @@
 // lib/router/routes/signup_routes.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:marshmellow/presentation/pages/signup/auth_message_page.dart';
-import 'package:marshmellow/presentation/pages/signup/signup_page.dart';
-import 'package:marshmellow/presentation/pages/signup/auth_verification_loading_page.dart';
-import 'package:marshmellow/presentation/pages/signup/auth_complete_page.dart';
+import 'package:marshmellow/presentation/pages/auth/auth_message_page.dart';
+import 'package:marshmellow/presentation/pages/auth/signup_page.dart';
+import 'package:marshmellow/presentation/pages/auth/auth_verification_loading_page.dart';
+import 'package:marshmellow/presentation/pages/auth/auth_complete_page.dart';
 
 class SignupRoutes {
   static const String root = '/signup';

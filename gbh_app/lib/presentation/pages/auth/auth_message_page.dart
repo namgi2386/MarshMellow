@@ -2,11 +2,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:marshmellow/router/routes/signup_routes.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/presentation/pages/signup/widgets/custom_button.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/custom_button.dart';
 
 class AuthMessagePage extends ConsumerWidget {
   final String name;
@@ -33,11 +33,12 @@ class AuthMessagePage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 상단 설명 텍스트
-            const SizedBox(height: 40),
+            const SizedBox(height: 130),
             const Text('본인인증을 위해', style: AppTextStyles.mainTitle),
             const Text('문자를 보내주세요', style: AppTextStyles.mainTitle),
-            const Text('내용은 mm이 써두었으니', style: AppTextStyles.bodySmall),
-            const Text('[문자 보내기]만 눌러주세요', style: AppTextStyles.bodySmall),
+            const SizedBox(height: 10),
+            Text('내용은 mm이 써두었으니', style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled)),
+            Text('[문자 보내기]만 눌러주세요', style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled)),
             const Spacer(),
 
             // 이미지
@@ -63,13 +64,13 @@ class AuthMessagePage extends ConsumerWidget {
   }
 
   void _sendAuthMessage(BuildContext context) async {
-    // 메시지 내용
+    // 문자 내용
     final messageBody = '[MM]본인 확인을 위해 인증을 요청합니다.';
 
     // SMS 앱 열기
     final uri = Uri(
       scheme: 'sms',
-      path: '6004',
+      path: '6004', // 문자 보낼 사람
       queryParameters: {'body': messageBody},
     );
 

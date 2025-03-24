@@ -10,7 +10,23 @@ class ApiClient {
   Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
     try {
       final response = await _dio.get(path, queryParameters: queryParameters);
-      return response.data;
+      return _processResponse(response);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // GET 요청에 body를 지원하는 메소드
+  Future<dynamic> getWithBody(String path, {dynamic data, Map<String, dynamic>? queryParameters}) async {
+    try {
+      final options = Options(method: 'GET');
+      final response = await _dio.request(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+      return _processResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -20,15 +36,62 @@ class ApiClient {
   Future<dynamic> post(String path, {dynamic data}) async {
     try {
       final response = await _dio.post(path, data: data);
-      return response.data;
+      return _processResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);
     }
   }
   
-  // 에러 핸들링 (기본)
+  // PUT 요청 추가
+  Future<dynamic> put(String path, {dynamic data}) async {
+    try {
+      final response = await _dio.put(path, data: data);
+      return _processResponse(response);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+  
+  // DELETE 요청 추가
+  Future<dynamic> delete(String path, {dynamic data}) async {
+    try {
+      final response = await _dio.delete(path, data: data);
+      return _processResponse(response);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+  
+  // 응답 처리 (백엔드의 status 코드 확인)
+  dynamic _processResponse(Response response) {
+    return response.data;
+  }
+  
+  // 에러 핸들링 (상세)
   Exception _handleError(DioException error) {
-    // 나중에 에러 처리 로직 추가
+    if (error.response != null) {
+      // 응답이 있는 경우
+      if (error.response!.data is Map) {
+        final Map responseData = error.response!.data;
+        if (responseData.containsKey('message')) {
+          // 백엔드에서 제공하는 에러 메시지가 있으면 사용
+          return Exception('API 에러: ${responseData['message']}');
+        }
+        if (responseData.containsKey('status')) {
+          // 상태 코드가 있으면 포함
+          return Exception('API 에러: 상태 코드 ${responseData['status']}');
+        }
+      }
+      return Exception('API 에러: 상태 코드 ${error.response!.statusCode}');
+    }
+    
+    // 네트워크 연결 문제 등
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout) {
+      return Exception('서버 연결 시간 초과. 네트워크 상태를 확인해주세요.');
+    }
+    
     return Exception('API 요청 실패: ${error.message}');
   }
 }

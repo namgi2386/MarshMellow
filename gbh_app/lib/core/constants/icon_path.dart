@@ -80,4 +80,6 @@ class IconPath {
       'assets/icons/search_bar/search_button.svg';
   static const String searchButtonPng =
       'assets/icons/search_bar/search_button.png';
+  static const String exitgray =
+      'assets/icons/search_bar/exitgray.svg';
 }

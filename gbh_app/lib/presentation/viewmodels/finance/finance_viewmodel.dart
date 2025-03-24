@@ -13,6 +13,11 @@ final assetDataProvider = FutureProvider<AssetResponseModel>((ref) async {
   return await viewModel.getAssetInfo();
 });
 
+// 간편 모드 토글 상태를 위한 Provider
+final simpleViewModeProvider = StateProvider<bool>((ref) => false);
+// 자산 숨김버튼 상태 프로바이더
+final isFinanceHideProvider = StateProvider<bool>((ref) => false);
+
 class FinanceViewModel {
   final ProviderRef _ref;
   

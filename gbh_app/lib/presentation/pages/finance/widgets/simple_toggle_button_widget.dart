@@ -1,13 +1,18 @@
 // presentation/pages/finance/widgets/simple_toggle_button_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:marshmellow/router/routes/finance_routes.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
 
-// 간편 모드 토글 상태를 위한 Provider
-final simpleViewModeProvider = StateProvider<bool>((ref) => false);
 
 class SimpleToggleButton extends ConsumerWidget {
-  const SimpleToggleButton({Key? key}) : super(key: key);
+  final bool isSimplePage;
+  
+  const SimpleToggleButton({
+    Key? key, 
+    this.isSimplePage = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,8 +20,17 @@ class SimpleToggleButton extends ConsumerWidget {
     
     return GestureDetector(
       onTap: () {
+        // 토글 상태 변경
         ref.read(simpleViewModeProvider.notifier).state = !isSimpleToggleOn;
-        // 여기에 토글 동작 코드 추가
+        
+        // 페이지 이동 처리
+        if (isSimplePage) {
+          // 간편 페이지에서는 메인 페이지로 이동
+          context.go(FinanceRoutes.root);
+        } else {
+          // 메인 페이지에서는 간편 페이지로 이동
+          context.go(FinanceRoutes.getSimplePath());
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),

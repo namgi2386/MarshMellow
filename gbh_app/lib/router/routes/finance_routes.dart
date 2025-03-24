@@ -3,16 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_test_page.dart';
+import 'package:marshmellow/presentation/pages/finance/simple_finance_page.dart';
 import 'package:marshmellow/presentation/pages/testpage/keyboard_test_page.dart'; // 추가
 
 class FinanceRoutes {
   static const String root = '/finance';
   static const String test = 'financetest'; // 하위 경로 추가
   static const String keyboardtest = 'keyboardtest'; // 하위 경로 추가
+  static const String rootsimple = 'simple'; // 하위 경로 추가
   
   // 전체 경로 생성 헬퍼 메서드
   static String getTestPath() => '$root/$test'; // 전체 경로 반환 헬퍼
   static String getKeyboardTestPath() => '$root/$keyboardtest'; // 전체 경로 반환 헬퍼
+  static String getSimplePath() => '$root/$rootsimple'; // 전체 경로 반환 헬퍼
 }
 
 List<RouteBase> financeRoutes = [
@@ -28,6 +31,10 @@ List<RouteBase> financeRoutes = [
       GoRoute(
         path: FinanceRoutes.keyboardtest,
         builder: (context, state) => const KeyboardTestPage(),
+      ),
+      GoRoute(
+        path: FinanceRoutes.rootsimple,
+        builder: (context, state) => const SimpleFinancePage(),
       ),
     ],
   ),

@@ -124,12 +124,13 @@ flutter:
     - assets/images/
     - assets/images/mm/
     - assets/images/loading/
+    - assets/images/characters/
+    - assets/images/userverification.png
     - assets/icons/
     - assets/icons/nav/
     - assets/icons/bank/
     - assets/icons/expense/
     - assets/icons/income/
-    - assets/images/userverification.png
     - assets/icons/search_bar/
     - assets/icons/app_bar/
 

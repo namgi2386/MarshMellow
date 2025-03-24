@@ -5,16 +5,16 @@ import 'package:marshmellow/presentation/widgets/round_input/round_input.dart';
 class CustomSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
-  final String? hintText;
   final VoidCallback? onSearchPressed;
+  final String? hintText;
 
-  const CustomSearchBar({
-    Key? key,
-    required this.controller,
-    this.onChanged,
-    this.hintText = '검색어를 입력하세요',
-    this.onSearchPressed,
-  }) : super(key: key);
+  const CustomSearchBar(
+      {Key? key,
+      required this.controller,
+      this.onChanged,
+      this.onSearchPressed,
+      this.hintText})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

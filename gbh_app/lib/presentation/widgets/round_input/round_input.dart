@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
-import 'package:marshmellow/core/widgets/logics/round_input_logic.dart';
-import 'package:marshmellow/core/widgets/modal.dart';
+import 'package:marshmellow/presentation/widgets/round_input/round_input_logic.dart';
+import 'package:marshmellow/presentation/viewmodels/modal/modal_layout.dart';
 
 class RoundInput<T> extends StatefulWidget {
   final ValueChanged<String>? onChanged;
@@ -97,74 +97,29 @@ class _RoundInputState<T> extends State<RoundInput<T>> {
   void _showBottomSheet() {
     if (widget.items == null || widget.items!.isEmpty) return;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useRootNavigator: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _inputLogic.focusNode.unfocus();
-        });
-        return Modal(
-          backgroundColor: AppColors.whiteLight,
-          title: widget.modalTitle,
-          showDivider: widget.showTitleDivider,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: widget.items!.length,
-                  separatorBuilder: (context, index) {
-                    return widget.showDividers
-                        ? Divider(
-                            height: 1,
-                            thickness: 0.5,
-                            color: AppColors.textSecondary.withOpacity(0.3),
-                          )
-                        : SizedBox.shrink();
-                  },
-                  itemBuilder: (context, index) {
-                    final item = widget.items![index];
-                    final isSelected = _selectedItem == item;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _inputLogic.focusNode.unfocus();
+    });
 
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedItem = item;
-                          if (widget.controller != null) {
-                            widget.controller!.text = _getDisplayText(item);
-                          }
-                        });
-                        if (widget.onItemSelected != null) {
-                          widget.onItemSelected!(item);
-                        }
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 15),
-                        child: Text(
-                          _getDisplayText(item),
-                          style: AppTextStyles.bodyLargeLight.copyWith(
-                            fontSize: 15,
-                          ),
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
+    ModalLayout.showSelectionModal<T>(
+      context: context,
+      items: widget.items!,
+      displayStringForItem: widget.displayStringForItem ?? _getDisplayText,
+      onItemSelected: (item) {
+        setState(() {
+          _selectedItem = item;
+          if (widget.controller != null) {
+            widget.controller!.text = _getDisplayText(item);
+          }
+        });
+        if (widget.onItemSelected != null) {
+          widget.onItemSelected!(item);
+        }
       },
+      modalTitle: widget.modalTitle,
+      showDividers: widget.showDividers,
+      showTitleDivider: widget.showTitleDivider,
+      selectedItem: _selectedItem,
     );
   }
 

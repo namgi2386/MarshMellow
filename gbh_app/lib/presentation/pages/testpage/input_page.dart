@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
-import 'package:marshmellow/core/widgets/text_input.dart';
-import 'package:marshmellow/core/widgets/select_input.dart';
-import 'package:marshmellow/core/widgets/round_input.dart';
-import 'package:marshmellow/core/widgets/button.dart';
+import 'package:marshmellow/presentation/widgets/text_input/text_input.dart';
+import 'package:marshmellow/presentation/widgets/select_input/select_input.dart';
+import 'package:marshmellow/presentation/widgets/round_input/round_input.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-import 'package:marshmellow/core/widgets/card.dart';
+import 'package:marshmellow/presentation/widgets/card/card.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/core/widgets/modal.dart';
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 
 class InputPage extends StatefulWidget {
   const InputPage({Key? key}) : super(key: key);

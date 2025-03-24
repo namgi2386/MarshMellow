@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/core/widgets/logics/button_logic.dart';
+import 'package:marshmellow/presentation/widgets/button/button_logic.dart';
 
 class Button extends StatefulWidget {
   final String text;

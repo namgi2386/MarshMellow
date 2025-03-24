@@ -25,15 +25,6 @@ class _InputPageState extends State<InputPage> {
 
   String? _emailError;
 
-  // 카테고리 예시 데이터
-  final List<String> categories = [
-    '식사',
-    '카페/디저트',
-    '쇼핑',
-    '문화/여가',
-    '교통',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -176,39 +167,22 @@ class _InputPageState extends State<InputPage> {
               },
             ),
             const SizedBox(height: 10),
-            RoundInput(
-              label: '카테고리',
+
+            RoundInput<String>(
+              label: "카테고리",
+              hintText: "카테고리를 선택하세요",
               controller: _categoryController,
-              hintText: '카테고리 선택',
               showDropdown: true,
-              onDropdownTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: Colors.transparent,
-                  isScrollControlled: true,
-                  builder: (context) => Modal(
-                    backgroundColor: AppColors.whiteLight,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(
-                            categories[index],
-                            style: AppTextStyles.bodyMediumLight.copyWith(
-                                fontWeight: FontWeight.w300), 
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _categoryController.text = categories[index];
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                );
+              modalTitle: "카테고리 선택",
+              items: [
+                '식사',
+                '카페/디저트',
+                '쇼핑',
+                '문화/여가',
+                '교통',
+              ],
+              onItemSelected: (value) {
+                print("선택된 국가: $value");
               },
             ),
             const SizedBox(height: 10),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/core/widgets/input_logic.dart';
+import 'package:marshmellow/presentation/widgets/text_input/text_input_logic.dart';
 
 class TextInput extends StatefulWidget {
   final String label;
@@ -30,12 +30,12 @@ class TextInput extends StatefulWidget {
 }
 
 class _TextInputState extends State<TextInput> {
-  late InputLogic _inputLogic;
+  late TextInputLogic _textInputLogic;
 
   @override
   void initState() {
     super.initState();
-    _inputLogic = InputLogic(
+    _textInputLogic = TextInputLogic(
       externalFocusNode: widget.focusNode,
       externalController: widget.controller,
       onStateChanged: () => setState(() {}),
@@ -46,21 +46,21 @@ class _TextInputState extends State<TextInput> {
   void didUpdateWidget(TextInput oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.focusNode != oldWidget.focusNode) {
-      _inputLogic.dispose();
-      _inputLogic = InputLogic(
+      _textInputLogic.dispose();
+      _textInputLogic = TextInputLogic(
         externalFocusNode: widget.focusNode,
         externalController: widget.controller,
         onStateChanged: () => setState(() {}),
       );
     }
     if (widget.controller != oldWidget.controller) {
-      _inputLogic.updateController(widget.controller);
+      _textInputLogic.updateController(widget.controller);
     }
   }
 
   @override
   void dispose() {
-    _inputLogic.dispose();
+    _textInputLogic.dispose();
     super.dispose();
   }
 
@@ -68,12 +68,13 @@ class _TextInputState extends State<TextInput> {
   Widget build(BuildContext context) {
     final Color borderColor = widget.errorText != null
         ? AppColors.warnning
-        : _inputLogic.isFocused
+        : _textInputLogic.isFocused
             ? AppColors.textPrimary
             : AppColors.textSecondary;
 
-    final Color textColor =
-        _inputLogic.isFocused ? AppColors.textPrimary : AppColors.textSecondary;
+    final Color textColor = _textInputLogic.isFocused
+        ? AppColors.textPrimary
+        : AppColors.textSecondary;
 
     final double screenWidth = MediaQuery.of(context).size.width;
 
@@ -93,8 +94,8 @@ class _TextInputState extends State<TextInput> {
             child: Stack(
               children: [
                 TextField(
-                  controller: _inputLogic.controller,
-                  focusNode: _inputLogic.focusNode,
+                  controller: _textInputLogic.controller,
+                  focusNode: _textInputLogic.focusNode,
                   onChanged: (value) {
                     if (widget.onChanged != null) {
                       widget.onChanged!(value);
@@ -122,12 +123,12 @@ class _TextInputState extends State<TextInput> {
                     color: textColor,
                   ),
                 ),
-                if (_inputLogic.isFocused && _inputLogic.hasText)
+                if (_textInputLogic.isFocused && _textInputLogic.hasText)
                   Positioned(
                     right: 0,
                     bottom: 10,
                     child: GestureDetector(
-                      onTap: _inputLogic.clearText,
+                      onTap: _textInputLogic.clearText,
                       child: Container(
                         width: 24,
                         height: 24,

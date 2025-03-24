@@ -130,6 +130,8 @@ flutter:
     - assets/icons/expense/
     - assets/icons/income/
     - assets/images/userverification.png
+    - assets/icons/search_bar/
+
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

@@ -126,6 +126,7 @@ flutter:
     - assets/icons/bank/
     - assets/icons/expense/
     - assets/icons/income/
+    - assets/icons/search_bar/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

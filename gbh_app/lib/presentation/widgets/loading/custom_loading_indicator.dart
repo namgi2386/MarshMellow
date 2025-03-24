@@ -22,21 +22,24 @@ class CustomLoadingIndicator extends StatelessWidget {
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 애벌레 Lottie 애니메이션
-            SizedBox(
+            Container(
               width: 150,
               height: 150,
+              margin: const EdgeInsets.only(left: 40), // 중앙 정렬하려고 하드코딩했습니다
               child: Lottie.asset(
-                'assets/images/loading/temp_worm.json',
-                fit: BoxFit.contain,
+              'assets/images/loading/temp2_worm.json',
+              fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(height: 20),
+
             // 텍스트 부분
             Text(
               text,
-              style: AppTextStyles.mainTitle
+              style: AppTextStyles.mainTitle,
+              textAlign: TextAlign.center,
             ),
           ],
         ),

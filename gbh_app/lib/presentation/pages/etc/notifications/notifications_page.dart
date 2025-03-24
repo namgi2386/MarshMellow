@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-import 'package:marshmellow/presentation/pages/notifications/notifications_item.dart';
+import 'package:marshmellow/presentation/pages/etc/notifications/notifications_item.dart';
 
 /*
   알림 페이지 UI

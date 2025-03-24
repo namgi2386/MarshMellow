@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+
+import 'package:marshmellow/core/constants/icon_path.dart';
 
 /*
   상단 커스텀 앱바 UI
@@ -26,23 +29,22 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: backgroundColor,
-      title: Text(
-        title,
-        style: AppTextStyles.appBar
-      ),
+      title: Text(title, style: AppTextStyles.appBar),
       actions: [
         // 아이콘을 추가할 거라면 여기에 넣으세요
         ...actions,
         // 알림 아이콘 우측 고정
-        if (!hideNotificaiotnIcon) IconButton(
-          icon: Icon(Icons.notifications_none),
-          constraints: BoxConstraints(),
-          padding: const EdgeInsets.only(left: 0, right: 12),
-          // 누르면 알림 페이지로 이동
-          onPressed: onNofiticationTap ?? () {
-            GoRouter.of(context).push('/notification');
-          }, 
-        )
+        if (!hideNotificaiotnIcon)
+          IconButton(
+            icon: SvgPicture.asset(IconPath.bell),
+            constraints: BoxConstraints(),
+            padding: const EdgeInsets.only(left: 0, right: 12),
+            // 누르면 알림 페이지로 이동
+            onPressed: onNofiticationTap ??
+                () {
+                  GoRouter.of(context).push('/notification');
+                },
+          )
       ],
     );
   }
@@ -50,4 +52,3 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-

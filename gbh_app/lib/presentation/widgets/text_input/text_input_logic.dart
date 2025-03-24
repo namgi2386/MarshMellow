@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class InputLogic {
+class TextInputLogic {
   late FocusNode focusNode;
   TextEditingController? controller;
   bool hasText = false;
   bool isFocused = false;
   final VoidCallback? onStateChanged;
 
-  InputLogic({
+  TextInputLogic({
     FocusNode? externalFocusNode,
     TextEditingController? externalController,
     this.onStateChanged,

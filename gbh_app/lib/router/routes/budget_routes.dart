@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/pages/budget/budget_page.dart';
-import 'package:marshmellow/presentation/pages/signup/signup_page.dart';
+import 'package:marshmellow/presentation/pages/auth/signup_page.dart';
 
 class BudgetRoutes {
   static const String root = '/budget';

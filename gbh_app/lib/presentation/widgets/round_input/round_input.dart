@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
-import 'package:marshmellow/core/widgets/logics/round_input_logic.dart';
+import 'package:marshmellow/presentation/widgets/round_input/round_input_logic.dart';
+import 'package:marshmellow/presentation/viewmodels/modal/modal_layout.dart';
 
-class RoundInput extends StatefulWidget {
+class RoundInput<T> extends StatefulWidget {
   final ValueChanged<String>? onChanged;
+  final ValueChanged<T>? onItemSelected;
   final VoidCallback? onTap;
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -14,8 +16,12 @@ class RoundInput extends StatefulWidget {
   final String? hintText;
   final String? label;
   final double? labelWidth;
-  final bool showDropdown; // 드롭다운 표시 여부
-  final VoidCallback? onDropdownTap; // 드롭다운 클릭 이벤트 콜백
+  final bool showDropdown;
+  final List<T>? items;
+  final String Function(T)? displayStringForItem;
+  final String? modalTitle;
+  final bool showDividers;
+  final bool showTitleDivider;
 
   const RoundInput({
     super.key,
@@ -29,16 +35,22 @@ class RoundInput extends StatefulWidget {
     this.hintText,
     this.label,
     this.labelWidth,
-    this.showDropdown = false, // 기본값은 드롭다운 표시 안 함
-    this.onDropdownTap,
+    this.showDropdown = false,
+    this.items,
+    this.onItemSelected,
+    this.displayStringForItem,
+    this.modalTitle,
+    this.showDividers = true,
+    this.showTitleDivider = false,
   });
 
   @override
-  State<RoundInput> createState() => _RoundInputState();
+  State<RoundInput<T>> createState() => _RoundInputState<T>();
 }
 
-class _RoundInputState extends State<RoundInput> {
+class _RoundInputState<T> extends State<RoundInput<T>> {
   late RoundInputLogic _inputLogic;
+  T? _selectedItem;
 
   @override
   void initState() {
@@ -60,7 +72,7 @@ class _RoundInputState extends State<RoundInput> {
   }
 
   @override
-  void didUpdateWidget(RoundInput oldWidget) {
+  void didUpdateWidget(RoundInput<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     // 중요한 속성이 변경되면 로직을 재초기화
@@ -80,6 +92,42 @@ class _RoundInputState extends State<RoundInput> {
   void dispose() {
     _inputLogic.dispose();
     super.dispose();
+  }
+
+  void _showBottomSheet() {
+    if (widget.items == null || widget.items!.isEmpty) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _inputLogic.focusNode.unfocus();
+    });
+
+    ModalLayout.showSelectionModal<T>(
+      context: context,
+      items: widget.items!,
+      displayStringForItem: widget.displayStringForItem ?? _getDisplayText,
+      onItemSelected: (item) {
+        setState(() {
+          _selectedItem = item;
+          if (widget.controller != null) {
+            widget.controller!.text = _getDisplayText(item);
+          }
+        });
+        if (widget.onItemSelected != null) {
+          widget.onItemSelected!(item);
+        }
+      },
+      modalTitle: widget.modalTitle,
+      showDividers: widget.showDividers,
+      showTitleDivider: widget.showTitleDivider,
+      selectedItem: _selectedItem,
+    );
+  }
+
+  String _getDisplayText(T item) {
+    if (widget.displayStringForItem != null) {
+      return widget.displayStringForItem!(item);
+    }
+    return item.toString();
   }
 
   @override
@@ -107,8 +155,15 @@ class _RoundInputState extends State<RoundInput> {
     final bool isInputComplete = _inputLogic.hasText && !_inputLogic.isFocused;
 
     return GestureDetector(
-      onTap: () =>
-          _inputLogic.handleDropdownTap(widget.onDropdownTap, widget.onTap),
+      onTap: () {
+        if (widget.showDropdown &&
+            widget.items != null &&
+            widget.items!.isNotEmpty) {
+          _showBottomSheet();
+        } else if (widget.onTap != null) {
+          widget.onTap!();
+        }
+      },
       child: Container(
         width: widget.width ?? screenWidth * 0.9,
         height: widget.height ?? 50,
@@ -129,13 +184,10 @@ class _RoundInputState extends State<RoundInput> {
 
             // 드롭다운 아이콘 (showDropdown이 true일 때만 표시)
             if (widget.showDropdown)
-              GestureDetector(
-                onTap: widget.onDropdownTap ?? widget.onTap,
-                child: Icon(
-                  Icons.expand_circle_down_outlined,
-                  size: 15,
-                  color: AppColors.textPrimary,
-                ),
+              Icon(
+                Icons.expand_circle_down_outlined,
+                size: 15,
+                color: AppColors.textPrimary,
               ),
           ],
         ),

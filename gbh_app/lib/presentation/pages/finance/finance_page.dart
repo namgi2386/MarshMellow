@@ -31,6 +31,7 @@ class FinancePage extends ConsumerWidget {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> API 자산조회 테스트 >>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     return Scaffold(
+
       appBar: CustomAppbar(
         title: '자산',
         actions: [
@@ -43,61 +44,64 @@ class FinancePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 라우터 테스트 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // 테스트 페이지로 이동
-              context.push(FinanceRoutes.getTestPath());
-            },
-            child: const Text('테스트 페이지로 이동'),
-          ),
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 라우터 테스트 >>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< API 자산조회 테스트 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-          Expanded(
-            child: assetData.when(
-              data: (data) {
-                // 성공적으로 데이터를 받았을 때
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '자산 정보:',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 10),
-                      // 받아온 데이터를 텍스트로 표시 (디버깅용)
-                      Text(data.toString()),
-                    ],
-                  ),
-                );
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 라우터 테스트 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // 테스트 페이지로 이동
+                context.push(FinanceRoutes.getTestPath());
               },
-              loading: () => const CircularProgressIndicator(),
-              error: (error, stackTrace) {
-                // 에러 발생 시
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                    const SizedBox(height: 10),
-                    Text('에러 발생: $error'),
-                    ElevatedButton(
-                      onPressed: () => ref.refresh(assetDataProvider),
-                      child: const Text('다시 시도'),
-                    ),
-                  ],
-                );
-              },
+              child: const Text('테스트 페이지로 이동'),
             ),
-          ),
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> API 자산조회 테스트 >>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        ],
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 라우터 테스트 >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< API 자산조회 테스트 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            Expanded(
+              child: assetData.when(
+                data: (data) {
+                  // 성공적으로 데이터를 받았을 때
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '자산 정보:',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 10),
+                        // 받아온 데이터를 텍스트로 표시 (디버깅용)
+                        Text(data.toString()),
+                      ],
+                    ),
+                  );
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (error, stackTrace) {
+                  // 에러 발생 시
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                      const SizedBox(height: 10),
+                      Text('에러 발생: $error'),
+                      ElevatedButton(
+                        onPressed: () => ref.refresh(assetDataProvider),
+                        child: const Text('다시 시도'),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> API 자산조회 테스트 >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+          ],
+        ),
       ),
     );
   }

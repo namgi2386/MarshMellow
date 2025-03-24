@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:marshmellow/core/widgets/logics/card_logic.dart';
+import 'package:marshmellow/presentation/widgets/card/card_logic.dart';
 
 class CustomCard extends StatelessWidget {
   final Widget child;

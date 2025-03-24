@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
-import 'package:marshmellow/core/widgets/text_input.dart';
-import 'package:marshmellow/core/widgets/select_input.dart';
-import 'package:marshmellow/core/widgets/round_input.dart';
-import 'package:marshmellow/core/widgets/button.dart';
-import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-import 'package:marshmellow/core/widgets/card.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/core/widgets/modal.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
+import 'package:marshmellow/presentation/widgets/card/card.dart';
+import 'package:marshmellow/presentation/widgets/round_input/round_input.dart';
+import 'package:marshmellow/presentation/widgets/select_input/select_input.dart';
+import 'package:marshmellow/presentation/widgets/text_input/text_input.dart';
+import 'package:marshmellow/presentation/widgets/custom_search_bar/custom_search_bar.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/widgets/custom_search_bar/custom_search_bar.dart';
 
 class InputPage extends StatefulWidget {
-  const InputPage({Key? key}) : super(key: key);
+  const InputPage({super.key});
 
   @override
   State<InputPage> createState() => _InputPageState();
@@ -22,17 +23,9 @@ class _InputPageState extends State<InputPage> {
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _roundController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   String? _emailError;
-
-  // 카테고리 예시 데이터
-  final List<String> categories = [
-    '식사',
-    '카페/디저트',
-    '쇼핑',
-    '문화/여가',
-    '교통',
-  ];
 
   @override
   void initState() {
@@ -46,6 +39,8 @@ class _InputPageState extends State<InputPage> {
     _emailController.dispose();
     _countryController.dispose();
     _roundController.dispose();
+    _categoryController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -77,13 +72,20 @@ class _InputPageState extends State<InputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppbar(
-        title: '텍스트 인풋',
+      appBar: AppBar(
+        title: const Text('입력 페이지'),
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            CustomSearchBar(
+              controller: _searchController,
+              onSearchPressed: () {
+                print('검색 버튼 클릭됨');
+              },
+            ),
+            const SizedBox(height: 20),
             CustomCard(
               width: MediaQuery.of(context).size.width * 0.9,
               height: MediaQuery.of(context).size.height * 0.25,
@@ -176,39 +178,22 @@ class _InputPageState extends State<InputPage> {
               },
             ),
             const SizedBox(height: 10),
-            RoundInput(
-              label: '카테고리',
+
+            RoundInput<String>(
+              label: "카테고리",
+              hintText: "카테고리를 선택하세요",
               controller: _categoryController,
-              hintText: '카테고리 선택',
               showDropdown: true,
-              onDropdownTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: Colors.transparent,
-                  isScrollControlled: true,
-                  builder: (context) => Modal(
-                    backgroundColor: AppColors.whiteLight,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(
-                            categories[index],
-                            style: AppTextStyles.bodyMediumLight.copyWith(
-                                fontWeight: FontWeight.w300), 
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _categoryController.text = categories[index];
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                );
+              modalTitle: "카테고리 선택",
+              items: [
+                '식사',
+                '카페/디저트',
+                '쇼핑',
+                '문화/여가',
+                '교통',
+              ],
+              onItemSelected: (value) {
+                print("선택된 국가: $value");
               },
             ),
             const SizedBox(height: 10),

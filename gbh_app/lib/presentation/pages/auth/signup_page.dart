@@ -1,8 +1,9 @@
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbols.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; 
 import 'package:marshmellow/core/config/app_config.dart';
@@ -11,7 +12,6 @@ import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 import 'package:marshmellow/presentation/widgets/text_input/text_input.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
-import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/custom_button.dart';
 
 // 본인인증 단계 관리 Provider

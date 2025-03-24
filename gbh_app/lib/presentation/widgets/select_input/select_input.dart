@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/core/widgets/modal.dart';
-import 'package:marshmellow/core/widgets/logics/select_input_logic.dart';
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
+import 'package:marshmellow/presentation/widgets/select_input/select_input_logic.dart';
 
 class SelectInput<T> extends StatefulWidget {
   final String label;

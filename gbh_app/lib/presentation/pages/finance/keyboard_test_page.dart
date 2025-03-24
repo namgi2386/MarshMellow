@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:marshmellow/core/widgets/text_input.dart';
+import 'package:marshmellow/presentation/widgets/text_input/text_input.dart';
 
 // <<<<<<<<<<<<<<<<<<<<<<< (Step 1 : 필수) <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart'; // 키보드 전부 import 받아옴

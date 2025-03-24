@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 
-import 'package:marshmellow/core/utils/icon_path.dart';
+import 'package:marshmellow/core/constants/icon_path.dart';
 
 /*
   상단 커스텀 앱바 UI

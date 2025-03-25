@@ -9,7 +9,6 @@ import 'package:marshmellow/core/utils/back_gesture/detector.dart';
 import 'package:marshmellow/router/app_router.dart'; // 라우터 import
 import 'package:marshmellow/di/providers/lifecycle_provider.dart';
 
-
 class App extends ConsumerStatefulWidget {
   final GoRouter router;
   final BackGestureController backGestureController;

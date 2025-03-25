@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class ResponseUpdateBudgetCategory {
-    private int code;
     private String message;
+    private Long budgetCategoryPk;
+    private Long oldBudgetCategoryPrice;
+    private Long newBudgetCategoryPrice;
 }

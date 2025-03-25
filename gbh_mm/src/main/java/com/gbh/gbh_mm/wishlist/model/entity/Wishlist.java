@@ -23,11 +23,13 @@ public class Wishlist {
 
     private Long productPrice;
 
+    private Long achievePrice;
+
     private String productImageUrl;
 
     private String productUrl;
 
-    private String isSelected;
+    private String isSelected = "N";
 
     private String isCompleted = "N";
 

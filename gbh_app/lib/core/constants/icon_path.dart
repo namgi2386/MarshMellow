@@ -27,7 +27,7 @@ class IconPath {
   static const String hanaBank = 'assets/icons/bank/081_hana.svg';  // 하나은행 (Hana Bank)
   static const String shinhanBank = 'assets/icons/bank/088_shinhan.svg';  // 신한은행 (Shinhan Bank)
   static const String kakaoBank = 'assets/icons/bank/090_kakao.svg'; // 카카오뱅크 (Kakao Bank)
-  static const String tossBank = 'assets/icons/bank/999_ssafy.svg'; // 싸피뱅크 (SSAFY Bank)
+  static const String ssafyBank = 'assets/icons/bank/999_ssafy.svg'; // 싸피뱅크 (SSAFY Bank)
 
 
   // expense

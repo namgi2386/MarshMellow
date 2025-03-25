@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter/scheduler.dart';
 
 /*
   왼>오 스와이프 : 뒤로가기
@@ -19,8 +20,17 @@ class BackGestureController extends ChangeNotifier {
   void updatePath(String path) {
     _currentPath = path;
     // 현재 경로가 비활성화 목록에 있는지 확인
-    _isGestureEnabled = !_disabledPaths.contains(path);
-    notifyListeners();
+    final newEnabled = !_disabledPaths.contains(path);
+    
+    // 값이 변경된 경우에만 알림
+    if (_isGestureEnabled != newEnabled) {
+      _isGestureEnabled = newEnabled;
+      
+      // 다음 프레임에서 알림 (빌드 사이클 이후로 지연)
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+    }
   }
 
   // 수동으로 제스처 활성화/비활성화

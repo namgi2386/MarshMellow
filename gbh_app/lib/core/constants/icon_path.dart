@@ -27,8 +27,10 @@ class IconPath {
   static const String hanaBank = 'assets/icons/bank/081_hana.svg';  // 하나은행 (Hana Bank)
   static const String shinhanBank = 'assets/icons/bank/088_shinhan.svg';  // 신한은행 (Shinhan Bank)
   static const String kakaoBank = 'assets/icons/bank/090_kakao.svg'; // 카카오뱅크 (Kakao Bank)
-  static const String tossBank = 'assets/icons/bank/999_ssafy.svg'; // 싸피뱅크 (SSAFY Bank)
+  static const String ssafyBank = 'assets/icons/bank/999_ssafy.svg'; // 싸피뱅크 (SSAFY Bank)
 
+  static const String koreaBank2 = 'assets/icons/bank/001_korea_2.png'; // 한국은행 (Korea Bank)
+  static const String ssafyBank2 = 'assets/icons/bank/999_ssafy_2.png'; // 싸피뱅크 (SSAFY Bank)
 
   // expense
   static const String expenseAlcohol =
@@ -102,6 +104,8 @@ class IconPath {
       'assets/icons/search_bar/search_button.svg';
   static const String searchButtonPng =
       'assets/icons/search_bar/search_button.png';
+  static const String exitgray =
+      'assets/icons/search_bar/exitgray.svg';
 
   //body
   static const String caretLeft = 'assets/icons/body/CaretLeft.svg';
@@ -109,4 +113,8 @@ class IconPath {
   static const String plus = 'assets/icons/body/plus.svg';
   static const String searchOutlined = 'assets/icons/body/search_outlined.svg';
   static const String caretDown = 'assets/icons/body/CaretDown.svg';
+
+  // 카드 이미지
+  static const String testCard = 'assets/icons/card/testCard.svg';
+
 }

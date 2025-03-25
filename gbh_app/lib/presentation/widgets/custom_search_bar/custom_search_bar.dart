@@ -6,45 +6,49 @@ class CustomSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onSearchPressed;
+  final ValueChanged<String>? onSubmitted; // 타입 변경
   final String? hintText;
+  final double? height;
 
   const CustomSearchBar(
       {Key? key,
       required this.controller,
       this.onChanged,
       this.onSearchPressed,
-      this.hintText})
+      this.hintText,
+      this.height,
+      this.onSubmitted // 타입 변경
+      })
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final containerWidth = MediaQuery.of(context).size.width * 0.9;
 
-    return Container(
+    return SizedBox(
+      height: 50, // 높이 설정
       width: containerWidth,
-      height: 50,
       child: Stack(
         children: [
           // RoundInput을 기본 배경으로 사용
           Positioned(
             left: 0,
             top: 0,
-            child: Container(
+            child: RoundInput(
               width: containerWidth * 0.85,
-              child: RoundInput(
-                width: containerWidth * 0.85,
-                controller: controller,
-                onChanged: onChanged,
-                hintText: hintText,
-                showDropdown: false,
-              ),
+              height: height ?? 40, // 높이 설정
+              controller: controller,
+              onChanged: onChanged,
+              onSubmitted: onSubmitted,
+              hintText: hintText,
+              showDropdown: false,
             ),
           ),
 
           // 검색 아이콘
           Positioned(
             right: 0,
-            top: 6.5,
+            top: 0,
             child: GestureDetector(
               onTap: onSearchPressed,
               child: SvgPicture.asset(

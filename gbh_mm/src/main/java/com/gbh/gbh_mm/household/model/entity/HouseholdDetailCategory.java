@@ -8,9 +8,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
 @Entity
 @Table(name = "tbl_household_detail_category")
+@Getter
 public class HouseholdDetailCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,10 +21,6 @@ public class HouseholdDetailCategory {
 
     @Column(name = "household_detail_category")
     private String householdDetailCategory;
-
-    @ManyToOne
-    @JoinColumn(name = "household_category_pk")
-    private HouseholdCategory householdCategory;
 
     @ManyToOne
     @JoinColumn(name = "ai_category_pk")

@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface HouseholdRepository extends JpaRepository<Household, Long> {
 
-    List<Household> findAllByDateStringBetweenAndUser_UserPkOrderByDateStringAsc
+    List<Household> findAllByTradeDateBetweenAndUser_UserPkOrderByTradeDateAsc
         (String startDate, String endDate, long userPk);
 }

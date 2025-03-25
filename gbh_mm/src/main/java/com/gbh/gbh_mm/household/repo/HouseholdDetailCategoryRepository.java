@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface HouseholdDetailCategoryRepository extends
     JpaRepository<HouseholdDetailCategory, Integer> {
 
+    HouseholdDetailCategory findByHouseholdDetailCategory(String householdDetailCategoryName);
 }

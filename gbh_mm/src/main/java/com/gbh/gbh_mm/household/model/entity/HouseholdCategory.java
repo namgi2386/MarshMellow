@@ -8,9 +8,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
 @Entity
 @Table(name = "tbl_household_category")
+@Getter
 public class HouseholdCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

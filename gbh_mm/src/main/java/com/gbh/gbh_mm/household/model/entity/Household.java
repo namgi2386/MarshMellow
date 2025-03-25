@@ -55,6 +55,10 @@ public class Household {
     private HouseholdCategory householdCategory;
 
     @ManyToOne
+    @JoinColumn(name = "household_detail_category_pk")
+    private HouseholdDetailCategory householdDetailCategory;
+
+    @ManyToOne
     @JoinColumn(name = "household_classification_category_pk")
     private HouseholdClassificationCategory householdClassificationCategory;
 }

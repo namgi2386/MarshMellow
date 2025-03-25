@@ -4,7 +4,7 @@ import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.*;
 import com.gbh.gbh_mm.budget.service.BudgetService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,14 +13,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/mm/budget")
+@RequiredArgsConstructor
 public class BudgetController {
 
-    @Autowired
-    private BudgetService budgetService;
+    private final BudgetService budgetService;
 
     // 예산 리스트 조회
     @GetMapping("/{userPk}")
-    public ResponseEntity<ResponseFindBudgetList> getBudgetList(@PathVariable Long userPk) {
+    public ResponseFindBudgetList getBudgetList(@PathVariable Long userPk) {
         List<ResponseFindBudgetList.BudgetData> budgetData = budgetService.getBudgetList(userPk);
 
         ResponseFindBudgetList response = ResponseFindBudgetList.builder()
@@ -28,7 +28,7 @@ public class BudgetController {
                 .message("예산 리스트 조회")
                 .data(budgetData)
                 .build();
-        return ResponseEntity.ok(response);
+        return response;
     }
 
     // 예산 생성

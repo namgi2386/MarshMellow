@@ -6,8 +6,11 @@ import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetCategoryList;
 import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetList;
 import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
 import com.gbh.gbh_mm.budget.repo.BudgetRepository;
+import com.gbh.gbh_mm.common.exception.CustomException;
+import com.gbh.gbh_mm.common.exception.ErrorCode;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,18 +19,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BudgetService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private BudgetRepository budgetRepository;
-    @Autowired
-    private BudgetCategoryRepository budgetCategoryRepository;
+    private final UserRepository userRepository;
+    private final BudgetRepository budgetRepository;
+    private final BudgetCategoryRepository budgetCategoryRepository;
 
     // 전체 예산 조회
     public List<ResponseFindBudgetList.BudgetData> getBudgetList(Long userPk) {
         List<Budget> budgets = budgetRepository.findAllByUser_UserPk(userPk);
+        if (budgets.isEmpty()) {
+            throw new CustomException(ErrorCode.CHILD_NOT_FOUND);
+        }
         List<ResponseFindBudgetList.BudgetData> budgetDataList = budgets.stream()
                 .map(budget -> ResponseFindBudgetList.BudgetData.builder()
                         .budgetPk(budget.getBudgetPk())

@@ -16,7 +16,7 @@ class BannerAdWidget extends StatelessWidget {
       Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.blue.shade100,
+          color: AppColors.bluePrimary,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(

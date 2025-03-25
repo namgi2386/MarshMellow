@@ -1,7 +1,11 @@
 // presentation/pages/finance/widgets/card_item_widget.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/card_model.dart';
+import 'package:marshmellow/core/constants/icon_path.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CardItemWidget extends StatelessWidget {
   final CardItem card;
@@ -32,16 +36,40 @@ class CardItemWidget extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            card.cardName,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+          IconButton(
+            iconSize: 64, // 아이콘 버튼 크기 설정
+            icon: SvgPicture.asset(IconPath.testCard,
+              width: 64, // SVG 너비
+              height: 64, // SVG 높이
+            ),
+            onPressed: () {},
           ),
-          Text('카드번호: ${_maskCardNumber(card.cardNo)}'),
-          Text('발급사: ${card.cardIssuerName}'),
-          Text('잔액: ${formatAmount(card.cardBalance)}원'),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  card.cardName,
+                  style: AppTextStyles.subTitle
+                ),
+                // Text(
+                //   card.cardName,
+                //   style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600,
+                //   color: AppColors.blackLight),
+                // ),
+                Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall ),
+                // Text('발급사: ${card.cardIssuerName}'),
+                Text('${formatAmount(card.cardBalance)}원 지출', style: AppTextStyles.subTitle),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.arrow_forward_ios, size: 16),
+            onPressed: () {},
+          ),
         ],
       ),
     );

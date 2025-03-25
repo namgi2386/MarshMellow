@@ -134,6 +134,7 @@ flutter:
     - assets/icons/search_bar/
     - assets/icons/app_bar/
     - assets/icons/body/
+    - assets/icons/card/
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

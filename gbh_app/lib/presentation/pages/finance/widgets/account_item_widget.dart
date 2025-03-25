@@ -29,6 +29,9 @@ class AccountItemWidget extends StatelessWidget {
     final formatter = NumberFormat('#,###');
     return formatter.format(amount);
   }
+  bool _isPngPath(String path) {
+    return path.endsWith('.png');
+  }
 
   // 계좌번호 마스킹 함수
   // String _maskAccountNumber(String accountNo) {
@@ -36,65 +39,173 @@ class AccountItemWidget extends StatelessWidget {
   //   return '${accountNo.substring(0, 3)}****${accountNo.substring(accountNo.length - 4)}';
   // }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: SvgPicture.asset(IconPath.ibkBank),
-            onPressed: () {},
-          ),
-          const SizedBox(width: 2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  accountName,
-                  style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600,
-                  color: AppColors.blackLight)
-                ),
-                // if (bankName != '-') Text('은행: $bankName'),
-                // Text('계좌번호: ${_maskAccountNumber(accountNo)}'),
-                Text(
-                  isLoan ? '대출금액 ${formatAmount(balance)}원' : '${formatAmount(balance)}원',
-                  style: AppTextStyles.subTitle
-                ),
-              ],
-            ),
-          ),
-          noMoneyMan
-            ? InkWell(
-                onTap: () {
-                  // 송금 기능 실행
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                  margin: EdgeInsets.fromLTRB(0.0, 0.0, 6.0, 0.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.buttonBlack,
-                    borderRadius: BorderRadius.circular(6.0),
-                  ),
-                  child: Text(
-                    "송금",
-                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.background)
-                    // style: AppTextStyles.buttonBold.copyWith(color: AppColors.background)
-                    // style: AppTextStyles.button.copyWith(color: AppColors.background)
-                  ),
-                ),
-              )
-            : IconButton(
-                icon: Icon(Icons.arrow_forward_ios, size: 16),
-                onPressed: () {},
+  // 은행 이름에 따라 아이콘 경로를 반환하는 메서드
+  String _getBankIconPath(String bankName) {
+    switch (bankName.toLowerCase()) {
+      case "한국은행":
+      case "korea bank":
+        return IconPath.koreaBank2;
+      case "산업은행":
+      case "kdb bank":
+        return IconPath.kdbBank;
+      case "기업은행":
+      case "ibk bank":
+        return IconPath.ibkBank;
+      case "국민은행":
+      case "kb bank":
+        return IconPath.kbBank;
+      case "농협은행":
+      case "nh bank":
+        return IconPath.nhBank;
+      case "우리은행":
+      case "woori bank":
+        return IconPath.wooriBank;
+      case "sc제일은행":
+      case "standard chartered bank":
+      case "sc bank":
+        return IconPath.scBank;
+      case "시티은행":
+      case "citi bank":
+        return IconPath.citiBank;
+      case "대구은행":
+      case "daegu bank":
+        return IconPath.dgBank;
+      case "광주은행":
+      case "gwangju bank":
+        return IconPath.gjBank;
+      case "제주은행":
+      case "jeju bank":
+        return IconPath.jejuBank;
+      case "전북은행":
+      case "jeonbuk bank":
+        return IconPath.jbBank;
+      case "경남은행":
+      case "gyeongnam bank":
+        return IconPath.gnBank;
+      case "새마을금고":
+      case "mg":
+        return IconPath.mgBank;
+      case "하나은행":
+      case "hana bank":
+        return IconPath.hanaBank;
+      case "신한은행":
+      case "shinhan bank":
+        return IconPath.shinhanBank;
+      case "카카오뱅크":
+      case "kakao bank":
+        return IconPath.kakaoBank;
+      case "싸피뱅크":
+      case "ssafy bank":
+      case "toss bank":
+        return IconPath.ssafyBank2;
+      default:
+        return IconPath.ibkBank; // 기본값으로 IBK 아이콘 사용
+    }
+  }
+  Widget _buildBankIcon(String bankName) {
+    final String iconPath = _getBankIconPath(bankName);
+    
+    if (_isPngPath(iconPath)) {
+      return Image.asset(
+        iconPath,
+        width: 40, // 원하는 크기로 조정
+        height: 40,
+      );
+    } else {
+      return SvgPicture.asset(
+        iconPath,
+        width: 40, // 원하는 크기로 조정
+        height: 40,
+      );
+    }
+  }
+
+@override
+Widget build(BuildContext context) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 8),
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey.shade300),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: ClipRRect( // 효과를 컨테이너 내부로 제한
+      borderRadius: BorderRadius.circular(8),
+      child: Material( // Material 위젯 추가
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+
+
+
+          },
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8.0, 8.0, 14.0, 8.0),
+          child: Row(
+            children: [
+              IconButton(
+              icon: _buildBankIcon(bankName),
+              onPressed: () {
+          
+          
+              },
               ),
-        ],
+              const SizedBox(width: 2),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      accountName,
+                      style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600,
+                      color: AppColors.blackLight)
+                    ),
+                    // if (bankName != '-') Text('은행: $bankName'),
+                    // Text('계좌번호: ${_maskAccountNumber(accountNo)}'),
+                    Text(
+                      isLoan ? '대출금액 ${formatAmount(balance)}원' : '${formatAmount(balance)}원',
+                      style: AppTextStyles.subTitle
+                    ),
+                  ],
+                ),
+              ),
+              noMoneyMan
+                ? GestureDetector(
+                    onTap: () {
+
+                      
+                      // 송금 기능 실행
+
+
+
+
+
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      // margin: EdgeInsets.fromLTRB(0.0, 0.0, 6.0, 0.0),
+                      decoration: BoxDecoration(
+                        color: AppColors.buttonBlack,
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      child: Text(
+                        "송금",
+                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.background)
+                        // style: AppTextStyles.buttonBold.copyWith(color: AppColors.background)
+                        // style: AppTextStyles.button.copyWith(color: AppColors.background)
+                      ),
+                    ),
+                  )
+                : IconButton(
+                    icon: Icon(Icons.arrow_forward_ios, size: 16),
+                    onPressed: () {
+
+
+
+                    },
+                  ),
+            ],
+          ),),),
+        ),
       ),
     );
   }

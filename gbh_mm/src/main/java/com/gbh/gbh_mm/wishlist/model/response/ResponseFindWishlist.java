@@ -8,7 +8,8 @@ import java.util.List;
 @Data
 @Builder
 public class ResponseFindWishlist {
-    private List<WishlistData> data;
+    private String message;
+    private List<WishlistData> wishlist;
 
     @Data
     @Builder

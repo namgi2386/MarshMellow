@@ -4,19 +4,22 @@ import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/custom_button.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 
 class AuthCompletePage extends StatelessWidget {
   const AuthCompletePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(40.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            const SizedBox(height: 150,),
             Icon(
               Icons.check_sharp,
               size: 100,
@@ -28,11 +31,12 @@ class AuthCompletePage extends StatelessWidget {
               style: AppTextStyles.bodyLarge,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20),
-            CustomButton(
-              text: '시작하기', 
-              onPressed: null,
-              isEnabled: true,
+            const SizedBox(height: 300),
+            Button(
+              text:'시작하기',
+              onPressed: () {
+                context.go(SignupRoutes.getPinSetupPath());
+              },
             )
           ],
         ),

@@ -8,8 +8,10 @@ import com.gbh.gbh_mm.household.model.entity.HouseholdClassificationCategory;
 import com.gbh.gbh_mm.household.model.entity.HouseholdDetailCategory;
 import com.gbh.gbh_mm.household.model.enums.HouseholdClassificationEnum;
 import com.gbh.gbh_mm.household.model.vo.request.RequestCreateHousehold;
+import com.gbh.gbh_mm.household.model.vo.request.RequestFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHousehold;
+import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHouseholdList;
 import com.gbh.gbh_mm.household.repo.HouseholdCategoryRepository;
 import com.gbh.gbh_mm.household.repo.HouseholdClassificationCategoryRepository;
@@ -136,6 +138,30 @@ public class HouseholdServiceImpl implements HouseholdService {
                 (savedHousehold.getHouseholdDetailCategory().getHouseholdDetailCategory())
             .householdClassificationCategory
                 (savedHousehold.getHouseholdClassificationCategory().getHouseholdClassificationEnum())
+            .build();
+
+        return response;
+    }
+
+    @Override
+    public ResponseFindHousehold findHousehold(RequestFindHousehold request) {
+        Household household = householdRepository.findById(request.getHouseholdPk())
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 가계부입니다."));
+
+        ResponseFindHousehold response = ResponseFindHousehold.builder()
+            .householdId(household.getHouseholdPk())
+            .tradeName(household.getTradeName())
+            .tradeDate(household.getTradeDate())
+            .tradeTime(household.getTradeTime())
+            .householdAmount(household.getHouseholdAmount())
+            .householdMemo(household.getHouseholdMemo())
+            .paymentCancelYn(household.getPaymentCancelYn())
+            .exceptedBudgetYn(household.getExceptedBudgetYn())
+            .householdCategory(household.getHouseholdCategory().getHouseholdCategoryName())
+            .householdDetailCategory
+                (household.getHouseholdDetailCategory().getHouseholdDetailCategory())
+            .householdClassification
+                (household.getHouseholdClassificationCategory().getHouseholdClassificationEnum())
             .build();
 
         return response;

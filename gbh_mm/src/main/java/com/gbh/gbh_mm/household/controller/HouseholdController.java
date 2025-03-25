@@ -1,8 +1,10 @@
 package com.gbh.gbh_mm.household.controller;
 
 import com.gbh.gbh_mm.household.model.vo.request.RequestCreateHousehold;
+import com.gbh.gbh_mm.household.model.vo.request.RequestFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHousehold;
+import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHouseholdList;
 import com.gbh.gbh_mm.household.service.HouseholdService;
 import lombok.AllArgsConstructor;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HouseholdController {
     private final HouseholdService householdService;
 
-    @GetMapping
+    @GetMapping("/list")
     public ResponseFindHouseholdList findHouseholdList(
         @RequestBody RequestFindHouseholdList request
     ) {
@@ -32,6 +34,15 @@ public class HouseholdController {
         @RequestBody RequestCreateHousehold request
     ) {
         ResponseCreateHousehold response = householdService.createHousehold(request);
+
+        return response;
+    }
+
+    @GetMapping
+    public ResponseFindHousehold findHousehold(
+        @RequestBody RequestFindHousehold request
+    ) {
+        ResponseFindHousehold response = householdService.findHousehold(request);
 
         return response;
     }

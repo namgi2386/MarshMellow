@@ -6,11 +6,7 @@ import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.*;
 import com.gbh.gbh_mm.budget.service.BudgetService;
 import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
-import com.gbh.gbh_mm.user.util.JwtTokenProvider;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BudgetController {
 
-    private final JwtTokenProvider jwtTokenProvider;
     private final BudgetService budgetService;
 
     // 예산 리스트 조회

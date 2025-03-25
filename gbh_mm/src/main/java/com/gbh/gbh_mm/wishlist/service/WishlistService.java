@@ -3,9 +3,9 @@ package com.gbh.gbh_mm.wishlist.service;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
-import com.gbh.gbh_mm.wishlist.model.response.ResponseFindDetailWishlist;
 import com.gbh.gbh_mm.wishlist.model.response.ResponseFindWishlist;
 import com.gbh.gbh_mm.wishlist.repo.WishlistRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,13 +14,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class WishlistService {
 
-    @Autowired
-    private WishlistRepository wishlistRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final WishlistRepository wishlistRepository;
+    private final UserRepository userRepository;
 
     // 위시리스트 생성
     @Transactional

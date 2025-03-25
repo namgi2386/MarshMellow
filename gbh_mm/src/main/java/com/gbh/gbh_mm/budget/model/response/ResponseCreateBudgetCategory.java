@@ -7,6 +7,10 @@ import lombok.Data;
 @Data
 @Builder
 public class ResponseCreateBudgetCategory {
-    private int code;
     private String message;
+    private Long budgetCategoryPk;
+    private String budgetCategoryName;
+    private Long budgetCategoryPrice;
+    private Long relatedBudgetPk;
+
 }

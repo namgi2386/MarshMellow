@@ -57,7 +57,7 @@ public class UserController {
 
     @GetMapping("/integrated-status")
     public Boolean checkIntegratedStatus(@AuthenticationPrincipal CustomUserDetails userDetails){
-        return userService.isIntegratedAuthenticated(userDetails.getUsername());
+        return userService.isIntegratedAuthenticated(userDetails.getUserPk());
     }
 
 

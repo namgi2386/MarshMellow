@@ -188,8 +188,8 @@ public class UserService {
         }
     }
 
-    public Boolean isIntegratedAuthenticated(String userPk) {
-        User user = userRepository.findByUserPk(Long.valueOf(userPk))
+    public Boolean isIntegratedAuthenticated(Long userPk) {
+        User user = userRepository.findByUserPk(userPk)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         return !Objects.isNull(user.getUserKey());
     }

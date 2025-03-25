@@ -8,9 +8,8 @@ import java.util.List;
 @Data
 @Builder
 public class ResponseFindBudgetCategoryList {
-    private int code;
     private String message;
-    private List<BudgetCategoryData> data;
+    private List<BudgetCategoryData> budgetCategoryList;
 
     @Data
     @Builder

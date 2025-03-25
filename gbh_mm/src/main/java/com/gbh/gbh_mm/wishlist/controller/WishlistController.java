@@ -19,15 +19,10 @@ public class WishlistController {
     private final WishlistService wishlistService;
 
     // 위시리스트 생성
-    @PostMapping("/{userPk}")
-    public ResponseEntity<ResponseCreateWishlist> createWishlist(@PathVariable Long userPk, @RequestBody Wishlist wishList) {
+    @PostMapping
+    public ResponseCreateWishlist createWishlist(@PathVariable Long userPk, @RequestBody Wishlist wishList) {
 
         wishlistService.createWishlist(userPk, wishList);
-
-        ResponseCreateWishlist response = ResponseCreateWishlist.builder()
-                .code(200)
-                .message("위시리스트 생성 완료")
-                .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

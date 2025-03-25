@@ -33,7 +33,7 @@ class FinancialSectionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 0.0),
+          padding: const EdgeInsets.only(bottom: 0.0 , left: 8.0),
           child: Text(
             title,
             style: AppTextStyles.bodySmall.copyWith(color: AppColors.blackLight),
@@ -41,18 +41,24 @@ class FinancialSectionWidget extends StatelessWidget {
         ),
         if (isEmpty)
           Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
+            padding: const EdgeInsets.only(bottom: 0.0, left: 8.0),
             child: Text(emptyMessage),
           )
         else
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('총액: ${formatAmount(totalAmount)}원'),
-              const SizedBox(height: 8),
-              ...itemList,
-            ],
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                '${formatAmount(totalAmount)}원',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.blackLight),
+              ),
+            ),
+            const SizedBox(height: 4),
+            ...itemList,
+          ],
+        ),
         const SizedBox(height: 16),
       ],
     );

@@ -100,6 +100,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                   // 성공적으로 데이터를 받았을 때
                   final financeViewModel = ref.read(financeViewModelProvider);
                   final totalAssets = financeViewModel.calculateTotalAssets(data.data);
+                  final currentMonth = DateTime.now().month;
                   
                   return SingleChildScrollView(
                     controller: scrollController, // 스크롤 컨트롤러 연결
@@ -126,6 +127,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                                     accountName: account.accountName,
                                     accountNo: account.accountNo,
                                     balance: account.accountBalance,
+                                    noMoneyMan : true,
                                   ))
                               .toList(),
                         ),
@@ -133,7 +135,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                         // 카드 정보
                         FinancialSectionWidget(
                           key: sectionKeys['카드'], // 섹션 위치 추적용 키
-                          title: '카드',
+                          title: '${currentMonth}월 카드 지출',
                           totalAmount: data.data.cardData.totalAmount,
                           isEmpty: data.data.cardData.cardList.isEmpty,
                           emptyMessage: '등록된 카드가 없습니다.',

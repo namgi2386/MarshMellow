@@ -96,9 +96,9 @@ class TotalAssetsWidget extends ConsumerWidget {
               height: double.infinity,
               alignment: Alignment.bottomRight,
               decoration: BoxDecoration(
-                color: AppColors.greenPrimary,
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                border: Border.all(width: 2.0 , color: AppColors.blackLight)
+                // color: AppColors.greenPrimary,
+                // borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                // border: Border.all(width: 2.0 , color: AppColors.blackLight)
               ),
               child: Image.asset(
                 'assets/images/characters/char_hat.png',

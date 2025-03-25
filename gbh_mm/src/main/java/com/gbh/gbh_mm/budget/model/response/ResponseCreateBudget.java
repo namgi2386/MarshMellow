@@ -8,7 +8,10 @@ import lombok.Data;
 @Builder
 public class ResponseCreateBudget {
     private String message;
-    private Budget budget;
-
+    private Long budgetPk;
+    private Long budgetAmount;
+    private String startDate;
+    private String endDate;
+    private String isSelected;
 
 }

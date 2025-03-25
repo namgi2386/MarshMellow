@@ -1,5 +1,6 @@
 package com.gbh.gbh_mm.user.model.entity;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+@Getter
 public class CustomUserDetails implements UserDetails {
 
     private final Long userPk;

@@ -1,18 +1,21 @@
 // presentation/pages/finance/widgets/account_item_widget.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/router/routes/finance_routes.dart';
 
 class AccountItemWidget extends StatelessWidget {
-  final String bankName;
-  final String accountName;
-  final String accountNo;
-  final int balance;
-  final bool isLoan;
-  final bool noMoneyMan;
+  final String bankName; // 은행명
+  final String accountName; // 계좌 명
+  final String accountNo; // 계좌번호
+  final int balance; // 계좌잔액
+  final bool isLoan; // 대출정보 여부
+  final bool noMoneyMan; // 송금가능여부
+  final String type; // 입출금, 예금, 적금, 대출
 
   const AccountItemWidget({
     Key? key,
@@ -22,6 +25,7 @@ class AccountItemWidget extends StatelessWidget {
     required this.balance,
     this.isLoan = false,
     this.noMoneyMan = false,
+    required this.type,
   }) : super(key: key);
 
   // 숫자 포맷팅 함수 (천 단위 구분)
@@ -119,6 +123,36 @@ class AccountItemWidget extends StatelessWidget {
       );
     }
   }
+  // AccountItemWidget.dart의 onTap 처리 메서드 예시
+  void _onAccountItemTap(BuildContext context) {
+    // type에 따라 다른 경로로 이동
+    switch (type) {
+      case '입출금':
+        context.push(
+          FinanceRoutes.getDemandDetailPath(accountNo),
+          extra: {
+            'bankName': bankName,
+            'accountName': accountName,
+            'accountNo': accountNo,
+            'balance': balance,
+            'noMoneyMan': noMoneyMan,
+          },
+        );
+        break;
+      case '예금':
+        // 예금 상세 페이지로 이동 (아직 구현되지 않음)
+        break;
+      case '적금':
+        // 적금 상세 페이지로 이동 (아직 구현되지 않음)
+        break;
+      case '대출':
+        // 대출 상세 페이지로 이동 (아직 구현되지 않음)
+        break;
+      default:
+        // 기본 처리 (필요시)
+        break;
+    }
+  }
 
 @override
 Widget build(BuildContext context) {
@@ -133,27 +167,29 @@ Widget build(BuildContext context) {
       child: Material( // Material 위젯 추가
         color: Colors.transparent,
         child: InkWell(
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 상세페이지 테스트중 <<<<<<<<<<<<<<<<<<<<<<<<<
           onTap: () {
-
-
-
+            _onAccountItemTap(context);
           },
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
         child: Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 8.0, 14.0, 8.0),
           child: Row(
             children: [
               IconButton(
               icon: _buildBankIcon(bankName),
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 상세페이지 테스트중 <<<<<<<<<<<<<<<<<<<<<<<<<
               onPressed: () {
-          
-          
+                _onAccountItemTap(context);
               },
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
               ),
               const SizedBox(width: 2),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text('타입: $type'),
                     Text(
                       accountName,
                       style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600,
@@ -170,16 +206,11 @@ Widget build(BuildContext context) {
               ),
               noMoneyMan
                 ? GestureDetector(
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 상세페이지 테스트중 <<<<<<<<<<<<<<<<<<<<<<<<<
                     onTap: () {
-
-                      
-                      // 송금 기능 실행
-
-
-
-
-
+                      context.push(FinanceRoutes.getTransferPath()); 
                     },
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                       // margin: EdgeInsets.fromLTRB(0.0, 0.0, 6.0, 0.0),
@@ -197,11 +228,11 @@ Widget build(BuildContext context) {
                   )
                 : IconButton(
                     icon: Icon(Icons.arrow_forward_ios, size: 16),
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 상세페이지 테스트중 <<<<<<<<<<<<<<<<<<<<<<<<<
                     onPressed: () {
-
-
-
+                      _onAccountItemTap(context);
                     },
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
                   ),
             ],
           ),),),

@@ -1,9 +1,12 @@
 package com.gbh.gbh_mm.wishlist.service;
 
+import com.gbh.gbh_mm.common.exception.CustomException;
+import com.gbh.gbh_mm.common.exception.ErrorCode;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
-import com.gbh.gbh_mm.wishlist.model.response.ResponseFindWishlist;
+import com.gbh.gbh_mm.wishlist.model.request.RequestUpdateWishlist;
+import com.gbh.gbh_mm.wishlist.model.response.*;
 import com.gbh.gbh_mm.wishlist.repo.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,16 +24,28 @@ public class WishlistService {
 
     // 위시리스트 생성
     @Transactional
-    public void createWishlist(Long userPk, Wishlist wishlist) {
+    public ResponseCreateWishlist createWishlist(Long userPk, Wishlist wishlist) {
         User user = userRepository.findById(userPk)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.CHILD_NOT_FOUND));
 
         wishlist.setUser(user);
         wishlistRepository.save(wishlist);
+        return ResponseCreateWishlist.builder()
+                .message("위시리스트 생성 완료")
+                .wishlistPk(wishlist.getWishlistPk())
+                .productNickname(wishlist.getProductNickname())
+                .productName(wishlist.getProductName())
+                .productPrice(wishlist.getProductPrice())
+                .productImageUrl(wishlist.getProductImageUrl())
+                .productUrl(wishlist.getProductUrl())
+                .isSelected(wishlist.getIsSelected())
+                .isCompleted(wishlist.getIsCompleted())
+                .depositAccountCode(wishlist.getDepositAccountCode())
+                .build();
     }
 
     // 위시리스트 조회
-    public List<ResponseFindWishlist.WishlistData> getWishlist(Long userPk) {
+    public ResponseFindWishlist getWishlist(Long userPk) {
         List<Wishlist> wishlist = wishlistRepository.findAllByUser_UserPk(userPk);
         List<ResponseFindWishlist.WishlistData> wishlistData = wishlist.stream()
                 .map(wish -> ResponseFindWishlist.WishlistData.builder()
@@ -46,44 +61,75 @@ public class WishlistService {
                         .build()
                 )
                 .collect(Collectors.toList());
-        return wishlistData;
+
+        return ResponseFindWishlist.builder()
+                .message("위시리스트 조회")
+                .wishlist(wishlistData)
+                .build();
 
 
 
     }
 
     // 위시리스트 상세 조회
-    public Wishlist getWishlistDetail(Long wishlistPk) {
-        return wishlistRepository.findById(wishlistPk)
-                .orElseThrow(() -> new RuntimeException("Wishlist not found"));
+    public ResponseFindDetailWishlist getWishlistDetail(Long wishlistPk) {
+
+        Wishlist wishlist = wishlistRepository.findById(wishlistPk)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        return ResponseFindDetailWishlist.builder()
+                .wishlistPk(wishlist.getWishlistPk())
+                .productNickname(wishlist.getProductNickname())
+                .productName(wishlist.getProductName())
+                .productPrice(wishlist.getProductPrice())
+                .productImageUrl(wishlist.getProductImageUrl())
+                .productUrl(wishlist.getProductUrl())
+                .isSelected(wishlist.getIsSelected())
+                .isCompleted(wishlist.getIsCompleted())
+                .depositAccountCode(wishlist.getDepositAccountCode())
+                .build();
     }
 
     // 위시리스트 수정
-    public Wishlist updateWishlist(Long wishlistPk, Wishlist wishlist) {
+    public ResponseUpdateWishlist updateWishlist(Long wishlistPk, RequestUpdateWishlist requestUpdateWishlist) {
         Wishlist oldWishlist = wishlistRepository.findById(wishlistPk)
-                .orElseThrow(() -> new RuntimeException("Wishlist not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        oldWishlist.setProductNickname(wishlist.getProductNickname());
-        oldWishlist.setProductName(wishlist.getProductName());
-        oldWishlist.setProductPrice(wishlist.getProductPrice());
-        oldWishlist.setProductImageUrl(wishlist.getProductImageUrl());
-        oldWishlist.setProductUrl(wishlist.getProductUrl());
-        oldWishlist.setIsSelected(wishlist.getIsSelected());
-        oldWishlist.setIsCompleted(wishlist.getIsCompleted());
-        oldWishlist.setDepositAccountCode(wishlist.getDepositAccountCode());
-        return wishlistRepository.save(oldWishlist);
+        String oldProductNickname = oldWishlist.getProductNickname();
+        String oldProductName = oldWishlist.getProductName();
+        Long oldProductPrice = oldWishlist.getProductPrice();
+        String oldProductImageUrl = oldWishlist.getProductImageUrl();
+
+        oldWishlist.setProductNickname(requestUpdateWishlist.getProductNickname());
+        oldWishlist.setProductName(requestUpdateWishlist.getProductName());
+        oldWishlist.setProductPrice(requestUpdateWishlist.getProductPrice());
+        oldWishlist.setProductImageUrl(requestUpdateWishlist.getProductImageUrl());
 
 
-
+        return ResponseUpdateWishlist.builder()
+                .message("위시리스트 수정 완료")
+                .wishlistPk(wishlistPk)
+                .oldNickname(oldProductNickname)
+                .newNickname(requestUpdateWishlist.getProductNickname())
+                .oldProductName(oldProductName)
+                .newProductName(requestUpdateWishlist.getProductName())
+                .oldProductPrice(oldProductPrice)
+                .newProductPrice(requestUpdateWishlist.getProductPrice())
+                .oldProductImageUrl(oldProductImageUrl)
+                .newProductImageUrl(requestUpdateWishlist.getProductImageUrl())
+                .build();
     }
 
     // 위시리스트 삭제
     @Transactional
-    public void deleteWishlist(Long wishlistPk) {
+    public ResponseDeleteWishlist deleteWishlist(Long wishlistPk) {
         Wishlist wishlist = wishlistRepository.findById(wishlistPk)
-                .orElseThrow(() -> new RuntimeException("Wishlist not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
         wishlistRepository.delete(wishlist);
-
+        return ResponseDeleteWishlist.builder()
+                .message("위시리스트 삭제 완료")
+                .deleteWishlistPk(wishlistPk)
+                .build();
     }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/custom_complete.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
   핀넘버 설정 성공 UI
@@ -12,6 +14,10 @@ class AuthPinnumCompletePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    Future.delayed(const Duration(seconds: 2), () {
+      context.go(SignupRoutes.getMyDataSplashPath());
+    });
     return MaterialApp(
       home: buildBlueWidget(),
     );

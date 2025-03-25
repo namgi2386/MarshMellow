@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 class BackGestureController extends ChangeNotifier {
   final Set<String> _disabledPaths = {
     // 왼>오 스와이프 뒤로가기 기능을 비활성화할 경로를 추가하세요
+    '/budget/signuptest'
   };
 
   String _currentPath = ''; // 현재 경로

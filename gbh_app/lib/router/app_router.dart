@@ -25,18 +25,22 @@ class GoRouterObserver extends NavigatorObserver {
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
+    
     // 라우트 이름 또는 경로를 컨트롤러에 전달
     final String? routeName = route.settings.name;
     final String? routePath = route.settings.name ??
                               (route is PageRoute ? route.settings.arguments?.toString() : null);
-    if (routeName != null) {
-      controller.updatePath(routeName);
-    } else if (routePath != null) {
-      controller.updatePath(routePath);
-    }
+    
+    // 빌드 사이클 이후로 컨트롤러 업데이트 지연
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (routeName != null) {
+        controller.updatePath(routeName);
+      } else if (routePath != null) {
+        controller.updatePath(routePath);
+      }
+    });
   }
 }
-
 // 라우터 생성 함수
 GoRouter createRouter(BackGestureController? backgestureController) {
   // 옵저버 목록 : 컨트롤러가 제공된 경우에만 추가

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
-import 'package:marshmellow/core/widgets/text_input.dart';
-import 'package:marshmellow/core/widgets/select_input.dart';
-import 'package:marshmellow/core/widgets/round_input.dart';
-import 'package:marshmellow/core/widgets/button.dart';
-import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-import 'package:marshmellow/core/widgets/card.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/core/widgets/modal.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
+import 'package:marshmellow/presentation/widgets/card/card.dart';
+import 'package:marshmellow/presentation/widgets/round_input/round_input.dart';
+import 'package:marshmellow/presentation/widgets/select_input/select_input.dart';
+import 'package:marshmellow/presentation/widgets/text_input/text_input.dart';
+import 'package:marshmellow/presentation/widgets/custom_search_bar/custom_search_bar.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/widgets/custom_search_bar/custom_search_bar.dart';
 
 class InputPage extends StatefulWidget {
-  const InputPage({Key? key}) : super(key: key);
+  const InputPage({super.key});
 
   @override
   State<InputPage> createState() => _InputPageState();
@@ -22,6 +23,7 @@ class _InputPageState extends State<InputPage> {
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _roundController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   String? _emailError;
 
@@ -37,6 +39,8 @@ class _InputPageState extends State<InputPage> {
     _emailController.dispose();
     _countryController.dispose();
     _roundController.dispose();
+    _categoryController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -68,13 +72,20 @@ class _InputPageState extends State<InputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppbar(
-        title: '텍스트 인풋',
+      appBar: AppBar(
+        title: const Text('입력 페이지'),
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            CustomSearchBar(
+              controller: _searchController,
+              onSearchPressed: () {
+                print('검색 버튼 클릭됨');
+              },
+            ),
+            const SizedBox(height: 20),
             CustomCard(
               width: MediaQuery.of(context).size.width * 0.9,
               height: MediaQuery.of(context).size.height * 0.25,

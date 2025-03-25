@@ -131,7 +131,7 @@ public class AssetServiceImpl implements AssetService {
                     List<Map<String, Object>> billingList =
                             (List<Map<String, Object>>) bill.get("billingList");
                     Map<String, Object> billing = billingList.get(0);
-                    long totalAmount = (long) billing.get("totalBalance");
+                    long totalAmount = Long.parseLong((String) billing.get("totalBalance"));
 
                     cardAmount += totalAmount;
                     cardList.get(i).setCardBalance(totalAmount);

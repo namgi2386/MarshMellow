@@ -8,6 +8,9 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/custom_button.dart';
 
+/*
+  본인인증 메세지 전송 UI
+*/
 class AuthMessagePage extends ConsumerWidget {
   final String name;
   final String idNum;

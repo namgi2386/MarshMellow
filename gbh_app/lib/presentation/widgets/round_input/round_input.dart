@@ -22,6 +22,7 @@ class RoundInput<T> extends StatefulWidget {
   final String? modalTitle;
   final bool showDividers;
   final bool showTitleDivider;
+  final ValueChanged<String>? onSubmitted;
 
   const RoundInput({
     super.key,
@@ -42,6 +43,7 @@ class RoundInput<T> extends StatefulWidget {
     this.modalTitle,
     this.showDividers = true,
     this.showTitleDivider = false,
+    this.onSubmitted,
   });
 
   @override
@@ -262,6 +264,9 @@ class _RoundInputState<T> extends State<RoundInput<T>> {
         if (widget.onChanged != null) {
           widget.onChanged!(value);
         }
+      },
+      onSubmitted: (value) {
+        widget.onSubmitted?.call(value);
       },
       onTap: widget.onTap,
       cursorColor: AppColors.textPrimary,

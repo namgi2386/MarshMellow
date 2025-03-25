@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_test_page.dart';
-import 'package:marshmellow/presentation/pages/finance/keyboard_test_page.dart'; // 추가
+import 'package:marshmellow/presentation/pages/testpage/keyboard_test_page.dart'; // 추가
 
 class FinanceRoutes {
   static const String root = '/finance';

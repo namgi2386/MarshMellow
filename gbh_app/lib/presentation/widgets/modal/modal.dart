@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:marshmellow/core/theme/app_text_styles.dart'; // 앱 텍스트 스타일 참조
-import 'package:marshmellow/core/theme/app_colors.dart'; // 앱 색상 참조
+import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
 
 class Modal extends StatelessWidget {
   final Color backgroundColor;
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double? maxHeight;
-  final String? title; // 제목 추가
-  final TextStyle? titleStyle; // 제목 스타일 추가
-  final bool showDivider; // 제목과 콘텐츠 사이 구분선 표시 여부
+  final String? title;
+  final TextStyle? titleStyle;
+  final bool showDivider;
 
   const Modal({
     Key? key,
@@ -17,14 +17,15 @@ class Modal extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
     this.maxHeight,
-    this.title, // 제목 파라미터
-    this.titleStyle, // 제목 스타일 파라미터
-    this.showDivider = true, // 기본값으로 구분선 표시
+    this.title,
+    this.titleStyle,
+    this.showDivider = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
     final effectiveMaxHeight = maxHeight ?? screenHeight * 0.8;
 
     return Container(
@@ -39,11 +40,26 @@ class Modal extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 핸들
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Container(
+                width: screenWidth * 0.1,
+                height: screenWidth * 0.01,
+                decoration: BoxDecoration(
+                  color: AppColors.textPrimary,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+          ),
+
           // 제목이 있는 경우에만 표시
           if (title != null) ...[
             Padding(
               padding: EdgeInsets.only(
-                top: 20,
+                top: 12,
                 left: 25,
               ),
               child: Align(

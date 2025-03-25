@@ -1,7 +1,7 @@
 // lib/router/routes/notification_routes.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:marshmellow/presentation/pages/notifications/notifications_page.dart';
+import 'package:marshmellow/presentation/pages/etc/notifications/notifications_page.dart';
 
 class NotificationRoutes {
   static const String root = '/notification';

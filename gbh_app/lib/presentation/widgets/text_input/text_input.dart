@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/widgets/text_input/text_input_logic.dart';
 
 class TextInput extends StatefulWidget {
   final String label;
@@ -29,105 +30,52 @@ class TextInput extends StatefulWidget {
 }
 
 class _TextInputState extends State<TextInput> {
-  late FocusNode _focusNode;
-  TextEditingController? _controller;
-  bool _isFocused = false;
-  bool _hasText = false; // 텍스트 입력 여부 상태
+  late TextInputLogic _textInputLogic;
 
   @override
   void initState() {
     super.initState();
-    // 외부에서 제공된 focusNode가 있으면 사용, 없으면 내부에서 생성
-    _focusNode = widget.focusNode ?? FocusNode();
-    _focusNode.addListener(_handleFocusChange);
+    _textInputLogic = TextInputLogic(
+      externalFocusNode: widget.focusNode,
+      externalController: widget.controller,
+      onStateChanged: () => setState(() {}),
+    );
   }
 
   @override
   void didUpdateWidget(TextInput oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.focusNode != oldWidget.focusNode) {
-      _focusNode.removeListener(_handleFocusChange);
-      _focusNode = widget.focusNode ?? FocusNode();
-      _focusNode.addListener(_handleFocusChange);
+      _textInputLogic.dispose();
+      _textInputLogic = TextInputLogic(
+        externalFocusNode: widget.focusNode,
+        externalController: widget.controller,
+        onStateChanged: () => setState(() {}),
+      );
     }
-  }
-
-  // 포커스 상태 변경 처리
-  void _handleFocusChange() {
-    if (_isFocused != _focusNode.hasFocus) {
-      setState(() {
-        _isFocused = _focusNode.hasFocus;
-      });
+    if (widget.controller != oldWidget.controller) {
+      _textInputLogic.updateController(widget.controller);
     }
-  }
-
-  // 텍스트 입력 상태 업데이트
-  void _updateTextStatus() {
-    final hasText = (widget.controller?.text.isNotEmpty ?? false) ||
-        (_controller?.text.isNotEmpty ?? false);
-    if (_hasText != hasText) {
-      setState(() {
-        _hasText = hasText;
-      });
-    }
-  }
-
-  // 텍스트 초기화 함수
-  void _clearText() {
-    if (widget.controller != null) {
-      widget.controller!.clear();
-    } else if (_controller != null) {
-      _controller!.clear();
-    }
-
-    if (widget.onChanged != null) {
-      widget.onChanged!('');
-    }
-
-    setState(() {
-      _hasText = false;
-    });
   }
 
   @override
   void dispose() {
-    // 내부에서 생성한 focusNode와 controller만 dispose
-    if (widget.focusNode == null) {
-      _focusNode.removeListener(_handleFocusChange);
-      _focusNode.dispose();
-    }
-    _controller?.dispose();
+    _textInputLogic.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // 외부에서 제공된 controller 또는 내부에서 생성한 controller 사용
-    if (widget.controller != null) {
-      // 기존 컨트롤러가 있으면 dispose하고 새 컨트롤러 사용
-      _controller?.dispose();
-      _controller = null;
-      // 컨트롤러에 리스너 추가
-      widget.controller!.addListener(_updateTextStatus);
-      // 현재 컨트롤러의 텍스트 상태 확인
-      _hasText = widget.controller!.text.isNotEmpty;
-    } else if (_controller == null) {
-      _controller = TextEditingController();
-      _controller!.addListener(_updateTextStatus);
-    }
-    final effectiveController = widget.controller ?? _controller!;
-
-    // 색상 정의
     final Color borderColor = widget.errorText != null
         ? AppColors.warnning
-        : _isFocused
-            ? AppColors.textPrimary // 포커스 상태일 경우
-            : AppColors.textSecondary; // 포커스 상태가 아닐 경우
+        : _textInputLogic.isFocused
+            ? AppColors.textPrimary
+            : AppColors.textSecondary;
 
-    final Color textColor =
-        _isFocused ? AppColors.textPrimary : AppColors.textSecondary;
+    final Color textColor = _textInputLogic.isFocused
+        ? AppColors.textPrimary
+        : AppColors.textSecondary;
 
-    // 화면의 전체 너비를 가져옵니다.
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Center(
@@ -135,7 +83,6 @@ class _TextInputState extends State<TextInput> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            // 너비를 화면 너비의 90%로 설정
             width: widget.width ?? screenWidth * 0.9,
             height: 60,
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -145,16 +92,11 @@ class _TextInputState extends State<TextInput> {
               color: AppColors.whiteLight,
             ),
             child: Stack(
-              // alignment 속성 제거하여 기본값(topLeft)으로 설정
               children: [
                 TextField(
-                  controller: effectiveController,
-                  focusNode: _focusNode,
+                  controller: _textInputLogic.controller,
+                  focusNode: _textInputLogic.focusNode,
                   onChanged: (value) {
-                    // 텍스트 변경 시 상태 업데이트
-                    setState(() {
-                      _hasText = value.isNotEmpty;
-                    });
                     if (widget.onChanged != null) {
                       widget.onChanged!(value);
                     }
@@ -174,20 +116,19 @@ class _TextInputState extends State<TextInput> {
                     disabledBorder: InputBorder.none,
                     contentPadding: const EdgeInsets.only(
                       top: 16,
-                      right: 40, // 오른쪽에 X 버튼을 위한 공간 확보
+                      right: 40,
                     ),
                   ),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: textColor,
                   ),
                 ),
-                // X 버튼 - 포커스가 있고 텍스트가 있을 때만 표시
-                if (_isFocused && _hasText)
+                if (_textInputLogic.isFocused && _textInputLogic.hasText)
                   Positioned(
                     right: 0,
                     bottom: 10,
                     child: GestureDetector(
-                      onTap: _clearText,
+                      onTap: _textInputLogic.clearText,
                       child: Container(
                         width: 24,
                         height: 24,

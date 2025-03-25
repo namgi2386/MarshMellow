@@ -30,6 +30,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: backgroundColor,
       title: Text(title, style: AppTextStyles.appBar),
+      automaticallyImplyLeading: false, // 자동 뒤로가기 버튼 비활성화
       actions: [
         // 아이콘을 추가할 거라면 여기에 넣으세요
         ...actions,

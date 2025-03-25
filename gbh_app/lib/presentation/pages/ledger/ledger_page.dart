@@ -1,79 +1,185 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:marshmellow/core/config/app_config.dart';
-import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/presentation/pages/testpage/input_page.dart';
+import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/financial_card.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/page_dot_indicator.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/ledger_transaction_history.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/ledger_calendar.dart';
+import 'package:marshmellow/router/routes/ledger_routes.dart';
+import 'package:go_router/go_router.dart';
 
-class LedgerPage extends ConsumerWidget {
+class LedgerPage extends StatefulWidget {
+  // StatelessWidget에서 StatefulWidget으로 변경
   const LedgerPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // 라이프사이클 상태 구독
-    final lifecycleState = ref.watch(lifecycleStateProvider);
+  State<LedgerPage> createState() => _LedgerPageState();
+}
+
+class _LedgerPageState extends State<LedgerPage> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    // 화면 크기 정의
+    final screenWidth = MediaQuery.of(context).size.width;
+    final contentWidth = screenWidth * 0.9;
+
     return Scaffold(
-      appBar: CustomAppbar(
-        title: '가계부',
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              '환경 설정 테스트3',
-              style: AppTextStyles.mainTitle,
-            ),
-            // CounterPage(),
-            const SizedBox(height: 20),
-            Text(
-              '현재 환경: ${AppConfig.isDevelopment() ? "개발" : "프로덕션"}',
-              style: AppTextStyles.bodyMedium,
-            ),
-            const SizedBox(height: 10),
-            // 라이프사이클 상태 표시 추가
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '라이프사이클 상태: $lifecycleState',
-                style: AppTextStyles.subTitle,
-              ),
-            ),
-            Text(
-              'API URL: ${AppConfig.apiBaseUrl}',
-              style: AppTextStyles.bodyExtraSmall,
-            ),
-            // 서비스 로케이터 테스트를 위한 버튼 추가
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                print("tt");
-                // 서비스 로케이터가 제대로 설정되었는지 확인
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('의존성 주입 테스트 성공')),
-                );
-              },
-              child: const Text('의존성 주입 테스트', style: AppTextStyles.button),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // 서비스 로케이터가 제대로 설정되었는지 확인
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => InputPage(),
+      appBar: CustomAppbar(title: '가계부', actions: [
+        IconButton(
+          icon: SvgPicture.asset(IconPath.analysis),
+          onPressed: () {},
+        )
+      ]),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Center(
+            child: Container(
+              width: contentWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 날짜 선택 컨테이너
+                  Container(
+                    height: 50,
+                    width: screenWidth * 0.52,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SvgPicture.asset(IconPath.caretLeft),
+                        Text('25.03.15 - 25.12.14',
+                            style: AppTextStyles.bodyMedium
+                                .copyWith(fontWeight: FontWeight.w600)),
+                        SvgPicture.asset(IconPath.caretRight),
+                      ],
+                    ),
                   ),
-                );
-              },
-              child: const Text('테스트 페이지 이동', style: AppTextStyles.button),
+
+                  // 수입/지출 카드 영역
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: FinanceCard(
+                          title: '수입',
+                          amount: 2500000,
+                          backgroundColor: AppColors.bluePrimary,
+                          onTap: () {
+                            print('수입 카드가 탭됨');
+                          },
+                        ),
+                      ),
+                      SizedBox(width: screenWidth * 0.03),
+                      Expanded(
+                        child: FinanceCard(
+                          title: '지출',
+                          amount: 1500000,
+                          backgroundColor: AppColors.pinkPrimary,
+                          onTap: () {
+                            print('지출 카드가 탭됨');
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text('필터',
+                              style: AppTextStyles.bodyMedium
+                                  .copyWith(fontWeight: FontWeight.w300)),
+                          SizedBox(width: screenWidth * 0.03),
+                          SvgPicture.asset(IconPath.caretDown),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              // plus 버튼 액션
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: SvgPicture.asset(
+                                IconPath.plus,
+                                width: 23,
+                                height: 23,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // 검색 페이지로 이동
+                              context.push(LedgerRoutes.getSearchPath());
+                            },
+                            child: SvgPicture.asset(
+                              IconPath.searchOutlined,
+                              width: 23,
+                              height: 23,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16), // 이 줄 추가
+
+                  // 페이지 인디케이터
+                  Center(
+                    child: PageDotIndicator(
+                      currentPage: _currentPage,
+                      totalPages: 2,
+                      pageController: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                    ),
+                  ),
+
+                  // 페이지 뷰 컨테이너
+                  SizedBox(
+                    height: 450, // 필요한 높이로 조정
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      children: const [
+                        // 첫 번째 페이지 - 거래 내역
+                        LedgerTransactionHistory(),
+
+                        // 두 번째 페이지 - 캘린더
+                        LedgerCalendar(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }

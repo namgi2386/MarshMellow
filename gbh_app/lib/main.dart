@@ -1,9 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/router/app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
+import 'package:marshmellow/core/utils/back_gesture/controller.dart';
 
 // 환경설정 import
 import 'core/config/environment_loader.dart';
@@ -39,6 +42,14 @@ Future<void> main() async {
     }
   }
 
+  // 뒤로가기 제스처 컨트롤러 생성
+  final backGestureController = BackGestureController();
+
+  // 뒤로가기 제스처 관리 포함된 라우터 생성
+  final router = createRouter(backGestureController);
+
+
+
   // Override 프로바이더를 사용하여 초기화된 인스턴스 제공
   runApp(
     ProviderScope(
@@ -48,7 +59,10 @@ Future<void> main() async {
         if (sharedPreferences != null)
           sharedPreferencesProvider.overrideWithValue(sharedPreferences),
       ],
-      child: const App(),
+      child: App(
+        router: router,
+        backGestureController: backGestureController,
+      ),
     ),
   );
 }

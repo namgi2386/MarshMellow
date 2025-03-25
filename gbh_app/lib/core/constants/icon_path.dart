@@ -1,0 +1,112 @@
+import 'package:flutter/material.dart';
+
+class IconPath {
+  // 앱바
+  static const String analysis = 'assets/icons/app_bar/analysis.svg';
+  static const String bell = 'assets/icons/app_bar/Bell.svg';
+  static const String userCircle = 'assets/icons/app_bar/UserCircle.svg';
+  static const String simpleUnclicked =
+      'assets/icons/app_bar/simple_unclicked.svg';
+  static const String simpleClicked = 'assets/icons/app_bar/simple_clicked.svg';
+
+  // bank
+  static const String koreaBank = 'assets/icons/bank/001_korea.svg'; // 한국은행 (Korea Bank)
+  static const String kdbBank = 'assets/icons/bank/002_kdb.svg'; // 산업은행 (KDB Bank)
+  static const String ibkBank = 'assets/icons/bank/003_ibk.svg'; // 기업은행 (IBK Bank)
+  static const String kbBank = 'assets/icons/bank/004_kb.svg'; // 국민은행 (KB Bank)
+  static const String nhBank = 'assets/icons/bank/011_nh.svg'; // 농협은행 (NH Bank)
+  static const String wooriBank = 'assets/icons/bank/020_woori.svg'; // 우리은행 (Woori Bank)
+  static const String scBank = 'assets/icons/bank/023_sc.svg'; // SC은행 (Standard Chartered Bank)
+  static const String citiBank = 'assets/icons/bank/027_citi.svg'; // 씨티은행 (Citi Bank)
+  static const String dgBank = 'assets/icons/bank/032_daegu.svg'; // 대구은행 (Daegu Bank)
+  static const String gjBank = 'assets/icons/bank/034_gwangju.svg'; // 광주은행 (Gwangju Bank)
+  static const String jejuBank = 'assets/icons/bank/035_jeju.svg'; // 제주은행 (Jeju Bank)
+  static const String jbBank = 'assets/icons/bank/037_junbuk.svg'; // 전북은행 (Jeonbuk Bank)
+  static const String gnBank = 'assets/icons/bank/039_gyeongnam.svg'; // 경남은행 (Gyeongnam Bank)
+  static const String mgBank = 'assets/icons/bank/045_mg.svg'; // MG새마을금고 (MG Community Credit Cooperatives)
+  static const String hanaBank = 'assets/icons/bank/081_hana.svg';  // 하나은행 (Hana Bank)
+  static const String shinhanBank = 'assets/icons/bank/088_shinhan.svg';  // 신한은행 (Shinhan Bank)
+  static const String kakaoBank = 'assets/icons/bank/090_kakao.svg'; // 카카오뱅크 (Kakao Bank)
+  static const String tossBank = 'assets/icons/bank/999_ssafy.svg'; // 싸피뱅크 (SSAFY Bank)
+
+
+  // expense
+  static const String expenseAlcohol =
+      'assets/icons/expense/expense_alcohol.svg';
+  static const String expenseBaby = 'assets/icons/expense/expense_baby.svg';
+  static const String expenseBank = 'assets/icons/expense/expense_bank.svg';
+  static const String expenseCar = 'assets/icons/expense/expense_car.svg';
+  static const String expenseCoffee = 'assets/icons/expense/expense_coffee.svg';
+  static const String expenseCulture =
+      'assets/icons/expense/expense_culture.svg';
+  static const String expenseEvent = 'assets/icons/expense/expense_event.svg';
+  static const String expenseFood = 'assets/icons/expense/expense_food.svg';
+  static const String expenseHealth = 'assets/icons/expense/expense_health.svg';
+  static const String expenseHouse = 'assets/icons/expense/expense_house.svg';
+  static const String expenseLiving = 'assets/icons/expense/expense_living.svg';
+  static const String expenseOnlineShopping =
+      'assets/icons/expense/expense_onlineshopping.svg';
+  static const String expensePet = 'assets/icons/expense/expense_pet.svg';
+  static const String expenseShopping =
+      'assets/icons/expense/expense_shopping.svg';
+  static const String expenseStudy = 'assets/icons/expense/expense_study.svg';
+  static const String expenseTransport =
+      'assets/icons/expense/expense_transport.svg';
+  static const String expenseTravel = 'assets/icons/expense/expense_travel.svg';
+  static const String expenseBeauty = 'assets/icons/expense/expense_beauty.svg';
+  static const String nonCategory = 'assets/icons/expense/non_category.svg';
+
+  // income
+  // 금융수입
+  static const String incomeBank = 'assets/icons/income/income_bank.svg';
+  //사업수입
+  static const String incomeBusiness =
+      'assets/icons/income/income_business.svg';
+  //보험금
+  static const String incomeInsurance =
+      'assets/icons/income/income_insurance.svg';
+  //더치페이
+  static const String incomeNpay = 'assets/icons/income/income_npay.svg';
+  //아르바이트
+  static const String incomeParttime =
+      'assets/icons/income/income_parttime.svg';
+  //부동산
+  static const String incomeRealestate =
+      'assets/icons/income/income_realestate.svg';
+  //중고거래
+  static const String incomeRecycle = 'assets/icons/income/income_recycle.svg';
+  //월급
+  static const String incomeSalary = 'assets/icons/income/income_salary.svg';
+  //장학금
+  static const String incomeScholarship =
+      'assets/icons/income/income_scholarship.svg';
+  //SNS
+  static const String incomeSns = 'assets/icons/income/income_sns.svg';
+  //기타
+  static const String incomeEtc = 'assets/icons/income/non_category.svg';
+
+  // nav
+  static const String budgetBk = 'assets/icons/nav/budget_bk.svg';
+  static const String budgetWh = 'assets/icons/nav/budget_wh.svg';
+  static const String cookieBk = 'assets/icons/nav/cookie_bk.svg';
+  static const String cookieWh = 'assets/icons/nav/cookie_wh.svg';
+  static const String financeBk = 'assets/icons/nav/finance_bk.svg';
+  static const String financeWh = 'assets/icons/nav/finance_wh.svg';
+  static const String ledgerBk = 'assets/icons/nav/ledger_bk.svg';
+  static const String ledgerWh = 'assets/icons/nav/ledger_wh.svg';
+  static const String userBk = 'assets/icons/nav/user_bk.svg';
+  static const String userWh = 'assets/icons/nav/user_wh.svg';
+
+  // search_bar
+  static const String searchButton =
+      'assets/icons/search_bar/search_button.svg';
+  static const String searchButtonPng =
+      'assets/icons/search_bar/search_button.png';
+
+  //body
+  static const String caretLeft = 'assets/icons/body/CaretLeft.svg';
+  static const String caretRight = 'assets/icons/body/CaretRight.svg';
+  static const String plus = 'assets/icons/body/plus.svg';
+  static const String searchOutlined = 'assets/icons/body/search_outlined.svg';
+  static const String caretDown = 'assets/icons/body/CaretDown.svg';
+}

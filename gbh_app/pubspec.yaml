@@ -81,6 +81,17 @@ dependencies:
 
   convex_bottom_bar: ^3.2.0  # 컨벡스 디자인 하단 탭바
 
+  # 키보드관련
+  flutter_secure_keyboard: ^4.0.0 # 보안키보드
+  simple_numpad: ^1.0.5 # 숫자키보드/계산기키보드
+  keyboard_actions: ^4.2.0 # 기본키보드 액션추가전용
+
+  # lottie : 로딩인디케이터
+  lottie: ^3.3.1
+
+  # 문자앱 열기
+  url_launcher: ^6.1.10
+
 
 dev_dependencies:
   flutter_test:
@@ -112,11 +123,17 @@ flutter:
     - assets/fonts/
     - assets/images/
     - assets/images/mm/
+    - assets/images/loading/
     - assets/icons/
     - assets/icons/nav/
     - assets/icons/bank/
     - assets/icons/expense/
     - assets/icons/income/
+    - assets/images/userverification.png
+    - assets/icons/search_bar/
+    - assets/icons/app_bar/
+    - assets/icons/body/
+
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

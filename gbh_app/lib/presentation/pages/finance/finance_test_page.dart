@@ -2,8 +2,56 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart'; 
 
+import 'package:go_router/go_router.dart'; // 이제 라우트 할거면 필수
+import 'package:marshmellow/router/routes/finance_routes.dart'; // 경로 상수 import
+
+// 로딩인디케이터 추가
+import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
+
 class FinanceTestPage extends StatelessWidget {
   const FinanceTestPage({Key? key}) : super(key: key);
+
+
+
+  // 가상의 API 호출 함수 (0.1초 소요)
+  Future<String> _mockFastApiCall() async {
+    // 0.1초 대기
+    await Future.delayed(const Duration(milliseconds: 100));
+    return "API 응답 데이터";
+  }
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< API호출시 로딩 인디케이터 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
+  Future<void> _testApiWithLoading(BuildContext context) async {
+    // ☆★ API호출 시작하자마자 로딩 시작 ☆★
+    LoadingManager.show(
+      context,
+      text: "API 호출 중...",
+      backgroundColor: Colors.purpleAccent,
+      opacity: 0.2,
+      durationInSeconds: 0, // ☆★ 0하면, 자동 종료 없음. 즉 (수동종료코드)필요함 ☆★
+      minimumDurationInSeconds: 1,
+    );
+    
+    try {
+      final result = await _mockFastApiCall(); // 가상 API호출
+      print("API 결과: $result");
+    } catch (error) {
+      print("API 오류: $error");
+    } finally {
+      
+      await LoadingManager.hide(); // ☆★ 완료시 로딩 종료시켜주기 (수동종료코드) ☆★
+      
+      // 테스트용 스낵바
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("API 호출 완료! (0.1초 걸렸지만 로딩은 1초 표시)"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+// >>>>>>>>>>>>>>>>>>>>>>> API호출시 로딩 인디케이터 >>>>>>>>>>>>>>>>>>>>>>>>>>
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +63,7 @@ class FinanceTestPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('이것은 Finance 테스트 페이지입니다'),
+            const Text('이것은 Finance 테스트 페이지입니2다'),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -23,6 +71,49 @@ class FinanceTestPage extends StatelessWidget {
               },
               child: const Text('돌아가기'),
             ),
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<< 키보드 테스트 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // 테스트 페이지로 이동
+                context.push(FinanceRoutes.getKeyboardTestPath());
+              },
+              child: const Text('키보드 테스트'),
+            ),
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>> 키보드 테스트 >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<< 로딩 인디케이터 테스트 추가 <<<<<<<<<<<<<<<
+            // 로딩 인디케이터 테스트 버튼 추가
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // 로딩인디케이터 로직 
+                LoadingManager.show(
+                  context, // 필수
+                  text: "사용자 정보를 불러오는 중...", // 메세지
+                  backgroundColor: Colors.blue, // 배경색 (기본검정)
+                  opacity: 0.6, // 투명도 (기본0.7)
+                  durationInSeconds: 3, // 3초 후 종료 (기본 1초)
+                  minimumDurationInSeconds: 1, // 최소 1초 동안 표시 (기본 1초)
+                );
+              },
+              child: const Text('2초 로딩 테스트'),
+            ),
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>> 로딩 인디케이터 테스트 추가 >>>>>>>>>>>>>>>>
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<< API호출시 로딩 인디케이터  <<<<<<<<<<<<<<<
+            // 가상 API 호출 테스트 버튼 (새로 추가)
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => _testApiWithLoading(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('0.1초 API 호출 테스트 (1초 로딩)'),
+            ),
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>> API호출시 로딩 인디케이터 >>>>>>>>>>>>>>>>
+
           ],
         ),
       ),

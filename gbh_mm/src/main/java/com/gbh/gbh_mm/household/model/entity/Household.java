@@ -9,10 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.sql.Time;
 import java.util.Date;
+import lombok.Data;
 
 @Entity
 @Table(name = "tbl_household")
+@Data
 public class Household {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

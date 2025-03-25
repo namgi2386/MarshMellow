@@ -2,6 +2,7 @@ package com.gbh.gbh_mm.budget.service;
 
 import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
+import com.gbh.gbh_mm.budget.model.response.ResponseCreateBudget;
 import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetCategoryList;
 import com.gbh.gbh_mm.budget.model.response.ResponseFindBudgetList;
 import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
@@ -27,10 +28,11 @@ public class BudgetService {
     private final BudgetCategoryRepository budgetCategoryRepository;
 
     // 전체 예산 조회
-    public List<ResponseFindBudgetList.BudgetData> getBudgetList(Long userPk) {
+    public ResponseFindBudgetList getBudgetList(Long userPk) {
         List<Budget> budgets = budgetRepository.findAllByUser_UserPk(userPk);
+
         if (budgets.isEmpty()) {
-            throw new CustomException(ErrorCode.CHILD_NOT_FOUND);
+            throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
         }
         List<ResponseFindBudgetList.BudgetData> budgetDataList = budgets.stream()
                 .map(budget -> ResponseFindBudgetList.BudgetData.builder()
@@ -43,19 +45,26 @@ public class BudgetService {
                 )
                 .collect(Collectors.toList());
 
-        return budgetDataList;
+        return ResponseFindBudgetList.builder()
+                .message("예산 리스트 조회")
+                .budgetList(budgetDataList)
+                .build();
     }
 
     // 예산 생성
     @Transactional
-    public Budget createBudget(Long userPk, Budget budget) {
+    public ResponseCreateBudget createBudget(Long userPk, Budget budget) {
 
-        User user = userRepository.findById(userPk)
-                .orElseThrow(() -> new IllegalArgumentException("User Not Found"));
+        User user = userRepository.findById(userPk).
+                orElseThrow(() -> new CustomException(ErrorCode.CHILD_NOT_FOUND));
 
         budget.setUser(user);
+        budgetRepository.save(budget);
 
-        return budgetRepository.save(budget);
+        return ResponseCreateBudget.builder()
+                .message("예산 생성 완료")
+                .budget(budget)
+                .build();
     }
 
     // 세부 예산 생성

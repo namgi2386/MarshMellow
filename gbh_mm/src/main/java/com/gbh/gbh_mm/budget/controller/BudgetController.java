@@ -21,28 +21,13 @@ public class BudgetController {
     // 예산 리스트 조회
     @GetMapping("/{userPk}")
     public ResponseFindBudgetList getBudgetList(@PathVariable Long userPk) {
-        List<ResponseFindBudgetList.BudgetData> budgetData = budgetService.getBudgetList(userPk);
-
-        ResponseFindBudgetList response = ResponseFindBudgetList.builder()
-                .code(200)
-                .message("예산 리스트 조회")
-                .data(budgetData)
-                .build();
-        return response;
+        return budgetService.getBudgetList(userPk);
     }
 
     // 예산 생성
     @PostMapping("/{userPk}")
-    public ResponseEntity<ResponseCreateBudget> createBudget(@PathVariable Long userPk, @RequestBody Budget budget) {
-
-        budgetService.createBudget(userPk, budget);
-
-        ResponseCreateBudget response = ResponseCreateBudget.builder()
-                .code(200)
-                .message("예산 생성 완료")
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseCreateBudget createBudget(@PathVariable Long userPk, @RequestBody Budget budget) {
+        return budgetService.createBudget(userPk, budget);
     }
 
     // 세부 예산 리스트 조회

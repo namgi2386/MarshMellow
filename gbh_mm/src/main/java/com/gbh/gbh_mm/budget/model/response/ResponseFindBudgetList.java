@@ -8,9 +8,8 @@ import java.util.List;
 @Data
 @Builder
 public class ResponseFindBudgetList {
-    private int code;
     private String message;
-    private List<BudgetData> data;
+    private List<BudgetData> budgetList;
 
     @Data
     @Builder

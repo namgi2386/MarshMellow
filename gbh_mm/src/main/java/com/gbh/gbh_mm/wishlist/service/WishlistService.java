@@ -40,7 +40,6 @@ public class WishlistService {
                 .productUrl(wishlist.getProductUrl())
                 .isSelected(wishlist.getIsSelected())
                 .isCompleted(wishlist.getIsCompleted())
-                .depositAccountCode(wishlist.getDepositAccountCode())
                 .build();
     }
 
@@ -53,11 +52,11 @@ public class WishlistService {
                         .productNickname(wish.getProductNickname())
                         .productName(wish.getProductName())
                         .productPrice(wish.getProductPrice())
+                        .achievePrice(wish.getAchievePrice())
                         .productImageUrl(wish.getProductImageUrl())
                         .productUrl(wish.getProductUrl())
                         .isSelected(wish.getIsSelected())
                         .isCompleted(wish.getIsCompleted())
-                        .depositAccountCode(wish.getDepositAccountCode())
                         .build()
                 )
                 .collect(Collectors.toList());
@@ -82,11 +81,11 @@ public class WishlistService {
                 .productNickname(wishlist.getProductNickname())
                 .productName(wishlist.getProductName())
                 .productPrice(wishlist.getProductPrice())
+                .achievePrice(wishlist.getAchievePrice())
                 .productImageUrl(wishlist.getProductImageUrl())
                 .productUrl(wishlist.getProductUrl())
                 .isSelected(wishlist.getIsSelected())
                 .isCompleted(wishlist.getIsCompleted())
-                .depositAccountCode(wishlist.getDepositAccountCode())
                 .build();
     }
 
@@ -99,12 +98,13 @@ public class WishlistService {
         String oldProductName = oldWishlist.getProductName();
         Long oldProductPrice = oldWishlist.getProductPrice();
         String oldProductImageUrl = oldWishlist.getProductImageUrl();
+        String oldProductUrl = oldWishlist.getProductUrl();
 
         oldWishlist.setProductNickname(requestUpdateWishlist.getProductNickname());
         oldWishlist.setProductName(requestUpdateWishlist.getProductName());
         oldWishlist.setProductPrice(requestUpdateWishlist.getProductPrice());
         oldWishlist.setProductImageUrl(requestUpdateWishlist.getProductImageUrl());
-
+        oldWishlist.setProductUrl(requestUpdateWishlist.getProductUrl());
 
         return ResponseUpdateWishlist.builder()
                 .message("위시리스트 수정 완료")
@@ -117,6 +117,8 @@ public class WishlistService {
                 .newProductPrice(requestUpdateWishlist.getProductPrice())
                 .oldProductImageUrl(oldProductImageUrl)
                 .newProductImageUrl(requestUpdateWishlist.getProductImageUrl())
+                .oldProductUrl(oldProductUrl)
+                .newProductUrl(requestUpdateWishlist.getProductUrl())
                 .build();
     }
 

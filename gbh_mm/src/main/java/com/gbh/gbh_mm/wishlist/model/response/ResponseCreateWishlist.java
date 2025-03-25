@@ -23,6 +23,4 @@ public class ResponseCreateWishlist {
     private String isSelected;
 
     private String isCompleted;
-
-    private String depositAccountCode;
 }

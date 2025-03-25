@@ -1,5 +1,5 @@
 package com.gbh.gbh_mm.household.service;
 
-public class HouseholdService {
+public interface HouseholdService {
 
 }

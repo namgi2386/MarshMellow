@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
-import 'package:marshmellow/presentation/widgets/datepicker/custom_date_picker.dart';
+import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-class SearchedList extends StatefulWidget {
+class SearchedList extends ConsumerStatefulWidget {
   final String searchTerm;
   final List<dynamic> searchResults; // 검색 결과 데이터
   final VoidCallback onClearAll;
@@ -19,10 +20,10 @@ class SearchedList extends StatefulWidget {
   });
 
   @override
-  State<SearchedList> createState() => _SearchedListState();
+  ConsumerState<SearchedList> createState() => _SearchedListState();
 }
 
-class _SearchedListState extends State<SearchedList> {
+class _SearchedListState extends ConsumerState<SearchedList> {
   // 선택된 날짜 범위를 저장할 변수
   PickerDateRange _selectedDateRange = PickerDateRange(
     DateTime.now().subtract(const Duration(days: 30)), // 기본 시작일: 30일 전
@@ -48,25 +49,6 @@ class _SearchedListState extends State<SearchedList> {
     }
   }
 
-  // 날짜 선택 변경 시 호출되는 함수
-  void _onDateRangeChanged(DateRangePickerSelectionChangedArgs args) {
-    if (args.value is PickerDateRange) {
-      // 선택된 날짜 범위 업데이트
-      setState(() {
-        _selectedDateRange = args.value;
-      });
-    }
-  }
-
-  // 날짜 확인 버튼 클릭 시 호출되는 함수
-  void _onDateConfirm(PickerDateRange range) {
-    // 선택된 날짜 범위로 결과 필터링
-    setState(() {
-      _selectedDateRange = range;
-      _filterResultsByDateRange(range);
-    });
-  }
-
   // 날짜 범위에 따라 결과 필터링
   void _filterResultsByDateRange(PickerDateRange range) {
     if (range.startDate == null) return;
@@ -74,19 +56,22 @@ class _SearchedListState extends State<SearchedList> {
     final startDate = range.startDate!;
     final endDate = range.endDate ?? startDate;
 
-    _filteredResults = widget.searchResults.where((item) {
-      if (item['date'] == null) return false;
+    setState(() {
+      _selectedDateRange = range;
+      _filteredResults = widget.searchResults.where((item) {
+        if (item['date'] == null) return false;
 
-      try {
-        final itemDate = DateTime.parse(item['date']);
-        return (itemDate.isAtSameMomentAs(startDate) ||
-                itemDate.isAfter(startDate)) &&
-            (itemDate.isAtSameMomentAs(endDate) ||
-                itemDate.isBefore(endDate.add(const Duration(days: 1))));
-      } catch (e) {
-        return false;
-      }
-    }).toList();
+        try {
+          final itemDate = DateTime.parse(item['date']);
+          return (itemDate.isAtSameMomentAs(startDate) ||
+                  itemDate.isAfter(startDate)) &&
+              (itemDate.isAtSameMomentAs(endDate) ||
+                  itemDate.isBefore(endDate.add(const Duration(days: 1))));
+        } catch (e) {
+          return false;
+        }
+      }).toList();
+    });
   }
 
   // 날짜 표시 텍스트 생성
@@ -107,6 +92,21 @@ class _SearchedListState extends State<SearchedList> {
 
   @override
   Widget build(BuildContext context) {
+    // DatePickerProvider 상태 구독
+    final datePickerState = ref.watch(datePickerProvider);
+
+    // 날짜가 선택되었을 때 필터링 적용
+    if (datePickerState.isConfirmed && datePickerState.selectedRange != null) {
+      if (_selectedDateRange != datePickerState.selectedRange) {
+        // 새로운 날짜 범위로 필터링
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _filterResultsByDateRange(datePickerState.selectedRange!);
+          // 확인 플래그 초기화
+          ref.read(datePickerProvider.notifier).resetConfirmation();
+        });
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -118,18 +118,17 @@ class _SearchedListState extends State<SearchedList> {
             SizedBox(width: 5),
             IconButton(
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => CustomDatePicker(
-                    onSelectionChanged: _onDateRangeChanged,
-                    onConfirm: _onDateConfirm,
-                    onCancel: () {
-                      // 취소 시 아무것도 하지 않음
-                    },
-                    selectionMode: DateRangePickerSelectionMode.range,
-                    initialSelectedRange: _selectedDateRange,
-                  ),
-                );
+                // 아이콘 버튼의 위치 정보 가져오기
+                final RenderBox renderBox =
+                    context.findRenderObject() as RenderBox;
+                final position = renderBox.localToGlobal(Offset.zero);
+
+                // DatePickerOverlay 표시 요청
+                ref.read(datePickerProvider.notifier).showDatePicker(
+                      position: position,
+                      selectionMode: DateRangePickerSelectionMode.range,
+                      initialRange: _selectedDateRange,
+                    );
               },
               icon: SvgPicture.asset(IconPath.caretDown),
               style: IconButton.styleFrom(

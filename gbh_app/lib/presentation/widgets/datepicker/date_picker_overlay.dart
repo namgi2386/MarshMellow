@@ -19,14 +19,14 @@ class DatePickerOverlay extends ConsumerWidget {
     return Stack(
       children: [
         child, // 원래 앱 내용
-        
+
         // DatePicker가 표시되어야 할 때만 오버레이 표시
         if (datePickerState.isVisible && datePickerState.position != null)
           Positioned(
             // 위치 계산 (기준점 + 오프셋)
             // left: datePickerState.position!.dx - (MediaQuery.of(context).size.width * 0.9 / 2),
             // left: datePickerState.position!.dx,
-            left: MediaQuery.of(context).size.width*0.05,
+            left: MediaQuery.of(context).size.width * 0.05,
             top: datePickerState.position!.dy - 2, // 버튼 바로 아래에 표시 (간격 10)
             child: CustomDatePicker(
               selectionMode: datePickerState.selectionMode,
@@ -35,7 +35,9 @@ class DatePickerOverlay extends ConsumerWidget {
               initialSelectedDates: datePickerState.selectedDates,
               onConfirm: (range) {
                 // 확인 버튼 클릭 시 선택된 범위 업데이트
-                ref.read(datePickerProvider.notifier).updateSelectedRange(range);
+                ref
+                    .read(datePickerProvider.notifier)
+                    .updateSelectedRange(range);
               },
             ),
           ),

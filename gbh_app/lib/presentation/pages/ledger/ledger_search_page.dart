@@ -31,13 +31,48 @@ class _LedgerSearchPageState extends State<LedgerSearchPage> {
   // 현재 검색어
   String _currentSearchTerm = '';
 
-  // 검색 상태 (검색 여부)
-  bool _hasSearched = false;
-
+  // 테스트용 더미 데이터 미리 설정
   @override
   void initState() {
     super.initState();
     _loadSearchHistory();
+
+    // 테스트용으로 검색 결과를 초기화
+    _currentSearchTerm = '테스트 검색어';
+    _searchResults = [
+      {
+        'id': '1',
+        'title': '점심 식사',
+        'date': '2025-03-26',
+        'category': '식비',
+        'amount': 12000,
+        'isExpense': true,
+      },
+      {
+        'id': '2',
+        'title': '교통비',
+        'date': '2025-03-25',
+        'category': '교통',
+        'amount': 5000,
+        'isExpense': true,
+      },
+      {
+        'id': '3',
+        'title': '커피',
+        'date': '2025-03-24',
+        'category': '간식',
+        'amount': 4500,
+        'isExpense': true,
+      },
+      {
+        'id': '4',
+        'title': '급여',
+        'date': '2025-03-20',
+        'category': '수입',
+        'amount': 2500000,
+        'isExpense': false,
+      },
+    ];
   }
 
   // 검색 히스토리 불러오기
@@ -69,8 +104,6 @@ class _LedgerSearchPageState extends State<LedgerSearchPage> {
 
       setState(() {
         _currentSearchTerm = term;
-        _hasSearched = true;
-        // 로딩 상태로 변경할 수도 있음
       });
 
       // 실제 검색 로직 구현 (API 호출 또는 로컬 데이터 필터링)
@@ -85,10 +118,9 @@ class _LedgerSearchPageState extends State<LedgerSearchPage> {
     }
   }
 
-  // 검색 결과 가져오기 (실제 구현은 데이터 소스에 따라 다름)
+  // 검색 결과 가져오기
   Future<List<dynamic>> _fetchSearchResults(String term) async {
     // 예시: API 호출 또는 로컬 데이터 필터링
-    // 실제 구현은 데이터 소스에 따라 다름
     await Future.delayed(const Duration(milliseconds: 500)); // 예시 지연
 
     // 테스트용 더미 데이터
@@ -109,7 +141,14 @@ class _LedgerSearchPageState extends State<LedgerSearchPage> {
         'amount': 5000,
         'isExpense': true,
       },
-      // 더 많은 결과 추가...
+      {
+        'id': '3',
+        'title': '커피',
+        'date': '2025-03-24',
+        'category': '간식',
+        'amount': 4500,
+        'isExpense': true,
+      },
     ]
         .where((item) =>
             item['title']
@@ -121,6 +160,15 @@ class _LedgerSearchPageState extends State<LedgerSearchPage> {
                 .toLowerCase()
                 .contains(term.toLowerCase()))
         .toList();
+  }
+
+  // 검색 결과 지우기
+  void _clearSearchResults() {
+    setState(() {
+      _searchResults = [];
+      _currentSearchTerm = '';
+      _searchController.clear();
+    });
   }
 
   // 전체 검색어 삭제
@@ -151,21 +199,15 @@ class _LedgerSearchPageState extends State<LedgerSearchPage> {
               ),
             ),
 
-            // 최근 검색어 섹션
+            // 항상 검색 결과를 표시
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: _recentSearches.isEmpty
-                    ? const NoRecentSearches()
-                    : RecentSearches(
-                        searches: _recentSearches,
-                        onClearAll: _clearAllSearchHistory,
-                        onSearchTermSelected: (term) {
-                          _searchController.text = term;
-                          _performSearch(term);
-                        },
-                        onSearchTermDeleted: _removeSearchTerm,
-                      ),
+                child: SearchedList(
+                  searchTerm: _currentSearchTerm,
+                  searchResults: _searchResults,
+                  onClearAll: _clearSearchResults,
+                ),
               ),
             ),
           ],

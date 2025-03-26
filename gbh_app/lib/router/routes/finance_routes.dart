@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/demand_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/deposit_detail_page.dart';
+import 'package:marshmellow/presentation/pages/finance/detail/loan_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/saving_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_test_page.dart';
@@ -98,6 +99,20 @@ List<RouteBase> financeRoutes = [
             accountName: extra?['accountName'] ?? '',
             balance: extra?['balance'] ?? 0,
             noMoneyMan: extra?['noMoneyMan'] ?? false,
+          );
+        },
+      ),
+      GoRoute(
+        path: FinanceRoutes.loanDetail,
+        builder: (context, state) {
+          final accountNo = state.pathParameters['accountNo'] ?? '';
+          final extra = state.extra as Map<String, dynamic>?;
+          print("라우트까지옴");
+          return LoanDetailPage(
+            accountNo: accountNo,
+            bankName: extra?['bankName'] ?? '',
+            accountName: extra?['accountName'] ?? '',
+            balance: extra?['balance'] ?? 0,
           );
         },
       ),

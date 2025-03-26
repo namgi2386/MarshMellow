@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/demand_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/deposit_detail_page.dart';
+import 'package:marshmellow/presentation/pages/finance/detail/saving_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_test_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_transfer_page.dart';
@@ -77,6 +78,21 @@ List<RouteBase> financeRoutes = [
           final extra = state.extra as Map<String, dynamic>?;
           
           return DepositDetailPage(
+            accountNo: accountNo,
+            bankName: extra?['bankName'] ?? '',
+            accountName: extra?['accountName'] ?? '',
+            balance: extra?['balance'] ?? 0,
+            noMoneyMan: extra?['noMoneyMan'] ?? false,
+          );
+        },
+      ),
+      GoRoute(
+        path: FinanceRoutes.savingDetail,
+        builder: (context, state) {
+          final accountNo = state.pathParameters['accountNo'] ?? '';
+          final extra = state.extra as Map<String, dynamic>?;
+          
+          return SavingDetailPage(
             accountNo: accountNo,
             bankName: extra?['bankName'] ?? '',
             accountName: extra?['accountName'] ?? '',

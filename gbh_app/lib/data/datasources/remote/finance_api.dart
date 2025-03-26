@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/datasources/remote/api_client.dart';
+import 'package:marshmellow/data/models/finance/detail/deposit_detail_model.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
 import 'package:marshmellow/data/models/finance/asset_response_model.dart';
 //detail
@@ -16,7 +17,7 @@ class FinanceApi {
     return AssetResponseModel.fromJson(response);
   }
 
-  // detail
+  // Demand detail
   Future<DemandDetailResponse> getDemandAccountTransactions({
     required String userKey,
     required String accountNo,
@@ -40,6 +41,20 @@ class FinanceApi {
 
     final response = await _apiClient.getWithBody('/asset/deposit-demand-transaction', data: data);
     return DemandDetailResponse.fromJson(response);
+  }
+
+  // Deposit detail
+  Future<DepositDetailResponse> getDepositPayment({
+    required String userKey,
+    required String accountNo,
+  }) async {
+    final data = {
+      'userKey': userKey,
+      'accountNo': accountNo,
+    };
+
+    final response = await _apiClient.getWithBody('/asset/deposit-payment', data: data);
+    return DepositDetailResponse.fromJson(response);
   }
 }
 

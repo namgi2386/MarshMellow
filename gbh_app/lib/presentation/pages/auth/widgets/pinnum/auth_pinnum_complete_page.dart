@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/presentation/pages/auth/widgets/custom_complete.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/etc/custom_complete.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*

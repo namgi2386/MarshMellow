@@ -154,11 +154,29 @@ class AccountItemWidget extends StatelessWidget {
         break;
       case '적금':
         // 적금 상세 페이지로 이동 (아직 구현되지 않음)
-        context.push(FinanceRoutes.getSavingDetailPath(accountNo));
+        context.push(
+          FinanceRoutes.getSavingDetailPath(accountNo),
+          extra: {
+            'bankName': bankName,
+            'accountName': accountName,
+            'accountNo': accountNo,
+            'balance': balance,
+            'noMoneyMan': noMoneyMan,
+          },
+        );
         break;
       case '대출':
         // 대출 상세 페이지로 이동 (아직 구현되지 않음)
-        context.push(FinanceRoutes.getLoanDetailPath(accountNo));
+        context.push(
+          FinanceRoutes.getLoanDetailPath(accountNo),
+          extra: {
+            'bankName': bankName,
+            'accountName': accountName,
+            'accountNo': accountNo,
+            'balance': balance,
+            'noMoneyMan': noMoneyMan,
+          },
+        );
         break;
       default:
         // 기본 처리 (필요시)

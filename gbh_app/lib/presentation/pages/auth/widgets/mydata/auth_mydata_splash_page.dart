@@ -4,22 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/presentation/pages/auth/widgets/custom_button.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_cert_select_modal.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
   금융인증서 스플래쉬 UI
 */
-class AuthBankSplashPage extends ConsumerStatefulWidget {
-  const AuthBankSplashPage({Key? key}) : super(key: key);
+class AuthMydataSplashPage extends ConsumerStatefulWidget {
+  const AuthMydataSplashPage({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<AuthBankSplashPage> createState() => _AuthBankSplashPageState();
+  ConsumerState<AuthMydataSplashPage> createState() => _AuthMydataSplashPageState();
 }
 
-class _AuthBankSplashPageState extends ConsumerState<AuthBankSplashPage> 
+class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage> 
     with TickerProviderStateMixin {
 
   late AnimationController _firstRowController;
@@ -109,10 +112,18 @@ class _AuthBankSplashPageState extends ConsumerState<AuthBankSplashPage>
   }
 
   void _handleCertificateGeneration(BuildContext context) {
+    final hasExistingCertificate = false;
+
+    if (hasExistingCertificate) {
+      context.showAuthMydataCertSelect('손효자');
+    } else {
+      context.go(SignupRoutes.getMyDataPasswordPath()); 
+    }
     // 금융인증서 생성 로직을 여기다 추가하세요! 당장!
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('금융인증서 생성 중..'))
     );
+
   }
 
   // 체크박스 상태 변경 처리
@@ -145,7 +156,6 @@ class _AuthBankSplashPageState extends ConsumerState<AuthBankSplashPage>
             const Text('자산을 한 번에 찾아보세요', style: AppTextStyles.mainTitle),
             const SizedBox(height: 10),
             Text('단 30초면 모든 기관을 찾고 연결할 수 있어요', style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled)),
-            const SizedBox(height: 20),
 
             // 은행 아이콘 그리드
             Expanded(
@@ -162,38 +172,44 @@ class _AuthBankSplashPageState extends ConsumerState<AuthBankSplashPage>
               )
             ),
 
-            InkWell(
-              onTap: _toggleBUttonEnabled,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: _isButtonEnabled ? AppColors.backgroundBlack : Colors.transparent,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: _isButtonEnabled ? AppColors.backgroundBlack : AppColors.disabled,
+            Center(
+              child: InkWell(
+                onTap: _toggleBUttonEnabled,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: _isButtonEnabled ? AppColors.backgroundBlack : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: _isButtonEnabled ? AppColors.backgroundBlack : AppColors.disabled,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.check,
+                        color: _isButtonEnabled ? AppColors.whiteLight : Colors.transparent,
+                        size: 14,
                       ),
                     ),
-                    child: Icon(
-                      Icons.check,
-                      color: _isButtonEnabled ? AppColors.whiteLight : Colors.transparent,
-                      size: 14,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text('17개 금융사 선택', style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled))
-                ],
+                    const SizedBox(width: 8),
+                    Text('17개 금융사 선택', style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled), textAlign: TextAlign.center,)
+                  ],
+                ),
               ),
             ),
 
             const SizedBox(height: 16),
 
-            // 시작하기 버튼
-            CustomButton(
-              text: '찾아보기', 
+
+            Button(
+              text:'찾아보기',
+              width: screenWidth * 0.9,
+              height: 60,
               onPressed: () => _handleCertificateGeneration(context),
-              isEnabled: _isButtonEnabled,
+              isDisabled: !_isButtonEnabled,
+
             ),
 
             SizedBox(height: screenHeight * 0.05),
@@ -226,10 +242,12 @@ class _AuthBankSplashPageState extends ConsumerState<AuthBankSplashPage>
   Widget _buildSlidingRow(List<Widget> icons, Animation<Offset> animation, double screenWidth) {
     return SizedBox(
       height: 100,
+      width: screenWidth,
       child: ClipRect(
         child: SlideTransition(
         position: animation,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: icons,
         ),
       ),)

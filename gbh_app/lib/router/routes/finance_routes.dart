@@ -1,6 +1,7 @@
 // lib/router/routes/finance_routes.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/presentation/pages/finance/detail/card_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/demand_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/deposit_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/loan_detail_page.dart';
@@ -112,6 +113,21 @@ List<RouteBase> financeRoutes = [
             accountNo: accountNo,
             bankName: extra?['bankName'] ?? '',
             accountName: extra?['accountName'] ?? '',
+            balance: extra?['balance'] ?? 0,
+          );
+        },
+      ),
+      GoRoute(
+        path: FinanceRoutes.cardDetail,
+        builder: (context, state) {
+          final cardNo = state.pathParameters['cardNo'] ?? '';
+          final extra = state.extra as Map<String, dynamic>?;
+          
+          return CardDetailPage(
+            cardNo: cardNo,
+            bankName: extra?['bankName'] ?? '',
+            cardName: extra?['cardName'] ?? '',  // accountName 대신 cardName 사용
+            cvc: extra?['cvc'] ?? '',  // cvc 추가
             balance: extra?['balance'] ?? 0,
           );
         },

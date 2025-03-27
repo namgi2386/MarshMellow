@@ -1,0 +1,97 @@
+// presentation/pages/finance/widgets/card_item_widget.dart
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/data/models/finance/card_model.dart';
+import 'package:marshmellow/core/constants/icon_path.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/router/routes/finance_routes.dart';
+
+class CardItemWidget extends StatelessWidget {
+  final CardItem card;
+
+  const CardItemWidget({
+    Key? key,
+    required this.card,
+  }) : super(key: key);
+
+  // 숫자 포맷팅 함수 (천 단위 구분)
+  String formatAmount(int amount) {
+    final formatter = NumberFormat('#,###');
+    return formatter.format(amount);
+  }
+
+  // 카드번호 마스킹 함수
+  String _maskCardNumber(String cardNo) {
+    if (cardNo.length < 8) return cardNo;
+    return '${cardNo.substring(0, 4)} **** **** ${cardNo.substring(cardNo.length - 4)}';
+  }
+
+  // CardItemWidget.dart의 onTap 처리 메서드 예시
+  void _onCardItemTap(BuildContext context) {
+    context.push(
+      FinanceRoutes.getCardDetailPath(card.cardNo),
+      extra: {
+        'bankName': card.cardIssuerName,
+        'cardName': card.cardName,
+        'cardNo': card.cardNo,
+        'cvc': card.cvc,
+        'balance': card.cardBalance,
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            iconSize: 64, // 아이콘 버튼 크기 설정
+            icon: SvgPicture.asset(IconPath.testCard,
+              width: 64, // SVG 너비
+              height: 64, // SVG 높이
+            ),
+            onPressed: () {
+              _onCardItemTap(context);
+            },
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  card.cardName,
+                  style: AppTextStyles.subTitle
+                ),
+                // Text(
+                //   card.cardName,
+                //   style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600,
+                //   color: AppColors.blackLight),
+                // ),
+                Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall ),
+                // Text('발급사: ${card.cardIssuerName}'),
+                Text('${formatAmount(card.cardBalance)}원 지출', style: AppTextStyles.subTitle),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.arrow_forward_ios, size: 16),
+            onPressed: () {
+              _onCardItemTap(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

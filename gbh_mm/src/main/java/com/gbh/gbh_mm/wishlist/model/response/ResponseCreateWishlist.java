@@ -6,6 +6,21 @@ import lombok.Data;
 @Data
 @Builder
 public class ResponseCreateWishlist {
-    private int code;
     private String message;
+
+    private Long wishlistPk;
+
+    private String productNickname;
+
+    private String productName;
+
+    private Long productPrice;
+
+    private String productImageUrl;
+
+    private String productUrl;
+
+    private String isSelected;
+
+    private String isCompleted;
 }

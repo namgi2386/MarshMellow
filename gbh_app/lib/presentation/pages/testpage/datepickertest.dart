@@ -26,6 +26,11 @@ class _DatepickertestState extends ConsumerState<Datepickertest> {
     super.dispose();
   }
 
+  // 날짜 형식을 일관성 있게 표시하는 함수
+  String _formatDate(DateTime date) {
+    return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     // 현재 선택된 날짜 범위 가져오기
@@ -35,13 +40,13 @@ class _DatepickertestState extends ConsumerState<Datepickertest> {
     // 선택된 날짜 범위가 있으면 표시
     if (datePickerState.selectedRange != null) {
       final startDate = datePickerState.selectedRange!.startDate;
-      final endDate = datePickerState.selectedRange!.endDate ?? startDate;
+      final endDate = datePickerState.selectedRange!.endDate;
       
       if (startDate != null) {
-        selectedRange = "${startDate.year}/${startDate.month}/${startDate.day}";
+        selectedRange = _formatDate(startDate);
         
         if (endDate != null && endDate != startDate) {
-          selectedRange += " - ${endDate.year}/${endDate.month}/${endDate.day}";
+          selectedRange += " - ${_formatDate(endDate)}";
         }
       }
     }
@@ -70,18 +75,33 @@ class _DatepickertestState extends ConsumerState<Datepickertest> {
               
               const SizedBox(height: 20),
               
-              // DatePicker를 표시할 버튼
+              // DatePicker 버튼
               DatePickerButton(
-                child: Text("전체"),
+                child: const Text("전체"),
                 selectionMode: DateRangePickerSelectionMode.range,
                 // style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.blue)), // 스타일적용방법 1
                 style: ElevatedButton.styleFrom( backgroundColor: Colors.blue,),// 스타일적용방법 2
                 onDateRangeSelected: (range) {
-                  // 필요시 추가 작업 수행
-                  print("선택된 날짜 범위: $range");
+                  if (range != null) {
+                    // 개발용 로그
+                    final startDate = range.startDate;
+                    final endDate = range.endDate;
+                    
+                    String logMessage = "선택된 날짜 범위: ";
+                    if (startDate != null) {
+                      logMessage += _formatDate(startDate);
+                      if (endDate != null) {
+                        logMessage += " ~ ${_formatDate(endDate)}";
+                      }
+                    }
+                    
+                    debugPrint(logMessage);
+                  }
                 },
               ),
+              
               const SizedBox(height: 20),
+              
               ElevatedButton(
                 onPressed: () {
                   context.pop();
@@ -94,10 +114,9 @@ class _DatepickertestState extends ConsumerState<Datepickertest> {
                 label: '이름',
                 controller: _nameController,
                 onChanged: (value) {
-                  print('입력된 이름: $value');
+                  debugPrint('입력된 이름: $value');
                 },
               ),
-              
             ],
           ),
         ),

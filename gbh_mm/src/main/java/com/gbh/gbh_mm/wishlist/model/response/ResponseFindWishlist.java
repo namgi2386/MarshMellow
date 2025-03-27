@@ -8,7 +8,8 @@ import java.util.List;
 @Data
 @Builder
 public class ResponseFindWishlist {
-    private List<WishlistData> data;
+    private String message;
+    private List<WishlistData> wishlist;
 
     @Data
     @Builder
@@ -17,11 +18,11 @@ public class ResponseFindWishlist {
         private String productNickname;
         private String productName;
         private Long productPrice;
+        private Long achievePrice;
         private String productImageUrl;
         private String productUrl;
         private String isSelected;
         private String isCompleted;
-        private String depositAccountCode;
 
     }
 }

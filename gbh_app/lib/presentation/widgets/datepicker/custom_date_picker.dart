@@ -9,10 +9,9 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
 
-
 /// 커스텀 날짜 선택 위젯
 /// 여러 날짜 선택 모드를 지원하는 재사용 가능한 날짜 선택 컴포넌트
-class CustomDatePicker extends ConsumerStatefulWidget  {
+class CustomDatePicker extends ConsumerStatefulWidget {
   // 날짜 선택 변경 시 호출될 콜백 함수
   final Function(DateRangePickerSelectionChangedArgs)? onSelectionChanged;
   // 확인 버튼 콜백
@@ -40,7 +39,6 @@ class CustomDatePicker extends ConsumerStatefulWidget  {
     this.initialSelectedDates, // 초기 날짜들 (null 가능)
   });
 
-
   @override
   // StatefulWidget은 State 객체를 생성해야 함
   // 이 State 객체가 위젯의 상태를 관리함
@@ -58,9 +56,9 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
 
   // 현재 선택된 날짜 범위
   PickerDateRange? _currentRange;
-  
-  // BorderRadius 값을 변수로 추출 (수정 1: 변수 추출)
-  final double _borderRadius = 10.0;
+
+  // BorderRadius 값을 변수로 추출
+  final double _borderRadius = 5.0;
 
   @override
   void initState() {
@@ -69,14 +67,16 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
     initializeDateFormatting('ko_KR', null);
     // 오늘 날짜로 _range 초기화
     final DateTime today = DateTime.now();
-    _range = '${DateFormat('yy/MM/dd').format(today)} - ${DateFormat('yy/MM/dd').format(today)}';
-    
+    _range =
+        '${DateFormat('yy/MM/dd').format(today)} - ${DateFormat('yy/MM/dd').format(today)}';
+
     // 초기 선택 범위가 있으면 설정
     if (widget.initialSelectedRange != null) {
       _currentRange = widget.initialSelectedRange;
       _updateRangeText(_currentRange!);
     }
   }
+
   // 범위 텍스트 업데이트 함수
   void _updateRangeText(PickerDateRange range) {
     final startDate = range.startDate;
@@ -86,13 +86,13 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
       _range = '날짜를 선택하세요';
       return;
     }
-    
+
     if (endDate == null) {
       _range = '${DateFormat('yy/MM/dd').format(startDate)}';
       return;
     }
-    if (startDate.year == endDate.year && 
-        startDate.month == endDate.month && 
+    if (startDate.year == endDate.year &&
+        startDate.month == endDate.month &&
         startDate.day == endDate.day) {
       _range = '${DateFormat('yy/MM/dd').format(startDate)}';
     } else {
@@ -100,6 +100,7 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
           ' ${DateFormat('yy/MM/dd').format(endDate)}';
     }
   }
+
   /// 날짜 선택 변경 이벤트 핸들러
   /// 사용자가 날짜를 선택할 때마다 호출됨
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
@@ -107,7 +108,7 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
     setState(() {
       // args.value: 선택된 날짜 정보를 담고 있음
       // 선택 모드에 따라 다른 타입의 데이터가 들어옴
-      
+
       // 1. 범위 선택 모드인 경우
       if (args.value is PickerDateRange) {
         _currentRange = args.value;
@@ -117,12 +118,12 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
       else if (args.value is DateTime) {
         // 선택된 날짜를 포맷팅하여 저장
         _selectedDate = DateFormat('yy/MM/dd').format(args.value);
-      } 
+      }
       // 3. 다중 날짜 선택 모드인 경우
       else if (args.value is List<DateTime>) {
         // 선택된 날짜 개수를 저장
         _dateCount = args.value.length.toString();
-      } 
+      }
       // 4. 다중 범위 선택 모드인 경우
       else {
         // 선택된 범위 개수를 저장
@@ -137,79 +138,108 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
     }
   }
 
-  
   @override
   // 위젯의 UI를 구성하는 메서드
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(_borderRadius),
-      child: Container(
-        width: MediaQuery.of(context).size.width*0.9, // 화면의 90%
-        color: Colors.white,
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.9, // 화면의 90%
+      decoration: BoxDecoration(
+        color: AppColors.whiteLight,
+        borderRadius: BorderRadius.circular(_borderRadius),
+        border: Border.all(
+          color: AppColors.blackPrimary, // 테두리 색상
+          width: 0.5, // 테두리 두께
+        ),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min, // 내용물에 맞게 크기 조정
         children: <Widget>[
           // 1. 선택된 정보 표시 부분
           Container(
             width: double.infinity, // 상위의 100%
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0), // 여백 설정
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
-                
-                children: <Widget>[
-                  // 선택된 날짜, 개수, 범위 정보를 텍스트로 표시
-                  // Text('선택된 날짜: $_selectedDate'),
-                  // Text('선택된 날짜 수: $_dateCount'),
-                  Text(_range ,   style: AppTextStyles.modalTitle.copyWith(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 10.0, vertical: 8.0), // 여백 설정
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+              children: <Widget>[
+                // 선택된 날짜, 개수, 범위 정보를 텍스트로 표시
+                Text(
+                  _range,
+                  style: AppTextStyles.bodyMediumLight.copyWith(
+                    fontWeight: FontWeight.w600,
                     decoration: TextDecoration.none,
-                  ),), // 선택된 범위
-                  // Text('선택된 범위 수: $_rangeCount')
-                ],
-              ),
+                  ),
+                ), // 선택된 범위
+              ],
             ),
           ),
+          Divider(
+            height: 1,
+            thickness: 0.7,
+            color: AppColors.blackPrimary.withOpacity(0.3),
+          ),
           // 2. 실제 날짜 선택기 위젯
-          // Expanded: 부모 위젯에서 사용 가능한 공간을 최대한 채움
           // Expanded를 Flexible로 변경하거나 크기 제한
           Container(
-            height: 300, // 적절한 고정 높이 설정
-            
+            height: 350, // 적절한 고정 높이 설정
             child: SfDateRangePicker(
               // 날짜 선택 변경 이벤트 핸들러 설정
               onSelectionChanged: _onSelectionChanged,
-              
+
               // 선택 모드 설정 (단일, 다중, 범위 등)
               // widget.속성: 부모 위젯(StatefulWidget)에서 전달받은 속성에 접근
               selectionMode: widget.selectionMode,
-              
+
               // 초기 선택 값들 설정
               initialSelectedRange: widget.initialSelectedRange,
               initialSelectedDate: widget.initialSelectedDate,
               initialSelectedDates: widget.initialSelectedDates,
-              backgroundColor: Colors.white,
-                  // 헤더 스타일 추가
-              headerStyle: DateRangePickerHeaderStyle(
-                backgroundColor: Colors.white, // 헤더 배경색 설정
-                textStyle: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)), // 헤더 텍스트 스타일
-              ),
-              // 헤더 형식 설정 - 한국어 형식으로 변경
+              backgroundColor: AppColors.whiteLight,
+
+              // 헤더 형식 설정
               monthFormat: 'M월',
-              selectionColor: AppColors.blackPrimary,  // 단일 선택 시 색상
-              startRangeSelectionColor: AppColors.blackPrimary,  // 범위 선택 시작일 색상
-              endRangeSelectionColor: AppColors.blackPrimary,  // 범위 선택 종료일 색상
-              rangeSelectionColor: AppColors.blackPrimary.withOpacity(0.6),  // 범위 내 날짜들의 색상
+              // 화살표 표시 설정
+              showNavigationArrow: true,
+
+              // 다른 헤더 스타일은 그대로 유지
+              headerStyle: DateRangePickerHeaderStyle(
+                backgroundColor: AppColors.whiteLight,
+                textStyle: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              selectionColor: AppColors.textPrimary, // 단일 선택 시 색상
+              startRangeSelectionColor: AppColors.textPrimary, // 범위 선택 시작일 색상
+              endRangeSelectionColor: AppColors.textPrimary, // 범위 선택 종료일 색상
+              rangeSelectionColor:
+                  AppColors.blackPrimary.withOpacity(0.3), // 범위 내 날짜들의 색상
+              // 오늘 날짜의 강조 색상
+              todayHighlightColor: AppColors.blackPrimary,
+
+              // 오늘 날짜의 텍스트 스타일 적용
+              monthCellStyle: DateRangePickerMonthCellStyle(
+                todayTextStyle: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.blackPrimary,
+                ),
+                // 오늘 날짜의 셀 꾸미기
+                todayCellDecoration: BoxDecoration(
+                  shape: BoxShape.circle, // 원형 모양
+                  color: Colors.transparent, // 배경색
+                  border: Border.all(
+                    color: AppColors.blackPrimary, // 테두리 색상
+                    width: 1, // 테두리 두께
+                  ),
+                ),
+              ),
             ),
           ),
           Container(
             width: double.infinity,
             height: 40,
             padding: EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
-            color: Colors.white,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              spacing: MediaQuery.of(context).size.width*0.1,
               children: [
                 TextButton(
                   onPressed: () {
@@ -220,17 +250,17 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
                     }
                   },
                   style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    overlayColor: AppColors.buttonBlack
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      overlayColor: AppColors.buttonBlack),
+                  child: Text(
+                    '취소',
+                    style:
+                        TextStyle(fontSize: 14.0, color: AppColors.buttonBlack),
                   ),
-                  child: Text('취소',
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: AppColors.buttonBlack
-                  ),),
                 ),
+                SizedBox(width: 30), // 버튼 사이의 간격 추가
                 TextButton(
                   onPressed: () {
                     // 확인 버튼 클릭 시
@@ -240,17 +270,14 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
                     }
                   },
                   style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    overlayColor: AppColors.buttonBlack
-                  ),
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      overlayColor: AppColors.buttonBlack),
                   child: Text(
                     '확인',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      color: AppColors.buttonBlack
-                    ),
+                    style:
+                        TextStyle(fontSize: 14.0, color: AppColors.buttonBlack),
                   ),
                 )
               ],
@@ -258,7 +285,6 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
           ),
         ],
       ),
-    )
     );
   }
 }

@@ -12,7 +12,7 @@ import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 import 'package:marshmellow/presentation/widgets/text_input/text_input.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
-import 'package:marshmellow/presentation/pages/auth/widgets/custom_button.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/etc/custom_button.dart';
 
 // 본인인증 단계 관리 Provider
 final verificationStepProvider = StateProvider<int>((ref) => 0);

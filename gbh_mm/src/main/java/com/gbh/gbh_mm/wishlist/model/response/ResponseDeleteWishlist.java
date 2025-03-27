@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class ResponseDeleteWishlist {
-    private int code;
     private String message;
+    private Long deleteWishlistPk;
 }

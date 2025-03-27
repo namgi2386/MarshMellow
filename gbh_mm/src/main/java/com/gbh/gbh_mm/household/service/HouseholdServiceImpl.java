@@ -8,10 +8,12 @@ import com.gbh.gbh_mm.household.model.entity.HouseholdClassificationCategory;
 import com.gbh.gbh_mm.household.model.entity.HouseholdDetailCategory;
 import com.gbh.gbh_mm.household.model.enums.HouseholdClassificationEnum;
 import com.gbh.gbh_mm.household.model.vo.request.RequestCreateHousehold;
+import com.gbh.gbh_mm.household.model.vo.request.RequestDeleteHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.request.RequestUpdateHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHousehold;
+import com.gbh.gbh_mm.household.model.vo.response.ResponseDeleteHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseUpdateHousehold;
@@ -25,6 +27,7 @@ import com.gbh.gbh_mm.user.repo.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -196,6 +199,20 @@ public class HouseholdServiceImpl implements HouseholdService {
             (household.getHouseholdDetailCategory().getHouseholdDetailCategory());
         response.setHouseholdClassificationCategory
             (household.getHouseholdClassificationCategory().getHouseholdClassificationEnum());
+
+        return response;
+    }
+
+    @Override
+    public ResponseDeleteHousehold deleteHousehold(RequestDeleteHousehold request) {
+            ResponseDeleteHousehold response = new ResponseDeleteHousehold();
+        try {
+            Optional<Household> household = householdRepository.findById(request.getHouseholdPk());
+            householdRepository.delete(household.get());
+            response.setMessage("삭제 성공");
+        } catch (Exception e) {
+            response.setMessage("삭제 실패");
+        }
 
         return response;
     }

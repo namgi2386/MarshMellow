@@ -1,11 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/datasources/remote/api_client.dart';
-import 'package:marshmellow/data/models/finance/detail/deposit_detail_model.dart';
-import 'package:marshmellow/data/models/finance/detail/saving_detail_model.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
 import 'package:marshmellow/data/models/finance/asset_response_model.dart';
 //detail
 import 'package:marshmellow/data/models/finance/detail/demand_detail_model.dart';
+import 'package:marshmellow/data/models/finance/detail/deposit_detail_model.dart';
+import 'package:marshmellow/data/models/finance/detail/loan_detail_model.dart';
+import 'package:marshmellow/data/models/finance/detail/saving_detail_model.dart';
 
 // API 정의
 class FinanceApi {
@@ -18,7 +19,7 @@ class FinanceApi {
     return AssetResponseModel.fromJson(response);
   }
 
-  // Demand detail
+  // 입출금 내역조회
   Future<DemandDetailResponse> getDemandAccountTransactions({
     required String userKey,
     required String accountNo,
@@ -44,7 +45,7 @@ class FinanceApi {
     return DemandDetailResponse.fromJson(response);
   }
 
-  // Deposit detail
+  // 예금 조회 
   Future<DepositDetailResponse> getDepositPayment({
     required String userKey,
     required String accountNo,
@@ -70,6 +71,26 @@ class FinanceApi {
 
     final response = await _apiClient.getWithBody('/asset/savings-payment', data: data);
     return SavingDetailResponse.fromJson(response);
+  }
+
+  // 대출 조회 
+  Future<LoanDetailResponse> getLoanPaymentDetails({
+    required String userKey,
+    required String accountNo,
+  }) async {
+    final data = {
+      'userKey': userKey,
+      'accountNo': accountNo,
+    };
+
+    try {
+      final response = await _apiClient.getWithBody('/asset/loan-payment', data: data);
+      print("API 응답: $response"); // 디버깅용 로그 추가
+      return LoanDetailResponse.fromJson(response);
+    } catch (e) {
+      print("API 에러: $e"); // 에러 로그 추가
+      rethrow;
+    }
   }
 }
 

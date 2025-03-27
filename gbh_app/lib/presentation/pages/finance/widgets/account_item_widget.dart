@@ -125,6 +125,7 @@ class AccountItemWidget extends StatelessWidget {
   }
   // AccountItemWidget.dart의 onTap 처리 메서드 예시
   void _onAccountItemTap(BuildContext context) {
+    print("계좌 클릭: 유형=$type, 계좌번호=$accountNo");
     // type에 따라 다른 경로로 이동
     switch (type) {
       case '입출금':
@@ -167,6 +168,7 @@ class AccountItemWidget extends StatelessWidget {
         break;
       case '대출':
         // 대출 상세 페이지로 이동 (아직 구현되지 않음)
+        print("대출 path이동시도 ");
         context.push(
           FinanceRoutes.getLoanDetailPath(accountNo),
           extra: {

@@ -67,7 +67,32 @@ class MydataPasswordNotifier extends StateNotifier<MydataPasswordstate> {
     );
   }
 
-  Future<bool> savePassword(String previousPassword) async {
+  // api 연동할 때 열어서 쓰세요
+  // Future<bool> savePassword(String previousPassword) async {
+  //   // 이전 입력과 일치하는지 확인
+  //   if (state.password != previousPassword) {
+  //     // 일치하지 않으면 초기화 후 실패 반환
+  //     resetPassword();
+  //     setConfirmMode(false);
+  //     return false;
+  //   }
+  //   try {
+  //     // 비밀번호 해싱하여 백엔드로 전송
+  //     final hashedPassword = _hashPassword(state.password);
+  //     final email = _getUserEmail(); // 사용자 이메일 가져오는 메서드 필요!!!!!!!
+
+  //     final success = await _respository.createCertificateWithPW(
+  //       email: email, 
+  //       hashedPW: hashedPassword,
+  //     );
+  //     return success;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
+
+
+    Future<bool> savePassword(String previousPassword) async {
     // 이전 입력과 일치하는지 확인
     if (state.password != previousPassword) {
       // 일치하지 않으면 초기화 후 실패 반환
@@ -76,13 +101,10 @@ class MydataPasswordNotifier extends StateNotifier<MydataPasswordstate> {
       return false;
     }
     try {
-      // 비밀번호 해싱하여 백엔드로 전송
-      final hashedPassword = _hashPassword(state.password);
-      final email = _getUserEmail(); // 사용자 이메일 가져오는 메서드 필요!!!!!!!
-
-      final success = await _respository.createCertificateWithPW(
-        email: email, 
-        hashedPW: hashedPassword,
+      final success = true;
+      
+      state = state.copyWith(
+        isConfirmingPassword: false,
       );
       return success;
     } catch (e) {

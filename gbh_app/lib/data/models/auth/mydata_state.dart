@@ -1,3 +1,6 @@
+/*
+  mm인증서 프로세스 상태
+*/
 class MydataState {
   final bool isAuthenticated;
   final bool isInAuthFlow;
@@ -26,7 +29,9 @@ class MydataState {
   }
 }
 
-
+/*
+  mm인증서 비밀번호 생성 상태
+*/
 class MydataPasswordstate {
   final String password;
   final int currentDigit;
@@ -47,6 +52,68 @@ class MydataPasswordstate {
       password: password ?? this.password,
       currentDigit: currentDigit ?? this.currentDigit,
       isConfirmingPassword: isConfirmingPassword ?? this.isConfirmingPassword,
+    );
+  }
+}
+
+/*
+  mm인증서 로그인 상태
+*/
+class MydataLoginState {
+  final String password;
+  final int currentDigit;
+  final bool isLoading;
+  final String? errorMessage;
+
+  MydataLoginState({
+    this.password = '',
+    this.currentDigit = 0,
+    this.isLoading = false,
+    this.errorMessage,
+  });
+
+  MydataLoginState copyWith({
+    String? password,
+    int? currentDigit,
+    bool? isLoading,
+    String? errorMessage,
+  }) {
+    return MydataLoginState(
+      password: password ?? this.password,
+      currentDigit: currentDigit ?? this.currentDigit,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+/*
+  mm인증서 전자서명 원문 상태
+*/
+class AgreementState {
+  final bool isAtBottom;
+  final bool firstAgreement;
+  final bool secondAgreement;
+  final bool isButtonEnabled;
+
+  AgreementState({
+    this.isAtBottom = false,
+    this.firstAgreement = false,
+    this.secondAgreement = false,
+    this.isButtonEnabled = false,
+  });
+
+  AgreementState copyWith({
+    bool? isAtBottom,
+    bool? firstAgreement,
+    bool? secondAgreement,
+    bool? isButtonEnabled,
+  }) {
+    return AgreementState(
+      isAtBottom: isAtBottom ?? this.isAtBottom,
+      firstAgreement: firstAgreement ?? this.firstAgreement,
+      secondAgreement: secondAgreement ?? this.secondAgreement,
+      isButtonEnabled: isButtonEnabled ?? this.isButtonEnabled,
     );
   }
 }

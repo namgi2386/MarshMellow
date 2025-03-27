@@ -7,7 +7,7 @@ import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
-  금융인증서 생성 성공 UI
+  mm인증서 생성 성공 UI
 */
 class AuthMydataCertCompletePage extends ConsumerWidget {
   const AuthMydataCertCompletePage({Key? key}) : super(key: key);

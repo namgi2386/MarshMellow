@@ -124,9 +124,6 @@ public class HouseholdServiceImpl implements HouseholdService {
         Household household = mapper.map(request, Household.class);
         User user = userRepository.findById(request.getUserPk())
             .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원"));
-        HouseholdCategory householdCategory = householdCategoryRepository
-            .findById(request.getHouseholdCategoryPk())
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 분류"));
         HouseholdDetailCategory householdDetailCategory =
             householdDetailCategoryRepository
                 .findByHouseholdDetailCategory(request.getHouseholdDetailCategoryName());
@@ -391,9 +388,11 @@ public class HouseholdServiceImpl implements HouseholdService {
         List<HouseHoldDto> householdDtoList = request.getTest();
         List<Household> householdList = new ArrayList<>();
         for (HouseHoldDto householdDto : householdDtoList) {
+            String category = householdDto.getCategory().replaceAll("\\s+", "");;
+
             HouseholdDetailCategory householdDetailCategory =
                 householdDetailCategoryRepository
-                    .findByHouseholdDetailCategory(householdDto.getCategory());
+                    .findByHouseholdDetailCategory(category);
 
             Household household = Household.builder()
                 .tradeName(householdDto.getTradeName())

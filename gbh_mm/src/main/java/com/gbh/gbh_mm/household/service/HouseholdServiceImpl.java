@@ -10,9 +10,11 @@ import com.gbh.gbh_mm.household.model.enums.HouseholdClassificationEnum;
 import com.gbh.gbh_mm.household.model.vo.request.RequestCreateHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHouseholdList;
+import com.gbh.gbh_mm.household.model.vo.request.RequestUpdateHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHouseholdList;
+import com.gbh.gbh_mm.household.model.vo.response.ResponseUpdateHousehold;
 import com.gbh.gbh_mm.household.repo.HouseholdCategoryRepository;
 import com.gbh.gbh_mm.household.repo.HouseholdClassificationCategoryRepository;
 import com.gbh.gbh_mm.household.repo.HouseholdDetailCategoryRepository;
@@ -163,6 +165,37 @@ public class HouseholdServiceImpl implements HouseholdService {
             .householdClassification
                 (household.getHouseholdClassificationCategory().getHouseholdClassificationEnum())
             .build();
+
+        return response;
+    }
+
+    @Override
+    public ResponseUpdateHousehold updateHousehold(RequestUpdateHousehold request) {
+        Household household = householdRepository.findById(request.getHouseholdPk())
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 가계부"));
+
+        if (request.getHouseholdAmount() != null) {
+            household.setHouseholdAmount(request.getHouseholdAmount());
+        }
+
+        if (request.getExceptedBudgetYn() != null) {
+            household.setExceptedBudgetYn(request.getExceptedBudgetYn());
+        }
+
+        if (request.getHouseholdMemo() != null){
+            household.setHouseholdMemo(request.getHouseholdMemo());
+        }
+
+        householdRepository.save(household);
+
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ResponseUpdateHousehold response = mapper.map(household, ResponseUpdateHousehold.class);
+
+        response.setHouseholdCategory(household.getHouseholdCategory().getHouseholdCategoryName());
+        response.setHouseholdDetailCategory
+            (household.getHouseholdDetailCategory().getHouseholdDetailCategory());
+        response.setHouseholdClassificationCategory
+            (household.getHouseholdClassificationCategory().getHouseholdClassificationEnum());
 
         return response;
     }

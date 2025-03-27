@@ -60,10 +60,6 @@ public class Household {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "household_category_pk")
-    private HouseholdCategory householdCategory;
-
-    @ManyToOne
     @JoinColumn(name = "household_detail_category_pk")
     private HouseholdDetailCategory householdDetailCategory;
 

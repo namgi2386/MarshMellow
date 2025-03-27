@@ -6,14 +6,12 @@ import com.gbh.gbh_mm.api.DemandDepositAPI;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.household.model.dto.CardDto;
-import com.gbh.gbh_mm.household.model.dto.CardTransactionDto;
-import com.gbh.gbh_mm.household.model.dto.CardTransactionListDto;
 import com.gbh.gbh_mm.household.model.dto.DateGroupDto;
 import com.gbh.gbh_mm.household.model.dto.DemandDepositDto;
+import com.gbh.gbh_mm.household.model.dto.HouseHoldDto;
 import com.gbh.gbh_mm.household.model.dto.HouseholdDetailDto;
 import com.gbh.gbh_mm.household.model.entity.Household;
 import com.gbh.gbh_mm.household.model.entity.HouseholdCategory;
-import com.gbh.gbh_mm.household.model.entity.HouseholdClassificationCategory;
 import com.gbh.gbh_mm.household.model.entity.HouseholdDetailCategory;
 import com.gbh.gbh_mm.household.model.enums.HouseholdClassificationEnum;
 import com.gbh.gbh_mm.household.model.vo.request.RequestCreateHousehold;
@@ -22,14 +20,15 @@ import com.gbh.gbh_mm.household.model.vo.request.RequestFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindTransactionDataList;
 import com.gbh.gbh_mm.household.model.vo.request.RequestUpdateHousehold;
+import com.gbh.gbh_mm.household.model.vo.response.RequestCreateHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHousehold;
+import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseDeleteHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindTransactionDataList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseUpdateHousehold;
 import com.gbh.gbh_mm.household.repo.HouseholdCategoryRepository;
-import com.gbh.gbh_mm.household.repo.HouseholdClassificationCategoryRepository;
 import com.gbh.gbh_mm.household.repo.HouseholdDetailCategoryRepository;
 import com.gbh.gbh_mm.household.repo.AiCategoryRepository;
 import com.gbh.gbh_mm.household.repo.HouseholdRepository;
@@ -55,7 +54,6 @@ public class HouseholdServiceImpl implements HouseholdService {
     private final HouseholdRepository householdRepository;
     private final HouseholdCategoryRepository householdCategoryRepository;
     private final HouseholdDetailCategoryRepository householdDetailCategoryRepository;
-    private final HouseholdClassificationCategoryRepository householdClassificationCategoryRepository;
     private final AiCategoryRepository aiCategoryRepository;
     private final UserRepository userRepository;
 
@@ -135,7 +133,6 @@ public class HouseholdServiceImpl implements HouseholdService {
 
         household.setUser(user);
         household.setHouseholdClassificationCategory(request.getHouseholdClassification());
-        household.setHouseholdCategory(householdCategory);
         household.setHouseholdDetailCategory(householdDetailCategory);
         household.setPaymentCancelYn("N");
 
@@ -151,7 +148,8 @@ public class HouseholdServiceImpl implements HouseholdService {
             .paymentMethod(savedHousehold.getPaymentMethod())
             .paymentCancelYn(savedHousehold.getPaymentCancelYn())
             .exceptedBudgetYn(savedHousehold.getExceptedBudgetYn())
-            .householdCategory(savedHousehold.getHouseholdCategory().getHouseholdCategoryName())
+            .householdCategory(savedHousehold.getHouseholdDetailCategory()
+                .getHouseholdCategory().getHouseholdCategoryName())
             .householdDetailCategory
                 (savedHousehold.getHouseholdDetailCategory().getHouseholdDetailCategory())
             .householdClassificationCategory
@@ -175,7 +173,8 @@ public class HouseholdServiceImpl implements HouseholdService {
             .householdMemo(household.getHouseholdMemo())
             .paymentCancelYn(household.getPaymentCancelYn())
             .exceptedBudgetYn(household.getExceptedBudgetYn())
-            .householdCategory(household.getHouseholdCategory().getHouseholdCategoryName())
+            .householdCategory(household.getHouseholdDetailCategory()
+                .getHouseholdCategory().getHouseholdCategoryName())
             .householdDetailCategory
                 (household.getHouseholdDetailCategory().getHouseholdDetailCategory())
             .householdClassification
@@ -207,7 +206,8 @@ public class HouseholdServiceImpl implements HouseholdService {
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ResponseUpdateHousehold response = mapper.map(household, ResponseUpdateHousehold.class);
 
-        response.setHouseholdCategory(household.getHouseholdCategory().getHouseholdCategoryName());
+        response.setHouseholdCategory(household.getHouseholdDetailCategory()
+            .getHouseholdCategory().getHouseholdCategoryName());
         response.setHouseholdDetailCategory
             (household.getHouseholdDetailCategory().getHouseholdDetailCategory());
         response.setHouseholdClassificationCategory
@@ -307,7 +307,8 @@ public class HouseholdServiceImpl implements HouseholdService {
                         .tradeDate((String) cardTransactionRecDatum.get("transactionDate"))
                         .tradeTime((String) cardTransactionRecDatum.get("transactionTime"))
                         .householdAmount(
-                            Integer.parseInt((String) cardTransactionRecDatum.get("transactionBalance")))
+                            Integer.parseInt(
+                                (String) cardTransactionRecDatum.get("transactionBalance")))
                         .paymentMethod(card.getCardName())
                         .exceptedBudgetYn("N")
                         .householdClassificationCategory(HouseholdClassificationEnum.WITHDRAWAL)
@@ -364,9 +365,11 @@ public class HouseholdServiceImpl implements HouseholdService {
                         .build();
 
                     if (demandDepositTransaction.get("transactionType").equals("1")) {
-                        household.setHouseholdClassificationCategory(HouseholdClassificationEnum.DEPOSIT);
+                        household.setHouseholdClassificationCategory(
+                            HouseholdClassificationEnum.DEPOSIT);
                     } else {
-                        household.setHouseholdClassificationCategory(HouseholdClassificationEnum.TRANSFER);
+                        household.setHouseholdClassificationCategory(
+                            HouseholdClassificationEnum.TRANSFER);
                     }
                     houseHolds.add(household);
                 }
@@ -375,11 +378,40 @@ public class HouseholdServiceImpl implements HouseholdService {
             ResponseFindTransactionDataList responseHousehold = new ResponseFindTransactionDataList();
             responseHousehold.setHouseholdList(houseHolds);
 
-
             return responseHousehold;
         } catch (JsonProcessingException e) {
 
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public ResponseCreateHouseholdList createHouseholdList(RequestCreateHouseholdList request) {
+
+        List<HouseHoldDto> householdDtoList = request.getTest();
+        List<Household> householdList = new ArrayList<>();
+        for (HouseHoldDto householdDto : householdDtoList) {
+            HouseholdDetailCategory householdDetailCategory =
+                householdDetailCategoryRepository
+                    .findByHouseholdDetailCategory(householdDto.getCategory());
+
+            Household household = Household.builder()
+                .tradeName(householdDto.getTradeName())
+                .tradeDate(householdDto.getTradeDate())
+                .tradeTime(householdDto.getTradeTime())
+                .householdAmount(householdDto.getHouseholdAmount())
+                .paymentMethod(householdDto.getPaymentMethod())
+                .paymentCancelYn(householdDto.getPaymentCancelYn())
+                .exceptedBudgetYn(householdDto.getExceptedBudgetYn())
+                .user(householdDto.getUser())
+                .householdDetailCategory(householdDetailCategory)
+                .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
+                .build();
+            householdList.add(household);
+        }
+
+        householdRepository.saveAll(householdList);
+
+        return null;
     }
 }

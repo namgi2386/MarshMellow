@@ -6,7 +6,9 @@ import com.gbh.gbh_mm.household.model.vo.request.RequestFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindTransactionDataList;
 import com.gbh.gbh_mm.household.model.vo.request.RequestUpdateHousehold;
+import com.gbh.gbh_mm.household.model.vo.response.RequestCreateHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHousehold;
+import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHouseholdList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseDeleteHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHouseholdList;
@@ -79,6 +81,15 @@ public class HouseholdController {
         @RequestBody RequestFindTransactionDataList request
     ) {
         ResponseFindTransactionDataList response = householdService.findTransactionDataList(request);
+
+        return response;
+    }
+
+    @PostMapping("/household-list")
+    public ResponseCreateHouseholdList createHouseholdList(
+        @RequestBody RequestCreateHouseholdList request
+    ) {
+        ResponseCreateHouseholdList response = householdService.createHouseholdList(request);
 
         return response;
     }

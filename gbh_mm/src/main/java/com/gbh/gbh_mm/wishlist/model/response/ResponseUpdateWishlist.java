@@ -22,4 +22,7 @@ public class ResponseUpdateWishlist {
     private String oldProductImageUrl;
     private String newProductImageUrl;
 
+    private String oldProductUrl;
+    private String newProductUrl;
+
 }

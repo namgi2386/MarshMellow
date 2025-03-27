@@ -23,7 +23,7 @@ public class Wishlist {
 
     private Long productPrice;
 
-    private Long achievePrice;
+    private Long achievePrice = 0L;
 
     private String productImageUrl;
 
@@ -32,8 +32,6 @@ public class Wishlist {
     private String isSelected = "N";
 
     private String isCompleted = "N";
-
-    private String depositAccountCode;
 
     @ManyToOne
     @JoinColumn(name = "user_pk")

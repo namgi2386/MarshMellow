@@ -108,6 +108,7 @@ class SimpleFinancePage extends ConsumerWidget {
                                     accountName: account.accountName,
                                     accountNo: account.accountNo,
                                     balance: account.accountBalance,
+                                    type: '입출금'
                                   ))
                               .toList(),
                         ),
@@ -135,6 +136,7 @@ class SimpleFinancePage extends ConsumerWidget {
                                     accountName: account.accountName,
                                     accountNo: account.accountNo,
                                     balance: account.depositBalance,
+                                    type: '예금'
                                   ))
                               .toList(),
                         ),
@@ -151,6 +153,7 @@ class SimpleFinancePage extends ConsumerWidget {
                                     accountName: account.accountName,
                                     accountNo: account.accountNo,
                                     balance: account.totalBalance,
+                                    type: '적금'
                                   ))
                               .toList(),
                         ),
@@ -168,6 +171,7 @@ class SimpleFinancePage extends ConsumerWidget {
                                     accountNo: loan.accountNo,
                                     balance: loan.loanBalance,
                                     isLoan: true,
+                                    type: '대출'
                                   ))
                               .toList(),
                         ),

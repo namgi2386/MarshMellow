@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 
-// 커스텀 버튼 위젯
+/*
+  커스텀 버튼 위젯
+*/
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;

@@ -128,6 +128,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                                     accountNo: account.accountNo,
                                     balance: account.accountBalance,
                                     noMoneyMan : true,
+                                    type: '입출금'
                                   ))
                               .toList(),
                         ),
@@ -157,6 +158,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                                     accountName: account.accountName,
                                     accountNo: account.accountNo,
                                     balance: account.depositBalance,
+                                    type: '예금'
                                   ))
                               .toList(),
                         ),
@@ -173,6 +175,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                                     accountName: account.accountName,
                                     accountNo: account.accountNo,
                                     balance: account.totalBalance,
+                                    type: '적금'
                                   ))
                               .toList(),
                         ),
@@ -191,6 +194,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                                     accountNo: loan.accountNo,
                                     balance: loan.loanBalance,
                                     isLoan: true,
+                                    type: '대출'
                                   ))
                               .toList(),
                         ),

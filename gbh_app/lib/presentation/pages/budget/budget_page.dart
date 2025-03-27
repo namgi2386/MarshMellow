@@ -4,7 +4,8 @@ import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-import 'package:go_router/go_router.dart'; 
+import 'package:go_router/go_router.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart'; 
 import 'package:marshmellow/router/routes/budget_routes.dart'; 
 
 class BudgetPage extends ConsumerWidget {
@@ -67,6 +68,15 @@ class BudgetPage extends ConsumerWidget {
               onPressed: () {
                 // 테스트 페이지로 이동
                 context.push(BudgetRoutes.getSignUpTestPath());
+              },
+              child: const Text('테스트 페이지로 이동'),
+            ),
+
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // 테스트 페이지로 이동
+                context.push(SignupRoutes.getMyDataCompletePath());
               },
               child: const Text('테스트 페이지로 이동'),
             ),

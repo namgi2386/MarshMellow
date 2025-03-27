@@ -1,4 +1,3 @@
-// lib/di/providers/date_picker_provider.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -11,7 +10,8 @@ class DatePickerState {
   final PickerDateRange? selectedRange; // 선택된 범위
   final DateTime? selectedDate; // 선택된 날짜
   final List<DateTime>? selectedDates; // 선택된 날짜들
-  
+  final bool isConfirmed; // 확인 여부
+
   DatePickerState({
     this.isVisible = false,
     this.position,
@@ -19,8 +19,9 @@ class DatePickerState {
     this.selectedRange,
     this.selectedDate,
     this.selectedDates,
+    this.isConfirmed = false,
   });
-  
+
   // 상태 복사본 생성 메서드 (불변성 유지)
   DatePickerState copyWith({
     bool? isVisible,
@@ -29,6 +30,7 @@ class DatePickerState {
     PickerDateRange? selectedRange,
     DateTime? selectedDate,
     List<DateTime>? selectedDates,
+    bool? isConfirmed, // isConfirmed 매개변수 추가
   }) {
     return DatePickerState(
       isVisible: isVisible ?? this.isVisible,
@@ -37,6 +39,7 @@ class DatePickerState {
       selectedRange: selectedRange ?? this.selectedRange,
       selectedDate: selectedDate ?? this.selectedDate,
       selectedDates: selectedDates ?? this.selectedDates,
+      isConfirmed: isConfirmed ?? this.isConfirmed, // isConfirmed 추가
     );
   }
 }
@@ -44,7 +47,7 @@ class DatePickerState {
 // DatePicker 상태 Notifier
 class DatePickerNotifier extends StateNotifier<DatePickerState> {
   DatePickerNotifier() : super(DatePickerState());
-  
+
   // DatePicker 표시하기
   void showDatePicker({
     required Offset position,
@@ -56,35 +59,64 @@ class DatePickerNotifier extends StateNotifier<DatePickerState> {
     state = state.copyWith(
       isVisible: true,
       position: position,
-      selectionMode: selectionMode,
+      selectionMode: selectionMode ?? DateRangePickerSelectionMode.single,
       selectedRange: initialRange,
       selectedDate: initialDate,
       selectedDates: initialDates,
+      isConfirmed: false, // 초기화 시 확인 상태 초기화
     );
   }
-  
+
   // DatePicker 숨기기
   void hideDatePicker() {
     state = state.copyWith(isVisible: false);
   }
-  
+
   // 선택된 날짜 범위 업데이트
   void updateSelectedRange(PickerDateRange range) {
-    state = state.copyWith(selectedRange: range);
+    state = state.copyWith(
+      selectedRange: range,
+      isVisible: false,
+      isConfirmed: true, // 확인 상태 true로 설정
+    );
   }
-  
+
   // 선택된 날짜 업데이트
   void updateSelectedDate(DateTime date) {
-    state = state.copyWith(selectedDate: date);
+    state = state.copyWith(
+      selectedDate: date,
+      isVisible: false,
+      isConfirmed: true, // 확인 상태 true로 설정
+    );
   }
-  
+
   // 선택된 날짜들 업데이트
   void updateSelectedDates(List<DateTime> dates) {
-    state = state.copyWith(selectedDates: dates);
+    state = state.copyWith(
+      selectedDates: dates,
+      isVisible: false,
+      isConfirmed: true, // 확인 상태 true로 설정
+    );
+  }
+
+  // 확인 상태 초기화 메서드 추가
+  void resetConfirmation() {
+    state = state.copyWith(isConfirmed: false);
+  }
+
+  // 모든 선택 초기화 (필요한 경우 사용)
+  void resetSelections() {
+    state = state.copyWith(
+      selectedRange: null,
+      selectedDate: null,
+      selectedDates: null,
+      isConfirmed: false,
+    );
   }
 }
 
 // 전역 프로바이더 정의
-final datePickerProvider = StateNotifierProvider<DatePickerNotifier, DatePickerState>((ref) {
+final datePickerProvider =
+    StateNotifierProvider<DatePickerNotifier, DatePickerState>((ref) {
   return DatePickerNotifier();
 });

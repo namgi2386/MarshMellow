@@ -12,5 +12,6 @@ public class RequestUpdateWishlist {
 
     private String productImageUrl;
 
+    private String productUrl;
 
 }

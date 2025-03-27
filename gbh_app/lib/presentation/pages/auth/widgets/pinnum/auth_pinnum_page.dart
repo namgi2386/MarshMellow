@@ -75,7 +75,7 @@ class AuthPinnumPage extends ConsumerWidget {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 50,),
-                          PinDotsRow(currentDigit: pinState.currentDigit, onTap: showKeyboard,),
+                          SmallPinDotsRow(currentDigit: pinState.currentDigit, onTap: showKeyboard,),
                           const Spacer(),
                           if (pinState.isBiometricsAvailable)
                             BiometricOption(),

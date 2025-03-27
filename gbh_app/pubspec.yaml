@@ -142,6 +142,7 @@ flutter:
     - assets/icons/app_bar/
     - assets/icons/body/
     - assets/icons/card/
+    - assets/icons/etc/
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

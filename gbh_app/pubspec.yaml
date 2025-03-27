@@ -64,7 +64,7 @@ dependencies:
   flutter_dotenv: ^5.2.1 # .env 파일로 환경변수 관리
 
   # 유틸리티
-  intl: ^0.18.1 # 국제화 및 날짜/통화 포맷팅
+  intl: ^0.19.0 # 국제화 및 날짜/통화 포맷팅
   logger: ^2.5.0 # 로깅 기능 제공
   get_it: ^8.0.3 # 서비스 로케이터, 의존성 주입
 
@@ -104,6 +104,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.19.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

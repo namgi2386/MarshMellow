@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/config/app_config.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/presentation/pages/finance/widgets/simple/real_wallet_widget.dart';
 // import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
@@ -39,10 +42,18 @@ class SimpleFinancePage extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: Colors.tealAccent,
+      backgroundColor: AppColors.background,
       appBar: CustomAppbar(
         title: 'my little 자산',
         actions: [
+          if (AppConfig.isDevelopment())
+            IconButton(
+              icon: const Icon(Icons.bug_report),  // 또는 다른 적절한 아이콘
+              onPressed: () {
+                context.push(FinanceRoutes.getTestPath());
+              },
+              tooltip: '테스트 페이지로 이동',
+            ),
           const SimpleToggleButton(isSimplePage: true),  // 분리한 커스텀 토글 버튼 위젯
         ],
       ),
@@ -51,33 +62,6 @@ class SimpleFinancePage extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 20),
-            // 테스트 페이지로 이동
-            ElevatedButton(
-              onPressed: () {
-                context.push(FinanceRoutes.getTestPath()); 
-              },
-              child: const Text('테스트 페이지로 이동'),
-            ),
-            // 간편 모드 상태 확인 텍스트
-            Consumer(
-              builder: (context, ref, child) {
-                final isSimpleMode = ref.watch(simpleViewModeProvider);
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  color: isSimpleMode ? Colors.black12 : Colors.white70,
-                  child: Center(
-                    child: Text(
-                      '현재 모드: ${isSimpleMode ? "간편 모드" : "일반 모드"}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: isSimpleMode ? Colors.blue : Colors.grey,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
 
             Expanded(
               child: assetData.when(
@@ -94,87 +78,88 @@ class SimpleFinancePage extends ConsumerWidget {
                         // 총 자산 정보
                         TotalAssetsWidget(totalAssets: totalAssets),
                         
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
                         
-                        // 입출금 계좌 정보
-                        FinancialSectionWidget(
-                          title: '입출금',
-                          totalAmount: data.data.demandDepositData.totalAmount,
-                          isEmpty: data.data.demandDepositData.demandDepositList.isEmpty,
-                          emptyMessage: '등록된 입출금 계좌가 없습니다.',
-                          itemList: data.data.demandDepositData.demandDepositList
-                              .map((account) => AccountItemWidget(
-                                    bankName: account.bankName,
-                                    accountName: account.accountName,
-                                    accountNo: account.accountNo,
-                                    balance: account.accountBalance,
-                                    type: '입출금'
-                                  ))
-                              .toList(),
+                        GridView.count(
+                          crossAxisCount: 2,  // 가로 방향 위젯 개수
+                          mainAxisSpacing: 24,  // 세로 방향 간격
+                          crossAxisSpacing: 18,  // 가로 방향 간격
+                          shrinkWrap: true,  // GridView의 크기를 자식 위젯에 맞춤
+                          physics: NeverScrollableScrollPhysics(),  // 스크롤 비활성화 (필요한 경우)
+                          children: [
+                            RealWallet(
+                              demandDepositList: data.data.demandDepositData.demandDepositList.map((item) => 
+                                DemandDepositItem(
+                                  bankName: item.bankName,
+                                  accountName: item.accountName,
+                                  accountNo: item.accountNo,
+                                  accountBalance: item.accountBalance,
+                                )
+                              ).toList(),
+                              totalAmount: data.data.demandDepositData.totalAmount,
+                              type: '입출금',
+                            ),
+                            
+                            RealWallet(
+                              demandDepositList: data.data.cardData.cardList.map((item) => 
+                                DemandDepositItem(
+                                  bankName: item.cardName,
+                                  accountName: item.cardIssuerName,
+                                  accountNo: item.cardNo,
+                                  accountBalance: item.cardBalance,
+                                )
+                              ).toList(),
+                              totalAmount: data.data.cardData.totalAmount,
+                              type: '카드',
+                            ),
+                            
+                            RealWallet(
+                              demandDepositList: data.data.depositData.depositList.map((item) => 
+                                DemandDepositItem(
+                                  bankName: item.bankName,
+                                  accountName: item.accountName,
+                                  accountNo: item.accountNo,
+                                  accountBalance: item.depositBalance,
+                                )
+                              ).toList(),
+                              totalAmount: data.data.depositData.totalAmount,
+                              type: '예금',
+                            ),
+                            
+                            RealWallet(
+                              demandDepositList: data.data.savingsData.savingsList.map((item) => 
+                                DemandDepositItem(
+                                  bankName: item.bankName,
+                                  accountName: item.accountName,
+                                  accountNo: item.accountNo,
+                                  accountBalance: item.totalBalance,
+                                )
+                              ).toList(),
+                              totalAmount: data.data.savingsData.totalAmount,
+                              type: '적금',
+                            ),
+                            
+                            RealWallet(
+                              demandDepositList: data.data.loanData.loanList.map((item) => 
+                                DemandDepositItem(
+                                  bankName: item.accountName,
+                                  accountName: item.accountName,
+                                  accountNo: item.accountNo,
+                                  accountBalance: item.loanBalance,
+                                )
+                              ).toList(),
+                              totalAmount: data.data.loanData.totalAmount,
+                              type: '대출',
+                            ),
+                            
+                            RealWallet(
+                              demandDepositList: [],
+                              totalAmount: -1,
+                              type: '자산 추가하기',
+                            ),
+                          ],
                         ),
-                        
-                        // 카드 정보
-                        FinancialSectionWidget(
-                          title: '카드',
-                          totalAmount: data.data.cardData.totalAmount,
-                          isEmpty: data.data.cardData.cardList.isEmpty,
-                          emptyMessage: '등록된 카드가 없습니다.',
-                          itemList: data.data.cardData.cardList
-                              .map((card) => CardItemWidget(card: card))
-                              .toList(),
-                        ),
-                        
-                        // 예금 정보
-                        FinancialSectionWidget(
-                          title: '예금',
-                          totalAmount: data.data.depositData.totalAmount,
-                          isEmpty: data.data.depositData.depositList.isEmpty,
-                          emptyMessage: '등록된 예금이 없습니다.',
-                          itemList: data.data.depositData.depositList
-                              .map((account) => AccountItemWidget(
-                                    bankName: account.bankName,
-                                    accountName: account.accountName,
-                                    accountNo: account.accountNo,
-                                    balance: account.depositBalance,
-                                    type: '예금'
-                                  ))
-                              .toList(),
-                        ),
-                        
-                        // 적금 정보
-                        FinancialSectionWidget(
-                          title: '적금',
-                          totalAmount: data.data.savingsData.totalAmount,
-                          isEmpty: data.data.savingsData.savingsList.isEmpty,
-                          emptyMessage: '등록된 적금이 없습니다.',
-                          itemList: data.data.savingsData.savingsList
-                              .map((account) => AccountItemWidget(
-                                    bankName: account.bankName,
-                                    accountName: account.accountName,
-                                    accountNo: account.accountNo,
-                                    balance: account.totalBalance,
-                                    type: '적금'
-                                  ))
-                              .toList(),
-                        ),
-                        
-                        // 대출 정보
-                        FinancialSectionWidget(
-                          title: '대출',
-                          totalAmount: data.data.loanData.totalAmount,
-                          isEmpty: data.data.loanData.loanList.isEmpty,
-                          emptyMessage: '등록된 대출이 없습니다.',
-                          itemList: data.data.loanData.loanList
-                              .map((loan) => AccountItemWidget(
-                                    bankName: '-', // 은행명 정보 없음
-                                    accountName: loan.accountName,
-                                    accountNo: loan.accountNo,
-                                    balance: loan.loanBalance,
-                                    isLoan: true,
-                                    type: '대출'
-                                  ))
-                              .toList(),
-                        ),
+
                       ],
                     ),
                   );

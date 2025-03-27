@@ -4,7 +4,6 @@ import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/data/models/ledger/expense_category.dart';
 
-// 새로 만든 transaction_fields.dart 파일에서 필드들 import
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_fields.dart';
 
 class ExpenseForm extends ConsumerStatefulWidget {
@@ -17,7 +16,7 @@ class ExpenseForm extends ConsumerStatefulWidget {
 class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   bool _isExcludedFromBudget = false;
   DateTime _selectedDate = DateTime.now();
-  ExpenseCategory? _selectedCategory; // ExpenseCategory 타입으로 변경
+  ExpenseCategory? _selectedExpenseCategory; // ExpenseCategory 타입으로 변경
   String? _merchant;
   String? _paymentMethod;
   String? _memo;
@@ -51,9 +50,9 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   }
 
   // 카테고리 업데이트 함수
-  void _updateCategory(ExpenseCategory category) {
+  void _updateExpenseCategory(ExpenseCategory category) {
     setState(() {
-      _selectedCategory = category;
+      _selectedExpenseCategory = category;
     });
   }
 
@@ -62,10 +61,10 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
     return Column(
       children: [
         // 카테고리 필드
-        TransactionFields.categoryField(
+        TransactionFields.expenseCategoryField(
           context: context,
-          selectedCategory: _selectedCategory?.name,
-          onCategorySelected: _updateCategory,
+          selectedCategory: _selectedExpenseCategory?.name,
+          onCategorySelected: _updateExpenseCategory,
         ),
         // 상호명 필드
         TransactionFields.editableMerchantField(

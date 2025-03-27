@@ -4,18 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/expense_category.dart';
+import 'package:marshmellow/data/models/ledger/income_category.dart';
 
-// 기존 TransactionField 위젯 사용
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_field.dart';
-// 인라인 편집 가능한 메모 필드 임포트
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/editable_memo_filed.dart';
-// DateTimeWheelPicker 임포트
 import 'package:marshmellow/presentation/pages/ledger/widgets/picker/date_time_wheel_picker.dart';
-// ExpenseCategoryPicker 임포트 (경로는 실제 프로젝트 구조에 맞게 조정)
 import 'package:marshmellow/presentation/pages/ledger/widgets/picker/expense_category_picker.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/picker/income_category_picker.dart';
 
-// showCategoryPickerModal 함수 - 여기에서 정의 (또는 별도 파일에서 import)
-Future<void> showCategoryPickerModal(
+// 지출 카테고리 선택 모달 함수
+Future<void> showExpenseCategoryPickerModal(
   BuildContext context, {
   required Function(ExpenseCategory) onCategorySelected,
 }) {
@@ -24,6 +22,21 @@ Future<void> showCategoryPickerModal(
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) => ExpenseCategoryPicker(
+      onCategorySelected: onCategorySelected,
+    ),
+  );
+}
+
+// 수입 카테고리 선택 모달 함수
+Future<void> showIncomeCategoryPickerModal(
+  BuildContext context, {
+  required Function(IncomeCategory) onCategorySelected,
+}) {
+  return showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => IncomeCategoryPicker(
       onCategorySelected: onCategorySelected,
     ),
   );
@@ -72,8 +85,8 @@ class TransactionFields {
     );
   }
 
-  // 카테고리 필드 - 수정된 버전
-  static TransactionField categoryField({
+  // 지출 카테고리 필드
+  static TransactionField expenseCategoryField({
     required BuildContext context,
     String? selectedCategory,
     required Function(ExpenseCategory) onCategorySelected,
@@ -82,7 +95,25 @@ class TransactionFields {
       label: '카테고리',
       value: selectedCategory,
       onTap: () {
-        showCategoryPickerModal(
+        showExpenseCategoryPickerModal(
+          context,
+          onCategorySelected: onCategorySelected,
+        );
+      },
+    );
+  }
+
+  // 수입 카테고리 필드
+  static TransactionField incomeCategoryField({
+    required BuildContext context,
+    String? selectedCategory,
+    required Function(IncomeCategory) onCategorySelected,
+  }) {
+    return TransactionField(
+      label: '카테고리',
+      value: selectedCategory,
+      onTap: () {
+        showIncomeCategoryPickerModal(
           context,
           onCategorySelected: onCategorySelected,
         );
@@ -169,7 +200,6 @@ class TransactionFields {
   }) {
     return TransactionField(
       label: '예산에서 제외',
-      showDivider: false,
       trailing: CupertinoSwitch(
         value: value,
         onChanged: onChanged,
@@ -189,82 +219,6 @@ class TransactionFields {
         width: 200,
         child: selector,
       ),
-    );
-  }
-}
-
-// 사용 예시: TransactionForm 위젯에서 사용하는 방법
-class TransactionForm extends ConsumerStatefulWidget {
-  const TransactionForm({Key? key}) : super(key: key);
-
-  @override
-  ConsumerState<TransactionForm> createState() => _TransactionFormState();
-}
-
-class _TransactionFormState extends ConsumerState<TransactionForm> {
-  DateTime _selectedDate = DateTime.now();
-  ExpenseCategory? _selectedCategory;
-  String _merchantName = '';
-  String _memo = '';
-  bool _excludeFromBudget = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // 날짜 필드
-        TransactionFields.dateField(
-          selectedDate: _selectedDate,
-          context: context,
-          ref: ref,
-          onDateChanged: (date) {
-            setState(() {
-              _selectedDate = date;
-            });
-          },
-        ),
-
-        // 카테고리 필드 (수정된 방식으로 사용)
-        TransactionFields.categoryField(
-          context: context,
-          selectedCategory: _selectedCategory?.name,
-          onCategorySelected: (category) {
-            setState(() {
-              _selectedCategory = category;
-            });
-          },
-        ),
-
-        // 상호명 필드
-        TransactionFields.editableMerchantField(
-          merchantName: _merchantName,
-          onMerchantChanged: (value) {
-            setState(() {
-              _merchantName = value;
-            });
-          },
-        ),
-
-        // 메모 필드
-        TransactionFields.editableMemoField(
-          memo: _memo,
-          onMemoChanged: (value) {
-            setState(() {
-              _memo = value;
-            });
-          },
-        ),
-
-        // 예산에서 제외 필드
-        TransactionFields.excludeFromBudgetField(
-          value: _excludeFromBudget,
-          onChanged: (value) {
-            setState(() {
-              _excludeFromBudget = value;
-            });
-          },
-        ),
-      ],
     );
   }
 }

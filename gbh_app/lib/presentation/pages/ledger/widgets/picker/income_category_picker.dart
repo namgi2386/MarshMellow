@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/data/models/ledger/expense_category.dart';
+import 'package:marshmellow/data/models/ledger/income_category.dart';
 
-
-class ExpenseCategoryPicker extends StatelessWidget {
-  final Function(ExpenseCategory) onCategorySelected;
+class IncomeCategoryPicker extends StatelessWidget {
+  final Function(IncomeCategory) onCategorySelected;
   final String? title;
   final bool showCloseButton;
 
-  const ExpenseCategoryPicker({
+  const IncomeCategoryPicker({
     Key? key,
     required this.onCategorySelected,
-    this.title = '지출 카테고리',
+    this.title = '수입 카테고리',
     this.showCloseButton = false,
   }) : super(key: key);
 
@@ -65,9 +64,9 @@ class ExpenseCategoryPicker extends StatelessWidget {
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),
-              itemCount: ExpenseCategory.allCategories.length,
+              itemCount: IncomeCategory.allCategories.length,
               itemBuilder: (context, index) {
-                final category = ExpenseCategory.allCategories[index];
+                final category = IncomeCategory.allCategories[index];
                 return _CategoryTile(
                   category: category,
                   onTap: () {
@@ -86,7 +85,7 @@ class ExpenseCategoryPicker extends StatelessWidget {
 
 // CategoryTile 클래스
 class _CategoryTile extends StatelessWidget {
-  final ExpenseCategory category;
+  final IncomeCategory category;
   final VoidCallback onTap;
 
   const _CategoryTile({
@@ -98,12 +97,9 @@ class _CategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      // 오타 수정
       onTap: onTap,
       child: Container(
-        // 오타 수정
         decoration: BoxDecoration(
-          // 오타 수정
           border: Border.all(color: Colors.grey.shade200),
           borderRadius: BorderRadius.circular(4),
         ),
@@ -114,7 +110,6 @@ class _CategoryTile extends StatelessWidget {
               width: 24,
               height: 24,
               child: SvgPicture.asset(
-                // Image.asset을 SvgPicture.asset로 변경
                 category.iconPath,
                 colorFilter: ColorFilter.mode(Colors.grey.shade700,
                     BlendMode.srcIn), // color 대신 colorFilter 사용
@@ -141,13 +136,13 @@ class _CategoryTile extends StatelessWidget {
 // showCategoryPickerModal 함수 - 카테고리 선택기 모달을 표시
 Future<void> showCategoryPickerModal(
   BuildContext context, {
-  required Function(ExpenseCategory) onCategorySelected,
+  required Function(IncomeCategory) onCategorySelected,
 }) {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (context) => ExpenseCategoryPicker(
+    builder: (context) => IncomeCategoryPicker(
       onCategorySelected: onCategorySelected,
       showCloseButton: false,
     ),

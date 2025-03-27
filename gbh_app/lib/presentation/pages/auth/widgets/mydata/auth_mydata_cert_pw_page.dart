@@ -73,7 +73,6 @@ class AuthMydataCertPwPage extends ConsumerWidget {
             const SizedBox(height: 50),
             PinDotsRow(
               currentDigit: passwordState.currentDigit,
-              totalDigits: 6,
               onTap: showKeyboard,
             ),
             const Spacer(),

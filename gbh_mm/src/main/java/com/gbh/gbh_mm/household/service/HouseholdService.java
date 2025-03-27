@@ -4,11 +4,13 @@ import com.gbh.gbh_mm.household.model.vo.request.RequestCreateHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestDeleteHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.request.RequestFindHouseholdList;
+import com.gbh.gbh_mm.household.model.vo.request.RequestFindTransactionDataList;
 import com.gbh.gbh_mm.household.model.vo.request.RequestUpdateHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseDeleteHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHousehold;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHouseholdList;
+import com.gbh.gbh_mm.household.model.vo.response.ResponseFindTransactionDataList;
 import com.gbh.gbh_mm.household.model.vo.response.ResponseUpdateHousehold;
 
 public interface HouseholdService {
@@ -22,4 +24,6 @@ public interface HouseholdService {
     ResponseUpdateHousehold updateHousehold(RequestUpdateHousehold request);
 
     ResponseDeleteHousehold deleteHousehold(RequestDeleteHousehold request);
+
+    ResponseFindTransactionDataList findTransactionDataList(RequestFindTransactionDataList request);
 }

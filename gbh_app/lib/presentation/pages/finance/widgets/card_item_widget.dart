@@ -1,11 +1,13 @@
 // presentation/pages/finance/widgets/card_item_widget.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/card_model.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/router/routes/finance_routes.dart';
 
 class CardItemWidget extends StatelessWidget {
   final CardItem card;
@@ -27,6 +29,20 @@ class CardItemWidget extends StatelessWidget {
     return '${cardNo.substring(0, 4)} **** **** ${cardNo.substring(cardNo.length - 4)}';
   }
 
+  // CardItemWidget.dart의 onTap 처리 메서드 예시
+  void _onCardItemTap(BuildContext context) {
+    context.push(
+      FinanceRoutes.getCardDetailPath(card.cardNo),
+      extra: {
+        'bankName': card.cardIssuerName,
+        'cardName': card.cardName,
+        'cardNo': card.cardNo,
+        'cvc': card.cvc,
+        'balance': card.cardBalance,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -44,7 +60,9 @@ class CardItemWidget extends StatelessWidget {
               width: 64, // SVG 너비
               height: 64, // SVG 높이
             ),
-            onPressed: () {},
+            onPressed: () {
+              _onCardItemTap(context);
+            },
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -68,7 +86,9 @@ class CardItemWidget extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(Icons.arrow_forward_ios, size: 16),
-            onPressed: () {},
+            onPressed: () {
+              _onCardItemTap(context);
+            },
           ),
         ],
       ),

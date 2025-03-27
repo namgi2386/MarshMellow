@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/datasources/remote/api_client.dart';
+import 'package:marshmellow/data/models/finance/detail/card_detail_model.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
 import 'package:marshmellow/data/models/finance/asset_response_model.dart';
 //detail
@@ -92,6 +93,27 @@ class FinanceApi {
       rethrow;
     }
   }
+
+  // 카드 거래내역 조회 API 메서드
+  Future<CardDetailResponse> getCardTransactions({
+    required String userKey,
+    required String cardNo,
+    required String cvc,
+    required String startDate,
+    required String endDate,
+  }) async {
+    final data = {
+      'userKey': userKey,
+      'cardNo': cardNo,
+      'cvc': cvc,
+      'startDate': startDate,
+      'endDate': endDate,
+    };
+
+    final response = await _apiClient.getWithBody('/asset/card-transaction', data: data);
+    return CardDetailResponse.fromJson(response);
+  }
+
 }
 
 // FinanceApi 프로바이더 정의

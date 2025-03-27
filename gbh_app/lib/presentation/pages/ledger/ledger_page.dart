@@ -10,16 +10,20 @@ import 'package:marshmellow/presentation/pages/ledger/widgets/ledger_transaction
 import 'package:marshmellow/presentation/pages/ledger/widgets/ledger_calendar.dart';
 import 'package:marshmellow/router/routes/ledger_routes.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LedgerPage extends StatefulWidget {
-  // StatelessWidget에서 StatefulWidget으로 변경
+// 위젯
+import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_form.dart';
+
+class LedgerPage extends ConsumerStatefulWidget {
   const LedgerPage({super.key});
 
   @override
-  State<LedgerPage> createState() => _LedgerPageState();
+  ConsumerState<LedgerPage> createState() => _LedgerPageState();
 }
 
-class _LedgerPageState extends State<LedgerPage> {
+class _LedgerPageState extends ConsumerState<LedgerPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -107,6 +111,12 @@ class _LedgerPageState extends State<LedgerPage> {
                           GestureDetector(
                             onTap: () {
                               // plus 버튼 액션
+                              showCustomModal(
+                                context: context,
+                                ref: ref,
+                                backgroundColor: AppColors.background,
+                                child: const TransactionForm(),
+                              );
                             },
                             child: Padding(
                               padding: EdgeInsets.only(right: 10),

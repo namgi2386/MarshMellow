@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/data/models/ledger/expense_category.dart';
-import 'package:marshmellow/data/models/ledger/income_category.dart';
+import 'package:marshmellow/data/models/ledger/category/withdrawal_category.dart';
+import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
 
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_field.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/editable_memo_filed.dart';
@@ -15,7 +15,7 @@ import 'package:marshmellow/presentation/pages/ledger/widgets/picker/income_cate
 // 지출 카테고리 선택 모달 함수
 Future<void> showExpenseCategoryPickerModal(
   BuildContext context, {
-  required Function(ExpenseCategory) onCategorySelected,
+  required Function(WithdrawalCategory) onCategorySelected,
 }) {
   return showModalBottomSheet(
     context: context,
@@ -30,7 +30,7 @@ Future<void> showExpenseCategoryPickerModal(
 // 수입 카테고리 선택 모달 함수
 Future<void> showIncomeCategoryPickerModal(
   BuildContext context, {
-  required Function(IncomeCategory) onCategorySelected,
+  required Function(DepositCategory) onCategorySelected,
 }) {
   return showModalBottomSheet(
     context: context,
@@ -89,7 +89,7 @@ class TransactionFields {
   static TransactionField expenseCategoryField({
     required BuildContext context,
     String? selectedCategory,
-    required Function(ExpenseCategory) onCategorySelected,
+    required Function(WithdrawalCategory) onCategorySelected,
   }) {
     return TransactionField(
       label: '카테고리',
@@ -107,7 +107,7 @@ class TransactionFields {
   static TransactionField incomeCategoryField({
     required BuildContext context,
     String? selectedCategory,
-    required Function(IncomeCategory) onCategorySelected,
+    required Function(DepositCategory) onCategorySelected,
   }) {
     return TransactionField(
       label: '카테고리',

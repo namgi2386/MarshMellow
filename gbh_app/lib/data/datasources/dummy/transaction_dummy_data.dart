@@ -1,50 +1,48 @@
 import 'dart:math';
 import 'package:uuid/uuid.dart'; // UUID 생성을 위한 패키지 추가 필요
-import 'package:marshmellow/data/models/ledger/transactions.dart';
-import 'package:marshmellow/data/models/ledger/expense_category.dart';
-import 'package:marshmellow/data/models/ledger/income_category.dart';
-import 'package:marshmellow/data/models/ledger/transaction_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transactions.dart';
+import 'package:marshmellow/data/models/ledger/category/withdrawal_category.dart';
+import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 
 class TransactionDummyData {
   static final Random _random = Random();
   static final Uuid _uuid = Uuid();
   
   // 지출 항목 제목 샘플 데이터
-  static final Map<ExpenseCategoryType, List<String>> _expenseTitles = {
-    ExpenseCategoryType.food: ['맥도날드', '버거킹', '롯데리아', '김밥천국', '스타벅스', '주변식당', '배달음식', '편의점', '마트식품'],
-    ExpenseCategoryType.coffee: ['스타벅스', '투썸플레이스', '이디야', '메가커피', '컴포즈', '빽다방', '폴바셋', '카페'],
-    ExpenseCategoryType.transport: ['택시', '버스', '지하철', '대중교통', '카카오T', '따릉이', '교통비'],
-    ExpenseCategoryType.shopping: ['유니클로', 'H&M', '자라', '무신사', '브랜디', '올리브영', '에이블리', '쿠팡'],
-    ExpenseCategoryType.onlineShopping: ['쿠팡', '나이키', '배민상회', '11번가', 'G마켓', '옥션', '티몬', '위메프'], 
-    ExpenseCategoryType.culture: ['CGV', '메가박스', '롯데시네마', '넷플릭스', '웨이브', '디즈니플러스', '콘서트', '뮤지컬'],
-    ExpenseCategoryType.living: ['물티슈', '휴지', '쌀', '세제', '섬유유연제', '생필품', '마트', '홈플러스'],
-    ExpenseCategoryType.beauty: ['올리브영', '아모레퍼시픽', '이니스프리', '네이처리퍼블릭', '어퓨', '에뛰드'],
-    ExpenseCategoryType.health: ['약국', '병원비', '치과', '피부과', '운동센터', '헬스장', '비타민', '건강검진'],
-    ExpenseCategoryType.house: ['월세', '관리비', '전기요금', '수도요금', '가스비', '인터넷', '휴대폰요금'],
-    ExpenseCategoryType.alcohol: ['소주', '맥주', '와인', '위스키', '칵테일', '호프집', '주점', '술자리'],
-    ExpenseCategoryType.pet: ['사료', '간식', '장난감', '병원비', '미용', '용품', '동물병원'],
-    ExpenseCategoryType.car: ['주유', '주차비', '세차', '정비', '자동차보험', '과태료', '하이패스'],
-    ExpenseCategoryType.study: ['학원비', '교재', '온라인강의', '스터디카페', '자격증', '시험비'],
-    ExpenseCategoryType.travel: ['호텔', '항공권', '여행사', '숙박', '리조트', '펜션', 'KTX'],
-    ExpenseCategoryType.event: ['결혼식', '생일선물', '돌잔치', '경조사', '명절선물', '화환'],
-    ExpenseCategoryType.bank: ['이체수수료', '대출이자', '보험료', '적금', '연회비'],
-    ExpenseCategoryType.baby: ['분유', '기저귀', '유아용품', '장난감', '의류', '아기간식'],
-    ExpenseCategoryType.nonCategory: ['기타지출', '잡비', '현금인출'],
+  static final Map<WithdrawalCategoryType, List<String>> _expenseTitles = {
+    WithdrawalCategoryType.food: ['맥도날드', '버거킹', '롯데리아', '김밥천국', '스타벅스', '주변식당', '배달음식', '편의점', '마트식품'],
+    WithdrawalCategoryType.coffee: ['스타벅스', '투썸플레이스', '이디야', '메가커피', '컴포즈', '빽다방', '폴바셋', '카페'],
+    WithdrawalCategoryType.transport: ['택시', '버스', '지하철', '대중교통', '카카오T', '따릉이', '교통비'],
+    WithdrawalCategoryType.shopping: ['유니클로', 'H&M', '자라', '무신사', '브랜디', '올리브영', '에이블리', '쿠팡'],
+    WithdrawalCategoryType.onlineShopping: ['쿠팡', '나이키', '배민상회', '11번가', 'G마켓', '옥션', '티몬', '위메프'], 
+    WithdrawalCategoryType.culture: ['CGV', '메가박스', '롯데시네마', '넷플릭스', '웨이브', '디즈니플러스', '콘서트', '뮤지컬'],
+    WithdrawalCategoryType.living: ['물티슈', '휴지', '쌀', '세제', '섬유유연제', '생필품', '마트', '홈플러스'],
+    WithdrawalCategoryType.beauty: ['올리브영', '아모레퍼시픽', '이니스프리', '네이처리퍼블릭', '어퓨', '에뛰드'],
+    WithdrawalCategoryType.health: ['약국', '병원비', '치과', '피부과', '운동센터', '헬스장', '비타민', '건강검진'],
+    WithdrawalCategoryType.house: ['월세', '관리비', '전기요금', '수도요금', '가스비', '인터넷', '휴대폰요금'],
+    WithdrawalCategoryType.alcohol: ['소주', '맥주', '와인', '위스키', '칵테일', '호프집', '주점', '술자리'],
+    WithdrawalCategoryType.pet: ['사료', '간식', '장난감', '병원비', '미용', '용품', '동물병원'],
+    WithdrawalCategoryType.car: ['주유', '주차비', '세차', '정비', '자동차보험', '과태료', '하이패스'],
+    WithdrawalCategoryType.study: ['학원비', '교재', '온라인강의', '스터디카페', '자격증', '시험비'],
+    WithdrawalCategoryType.travel: ['호텔', '항공권', '여행사', '숙박', '리조트', '펜션', 'KTX'],
+    WithdrawalCategoryType.event: ['결혼식', '생일선물', '돌잔치', '경조사', '명절선물', '화환'],
+    WithdrawalCategoryType.bank: ['이체수수료', '대출이자', '보험료', '적금', '연회비'],
+    WithdrawalCategoryType.baby: ['분유', '기저귀', '유아용품', '장난감', '의류', '아기간식'],
+    WithdrawalCategoryType.nonCategory: ['기타지출', '잡비', '현금인출'],
   };
   
   // 수입 항목 제목 샘플 데이터
-  static final Map<IncomeCategoryType, List<String>> _incomeTitles = {
-    IncomeCategoryType.salary: ['월급', '급여', '상여금', '성과급', '연봉', '보너스'],
-    IncomeCategoryType.parttime: ['알바비', '아르바이트', '과외비', '강의비', '특강비'],
-    IncomeCategoryType.business: ['매출', '수익', '사업소득', '프리랜서', '계약금', '용역비'],
-    IncomeCategoryType.bank: ['이자수입', '배당금', '적금만기', '펀드수익', '환급금', '신용카드혜택'],
-    IncomeCategoryType.realestate: ['월세수입', '전세수입', '부동산임대', '부동산매각'],
-    IncomeCategoryType.insurance: ['보험금', '보험환급금', '의료비환급', '실손보험'],
-    IncomeCategoryType.scholarship: ['장학금', '연구비', '지원금', '공모상금', '수상금'],
-    IncomeCategoryType.sns: ['유튜브수익', '애드센스', '콘텐츠수익', '광고수익'],
-    IncomeCategoryType.npay: ['더치페이', '지인송금', '정산', '환불', '송금'],
-    IncomeCategoryType.recycle: ['중고거래', '당근마켓', '번개장터', '중고나라'],
-    IncomeCategoryType.etc: ['기타소득', '용돈', '선물', '상금', '복권'],
+  static final Map<DepositCategoryType, List<String>> _incomeTitles = {
+    DepositCategoryType.salary: ['월급', '급여', '상여금', '성과급', '연봉', '보너스'],
+    DepositCategoryType.parttime: ['알바비', '아르바이트', '과외비', '강의비', '특강비'],
+    DepositCategoryType.business: ['매출', '수익', '사업소득', '프리랜서', '계약금', '용역비'],
+    DepositCategoryType.bank: ['이자수입', '배당금', '적금만기', '펀드수익', '환급금', '신용카드혜택'],
+    DepositCategoryType.realestate: ['월세수입', '전세수입', '부동산임대', '부동산매각'],
+    DepositCategoryType.insurance: ['보험금', '보험환급금', '의료비환급', '실손보험'],
+    DepositCategoryType.scholarship: ['장학금', '연구비', '지원금', '공모상금', '수상금'],
+    DepositCategoryType.npay: ['더치페이', '지인송금', '정산', '환불', '송금'],
+    DepositCategoryType.etc: ['기타소득', '용돈', '선물', '상금', '복권'],
   };
   
   // 결제 수단 샘플
@@ -92,7 +90,7 @@ class TransactionDummyData {
   // 특정 날짜의 무작위 지출 트랜잭션 생성
   static Transaction _generateRandomExpense(DateTime date) {
     // 무작위 지출 카테고리 선택
-    final categoryTypes = ExpenseCategoryType.values;
+    final categoryTypes = WithdrawalCategoryType.values;
     final categoryType = categoryTypes[_random.nextInt(categoryTypes.length)];
     
     // 카테고리에 맞는 제목 선택
@@ -104,14 +102,14 @@ class TransactionDummyData {
     amount = (amount / 100).round() * 100;
     
     // 카테고리별 금액 조정 (주거/통신비는 더 크게, 카페/간식은 작게 등)
-    if (categoryType == ExpenseCategoryType.house) {
+    if (categoryType == WithdrawalCategoryType.house) {
       amount = _randomAmount(100000, 1000000).roundToDouble();
-    } else if (categoryType == ExpenseCategoryType.coffee) {
+    } else if (categoryType == WithdrawalCategoryType.coffee) {
       amount = _randomAmount(1000, 8000).roundToDouble();
-    } else if (categoryType == ExpenseCategoryType.food) {
+    } else if (categoryType == WithdrawalCategoryType.food) {
       amount = _randomAmount(5000, 30000).roundToDouble();
-    } else if (categoryType == ExpenseCategoryType.shopping || 
-              categoryType == ExpenseCategoryType.onlineShopping) {
+    } else if (categoryType == WithdrawalCategoryType.shopping || 
+              categoryType == WithdrawalCategoryType.onlineShopping) {
       amount = _randomAmount(10000, 200000).roundToDouble();
     }
     
@@ -124,7 +122,7 @@ class TransactionDummyData {
       date: _randomDateTime(date),
       title: title,
       amount: amount,
-      type: TransactionType.expense,
+      type: TransactionType.withdrawal,
       categoryId: categoryType,
       paymentMethod: paymentMethod,
       accountName: account,
@@ -134,7 +132,7 @@ class TransactionDummyData {
   // 특정 날짜의 무작위 수입 트랜잭션 생성
   static Transaction _generateRandomIncome(DateTime date) {
     // 무작위 수입 카테고리 선택
-    final categoryTypes = IncomeCategoryType.values;
+    final categoryTypes = DepositCategoryType.values;
     final categoryType = categoryTypes[_random.nextInt(categoryTypes.length)];
     
     // 카테고리에 맞는 제목 선택
@@ -146,13 +144,13 @@ class TransactionDummyData {
     amount = (amount / 1000).round() * 1000;
     
     // 카테고리별 금액 조정 (월급은 더 크게, 더치페이는 작게 등)
-    if (categoryType == IncomeCategoryType.salary) {
+    if (categoryType == DepositCategoryType.salary) {
       amount = _randomAmount(2000000, 5000000).roundToDouble();
-    } else if (categoryType == IncomeCategoryType.parttime) {
+    } else if (categoryType == DepositCategoryType.parttime) {
       amount = _randomAmount(200000, 1000000).roundToDouble();
-    } else if (categoryType == IncomeCategoryType.business) {
+    } else if (categoryType == DepositCategoryType.business) {
       amount = _randomAmount(500000, 3000000).roundToDouble();
-    } else if (categoryType == IncomeCategoryType.npay) {
+    } else if (categoryType == DepositCategoryType.npay) {
       amount = _randomAmount(5000, 50000).roundToDouble();
     }
     
@@ -164,7 +162,7 @@ class TransactionDummyData {
       date: _randomDateTime(date),
       title: title,
       amount: amount,
-      type: TransactionType.income,
+      type: TransactionType.deposit,
       categoryId: categoryType,
       paymentMethod: '계좌이체',
       accountName: account,
@@ -232,8 +230,8 @@ class TransactionDummyData {
           date: DateTime(date.year, date.month, date.day, 9, 0), // 오전 9시 입금
           title: '월급',
           amount: _randomAmount(2000000, 5000000).roundToDouble(),
-          type: TransactionType.income,
-          categoryId: IncomeCategoryType.salary,
+          type: TransactionType.deposit,
+          categoryId: DepositCategoryType.salary,
           paymentMethod: '계좌이체',
           accountName: '하나은행',
         ));
@@ -246,8 +244,8 @@ class TransactionDummyData {
           date: DateTime(date.year, date.month, date.day, 9, 0), // 오전 9시 입금
           title: '상여금',
           amount: _randomAmount(300000, 1000000).roundToDouble(),
-          type: TransactionType.income,
-          categoryId: IncomeCategoryType.salary,
+          type: TransactionType.deposit,
+          categoryId: DepositCategoryType.salary,
           paymentMethod: '계좌이체',
           accountName: '하나은행',
         ));
@@ -264,8 +262,8 @@ class TransactionDummyData {
           date: DateTime(current.year, current.month, _random.nextInt(5) + 1), // 1~5일
           title: '월세',
           amount: 300000 + (_random.nextInt(10) * 10000), // 30~40만원
-          type: TransactionType.expense,
-          categoryId: ExpenseCategoryType.house,
+          type: TransactionType.withdrawal,
+          categoryId: WithdrawalCategoryType.house,
           paymentMethod: '계좌이체',
           accountName: '우리은행',
         ));
@@ -276,8 +274,8 @@ class TransactionDummyData {
           date: DateTime(current.year, current.month, _random.nextInt(5) + 1), // 1~5일
           title: '관리비',
           amount: 50000 + (_random.nextInt(10) * 5000), // 5~10만원
-          type: TransactionType.expense,
-          categoryId: ExpenseCategoryType.house,
+          type: TransactionType.withdrawal,
+          categoryId: WithdrawalCategoryType.house,
           paymentMethod: '계좌이체',
           accountName: '우리은행',
         ));

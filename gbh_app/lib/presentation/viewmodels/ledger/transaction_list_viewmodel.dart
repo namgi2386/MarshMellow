@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:marshmellow/data/models/ledger/transactions.dart';
+import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/data/repositories/transaction_repository.dart';
 import 'package:marshmellow/data/repositories/transaction_category_repository.dart';
 

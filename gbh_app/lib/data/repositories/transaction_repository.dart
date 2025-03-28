@@ -1,6 +1,6 @@
 import 'package:marshmellow/data/datasources/dummy/transaction_dummy_data.dart';
-import 'package:marshmellow/data/models/ledger/transactions.dart';
-import 'package:marshmellow/data/models/ledger/transaction_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transactions.dart';
+import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 
 class TransactionRepository {
   // 특정 기간의 트랜잭션 가져오기
@@ -49,7 +49,7 @@ class TransactionRepository {
     double totalExpense = 0;
     
     for (var transaction in transactions) {
-      if (transaction.type == TransactionType.income) {
+      if (transaction.type == TransactionType.deposit) {
         totalIncome += transaction.amount;
       } else {
         totalExpense += transaction.amount;

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/data/models/ledger/transactions.dart';
-import 'package:marshmellow/data/models/ledger/transaction_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transactions.dart';
+import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 
 // 캘린더 기간 프로바이더 - 월급일 기준
@@ -74,7 +74,7 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
       if (transaction.date.year == date.year &&
           transaction.date.month == date.month &&
           transaction.date.day == date.day) {
-        if (transaction.type == TransactionType.income) {
+        if (transaction.type == TransactionType.deposit) {
           income += transaction.amount;
         } else {
           expense += transaction.amount;

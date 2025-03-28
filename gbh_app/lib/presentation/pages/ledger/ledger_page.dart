@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
-import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/financial_card.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/page_dot_indicator.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/ledger_transaction_history.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/ledger_calendar.dart';
+
+// 패키지
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+
+// 라우터터
 import 'package:marshmellow/router/routes/ledger_routes.dart';
 import 'package:go_router/go_router.dart';
-import 'package:marshmellow/presentation/widgets/modal/modal.dart';
+
+// 상태관리
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/di/providers/date_picker_provider.dart';
 
 // 위젯
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/main/financial_card.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/main/page_dot_indicator.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/main/ledger_transaction_history.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/main/ledger_calendar.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/main/date_range_selector.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_form.dart';
 
 class LedgerPage extends ConsumerStatefulWidget {
@@ -50,20 +59,53 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 날짜 선택 컨테이너
-                  Container(
-                    height: 50,
-                    width: screenWidth * 0.52,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SvgPicture.asset(IconPath.caretLeft),
-                        Text('25.03.15 - 25.12.14',
-                            style: AppTextStyles.bodyMedium
-                                .copyWith(fontWeight: FontWeight.w600)),
-                        SvgPicture.asset(IconPath.caretRight),
-                      ],
-                    ),
+                  // 날짜 선택 컴포넌트
+                  DateRangeSelector(
+                    onPreviousPressed: () {
+                      // 이전 날짜 범위로 이동하는 로직
+                      final datePickerState = ref.read(datePickerProvider);
+                      if (datePickerState.selectedRange != null &&
+                          datePickerState.selectedRange!.startDate != null) {
+                        final startDate =
+                            datePickerState.selectedRange!.startDate!;
+                        final endDate =
+                            datePickerState.selectedRange!.endDate ?? startDate;
+                        final duration = endDate.difference(startDate);
+
+                        // 이전 기간으로 이동 (현재 기간만큼 뒤로)
+                        final newStartDate = startDate
+                            .subtract(duration + const Duration(days: 1));
+                        final newEndDate =
+                            startDate.subtract(const Duration(days: 1));
+
+                        ref
+                            .read(datePickerProvider.notifier)
+                            .updateSelectedRange(
+                                PickerDateRange(newStartDate, newEndDate));
+                      }
+                    },
+                    onNextPressed: () {
+                      // 다음 날짜 범위로 이동하는 로직
+                      final datePickerState = ref.read(datePickerProvider);
+                      if (datePickerState.selectedRange != null &&
+                          datePickerState.selectedRange!.startDate != null) {
+                        final startDate =
+                            datePickerState.selectedRange!.startDate!;
+                        final endDate =
+                            datePickerState.selectedRange!.endDate ?? startDate;
+                        final duration = endDate.difference(startDate);
+
+                        // 다음 기간으로 이동 (현재 기간만큼 앞으로)
+                        final newStartDate =
+                            endDate.add(const Duration(days: 1));
+                        final newEndDate = newStartDate.add(duration);
+
+                        ref
+                            .read(datePickerProvider.notifier)
+                            .updateSelectedRange(
+                                PickerDateRange(newStartDate, newEndDate));
+                      }
+                    },
                   ),
 
                   // 수입/지출 카드 영역

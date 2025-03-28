@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/ledger_transaction_history.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/ledger_calendar.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/main/ledger_transaction_history.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/main/ledger_calendar.dart';
 
 class PageDotIndicator extends StatelessWidget {
   final int currentPage;

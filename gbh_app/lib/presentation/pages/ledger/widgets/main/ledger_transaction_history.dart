@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/data/models/ledger/transaction_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_item.dart';
 
@@ -52,7 +52,7 @@ class _LedgerTransactionHistoryState
             double dayExpense = 0;
 
             for (var item in items) {
-              if (item.type == TransactionType.income) {
+              if (item.type == TransactionType.deposit) {
                 dayIncome += item.amount;
               } else {
                 dayExpense += item.amount;

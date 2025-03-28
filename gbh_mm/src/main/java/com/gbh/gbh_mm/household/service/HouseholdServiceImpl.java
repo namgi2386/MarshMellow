@@ -130,7 +130,8 @@ public class HouseholdServiceImpl implements HouseholdService {
             .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원"));
         HouseholdDetailCategory householdDetailCategory =
             householdDetailCategoryRepository
-                .findByHouseholdDetailCategory(request.getHouseholdDetailCategoryName());
+                .findByHouseholdDetailCategory(
+                    request.getHouseholdDetailCategoryName().replaceAll("\\s+", ""));
 
         household.setUser(user);
         household.setHouseholdClassificationCategory(request.getHouseholdClassification());
@@ -393,7 +394,8 @@ public class HouseholdServiceImpl implements HouseholdService {
         List<HouseHoldDto> householdDtoList = request.getTransactionList();
         List<Household> householdList = new ArrayList<>();
         for (HouseHoldDto householdDto : householdDtoList) {
-            String category = householdDto.getCategory().replaceAll("\\s+", "");;
+            String category = householdDto.getCategory().replaceAll("\\s+", "");
+            ;
 
             HouseholdDetailCategory householdDetailCategory =
                 householdDetailCategoryRepository

@@ -4,8 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/di/providers/auth/mydata_provider.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_select_content.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 
+/*
+  마이데이터 연동 동의서 페이지
+*/
 class AuthMydataAgreementPage extends ConsumerStatefulWidget{
   const AuthMydataAgreementPage({Key? key}) : super(key: key);
 
@@ -30,6 +34,7 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
   }
 
   void _scrollListener() {
+    // 사용자가 스크롤하여 문서의 맨 아래에 도달하면 && 스크롤이 유효한 범위안에 있는지(물리적 관성으로 일시적으로 유효 범위를 초과할수도 있으므로..?)
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
     !_scrollController.position.outOfRange) {
       ref.read(agreementStateProvider.notifier).setAtBottom(true);
@@ -45,8 +50,16 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
   }
 
   void _handleAgreementSubmit() {
-    // TODO: 전자서명 잘 전달된 후에 어디로 갈지 정하세요!
-    // context.go(location)
+   showCertificateModal(
+      context: context, 
+      ref: ref, 
+      userName: '손효자', 
+      expiryDate: '2028.03.14.', 
+      onConfirm: () {
+        // TODO: 여기서 인증서 확인 작업 필요
+        // 서버에 개인키해싱값 전달 응답 받기
+      }
+    );
   }
 
   @override
@@ -87,7 +100,7 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '한국은행, 산업은행, 기업은행, 국민은행, 농협은행, 우리은행, sc제일은행, 시티은행, 대구은행, 광주은행, 제주은행, 전북은행, 경남은행, 새마울금고, KEB하나은행, 신한은행, 카카오뱅크, 싸피은행, KB국민카드, 삼성카드, 롯데카드, 우리카드, 신한카드, 현대카드, BC바로카드, NH농협카드, 하나카드, IBK기업은행행',
+                        '한국은행, 산업은행, 기업은행, 국민은행, 농협은행, 우리은행, sc제일은행, 시티은행, 대구은행, 광주은행, 제주은행, 전북은행, 경남은행, 새마울금고, KEB하나은행, 신한은행, 카카오뱅크, 싸피은행, KB국민카드, 삼성카드, 롯데카드, 우리카드, 신한카드, 현대카드, BC바로카드, NH농협카드, 하나카드, IBK기업은행',
                         style: AppTextStyles.bodyExtraSmall.copyWith(color: AppColors.disabled),
                       ),
                       const SizedBox(height: 30),
@@ -213,7 +226,7 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
                     : state.isAtBottom
                         ? null
                         : _scrollToBottom,
-                isDisabled: state.isAtBottom && ! state.isButtonEnabled,
+                isDisabled: state.isAtBottom && !state.isButtonEnabled,
               )
             )
           ],
@@ -289,6 +302,7 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
           ],
         ),
         TableRow(
+          decoration: BoxDecoration(color: AppColors.whiteLight),
           children: [
             _tableCell('제공 목적'),
             _tableCell('마이데이터 서비스 개인정보 및 연결요구 내역 조회'),
@@ -296,6 +310,7 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
           ],
         ),
         TableRow(
+          decoration: BoxDecoration(color: AppColors.whiteLight),
           children: [
             _tableCell('보유 및 이용 기간'),
             _tableCell('제공 목적 달성시까지'),
@@ -303,6 +318,7 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
           ],
         ),
         TableRow(
+          decoration: BoxDecoration(color: AppColors.whiteLight),
           children: [
             _tableCell('제공 항목'),
             _tableCell('본인확인정보, 서비스코드, 서비스이름, 인증제휴사정보, 클라이언트정보, 마이데이터사업자, 인터페이스정보, API정보, 전송요구동의정보'),

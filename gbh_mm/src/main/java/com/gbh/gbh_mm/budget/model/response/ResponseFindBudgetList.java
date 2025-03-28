@@ -19,7 +19,6 @@ public class ResponseFindBudgetList {
         private Long budgetAmount;
         private String startDate;
         private String endDate;
-        private String isSelected;
         private List<BudgetCategoryData> budgetCategoryList;
 
         @Data

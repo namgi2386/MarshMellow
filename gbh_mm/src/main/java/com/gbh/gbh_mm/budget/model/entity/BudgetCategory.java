@@ -22,7 +22,7 @@ public class BudgetCategory {
 
     private Long budgetExpendAmount = 0L;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "budget_pk")
     private Budget budget;
 

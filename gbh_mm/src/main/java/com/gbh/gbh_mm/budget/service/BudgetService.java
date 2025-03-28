@@ -49,7 +49,6 @@ public class BudgetService {
                             .budgetAmount(budget.getBudgetAmount())
                             .startDate(budget.getStartDate())
                             .endDate(budget.getEndDate())
-                            .isSelected(budget.getIsSelected())
                             .budgetCategoryList(categoryDataList) // 추가된 부분
                             .build();
                 })
@@ -76,7 +75,6 @@ public class BudgetService {
                 .budgetAmount(budget.getBudgetAmount())
                 .startDate(budget.getStartDate())
                 .endDate(budget.getEndDate())
-                .isSelected(budget.getIsSelected())
                 .build();
     }
 

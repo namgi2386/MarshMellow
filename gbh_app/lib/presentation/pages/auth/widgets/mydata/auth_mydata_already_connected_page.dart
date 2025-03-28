@@ -7,7 +7,7 @@ import 'package:marshmellow/presentation/pages/auth/widgets/etc/custom_complete.
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
-  이미 마이데이터 연동된 사용자 UI
+  이미 마이데이터 연동된 사용자 확인 페이지
 */
 class AuthAlreadyConnectedPage extends StatelessWidget {
   const AuthAlreadyConnectedPage({Key? key}) : super(key: key);

@@ -67,7 +67,7 @@ class BudgetPage extends ConsumerWidget {
             ElevatedButton(
               onPressed: () {
                 // 테스트 페이지로 이동
-                context.push(BudgetRoutes.getSignUpTestPath());
+                context.push(SignupRoutes.root);
               },
               child: const Text('테스트 페이지로 이동'),
             ),
@@ -76,7 +76,7 @@ class BudgetPage extends ConsumerWidget {
             ElevatedButton(
               onPressed: () {
                 // 테스트 페이지로 이동
-                context.push(SignupRoutes.getMyDataCompletePath());
+                context.push(SignupRoutes.getMyDataAgreementPath());
               },
               child: const Text('테스트 페이지로 이동'),
             ),

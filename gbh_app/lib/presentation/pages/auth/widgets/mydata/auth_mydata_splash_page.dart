@@ -13,7 +13,7 @@ import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
-  금융인증서 스플래쉬 UI
+  mm인증서 스플래쉬 UI
 */
 class AuthMydataSplashPage extends ConsumerStatefulWidget {
   const AuthMydataSplashPage({Key? key}) : super(key: key);
@@ -117,7 +117,7 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
     if (hasExistingCertificate) {
       context.showAuthMydataCertSelect('손효자');
     } else {
-      context.go(SignupRoutes.getMyDataPasswordPath()); 
+      context.go(SignupRoutes.getMyDataEmailPath()); 
     }
     // 금융인증서 생성 로직을 여기다 추가하세요! 당장!
     ScaffoldMessenger.of(context).showSnackBar(

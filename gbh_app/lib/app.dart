@@ -10,6 +10,9 @@ import 'package:marshmellow/router/app_router.dart'; // 라우터 import
 import 'package:marshmellow/di/providers/lifecycle_provider.dart';
 import 'package:marshmellow/presentation/widgets/datepicker/date_picker_overlay.dart';
 
+// Flutter 로컬라이제이션 패키지 추가
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 class App extends ConsumerStatefulWidget {
   final GoRouter router;
   final BackGestureController backGestureController;
@@ -44,6 +47,19 @@ class _AppState extends ConsumerState<App> {
           ),
           useMaterial3: true,
         ),
+        // 한국어 로케일 설정
+        locale: const Locale('ko', 'KR'),
+        // 지원하는 로케일 목록
+        supportedLocales: const [
+          Locale('ko', 'KR'), // 한국어
+          Locale('en', 'US'), // 영어 (필요한 경우)
+        ],
+        // 로컬라이제이션 대리자
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         routerConfig: widget.router,
         // 스와이프 뒤로가기 제스처 감지 추가
         builder: (context, child) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart'; 
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart';
+import 'package:marshmellow/presentation/pages/finance/widgets/finance_analytics_widget.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
@@ -145,6 +146,9 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                               .toList(),
                         ),
                         
+                        FinanceAnalyticsWidget(),
+                        const SizedBox(height: 12),
+
                         // 예금 정보
                         FinancialSectionWidget(
                           key: sectionKeys['예적금'], // 섹션 위치 추적용 키

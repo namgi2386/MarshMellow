@@ -13,7 +13,7 @@ import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/
 
 // 위젯
 import 'package:marshmellow/presentation/widgets/button/button.dart';
-import 'package:marshmellow/presentation/widgets/keyboard/calculator_keyboard.dart';
+import 'package:marshmellow/presentation/widgets/keyboard/keyboard_modal.dart';
 
 class TransactionForm extends StatefulWidget {
   const TransactionForm({super.key});
@@ -64,6 +64,19 @@ class _TransactionFormState extends State<TransactionForm> {
     return formatted;
   }
 
+  // 계산기 키보드를 표시하는 메서드
+  void _showCalculatorKeyboard() {
+    KeyboardModal.showCalculatorKeyboard(
+      context: context,
+      initialValue: _amount.replaceAll(',', ''),
+      onValueChanged: (value) {
+        setState(() {
+          _amount = value;
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -89,18 +102,7 @@ class _TransactionFormState extends State<TransactionForm> {
                         style: AppTextStyles.bodyMedium,
                       ),
                       IconButton(
-                        onPressed: () {
-                          // 금액 입력 계산기 키보드 열기
-                          // CalculatorKeyboard.show(
-                          //   context,
-                          //   initialValue: _amount,
-                          //   onValueChanged: (value) {
-                          //     setState(() {
-                          //       _amount = value;
-                          //     });
-                            // },
-                          // );
-                        },
+                        onPressed: _showCalculatorKeyboard, // 계산기 키보드 호출
                         icon: SvgPicture.asset(IconPath.pencilSimple),
                       ),
                       const SizedBox(width: 10),

@@ -9,6 +9,8 @@ class TransactionField extends StatelessWidget {
   final Widget? trailing;
   final bool? showDivider;
   final EdgeInsetsGeometry? padding;
+  final MainAxisAlignment rowAlignment; // 새로운 속성 추가
+  final double labelWidth; // 라벨 영역의 너비 설정
 
   const TransactionField({
     super.key,
@@ -18,6 +20,8 @@ class TransactionField extends StatelessWidget {
     this.trailing,
     this.showDivider = true,
     this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 17),
+    this.rowAlignment = MainAxisAlignment.spaceBetween, // 기본값으로 spaceBetween 사용
+    this.labelWidth = 100, // 기본 라벨 너비
   });
 
   @override
@@ -29,19 +33,25 @@ class TransactionField extends StatelessWidget {
           child: Padding(
             padding: padding!,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: rowAlignment,
               children: [
-                // 라벨 텍스트
-                Text(
-                  label,
-                  style: AppTextStyles.bodySmall
-                      .copyWith(color: AppColors.textSecondary),
+                // 라벨 텍스트 (고정 너비)
+                SizedBox(
+                  width: labelWidth,
+                  child: Text(
+                    label,
+                    style: AppTextStyles.bodySmall
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
                 ),
 
-                const SizedBox(width: 100),
-
-                // 오른쪽 콘텐츠
-                trailing ?? _buildDefaultTrailing(),
+                // 오른쪽 콘텐츠 (나머지 공간 사용)
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: trailing ?? _buildDefaultTrailing(),
+                  ),
+                ),
               ],
             ),
           ),
@@ -54,7 +64,7 @@ class TransactionField extends StatelessWidget {
   Widget _buildDefaultTrailing() {
     return Text(
       value ?? '',
-      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textLight),
+      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary),
     );
   }
 }

@@ -27,7 +27,7 @@ class CertificateCard extends StatelessWidget {
     this.textColor = AppColors.backgroundBlack,
     this.expiryLabelColor = AppColors.whiteLight,
     this.onTap,
-    this.shieldSvgPath,
+    this.shieldSvgPath = 'assets/icons/etc/shield.svg',
   }) : super(key: key);
 
   @override
@@ -120,7 +120,7 @@ class CertificateCard extends StatelessWidget {
 }
 
 /*
-  금융인증서 카드 ver.small
+  mm인증서 카드 ver.small
 */
 class SmallCertificateCard extends StatelessWidget {
   final String userName;
@@ -143,7 +143,7 @@ class SmallCertificateCard extends StatelessWidget {
     this.textColor = AppColors.backgroundBlack,
     this.expiryLabelColor = AppColors.whiteLight,
     this.onTap,
-    this.shieldSvgPath,
+    this.shieldSvgPath = 'assets/icons/etc/shield.svg',
   }) : super(key: key);
 
   @override

@@ -37,7 +37,9 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
       appBar: CustomAppbar(title: '가계부', actions: [
         IconButton(
           icon: SvgPicture.asset(IconPath.analysis),
-          onPressed: () {},
+          onPressed: () {
+            context.push(LedgerRoutes.getAnalysisPath());
+          },
         )
       ]),
       body: SafeArea(

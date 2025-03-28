@@ -84,13 +84,17 @@ public class HouseholdServiceImpl implements HouseholdService {
             .collect(Collectors.groupingBy(Household::getTradeDate,
                 Collectors.mapping(h -> {
                     HouseholdDetailDto householdDetailDto = HouseholdDetailDto.builder()
+                        .householdPk(h.getHouseholdPk())
                         .tradeName(h.getTradeName())
                         .tradeDate(h.getTradeDate())
                         .tradeTime(h.getTradeTime())
                         .householdAmount(h.getHouseholdAmount())
                         .paymentMethod(h.getPaymentMethod())
                         .paymentCancelYn(h.getPaymentCancelYn())
-                        .classification(h.getHouseholdClassificationCategory())
+                        .householdCategory(h.getHouseholdDetailCategory()
+                            .getHouseholdCategory()
+                            .getHouseholdCategoryName())
+                        .householdClassificationCategory(h.getHouseholdClassificationCategory())
                         .build();
 
                     return householdDetailDto;
@@ -162,19 +166,20 @@ public class HouseholdServiceImpl implements HouseholdService {
             .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 가계부입니다."));
 
         ResponseFindHousehold response = ResponseFindHousehold.builder()
-            .householdId(household.getHouseholdPk())
+            .householdPk(household.getHouseholdPk())
             .tradeName(household.getTradeName())
             .tradeDate(household.getTradeDate())
             .tradeTime(household.getTradeTime())
             .householdAmount(household.getHouseholdAmount())
             .householdMemo(household.getHouseholdMemo())
+            .paymentMethod(household.getPaymentMethod())
             .paymentCancelYn(household.getPaymentCancelYn())
             .exceptedBudgetYn(household.getExceptedBudgetYn())
             .householdCategory(household.getHouseholdDetailCategory()
                 .getHouseholdCategory().getHouseholdCategoryName())
             .householdDetailCategory
                 (household.getHouseholdDetailCategory().getHouseholdDetailCategory())
-            .householdClassification
+            .householdClassificationCategory
                 (household.getHouseholdClassificationCategory())
             .build();
 
@@ -385,7 +390,7 @@ public class HouseholdServiceImpl implements HouseholdService {
     @Override
     public ResponseCreateHouseholdList createHouseholdList(RequestCreateHouseholdList request) {
 
-        List<HouseHoldDto> householdDtoList = request.getTest();
+        List<HouseHoldDto> householdDtoList = request.getTransactionList();
         List<Household> householdList = new ArrayList<>();
         for (HouseHoldDto householdDto : householdDtoList) {
             String category = householdDto.getCategory().replaceAll("\\s+", "");;

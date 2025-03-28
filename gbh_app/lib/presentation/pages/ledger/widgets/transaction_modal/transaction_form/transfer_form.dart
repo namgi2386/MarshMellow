@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_fields.dart';
-import 'package:marshmellow/data/models/ledger/income_category.dart';
+import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
 
 class TransferForm extends ConsumerStatefulWidget {
   const TransferForm({super.key});
@@ -14,7 +14,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
   DateTime _selectedDate = DateTime.now();
   String? _merchant;
   String? _memo;
-  IncomeCategory? _selectedIncomeCategory;
+  DepositCategory? _selectedIncomeCategory;
   String? _depositAccount;
   String? _withdrawalAccount; // 출금계좌 변수 추가
 
@@ -40,7 +40,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
   }
 
   // 카테고리 업데이트 함수
-  void _updateIncomeCategory(IncomeCategory category) {
+  void _updateIncomeCategory(DepositCategory category) {
     setState(() {
       _selectedIncomeCategory = category;
     });

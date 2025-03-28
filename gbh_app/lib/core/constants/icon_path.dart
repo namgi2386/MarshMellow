@@ -105,6 +105,11 @@ class IconPath {
   //기타
   static const String incomeEtc = 'assets/icons/income/non_category.svg';
 
+  // 이체 
+  //기타
+  static const String transferEtc = 'assets/icons/transfer/non_category.svg';
+
+
   // nav
   static const String budgetBk = 'assets/icons/nav/budget_bk.svg';
   static const String budgetWh = 'assets/icons/nav/budget_wh.svg';

@@ -5,10 +5,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/data/models/ledger/transactions.dart';
-import 'package:marshmellow/data/models/ledger/transaction_category.dart';
-import 'package:marshmellow/data/models/ledger/expense_category.dart';
-import 'package:marshmellow/data/models/ledger/income_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transactions.dart';
+import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
+import 'package:marshmellow/data/models/ledger/category/withdrawal_category.dart';
+import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transfer_category.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 
 class TransactionListItem extends ConsumerWidget {
@@ -26,13 +27,17 @@ class TransactionListItem extends ConsumerWidget {
     final numberFormat = NumberFormat('#,###', 'ko_KR');
 
     String iconPath = '';
-    if (transaction.type == TransactionType.expense) {
-      final category = categoryRepository.getExpenseCategoryById(
-          transaction.categoryId as ExpenseCategoryType);
+    if (transaction.type == TransactionType.withdrawal) {
+      final category = categoryRepository.getWithdrawalCategoryByName(
+          transaction.categoryId as String);
       iconPath = category?.iconPath ?? '';
-    } else {
+    } else if (transaction.type == TransactionType.deposit) {
       final category = categoryRepository
-          .getIncomeCategoryById(transaction.categoryId as IncomeCategoryType);
+          .getDepositCategoryByName(transaction.categoryId as String);
+      iconPath = category?.iconPath ?? '';
+    } else if (transaction.type == TransactionType.transfer) {
+      final category = categoryRepository
+          .getTransferCategoryByName(transaction.categoryId as String);
       iconPath = category?.iconPath ?? '';
     }
 
@@ -132,12 +137,12 @@ class TransactionListItem extends ConsumerWidget {
 
             // 금액
             Text(
-              transaction.type == TransactionType.expense
+              transaction.type == TransactionType.withdrawal
                   ? '- ${numberFormat.format(transaction.amount)}원'
                   : '+ ${numberFormat.format(transaction.amount)}원',
               style: AppTextStyles.bodyLarge.copyWith(
                 fontSize: 16,
-                color: transaction.type == TransactionType.expense
+                color: transaction.type == TransactionType.withdrawal
                     ? AppColors.textPrimary
                     : AppColors.blueDark,
               ),

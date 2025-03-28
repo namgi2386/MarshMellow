@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/data/models/ledger/income_category.dart';
+import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
 
 class IncomeCategoryPicker extends StatelessWidget {
-  final Function(IncomeCategory) onCategorySelected;
+  final Function(DepositCategory) onCategorySelected;
   final String? title;
   final bool showCloseButton;
 
@@ -64,9 +64,9 @@ class IncomeCategoryPicker extends StatelessWidget {
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),
-              itemCount: IncomeCategory.allCategories.length,
+              itemCount: DepositCategory.allCategories.length,
               itemBuilder: (context, index) {
-                final category = IncomeCategory.allCategories[index];
+                final category = DepositCategory.allCategories[index];
                 return _CategoryTile(
                   category: category,
                   onTap: () {
@@ -85,7 +85,7 @@ class IncomeCategoryPicker extends StatelessWidget {
 
 // CategoryTile 클래스
 class _CategoryTile extends StatelessWidget {
-  final IncomeCategory category;
+  final DepositCategory category;
   final VoidCallback onTap;
 
   const _CategoryTile({
@@ -136,7 +136,7 @@ class _CategoryTile extends StatelessWidget {
 // showCategoryPickerModal 함수 - 카테고리 선택기 모달을 표시
 Future<void> showCategoryPickerModal(
   BuildContext context, {
-  required Function(IncomeCategory) onCategorySelected,
+  required Function(DepositCategory) onCategorySelected,
 }) {
   return showModalBottomSheet(
     context: context,

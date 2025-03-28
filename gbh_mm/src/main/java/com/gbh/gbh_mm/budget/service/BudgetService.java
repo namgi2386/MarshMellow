@@ -33,20 +33,31 @@ public class BudgetService {
             throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
         }
         List<ResponseFindBudgetList.BudgetData> budgetDataList = budgets.stream()
-                .map(budget -> ResponseFindBudgetList.BudgetData.builder()
-                        .budgetPk(budget.getBudgetPk())
-                        .budgetAmount(budget.getBudgetAmount())
-                        .startDate(budget.getStartDate())
-                        .endDate(budget.getEndDate())
-                        .isSelected(budget.getIsSelected())
-                        .build()
-                )
-                .collect(Collectors.toList());
+                .map(budget -> {
+                    List<BudgetCategory> budgetCategories = budgetCategoryRepository.findAllByBudget_BudgetPk(budget.getBudgetPk());
+                    List<ResponseFindBudgetList.BudgetData.BudgetCategoryData> categoryDataList = budgetCategories.stream()
+                            .map(category -> ResponseFindBudgetList.BudgetData.BudgetCategoryData.builder()
+                                    .budgetCategoryPk(category.getBudgetCategoryPk())
+                                    .budgetCategoryName(category.getBudgetCategoryName())
+                                    .budgetCategoryPrice(category.getBudgetCategoryPrice())
+                                    .budgetExpendAmount(category.getBudgetExpendAmount())
+                                    .build())
+                            .collect(Collectors.toList());
 
-        return ResponseFindBudgetList.builder()
-                .message("예산 리스트 조회")
-                .budgetList(budgetDataList)
-                .build();
+                    return ResponseFindBudgetList.BudgetData.builder()
+                            .budgetPk(budget.getBudgetPk())
+                            .budgetAmount(budget.getBudgetAmount())
+                            .startDate(budget.getStartDate())
+                            .endDate(budget.getEndDate())
+                            .isSelected(budget.getIsSelected())
+                            .budgetCategoryList(categoryDataList) // 추가된 부분
+                            .build();
+                })
+                .collect(Collectors.toList());
+                return ResponseFindBudgetList.builder()
+                        .message("예산 리스트 조회")
+                        .budgetList(budgetDataList)
+                        .build();
     }
 
     // 예산 생성

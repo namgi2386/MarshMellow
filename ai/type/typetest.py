@@ -79,3 +79,9 @@ for cluster in range(9):
 
 print(f"\n📊 전체 유형 평균 예산 데이터: {all_data}")
 
+data = {
+    "my_data": {cluster_to_type[user_cluster] : my_data},
+    "all_data": all_data
+}
+
+print(f"\n📊 응답 데이터: {data}")

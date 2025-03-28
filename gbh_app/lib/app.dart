@@ -47,14 +47,14 @@ class _AppState extends ConsumerState<App> {
           ),
           useMaterial3: true,
         ),
-        // 한국어 로케일 설정 추가
+        // 한국어 로케일 설정
         locale: const Locale('ko', 'KR'),
         // 지원하는 로케일 목록
         supportedLocales: const [
           Locale('ko', 'KR'), // 한국어
           Locale('en', 'US'), // 영어 (필요한 경우)
         ],
-        // 로컬라이제이션 대리자 추가
+        // 로컬라이제이션 대리자
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

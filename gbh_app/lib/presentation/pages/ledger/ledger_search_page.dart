@@ -8,9 +8,9 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/custom_search_bar/custom_search_bar.dart';
 import 'package:marshmellow/core/services/hive_service.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/no_recent_searches.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/recent_searches.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/searched_list.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/search/no_recent_searches.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/search/recent_searches.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/search/searched_list.dart';
 
 class LedgerSearchPage extends StatefulWidget {
   const LedgerSearchPage({super.key});

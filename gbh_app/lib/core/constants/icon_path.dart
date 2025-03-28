@@ -10,27 +10,45 @@ class IconPath {
   static const String simpleClicked = 'assets/icons/app_bar/simple_clicked.svg';
 
   // bank
-  static const String koreaBank = 'assets/icons/bank/001_korea.svg'; // 한국은행 (Korea Bank)
-  static const String kdbBank = 'assets/icons/bank/002_kdb.svg'; // 산업은행 (KDB Bank)
-  static const String ibkBank = 'assets/icons/bank/003_ibk.svg'; // 기업은행 (IBK Bank)
+  static const String koreaBank =
+      'assets/icons/bank/001_korea.svg'; // 한국은행 (Korea Bank)
+  static const String kdbBank =
+      'assets/icons/bank/002_kdb.svg'; // 산업은행 (KDB Bank)
+  static const String ibkBank =
+      'assets/icons/bank/003_ibk.svg'; // 기업은행 (IBK Bank)
   static const String kbBank = 'assets/icons/bank/004_kb.svg'; // 국민은행 (KB Bank)
   static const String nhBank = 'assets/icons/bank/011_nh.svg'; // 농협은행 (NH Bank)
-  static const String wooriBank = 'assets/icons/bank/020_woori.svg'; // 우리은행 (Woori Bank)
-  static const String scBank = 'assets/icons/bank/023_sc.svg'; // SC은행 (Standard Chartered Bank)
-  static const String citiBank = 'assets/icons/bank/027_citi.svg'; // 씨티은행 (Citi Bank)
-  static const String dgBank = 'assets/icons/bank/032_daegu.svg'; // 대구은행 (Daegu Bank)
-  static const String gjBank = 'assets/icons/bank/034_gwangju.svg'; // 광주은행 (Gwangju Bank)
-  static const String jejuBank = 'assets/icons/bank/035_jeju.svg'; // 제주은행 (Jeju Bank)
-  static const String jbBank = 'assets/icons/bank/037_junbuk.svg'; // 전북은행 (Jeonbuk Bank)
-  static const String gnBank = 'assets/icons/bank/039_gyeongnam.svg'; // 경남은행 (Gyeongnam Bank)
-  static const String mgBank = 'assets/icons/bank/045_mg.svg'; // MG새마을금고 (MG Community Credit Cooperatives)
-  static const String hanaBank = 'assets/icons/bank/081_hana.svg';  // 하나은행 (Hana Bank)
-  static const String shinhanBank = 'assets/icons/bank/088_shinhan.svg';  // 신한은행 (Shinhan Bank)
-  static const String kakaoBank = 'assets/icons/bank/090_kakao.svg'; // 카카오뱅크 (Kakao Bank)
-  static const String ssafyBank = 'assets/icons/bank/999_ssafy.svg'; // 싸피뱅크 (SSAFY Bank)
+  static const String wooriBank =
+      'assets/icons/bank/020_woori.svg'; // 우리은행 (Woori Bank)
+  static const String scBank =
+      'assets/icons/bank/023_sc.svg'; // SC은행 (Standard Chartered Bank)
+  static const String citiBank =
+      'assets/icons/bank/027_citi.svg'; // 씨티은행 (Citi Bank)
+  static const String dgBank =
+      'assets/icons/bank/032_daegu.svg'; // 대구은행 (Daegu Bank)
+  static const String gjBank =
+      'assets/icons/bank/034_gwangju.svg'; // 광주은행 (Gwangju Bank)
+  static const String jejuBank =
+      'assets/icons/bank/035_jeju.svg'; // 제주은행 (Jeju Bank)
+  static const String jbBank =
+      'assets/icons/bank/037_junbuk.svg'; // 전북은행 (Jeonbuk Bank)
+  static const String gnBank =
+      'assets/icons/bank/039_gyeongnam.svg'; // 경남은행 (Gyeongnam Bank)
+  static const String mgBank =
+      'assets/icons/bank/045_mg.svg'; // MG새마을금고 (MG Community Credit Cooperatives)
+  static const String hanaBank =
+      'assets/icons/bank/081_hana.svg'; // 하나은행 (Hana Bank)
+  static const String shinhanBank =
+      'assets/icons/bank/088_shinhan.svg'; // 신한은행 (Shinhan Bank)
+  static const String kakaoBank =
+      'assets/icons/bank/090_kakao.svg'; // 카카오뱅크 (Kakao Bank)
+  static const String ssafyBank =
+      'assets/icons/bank/999_ssafy.svg'; // 싸피뱅크 (SSAFY Bank)
 
-  static const String koreaBank2 = 'assets/icons/bank/001_korea_2.png'; // 한국은행 (Korea Bank)
-  static const String ssafyBank2 = 'assets/icons/bank/999_ssafy_2.png'; // 싸피뱅크 (SSAFY Bank)
+  static const String koreaBank2 =
+      'assets/icons/bank/001_korea_2.png'; // 한국은행 (Korea Bank)
+  static const String ssafyBank2 =
+      'assets/icons/bank/999_ssafy_2.png'; // 싸피뱅크 (SSAFY Bank)
 
   // expense
   static const String expenseAlcohol =
@@ -104,8 +122,7 @@ class IconPath {
       'assets/icons/search_bar/search_button.svg';
   static const String searchButtonPng =
       'assets/icons/search_bar/search_button.png';
-  static const String exitgray =
-      'assets/icons/search_bar/exitgray.svg';
+  static const String exitgray = 'assets/icons/search_bar/exitgray.svg';
 
   //body
   static const String caretLeft = 'assets/icons/body/CaretLeft.svg';
@@ -113,8 +130,8 @@ class IconPath {
   static const String plus = 'assets/icons/body/plus.svg';
   static const String searchOutlined = 'assets/icons/body/search_outlined.svg';
   static const String caretDown = 'assets/icons/body/CaretDown.svg';
+  static const String pencilSimple = 'assets/icons/body/PencilSimple.svg';
 
   // 카드 이미지
   static const String testCard = 'assets/icons/card/testCard.svg';
-
 }

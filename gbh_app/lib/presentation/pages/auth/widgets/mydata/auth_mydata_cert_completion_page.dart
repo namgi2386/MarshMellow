@@ -7,7 +7,7 @@ import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
-  금융인증서 생성 성공 UI
+  mm인증서 생성 성공 UI
 */
 class AuthMydataCertCompletePage extends ConsumerWidget {
   const AuthMydataCertCompletePage({Key? key}) : super(key: key);
@@ -15,40 +15,72 @@ class AuthMydataCertCompletePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 80),
-              // 인증서 카드
-              const CertificateCard(
-                userName: '손효자', 
-                expiryDate: '2028. 03. 14.',
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                '손호자 님의 MM 인증서',
-                style: AppTextStyles.bodyMedium,
-              ),
-              const Text(
-                '발급 완료!',
-                style: AppTextStyles.bodyMedium,
-              ),
-              const Spacer(),
-              Button(
-                text: '다음',
-                width: screenWidth * 0.9,
-                height: 60,
-                onPressed: () {
-                  context.go(SignupRoutes.getMyDataSplashPath());
-                },
-              )
-            ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        // 상단 여백 - 화면 크기에 비례하게 조정
+                        SizedBox(height: screenHeight * 0.15),
+                        
+                        //인증서 카드
+                        const CertificateCard(
+                          userName: '손효자', 
+                          expiryDate: '2028. 03. 14.',
+                          shieldSvgPath: 'assets/icons/etc/shield.svg',
+                        ),
+                        
+                        // 중간 여백 - 화면 크기에 비례하게 조정
+                        SizedBox(height: screenHeight * 0.05),
+                        
+                        // 텍스트 섹션
+                        const Text(
+                          '손효자 님의 MM 인증서',
+                          style: AppTextStyles.bodyLarge,
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          '발급 완료!',
+                          style: AppTextStyles.bodyLarge,
+                        ),
+                        
+                        // 남은 공간을 차지하는 Spacer
+                        const Spacer(),
+                        
+                        // 하단 여백 추가
+                        const SizedBox(height: 16),
+                        
+                        // 버튼
+                        Button(
+                          text: '다음',
+                          width: screenWidth * 0.9,
+                          height: 56, // 약간 줄임
+                          onPressed: () {
+                            context.go(SignupRoutes.getMyDataSplashPath());
+                          },
+                        ),
+                        
+                        // 버튼 아래 여백
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-        )
+        ),
       ),
     );
   }

@@ -7,7 +7,9 @@ import com.gbh.gbh_mm.asset.model.dto.DemandDepositListDto;
 import com.gbh.gbh_mm.asset.model.dto.DepositListDto;
 import com.gbh.gbh_mm.asset.model.dto.LoanListDto;
 import com.gbh.gbh_mm.asset.model.dto.SavingsListDto;
+import com.gbh.gbh_mm.asset.model.dto.WithdrawalAccountDto;
 import com.gbh.gbh_mm.asset.model.entity.*;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestWithdrawalAccountTransfer;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestDeleteWithdrawalAccount;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindWithdrawalAccountList;
@@ -17,6 +19,8 @@ import com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth;
 import com.gbh.gbh_mm.finance.auth.vo.request.RequestCreateAccountAuth;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindBilling;
 
+import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestAccountTransfer;
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -26,7 +30,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
-import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestAccountTransfer;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
 import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
@@ -36,6 +39,7 @@ import com.gbh.gbh_mm.user.repo.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 
@@ -374,11 +378,12 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public ResponseFindWithdrawalAccountList findWithdrawalAccountList(RequestFindWithdrawalAccountList request) {
-        List<WithdrawalAccount> withdrawalAccountList =
-                withdrawalAccountRepository.findByUser_UserPk(request.getUserPk());
+        List<WithdrawalAccount> withdrawalAccountList = withdrawalAccountRepository.findByUser_UserPk(request.getUserPk());
+        Type listType = new TypeToken<List<WithdrawalAccountDto>>() {}.getType();
+        List<WithdrawalAccountDto> withdrawalAccountDtos = mapper.map(withdrawalAccountList, listType);
 
         ResponseFindWithdrawalAccountList response = ResponseFindWithdrawalAccountList.builder()
-                .withdrawalAccountList(withdrawalAccountList)
+                .withdrawalAccountList(withdrawalAccountDtos)
                 .build();
 
         return response;
@@ -407,9 +412,24 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseAccountTransfer accountTransger(RequestAccountTransfer request) {
+    public ResponseAccountTransfer accountTransger(RequestWithdrawalAccountTransfer request) {
         try {
-            demandDepositAPI.accountTransfer(request);
+            WithdrawalAccount withdrawalAccount = withdrawalAccountRepository
+                .findById(request.getWithdrawalAccountId())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 출금계죄"));
+
+            String userKey = withdrawalAccount.getUser().getUserKey();
+
+            RequestAccountTransfer apiRequest = new RequestAccountTransfer();
+            apiRequest.setUserKey(userKey);
+            apiRequest.setDepositAccountNo(request.getDepositAccountNo());
+            apiRequest.setDepositTransactionSummary
+                ("MarshMellow 입금 " + withdrawalAccount.getUser().getUserName());
+            apiRequest.setWithdrawalAccountNo(withdrawalAccount.getAccountNo());
+            apiRequest.setWithdrawalTransactionSummary(request.getTransactionSummary());
+            apiRequest.setTransactionBalance(request.getTransactionBalance());
+
+            demandDepositAPI.accountTransfer(apiRequest);
 
             ResponseAccountTransfer response = ResponseAccountTransfer.builder()
                     .message("이체 성공")

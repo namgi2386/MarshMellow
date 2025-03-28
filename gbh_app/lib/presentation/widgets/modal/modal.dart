@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 
-class Modal extends StatelessWidget {
+// 상태관리
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/di/providers/modal_provider.dart';
+
+/// 모달 위젯
+class Modal extends ConsumerWidget {
   final Color backgroundColor;
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -23,7 +28,7 @@ class Modal extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final effectiveMaxHeight = maxHeight ?? screenHeight * 0.8;
@@ -58,7 +63,7 @@ class Modal extends StatelessWidget {
           // 제목이 있는 경우에만 표시
           if (title != null) ...[
             Padding(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 top: 12,
                 left: 25,
               ),
@@ -80,7 +85,7 @@ class Modal extends StatelessWidget {
                 color: AppColors.textSecondary.withOpacity(0.3),
               ),
 
-            SizedBox(height: 8), // 제목과 내용 사이 간격
+            const SizedBox(height: 8), // 제목과 내용 사이 간격
           ],
 
           // 기존 내용
@@ -118,4 +123,41 @@ extension EdgeInsetsGeometryExtension on EdgeInsetsGeometry {
     }
     return 40.0; // 기본값
   }
+}
+
+/// 범용 모달을 표시하는 함수
+void showCustomModal({
+  required BuildContext context,
+  required WidgetRef ref,
+  required Widget child,
+  String? title,
+  TextStyle? titleStyle,
+  Color backgroundColor = Colors.white,
+  EdgeInsetsGeometry? padding,
+  double? maxHeight,
+  bool showDivider = true,
+}) {
+  // 모달 상태 변경
+  ref.read(modalProvider.notifier).showModal();
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (BuildContext context) {
+      return Modal(
+        backgroundColor: backgroundColor,
+        padding:
+            padding ?? const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        maxHeight: maxHeight,
+        title: title,
+        titleStyle: titleStyle,
+        showDivider: showDivider,
+        child: child,
+      );
+    },
+  ).then((_) {
+    // 모달이 닫힐 때 상태 업데이트
+    ref.read(modalProvider.notifier).hideModal();
+  });
 }

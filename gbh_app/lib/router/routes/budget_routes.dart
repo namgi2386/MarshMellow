@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/pages/budget/budget_page.dart';
-import 'package:marshmellow/presentation/pages/auth/signup_page.dart';
 
+/*
+  예산 routes
+*/
 class BudgetRoutes {
   static const String root = '/budget';
   static const String signuptest = 'signuptest';
@@ -18,11 +20,7 @@ List<RouteBase> budgetRoutes = [
     path: BudgetRoutes.root,
     builder: (context, state) => const BudgetPage(),
     routes: [
-      // 회원가입 테스트 라우트 임시 추가
-      GoRoute(
-        path: BudgetRoutes.signuptest,
-        builder: (context, state) => const SignupPage(),
-      )
+
     ],
   ),
 ];

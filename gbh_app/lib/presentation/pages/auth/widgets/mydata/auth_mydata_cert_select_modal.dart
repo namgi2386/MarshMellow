@@ -11,7 +11,7 @@ import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
-  금융인증서 선택 모달 UI
+  mm인증서 선택 모달 UI
 */
 class AuthMydataCertSelectModal extends ConsumerWidget {
   final String userName;

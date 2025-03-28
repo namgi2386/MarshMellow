@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/di/providers/auth/mydata_pw_provider.dart';
+import 'package:marshmellow/di/providers/auth/mydata_provider.dart';
 import 'package:marshmellow/presentation/widgets/dots_input/dots_input.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
-  금융인증서 비밀번호 설정 시작 UI
+  mm인증서 비밀번호 설정 시작 UI
 */
 class AuthMydataCertPwPage extends ConsumerWidget {
   const AuthMydataCertPwPage({Key? key}) : super(key: key);
@@ -73,7 +73,6 @@ class AuthMydataCertPwPage extends ConsumerWidget {
             const SizedBox(height: 50),
             PinDotsRow(
               currentDigit: passwordState.currentDigit,
-              totalDigits: 6,
               onTap: showKeyboard,
             ),
             const Spacer(),

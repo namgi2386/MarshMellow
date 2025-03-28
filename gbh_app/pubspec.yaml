@@ -1,8 +1,8 @@
 name: marshmellow
-description: "A new Flutter project."
+description: 'A new Flutter project.'
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -64,7 +64,7 @@ dependencies:
   flutter_dotenv: ^5.2.1 # .env 파일로 환경변수 관리
 
   # 유틸리티
-  intl: ^0.18.1 # 국제화 및 날짜/통화 포맷팅
+  intl: ^0.19.0 # 국제화 및 날짜/통화 포맷팅
   logger: ^2.5.0 # 로깅 기능 제공
   get_it: ^8.0.3 # 서비스 로케이터, 의존성 주입
 
@@ -101,8 +101,15 @@ dependencies:
   # hive
   path_provider: ^2.1.1
 
+  # 그래프
+  syncfusion_flutter_charts: ^28.2.11
+  fl_chart: ^0.65.0
+  graphic: ^2.5.1
+
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -142,6 +149,7 @@ flutter:
     - assets/icons/app_bar/
     - assets/icons/body/
     - assets/icons/card/
+    - assets/icons/etc/
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

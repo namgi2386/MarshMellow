@@ -26,4 +26,8 @@ public class HouseholdDetailCategory {
     @JoinColumn(name = "ai_category_pk")
     private AiCategory aiCategory;
 
+    @ManyToOne
+    @JoinColumn(name = "household_category_pk")
+    private HouseholdCategory householdCategory;
+
 }

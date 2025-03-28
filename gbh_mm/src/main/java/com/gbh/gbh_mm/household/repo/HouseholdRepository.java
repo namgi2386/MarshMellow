@@ -10,4 +10,6 @@ public interface HouseholdRepository extends JpaRepository<Household, Long> {
 
     List<Household> findAllByTradeDateBetweenAndUser_UserPkOrderByTradeDateAsc
         (String startDate, String endDate, long userPk);
+
+    List<Household> findTop2ByUser_UserPkOrderByTradeDateDesc(long userPk);
 }

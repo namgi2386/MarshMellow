@@ -145,6 +145,7 @@ flutter:
     - assets/icons/bank/
     - assets/icons/expense/
     - assets/icons/income/
+    - assets/icons/transfer/
     - assets/icons/search_bar/
     - assets/icons/app_bar/
     - assets/icons/body/

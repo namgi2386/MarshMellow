@@ -44,7 +44,7 @@ class TypeSelector extends StatelessWidget {
         case '지출':
           return AppColors.pinkPrimary;
         case '이체':
-          return AppColors.greenPrimary;
+          return AppColors.yellowPrimary;
         default:
           return Colors.transparent;
       }

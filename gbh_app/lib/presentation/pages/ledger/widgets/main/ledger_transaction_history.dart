@@ -27,8 +27,18 @@ class _LedgerTransactionHistoryState
     return transactionsAsync.when(
       data: (transactions) {
         if (transactions.isEmpty) {
-          return const Center(
-            child: Text('기록이 없습니다.'),
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('기록이 없습니다.'),
+                Image.asset(
+                  'assets/images/characters/char_melong.png',
+                  width: 150,
+                  height: 150,
+                ),
+              ],
+            ),
           );
         }
 
@@ -122,7 +132,11 @@ class _LedgerTransactionHistoryState
           },
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.textPrimary,
+        ),
+      ),
       error: (error, stack) => Center(
         child: Text('오류가 발생했습니다: $error'),
       ),

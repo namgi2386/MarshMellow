@@ -6,6 +6,7 @@ import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
+import 'package:marshmellow/di/providers/date_picker_provider.dart'; // 이 import 추가
 
 // 캘린더 기간 프로바이더 - 월급일 기준
 final calendarPeriodProvider =
@@ -58,10 +59,35 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
   final _numberFormat = NumberFormat('#,###', 'ko_KR');
   final _dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
+  // DatePicker와 Calendar 동기화 여부를 추적하는 변수
+  DateTime? _lastSyncDatePickerUpdate;
+
   @override
   void initState() {
     super.initState();
     _selectedDay = DateTime.now();
+
+    // 초기 로드 시 날짜 동기화를 위해 추가
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncCalendarWithDatePicker();
+    });
+  }
+
+  // DatePicker의 날짜와 Calendar의 날짜를 동기화하는 메서드
+  void _syncCalendarWithDatePicker() {
+    final datePickerState = ref.read(datePickerProvider);
+    if (datePickerState.selectedRange != null &&
+        datePickerState.selectedRange!.startDate != null) {
+      final startDate = datePickerState.selectedRange!.startDate!;
+      final endDate = datePickerState.selectedRange!.endDate ?? startDate;
+
+      // 현재 설정된 캘린더 기간과 다른 경우에만 업데이트
+      final currentPeriod = ref.read(calendarPeriodProvider);
+      if (currentPeriod.$1 != startDate || currentPeriod.$2 != endDate) {
+        ref.read(calendarPeriodProvider.notifier).state = (startDate, endDate);
+        _lastSyncDatePickerUpdate = DateTime.now(); // 업데이트 시간 기록
+      }
+    }
   }
 
   // 특정 날짜의 거래 합계 계산
@@ -74,10 +100,11 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
       if (transaction.dateTime.year == date.year &&
           transaction.dateTime.month == date.month &&
           transaction.dateTime.day == date.day) {
-        if (transaction.type == TransactionType.deposit) {
-          income += transaction.amount;
-        } else {
-          expense += transaction.amount;
+        if (transaction.classification == TransactionClassification.DEPOSIT) {
+          income += transaction.householdAmount.toDouble();
+        } else if (transaction.classification ==
+            TransactionClassification.WITHDRAWAL) {
+          expense += transaction.householdAmount.toDouble();
         }
       }
     }
@@ -88,64 +115,18 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
     };
   }
 
-  // 이전 기간으로 이동
-  void _moveToPreviousPeriod() {
-    final currentPeriod = ref.read(calendarPeriodProvider);
-    final startDay = currentPeriod.$1;
-
-    // 새 시작일 계산
-    DateTime newStartDay;
-    if (startDay.month == 1) {
-      newStartDay = DateTime(startDay.year - 1, 12, startDay.day);
-    } else {
-      newStartDay = DateTime(startDay.year, startDay.month - 1, startDay.day);
-    }
-
-    // 새 종료일 계산
-    DateTime newEndDay;
-    if (newStartDay.month == 12) {
-      newEndDay = DateTime(newStartDay.year + 1, 1, newStartDay.day)
-          .subtract(const Duration(days: 1));
-    } else {
-      newEndDay =
-          DateTime(newStartDay.year, newStartDay.month + 1, newStartDay.day)
-              .subtract(const Duration(days: 1));
-    }
-
-    // 상태 업데이트
-    ref.read(calendarPeriodProvider.notifier).state = (newStartDay, newEndDay);
-  }
-
-  // 다음 기간으로 이동
-  void _moveToNextPeriod() {
-    final currentPeriod = ref.read(calendarPeriodProvider);
-    final startDay = currentPeriod.$1;
-
-    // 새 시작일 계산
-    DateTime newStartDay;
-    if (startDay.month == 12) {
-      newStartDay = DateTime(startDay.year + 1, 1, startDay.day);
-    } else {
-      newStartDay = DateTime(startDay.year, startDay.month + 1, startDay.day);
-    }
-
-    // 새 종료일 계산
-    DateTime newEndDay;
-    if (newStartDay.month == 12) {
-      newEndDay = DateTime(newStartDay.year + 1, 1, newStartDay.day)
-          .subtract(const Duration(days: 1));
-    } else {
-      newEndDay =
-          DateTime(newStartDay.year, newStartDay.month + 1, newStartDay.day)
-              .subtract(const Duration(days: 1));
-    }
-
-    // 상태 업데이트
-    ref.read(calendarPeriodProvider.notifier).state = (newStartDay, newEndDay);
-  }
-
   @override
   Widget build(BuildContext context) {
+    // DatePicker의 변경을 감지
+    final datePickerState = ref.watch(datePickerProvider);
+
+    // DatePicker가 변경될 때 캘린더 기간도 업데이트
+    if (datePickerState.selectedRange != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _syncCalendarWithDatePicker();
+      });
+    }
+
     // 현재 기간 조회
     final periodState = ref.watch(calendarPeriodProvider);
     final startDay = periodState.$1;
@@ -297,7 +278,7 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
                             Text(
                               '- ${_numberFormat.format(summary['expense'])}',
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
+                                color: AppColors.textPrimary,
                                 fontSize: 8,
                               ),
                               overflow: TextOverflow.ellipsis,

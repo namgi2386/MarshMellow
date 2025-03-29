@@ -9,6 +9,7 @@ enum TransferCategoryType {
   investment,
   loan,
   insurance,
+  etc,
 }
 
 class TransferCategory {
@@ -61,6 +62,11 @@ class TransferCategory {
     TransferCategory(
       type: TransferCategoryType.insurance,
       name: '보험',
+      iconPath: IconPath.transferEtc,
+    ),
+    TransferCategory(
+      type: TransferCategoryType.etc,
+      name: '기타',
       iconPath: IconPath.transferEtc,
     ),
   ];

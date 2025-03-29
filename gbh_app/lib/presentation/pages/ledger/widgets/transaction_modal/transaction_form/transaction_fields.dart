@@ -5,12 +5,15 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/withdrawal_category.dart';
 import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transfer_category.dart';
 
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_field.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/editable_memo_filed.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/picker/date_time_wheel_picker.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/picker/expense_category_picker.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/picker/income_category_picker.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/picker/transfer_category_picker.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/picker/transfer_direction_picker.dart';
 
 // 지출 카테고리 선택 모달 함수
 Future<void> showExpenseCategoryPickerModal(
@@ -71,7 +74,6 @@ class TransactionFields {
         ),
       ),
       onTap: () {
-        // 기존 showDateTimePickerModal 대신 새로운 함수 사용
         showDateTimePickerBottomSheet(
           context: context,
           ref: ref,
@@ -117,6 +119,30 @@ class TransactionFields {
           context,
           onCategorySelected: onCategorySelected,
         );
+      },
+    );
+  }
+
+  // 이체 카테고리 필드
+  static TransactionField transferCategoryField({
+    required BuildContext context,
+    String? selectedCategory,
+    required Function(TransferCategory) onCategorySelected,
+    required TransferDirection direction,
+  }) {
+    return TransactionField(
+      label: '카테고리',
+      value: selectedCategory,
+      onTap: () async {
+        final selectedCategory = await showTransferCategoryPickerModal(
+          context,
+          direction: direction,
+        );
+
+        // 선택된 카테고리가 있으면 콜백 호출
+        if (selectedCategory != null) {
+          onCategorySelected(selectedCategory);
+        }
       },
     );
   }
@@ -187,7 +213,7 @@ class TransactionFields {
     VoidCallback? onTap,
   }) {
     return TransactionField(
-      label: '출금계좌',
+      label: '계좌',
       value: account,
       onTap: onTap,
     );

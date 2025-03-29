@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/data/models/ledger/expense_category.dart';
+import 'package:marshmellow/data/models/ledger/category/withdrawal_category.dart';
 
 
 class ExpenseCategoryPicker extends StatelessWidget {
-  final Function(ExpenseCategory) onCategorySelected;
+  final Function(WithdrawalCategory) onCategorySelected;
   final String? title;
   final bool showCloseButton;
 
@@ -65,9 +65,9 @@ class ExpenseCategoryPicker extends StatelessWidget {
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),
-              itemCount: ExpenseCategory.allCategories.length,
+              itemCount: WithdrawalCategory.allCategories.length,
               itemBuilder: (context, index) {
-                final category = ExpenseCategory.allCategories[index];
+                final category = WithdrawalCategory.allCategories[index];
                 return _CategoryTile(
                   category: category,
                   onTap: () {
@@ -86,7 +86,7 @@ class ExpenseCategoryPicker extends StatelessWidget {
 
 // CategoryTile 클래스
 class _CategoryTile extends StatelessWidget {
-  final ExpenseCategory category;
+  final WithdrawalCategory category;
   final VoidCallback onTap;
 
   const _CategoryTile({
@@ -141,7 +141,7 @@ class _CategoryTile extends StatelessWidget {
 // showCategoryPickerModal 함수 - 카테고리 선택기 모달을 표시
 Future<void> showCategoryPickerModal(
   BuildContext context, {
-  required Function(ExpenseCategory) onCategorySelected,
+  required Function(WithdrawalCategory) onCategorySelected,
 }) {
   return showModalBottomSheet(
     context: context,

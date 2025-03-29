@@ -1,5 +1,4 @@
-// data/models/finance/transaction.dart
-import 'package:marshmellow/data/models/ledger/transaction_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 
 class Transaction {
   final String id;
@@ -7,7 +6,7 @@ class Transaction {
   final String title;
   final String? description;
   final double amount;
-  final TransactionType type; // 수입 또는 지출
+  final TransactionType type; // 수입 또는 지출 또는 이체
   final dynamic categoryId; // 카테고리 ID (ExpenseCategoryType 또는 IncomeCategoryType)
   final String? paymentMethod; // 결제 수단 (현금, 신용카드 등)
   final String? accountName; // 계좌 또는 카드명

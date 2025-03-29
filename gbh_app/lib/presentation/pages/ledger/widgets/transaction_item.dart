@@ -7,9 +7,6 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
-import 'package:marshmellow/data/models/ledger/category/withdrawal_category.dart';
-import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
-import 'package:marshmellow/data/models/ledger/category/transfer_category.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 
 class TransactionListItem extends ConsumerWidget {
@@ -23,21 +20,21 @@ class TransactionListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categoryRepository = ref.watch(transactionCategoryRepositoryProvider);
+    final categoryRepository = ref.watch(ledgerRepositoryProvider);
     final numberFormat = NumberFormat('#,###', 'ko_KR');
 
     String iconPath = '';
     if (transaction.type == TransactionType.withdrawal) {
-      final category = categoryRepository.getWithdrawalCategoryByName(
-          transaction.categoryId as String);
+      final category = categoryRepository
+          .getWithdrawalCategoryByName(transaction.categoryId);
       iconPath = category?.iconPath ?? '';
     } else if (transaction.type == TransactionType.deposit) {
-      final category = categoryRepository
-          .getDepositCategoryByName(transaction.categoryId as String);
+      final category =
+          categoryRepository.getDepositCategoryByName(transaction.categoryId);
       iconPath = category?.iconPath ?? '';
     } else if (transaction.type == TransactionType.transfer) {
-      final category = categoryRepository
-          .getTransferCategoryByName(transaction.categoryId as String);
+      final category =
+          categoryRepository.getTransferCategoryByName(transaction.categoryId);
       iconPath = category?.iconPath ?? '';
     }
 
@@ -125,7 +122,7 @@ class TransactionListItem extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${transaction.accountName ?? ''} | ${transaction.paymentMethod ?? ''}',
+                    '${transaction.householdCategory ?? ''} | ${transaction.paymentMethod ?? ''}',
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w300,

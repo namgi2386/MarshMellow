@@ -71,9 +71,9 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
     double expense = 0;
 
     for (var transaction in transactions) {
-      if (transaction.date.year == date.year &&
-          transaction.date.month == date.month &&
-          transaction.date.day == date.day) {
+      if (transaction.dateTime.year == date.year &&
+          transaction.dateTime.month == date.month &&
+          transaction.dateTime.day == date.day) {
         if (transaction.type == TransactionType.deposit) {
           income += transaction.amount;
         } else {

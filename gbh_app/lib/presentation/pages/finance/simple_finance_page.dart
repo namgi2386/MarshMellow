@@ -28,13 +28,22 @@ class _SimpleFinancePageState extends ConsumerState<SimpleFinancePage> {
   bool _showAnalyticsWidget = true;
 
   @override
-  Widget build(BuildContext context) {
-    // 뷰모델에서 데이터 가져오기
-    final assetData = ref.watch(assetDataProvider);
-
-    // AsyncValue 상태에 따라 LoadingManager 처리
+  void initState() {
+    super.initState();
+    // 위젯 초기화 후 데이터 로드 요청
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (assetData is AsyncLoading) {
+      ref.read(financeViewModelProvider.notifier).fetchAssetInfo();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // StateNotifierProvider로 상태 가져오기
+    final financeState = ref.watch(financeViewModelProvider);
+
+    // 로딩 상태에 따라 LoadingManager 처리
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (financeState.isLoading) {
         LoadingManager.show(context, text: '자산 정보를 불러오는 중...');
       } else {
         LoadingManager.hide();
@@ -45,6 +54,7 @@ class _SimpleFinancePageState extends ConsumerState<SimpleFinancePage> {
       backgroundColor: AppColors.background,
       appBar: CustomAppbar(
         title: 'my little 자산',
+        backgroundColor: AppColors.background,
         actions: [
           if (AppConfig.isDevelopment())
             IconButton(
@@ -63,62 +73,69 @@ class _SimpleFinancePageState extends ConsumerState<SimpleFinancePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: assetData.when(
-                data: (data) {
-                  // 성공적으로 데이터를 받았을 때
-                  final financeViewModel = ref.read(financeViewModelProvider);
-                  final totalAssets = financeViewModel.calculateTotalAssets(data.data);
-                  
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 총 자산 정보
-                        TotalAssetsWidget(totalAssets: totalAssets),
-                        
-                        const SizedBox(height: 24),
-                        
-                        // 새로운 슬라이딩 자산 위젯 사용
-                        SlidingAssetsWidget(data: data),
-
-                        const SizedBox(height: 24),
-
-                        if (_showAnalyticsWidget)
-                          FinanceAnalyticsWidget(
-                            onClose: () {
-                              setState(() {
-                                _showAnalyticsWidget = false;
-                              });
-                            },
-                          ),
-                      ],
-                    ),
-                  );
-                },
-                loading: () {
-                  // 로딩 중일 때는 빈 컨테이너 반환 (LoadingManager가 오버레이로 표시됨)
-                  return Container();
-                },
-                error: (error, stackTrace) {
-                  // 에러 발생 시
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                      const SizedBox(height: 10),
-                      Text('에러 발생: $error'),
-                      ElevatedButton(
-                        onPressed: () => ref.refresh(assetDataProvider),
-                        child: const Text('다시 시도'),
-                      ),
-                    ],
-                  );
-                },
-              ),
+              child: _buildContent(financeState),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildContent(FinanceState state) {
+    // 로딩 중
+    if (state.isLoading && state.assetData == null) {
+      return Container(); // LoadingManager가 오버레이로 표시됨
+    }
+    
+    // 에러 발생
+    if (state.error != null && state.assetData == null) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 48, color: Colors.red),
+          const SizedBox(height: 10),
+          Text('에러 발생: ${state.error}'),
+          ElevatedButton(
+            onPressed: () => ref.read(financeViewModelProvider.notifier).refreshAssetInfo(),
+            child: const Text('다시 시도'),
+          ),
+        ],
+      );
+    }
+    
+    // 데이터 없음
+    if (state.assetData == null) {
+      return const Center(child: Text('자산 데이터가 없습니다'));
+    }
+    
+    // 성공적으로 데이터를 받았을 때
+    final viewModel = ref.read(financeViewModelProvider.notifier);
+    final totalAssets = viewModel.calculateTotalAssets();
+    
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 총 자산 정보
+          TotalAssetsWidget(totalAssets: totalAssets),
+          
+          const SizedBox(height: 24),
+          
+          // 새로운 슬라이딩 자산 위젯 사용
+          SlidingAssetsWidget(data: state.assetData!),
+
+          const SizedBox(height: 24),
+
+          if (_showAnalyticsWidget)
+            FinanceAnalyticsWidget(
+              onClose: () {
+                setState(() {
+                  _showAnalyticsWidget = false;
+                });
+              },
+            ),
+        ],
       ),
     );
   }

@@ -29,7 +29,7 @@ class _FinanceResultDetailState extends State<FinanceResultDetail> {
   @override
   Widget build(BuildContext context) {
     // 스크린샷 컨트롤러 생성
-    final screenshotController = ScreenshotController();
+    // final screenshotController = ScreenshotController();
     
     return Column(
       children: [

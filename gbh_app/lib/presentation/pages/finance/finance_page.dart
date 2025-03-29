@@ -36,6 +36,9 @@ class _FinancePageState extends ConsumerState<FinancePage> {
   // 각 섹션의 위치를 참조하기 위한 GlobalKey 맵
   late Map<String, GlobalKey> sectionKeys;
 
+  // 자산 유형분석 위젯 on off
+  bool _showAnalyticsWidget = true;
+
   @override
   void initState() {
     super.initState();
@@ -146,7 +149,15 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                               .toList(),
                         ),
                         
-                        FinanceAnalyticsWidget(),
+                        // 자산 유형 
+                        if (_showAnalyticsWidget)
+                          FinanceAnalyticsWidget(
+                            onClose: () {
+                              setState(() {
+                                _showAnalyticsWidget = false;
+                              });
+                            },
+                          ),
                         const SizedBox(height: 12),
 
                         // 예금 정보

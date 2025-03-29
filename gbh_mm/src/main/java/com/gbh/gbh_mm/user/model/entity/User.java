@@ -50,6 +50,12 @@ public class User {
     @Column(name = "budget_alarm_time")
     private LocalDateTime budgetAlarmTime;
 
+    @Column(name = "salary_date")
+    private int salaryDate;
+
+    @Column(name = "fcm_token")
+    private String fcmToken;
+
     @Column(name = "created_at")
     private LocalDate createdAt;
 

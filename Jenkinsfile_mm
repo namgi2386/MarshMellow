@@ -25,6 +25,14 @@ pipeline {
                 }
             }
         }
+        stage('Prepare Firebase Config') {
+            steps {
+                withCredentials([file(credentialsId: 'firebase_config_file', variable: 'FIREBASE_CONFIG_FILE')]) {
+                    sh 'chmod -R 777 gbh_mm/src/main/resources'
+                    sh 'cp $FIREBASE_CONFIG_FILE gbh_mm/src/main/resources/gbh-mm-firebase.json'
+                }
+            }
+        }
         stage('Build Spring Boot App') {
             steps {
                 dir('gbh_mm') {

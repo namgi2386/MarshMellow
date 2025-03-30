@@ -6,6 +6,7 @@ import 'package:marshmellow/presentation/pages/finance/detail/demand_detail_page
 import 'package:marshmellow/presentation/pages/finance/detail/deposit_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/loan_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/saving_detail_page.dart';
+import 'package:marshmellow/presentation/pages/finance/finance_analysis_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_test_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_transfer_page.dart';
@@ -14,10 +15,11 @@ import 'package:marshmellow/presentation/pages/testpage/keyboard_test_page.dart'
 
 class FinanceRoutes {
   static const String root = '/finance';
-  static const String test = 'financetest'; // 하위 경로 추가
-  static const String keyboardtest = 'keyboardtest'; // 하위 경로 추가
-  static const String rootsimple = 'simple'; // 하위 경로 추가
-  static const String transfer = 'transfer'; // 하위 경로 추가
+  static const String test = 'financetest'; // 테스트페이지
+  static const String keyboardtest = 'keyboardtest'; // 키보드테스트
+  static const String rootsimple = 'simple'; // 간편페이지 
+  static const String transfer = 'transfer'; // 송금페이지
+  static const String analysis = 'analysis'; // 자산유형분석
   static const String demandDetail = 'account/demand/:accountNo'; // 입출금계좌 상세 경로
   static const String depositDetail = 'account/deposit/:accountNo'; // 예금계좌 상세 경로
   static const String savingDetail = 'account/saving/:accountNo'; // 적금계좌 상세 경로
@@ -25,10 +27,11 @@ class FinanceRoutes {
   static const String cardDetail = 'card/:cardNo'; // 카드계좌 상세 경로
   
   // 전체 경로 생성 헬퍼 메서드
-  static String getTestPath() => '$root/$test'; // 전체 경로 반환 헬퍼
-  static String getKeyboardTestPath() => '$root/$keyboardtest'; // 전체 경로 반환 헬퍼
-  static String getSimplePath() => '$root/$rootsimple'; // 전체 경로 반환 헬퍼
-  static String getTransferPath() => '$root/$transfer'; // 전체 경로 반환 헬퍼
+  static String getTestPath() => '$root/$test'; // 테스트페이지
+  static String getKeyboardTestPath() => '$root/$keyboardtest'; // 키보드테스트
+  static String getSimplePath() => '$root/$rootsimple'; // 간편페이지
+  static String getTransferPath() => '$root/$transfer'; // 송금페이지
+  static String getAnalysisPath() => '$root/$analysis'; // 자산유형분석
   static String getDemandDetailPath(String accountNo) => '$root/account/demand/$accountNo'; // 입출금계좌 상세 경로
   static String getDepositDetailPath(String accountNo) => '$root/account/deposit/$accountNo'; // 예금계좌 상세 경로
   static String getSavingDetailPath(String accountNo) => '$root/account/saving/$accountNo'; // 적금계좌 상세 경로
@@ -57,6 +60,10 @@ List<RouteBase> financeRoutes = [
       GoRoute(
         path: FinanceRoutes.transfer,
         builder: (context, state) => const FinanceTransferPage(),
+      ),
+      GoRoute(
+        path: FinanceRoutes.analysis,
+        builder: (context, state) => const FinanceAnalysisPage(),
       ),
       GoRoute(
         path: FinanceRoutes.demandDetail,

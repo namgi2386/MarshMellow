@@ -7,7 +7,12 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class BannerAdWidget extends StatelessWidget {
-  const BannerAdWidget({Key? key}) : super(key: key);
+  final VoidCallback? onClose; // 닫기 콜백 추가
+  
+  const BannerAdWidget({
+    Key? key, 
+    this.onClose,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +81,7 @@ class BannerAdWidget extends StatelessWidget {
             width: 16,
             height: 16,
           ),
-          onPressed: () {},
+          onPressed: onClose,
         ),
       ),
     ],

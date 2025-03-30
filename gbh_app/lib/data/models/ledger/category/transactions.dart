@@ -38,7 +38,6 @@ class Transaction {
   });
 
   // API 응답에서 Transaction 객체 생성 - 명세서에 맞게 수정
-  // Transaction 클래스의 fromJson 메서드를 수정
   factory Transaction.fromJson(Map<String, dynamic> json) {
     try {
       // API에서 반환되는 필드 중 일부를 안전하게 추출
@@ -54,10 +53,11 @@ class Transaction {
       final paymentCancelYn = json['paymentCancelYn'] as String;
       final exceptedBudgetYn = json['exceptedBudgetYn'] as String? ?? 'N';
 
-      // 카테고리 정보 추출 (nested objects 처리)
+      // 카테고리 정보 추출 - 두 가지 형태 모두 처리
       String householdCategory = '';
       String? householdDetailCategory;
 
+      // 구조 1: search API 형태 (중첩 객체)
       if (json['householdDetailCategory'] != null &&
           json['householdDetailCategory'] is Map) {
         final detailCategory = json['householdDetailCategory'] as Map;
@@ -70,6 +70,11 @@ class Transaction {
           householdCategory =
               category['householdCategoryName'] as String? ?? '';
         }
+      }
+      // 구조 2: list API 형태 (플랫 구조)
+      else if (json['householdCategory'] != null) {
+        householdCategory = json['householdCategory'] as String;
+        householdDetailCategory = json['householdDetailCategory'] as String?;
       }
 
       // 분류 카테고리 추출

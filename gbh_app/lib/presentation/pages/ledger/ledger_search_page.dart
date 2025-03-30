@@ -250,7 +250,11 @@ class _LedgerSearchPageState extends ConsumerState<LedgerSearchPage> {
                     ),
                   ),
                   // 날짜 바로 아래에 Divider 추가
-                  const Divider(height: 1, thickness: 0.5),
+                  const Divider(
+                    height: 1,
+                    thickness: 0.5,
+                    color: AppColors.textSecondary,
+                  ),
 
                   // 해당 날짜의 거래 목록
                   const SizedBox(height: 10),

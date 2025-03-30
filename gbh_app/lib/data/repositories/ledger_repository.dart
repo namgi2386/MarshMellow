@@ -114,4 +114,15 @@ class LedgerRepository {
       throw Exception('거래 검색에 실패했습니다: $e');
     }
   }
+
+  // 트랜잭션 삭제 메서드 추가
+  Future<void> deleteTransaction(int householdPk) async {
+    try {
+      await _ledgerApi.deleteHousehold(householdPk: householdPk);
+      // 성공적으로 삭제됨
+    } catch (e) {
+      // 예외 처리
+      throw Exception('거래 내역 삭제 실패: $e');
+    }
+  }
 }

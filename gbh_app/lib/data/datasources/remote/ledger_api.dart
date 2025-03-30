@@ -144,4 +144,26 @@ class LedgerApi {
       throw Exception('가계부 검색에 실패했습니다: $e');
     }
   }
+
+  // 가계부 삭제
+Future<Map<String, dynamic>> deleteHousehold({
+  required int householdPk,
+}) async {
+  try {
+    final response = await _apiClient.delete(
+      '/household',
+      data: {
+        'householdPk': householdPk,
+      },
+    );
+
+    if (response['code'] == 200) {
+      return response['data'];
+    }
+
+    throw Exception('API 응답 에러: ${response['message']}');
+  } catch (e) {
+    throw Exception('가계부 삭제에 실패했습니다: $e');
+  }
+}
 }

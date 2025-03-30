@@ -11,7 +11,7 @@ import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_view
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_detail_modal.dart';
 import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 
-class TransactionListItem extends ConsumerWidget {
+class TransactionListItem extends ConsumerStatefulWidget {
   final Transaction transaction;
   final Function(Transaction)? onDelete;
   final SlidableController? controller;
@@ -21,64 +21,88 @@ class TransactionListItem extends ConsumerWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TransactionListItem> createState() =>
+      _TransactionListItemState();
+}
+
+class _TransactionListItemState extends ConsumerState<TransactionListItem> {
+  bool _isDeleting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // 삭제 중이면 빈 컨테이너 반환
+    if (_isDeleting) {
+      return const SizedBox.shrink();
+    }
+
     final categoryRepository = ref.watch(ledgerRepositoryProvider);
     final numberFormat = NumberFormat('#,###', 'ko_KR');
 
     String iconPath = '';
-    if (transaction.type == TransactionType.withdrawal) {
+    if (widget.transaction.type == TransactionType.withdrawal) {
       final category = categoryRepository
-          .getWithdrawalCategoryByName(transaction.categoryId);
+          .getWithdrawalCategoryByName(widget.transaction.categoryId);
       iconPath = category?.iconPath ?? '';
-    } else if (transaction.type == TransactionType.deposit) {
-      final category =
-          categoryRepository.getDepositCategoryByName(transaction.categoryId);
+    } else if (widget.transaction.type == TransactionType.deposit) {
+      final category = categoryRepository
+          .getDepositCategoryByName(widget.transaction.categoryId);
       iconPath = category?.iconPath ?? '';
-    } else if (transaction.type == TransactionType.transfer) {
-      final category =
-          categoryRepository.getTransferCategoryByName(transaction.categoryId);
+    } else if (widget.transaction.type == TransactionType.transfer) {
+      final category = categoryRepository
+          .getTransferCategoryByName(widget.transaction.categoryId);
       iconPath = category?.iconPath ?? '';
     }
 
     // Slidable 위젯으로 감싸기
     return Slidable(
-      key: ValueKey(transaction.id),
+      key: ValueKey(widget.transaction.id),
       // 컨트롤러 연결
-      controller: controller,
+      controller: widget.controller,
 
       // 왼쪽에서 오른쪽으로만 스와이프 가능하도록 설정
       endActionPane: ActionPane(
-        // 첫 번째 스와이프에서는 부분적으로 열리고, 두 번째 스와이프에서 완전히 열리도록 설정
         motion: const ScrollMotion(),
         extentRatio: 0.2,
         dismissible: DismissiblePane(
-          key: ValueKey('dismiss-${transaction.id}'), // 고유한 키 추가
-          // 완전히 스와이프 했을 때 (두 번째 단계)
+          key: ValueKey('dismiss-${widget.transaction.id}'),
           onDismissed: () {
-            if (onDelete != null) {
-              onDelete!(transaction);
-            }
+            // 상태 변경을 먼저 해서 위젯을 UI에서 제거
+            setState(() {
+              _isDeleting = true;
+            });
+
+            // 약간의 지연 후 삭제 콜백 실행
+            Future.microtask(() {
+              if (widget.onDelete != null) {
+                widget.onDelete!(widget.transaction);
+              }
+            });
           },
-          // 부분 스와이프에서 완전 스와이프로 넘어가는 기준 (0.5는 50%)
           closeOnCancel: true,
           confirmDismiss: () async {
-            // 확인 없이 삭제
             return true;
           },
         ),
-        // 부분 스와이프에서 표시할 액션 버튼들
         children: [
           CustomSlidableAction(
             onPressed: (context) {
-              if (onDelete != null) {
-                onDelete!(transaction);
-              }
+              // 상태 변경하여 위젯을 UI에서 제거
+              setState(() {
+                _isDeleting = true;
+              });
+
+              // 삭제 콜백 실행
+              Future.microtask(() {
+                if (widget.onDelete != null) {
+                  widget.onDelete!(widget.transaction);
+                }
+              });
             },
             backgroundColor: AppColors.warnning,
             flex: 1,
             child: Icon(
               Icons.delete,
-              color: AppColors.background, // 직접 아이콘 색상 지정
+              color: AppColors.background,
             ),
           ),
         ],
@@ -92,7 +116,7 @@ class TransactionListItem extends ConsumerWidget {
             ref: ref,
             backgroundColor: AppColors.background,
             child: TransactionDetailModal(
-              householdPk: transaction.householdPk,
+              householdPk: widget.transaction.householdPk,
             ),
           );
         },
@@ -129,14 +153,14 @@ class TransactionListItem extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      transaction.title,
+                      widget.transaction.title,
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontWeight: FontWeight.w400,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${transaction.householdCategory} | ${transaction.paymentMethod}',
+                      '${widget.transaction.householdCategory} | ${widget.transaction.paymentMethod}',
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w300,
@@ -148,12 +172,12 @@ class TransactionListItem extends ConsumerWidget {
 
               // 금액
               Text(
-                transaction.type == TransactionType.withdrawal
-                    ? '- ${numberFormat.format(transaction.amount)}원'
-                    : '+ ${numberFormat.format(transaction.amount)}원',
+                widget.transaction.type == TransactionType.withdrawal
+                    ? '- ${numberFormat.format(widget.transaction.amount)}원'
+                    : '+ ${numberFormat.format(widget.transaction.amount)}원',
                 style: AppTextStyles.bodyLarge.copyWith(
                   fontSize: 16,
-                  color: transaction.type == TransactionType.withdrawal
+                  color: widget.transaction.type == TransactionType.withdrawal
                       ? AppColors.textPrimary
                       : AppColors.blueDark,
                 ),

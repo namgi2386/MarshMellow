@@ -226,11 +226,15 @@ class TransactionFields {
   }) {
     return TransactionField(
       label: '예산에서 제외',
-      trailing: CupertinoSwitch(
-        value: value,
-        onChanged: onChanged,
-        thumbColor: AppColors.whiteLight,
-        activeColor: AppColors.textPrimary,
+      padding: EdgeInsets.only(top: 10, bottom: 10, left: 10),
+      trailing: Transform.scale(
+        scale: 0.8,
+        child: CupertinoSwitch(
+          value: value,
+          onChanged: onChanged,
+          thumbColor: AppColors.whiteLight,
+          activeColor: AppColors.textPrimary,
+        ),
       ),
     );
   }

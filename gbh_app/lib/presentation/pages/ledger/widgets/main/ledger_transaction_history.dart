@@ -5,7 +5,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_item.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_item.dart';
 
 class LedgerTransactionHistory extends ConsumerStatefulWidget {
   const LedgerTransactionHistory({super.key});
@@ -112,7 +112,8 @@ class _LedgerTransactionHistoryState
                   ),
                 ),
                 // 날짜 바로 아래에 Divider 추가
-                const Divider(height: 1, thickness: 0.5),
+                const Divider(
+                    height: 1, thickness: 0.5, color: AppColors.textSecondary),
 
                 // 해당 날짜의 거래 목록
                 const SizedBox(height: 10),

@@ -32,6 +32,8 @@ public class ResponseFindBudgetList {
 
             private Long budgetExpendAmount;
 
+            private double budgetExpendPercent;
+
         }
     }
 }

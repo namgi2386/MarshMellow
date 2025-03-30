@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,10 @@ public class BudgetService {
                                     .budgetCategoryName(category.getBudgetCategoryName())
                                     .budgetCategoryPrice(category.getBudgetCategoryPrice())
                                     .budgetExpendAmount(category.getBudgetExpendAmount())
+                                    .budgetExpendPercent(
+                                            (float) Math.round(
+                                                    (float) category.getBudgetExpendAmount() / (float) category.getBudgetCategoryPrice() * 100) / 100.0
+                                    )
                                     .build())
                             .collect(Collectors.toList());
 
@@ -53,10 +59,10 @@ public class BudgetService {
                             .build();
                 })
                 .collect(Collectors.toList());
-                return ResponseFindBudgetList.builder()
-                        .message("예산 리스트 조회")
-                        .budgetList(budgetDataList)
-                        .build();
+        return ResponseFindBudgetList.builder()
+                .message("예산 리스트 조회")
+                .budgetList(budgetDataList)
+                .build();
     }
 
     // 예산 생성
@@ -111,10 +117,13 @@ public class BudgetService {
                                 .budgetCategoryName(budgetCategory.getBudgetCategoryName())
                                 .budgetCategoryPrice(budgetCategory.getBudgetCategoryPrice())
                                 .budgetExpendAmount(budgetCategory.getBudgetExpendAmount())
+                                .budgetExpendPercent(
+                                        (float) Math.round(
+                                                (double) budgetCategory.getBudgetExpendAmount() / (double) budgetCategory.getBudgetCategoryPrice() * 100) / 100.0
+                                )
                                 .build()
                         )
                         .collect(Collectors.toList()); // 변환 결과 저장
-
         if (categoryDataList.isEmpty()) {
             throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
         }

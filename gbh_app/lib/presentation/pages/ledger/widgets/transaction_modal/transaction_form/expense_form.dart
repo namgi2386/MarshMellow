@@ -5,9 +5,12 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/data/models/ledger/category/withdrawal_category.dart';
 
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_fields.dart';
+import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
+import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 
 class ExpenseForm extends ConsumerStatefulWidget {
-  const ExpenseForm({super.key});
+  final Transaction? initialData; // 초기 데이터 추가가
+  const ExpenseForm({super.key, this.initialData});
 
   @override
   ConsumerState<ExpenseForm> createState() => _ExpenseFormState();
@@ -20,6 +23,27 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   String? _merchant;
   String? _paymentMethod;
   String? _memo;
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 데이터가 있으면 설정
+    if (widget.initialData != null) {
+      final transaction = widget.initialData!;
+      final categoryRepository = ref.read(ledgerRepositoryProvider);
+
+      // 트랜잭션 데이터로 폼 초기화
+      _selectedDate = transaction.dateTime;
+      _merchant = transaction.tradeName;
+      _paymentMethod = transaction.paymentMethod;
+      _memo = transaction.householdMemo;
+      _isExcludedFromBudget = transaction.exceptedBudgetYn == 'Y';
+
+      // 카테고리 설정
+      _selectedExpenseCategory = categoryRepository
+          .getWithdrawalCategoryByName(transaction.householdCategory);
+    }
+  }
 
   // 날짜 업데이트 함수
   void _updateDate(DateTime date) {

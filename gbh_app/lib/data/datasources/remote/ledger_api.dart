@@ -6,11 +6,11 @@ class LedgerApi {
 
   LedgerApi(this._apiClient);
 
-  /// 가계부 목록 조회 (기간별)
-  ///
-  /// [userPk] 회원 고유번호
-  /// [startDate] 조회 시작일 (yyyyMMdd 형식)
-  /// [endDate] 조회 종료일 (yyyyMMdd 형식)
+  // 가계부 목록 조회 (기간별)
+  //
+  // [userPk] 회원 고유번호
+  // [startDate] 조회 시작일 (yyyyMMdd 형식)
+  // [endDate] 조회 종료일 (yyyyMMdd 형식)
   Future<Map<String, dynamic>> getHouseholdList({
     required int userPk,
     required String startDate,
@@ -68,6 +68,27 @@ class LedgerApi {
       throw Exception('API 응답 에러: ${response['message']}');
     } catch (e) {
       throw Exception('가계부 목록을 가져오는데 실패했습니다: $e');
+    }
+  }
+
+  // 가계부 상세 조회
+  Future<Transaction> getHouseholdDetail(int householdPk) async {
+    try {
+      final response = await _apiClient.getWithBody(
+        '/household',
+        data: {
+          'householdPk': householdPk,
+        },
+      );
+
+      if (response['code'] == 200 && response['data'] != null) {
+        final data = response['data'];
+        return Transaction.fromJson(data);
+      }
+
+      throw Exception('API 응답 에러: ${response['message']}');
+    } catch (e) {
+      throw Exception('가계부 상세 정보를 가져오는데 실패했습니다: $e');
     }
   }
 }

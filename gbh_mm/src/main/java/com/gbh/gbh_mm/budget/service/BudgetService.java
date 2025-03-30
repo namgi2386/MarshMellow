@@ -139,17 +139,26 @@ public class BudgetService {
         BudgetCategory oldBudgetCategory = budgetCategoryRepository.findById(budgetCategoryPk)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
+        // 예산
+        Budget budget = oldBudgetCategory.getBudget();
+        Long oldBudgetAmount = budget.getBudgetAmount();
+
         Long oldBudgetCategoryPrice = oldBudgetCategory.getBudgetCategoryPrice();
         Long newBudgetCategoryPrice = requestUpdateBudgetCategory.getBudgetCategoryPrice();
 
+        budget.setBudgetAmount(budget.getBudgetAmount() + newBudgetCategoryPrice - oldBudgetCategoryPrice);
+        Long newBudgetAmount = budget.getBudgetAmount();
         oldBudgetCategory.setBudgetCategoryPrice(newBudgetCategoryPrice);
         budgetCategoryRepository.save(oldBudgetCategory);
+        budgetRepository.save(budget);
 
         return ResponseUpdateBudgetCategory.builder()
                 .message("세부 예산 수정 완료")
                 .budgetCategoryPk(budgetCategoryPk)
                 .oldBudgetCategoryPrice(oldBudgetCategoryPrice)
                 .newBudgetCategoryPrice(newBudgetCategoryPrice)
+                .oldBudgetAmount(oldBudgetAmount)
+                .newBudgetAmount(newBudgetAmount)
                 .build();
 
 

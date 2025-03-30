@@ -8,6 +8,11 @@ import lombok.Data;
 public class ResponseUpdateBudgetCategory {
     private String message;
     private Long budgetCategoryPk;
+
     private Long oldBudgetCategoryPrice;
     private Long newBudgetCategoryPrice;
+
+    private Long oldBudgetAmount;
+    private Long newBudgetAmount;
+
 }

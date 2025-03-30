@@ -7,6 +7,7 @@ import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/main/ledger_calendar.dart';
 
 class DateRangeSelector extends ConsumerWidget {
   final String? dateRange;
@@ -72,16 +73,33 @@ class DateRangeSelector extends ConsumerWidget {
           datePickerState.selectedRange!.startDate != null) {
         final startDate = datePickerState.selectedRange!.startDate!;
         final endDate = datePickerState.selectedRange!.endDate ?? startDate;
-        final duration = endDate.difference(startDate);
 
-        // 이전 기간으로 이동 (현재 기간만큼 뒤로)
-        final newStartDate =
-            startDate.subtract(duration + const Duration(days: 1));
-        final newEndDate = startDate.subtract(const Duration(days: 1));
+        // 월 단위로 이동하는지 확인 (1일부터 말일까지인 경우)
+        bool isMonthPeriod = startDate.day == 1 &&
+            endDate.day == DateTime(endDate.year, endDate.month + 1, 0).day;
+
+        DateTime newStartDate;
+        DateTime newEndDate;
+
+        if (isMonthPeriod) {
+          // 이전 달의 1일
+          newStartDate = DateTime(startDate.year, startDate.month - 1, 1);
+          // 이전 달의 마지막 날
+          newEndDate = DateTime(newStartDate.year, newStartDate.month + 1, 0);
+        } else {
+          // 월 단위가 아닌 경우는 기존 로직 사용
+          final duration = endDate.difference(startDate);
+          newStartDate = startDate.subtract(duration + const Duration(days: 1));
+          newEndDate = startDate.subtract(const Duration(days: 1));
+        }
 
         ref
             .read(datePickerProvider.notifier)
             .updateSelectedRange(PickerDateRange(newStartDate, newEndDate));
+
+        // 캘린더 프로바이더도 함께 업데이트
+        ref.read(calendarPeriodProvider.notifier).state =
+            (newStartDate, newEndDate);
 
         // 새 날짜 범위로 데이터 로드
         ref
@@ -101,15 +119,33 @@ class DateRangeSelector extends ConsumerWidget {
           datePickerState.selectedRange!.startDate != null) {
         final startDate = datePickerState.selectedRange!.startDate!;
         final endDate = datePickerState.selectedRange!.endDate ?? startDate;
-        final duration = endDate.difference(startDate);
 
-        // 다음 기간으로 이동 (현재 기간만큼 앞으로)
-        final newStartDate = endDate.add(const Duration(days: 1));
-        final newEndDate = newStartDate.add(duration);
+        // 월 단위로 이동하는지 확인 (1일부터 말일까지인 경우)
+        bool isMonthPeriod = startDate.day == 1 &&
+            endDate.day == DateTime(endDate.year, endDate.month + 1, 0).day;
+
+        DateTime newStartDate;
+        DateTime newEndDate;
+
+        if (isMonthPeriod) {
+          // 다음 달의 1일
+          newStartDate = DateTime(endDate.year, endDate.month + 1, 1);
+          // 다음 달의 마지막 날
+          newEndDate = DateTime(newStartDate.year, newStartDate.month + 1, 0);
+        } else {
+          // 월 단위가 아닌 경우는 기존 로직 사용
+          final duration = endDate.difference(startDate);
+          newStartDate = endDate.add(const Duration(days: 1));
+          newEndDate = newStartDate.add(duration);
+        }
 
         ref
             .read(datePickerProvider.notifier)
             .updateSelectedRange(PickerDateRange(newStartDate, newEndDate));
+
+        // 캘린더 프로바이더도 함께 업데이트
+        ref.read(calendarPeriodProvider.notifier).state =
+            (newStartDate, newEndDate);
 
         // 새 날짜 범위로 데이터 로드
         ref

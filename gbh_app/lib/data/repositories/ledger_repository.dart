@@ -93,4 +93,25 @@ class LedgerRepository {
   Future<Transaction> getHouseholdDetail(int householdPk) async {
     return await _ledgerApi.getHouseholdDetail(householdPk);
   }
+
+  // 검색 기능
+  Future<List<Transaction>> searchTransactions({
+    required int userPk,
+    required String startDate,
+    required String endDate,
+    required String keyword,
+  }) async {
+    try {
+      final result = await _ledgerApi.searchHousehold(
+        userPk: userPk,
+        startDate: startDate,
+        endDate: endDate,
+        keyword: keyword,
+      );
+
+      return result['transactions'] as List<Transaction>;
+    } catch (e) {
+      throw Exception('거래 검색에 실패했습니다: $e');
+    }
+  }
 }

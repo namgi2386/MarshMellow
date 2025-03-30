@@ -91,10 +91,66 @@ class BudgetPage extends ConsumerWidget {
       (Match m) => '${m[1]},'
     );
 
+    String formmatedTotalBudget = selectedBudget.budgetAmount.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},'
+    );
+
+    // TODO: 임시 하루 예산
+    int daysInperiod = 30;
+    int dailyBudget = selectedBudget.budgetAmount ~/ daysInperiod;
+
+    String formattedDailyBudget = dailyBudget.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},'
+    );
+
     return Scaffold(
-      appBar: CustomAppbar(title: '남은 예산 $remainingBudget 원'),
+      appBar: CustomAppbar(title: '남은 예산'),
       body: Column(
         children: [
+          // 예산 정보 요약
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 좌측 : 전체 남은 예산
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: formattedRemainingBudget,
+                        style: AppTextStyles.congratulation
+                      ),
+                      const TextSpan(
+                        text: ' 원',
+                        style: AppTextStyles.bodyMedium
+                      ),
+                    ],
+                  ),
+                ),
+                // 우측: 총액과 하루 예산
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '예산 $formmatedTotalBudget 원',
+                      style: AppTextStyles.bodyExtraSmall, 
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '하루 예산 $formattedDailyBudget 원',
+                      style: AppTextStyles.bodyExtraSmall,
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+
           // 날짜 범위 선택기
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -136,13 +192,13 @@ class BudgetPage extends ConsumerWidget {
           Expanded(
             flex: 2,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(22.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     '위시 리스트',
-                    style: AppTextStyles.bodyMediumLight,
+                    style: AppTextStyles.appBar,
                   ),
                   const SizedBox(height: 12),
                   Expanded(child: Center(child: Text('위시 리스트가 비어있습니다.'),))

@@ -391,26 +391,28 @@ public class HouseholdServiceImpl implements HouseholdService {
 
 
             HouseholdDetailCategory householdDetailCategory =
-                householdDetailCategoryRepository
-                    .findByHouseholdDetailCategory(category);
+                householdDetailCategoryRepository.findByHouseholdDetailCategory(category);
             String tradeTimeSec = householdDto.getTradeTime();
             String tradeTime = tradeTimeSec.substring(0, tradeTimeSec.length() - 2);
 
-            if (householdDetailCategory != null){
-                Household household = Household.builder()
-                        .tradeName(householdDto.getTradeName())
-                        .tradeDate(householdDto.getTradeDate())
-                        .tradeTime(tradeTime)
-                        .householdAmount(householdDto.getHouseholdAmount())
-                        .paymentMethod(householdDto.getPaymentMethod())
-                        .paymentCancelYn(householdDto.getPaymentCancelYn())
-                        .exceptedBudgetYn(householdDto.getExceptedBudgetYn())
-                        .user(householdDto.getUser())
-                        .householdDetailCategory(householdDetailCategory)
-                        .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
-                        .build();
-                householdList.add(household);
+            if (householdDetailCategory == null){
+                householdDetailCategory = householdDetailCategoryRepository
+                        .findByHouseholdDetailCategory("미분류");
             }
+
+            Household household = Household.builder()
+                    .tradeName(householdDto.getTradeName())
+                    .tradeDate(householdDto.getTradeDate())
+                    .tradeTime(tradeTime)
+                    .householdAmount(householdDto.getHouseholdAmount())
+                    .paymentMethod(householdDto.getPaymentMethod())
+                    .paymentCancelYn(householdDto.getPaymentCancelYn())
+                    .exceptedBudgetYn(householdDto.getExceptedBudgetYn())
+                    .user(householdDto.getUser())
+                    .householdDetailCategory(householdDetailCategory)
+                    .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
+                    .build();
+            householdList.add(household);
         }
 
         householdRepository.saveAll(householdList);

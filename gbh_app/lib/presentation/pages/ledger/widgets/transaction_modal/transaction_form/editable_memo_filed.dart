@@ -149,7 +149,11 @@ class _EditableMemoFieldState extends State<EditableMemoField> {
               ),
             ),
           ),
-        if (widget.showDivider) const Divider(height: 0.5),
+        if (widget.showDivider)
+          const Divider(
+            height: 0.5,
+            color: AppColors.textLight,
+          ),
       ],
     );
   }

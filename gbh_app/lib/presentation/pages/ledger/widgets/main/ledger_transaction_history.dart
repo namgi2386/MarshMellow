@@ -5,7 +5,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_item.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_item.dart';
 
 class LedgerTransactionHistory extends ConsumerStatefulWidget {
   const LedgerTransactionHistory({super.key});

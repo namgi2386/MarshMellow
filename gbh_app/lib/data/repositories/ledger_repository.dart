@@ -88,4 +88,9 @@ class LedgerRepository {
     // 모든 트랜잭션 반환
     return result['allTransactions'] as List<Transaction>;
   }
+
+  // 가계부 상세 조회
+  Future<Transaction> getHouseholdDetail(int householdPk) async {
+    return await _ledgerApi.getHouseholdDetail(householdPk);
+  }
 }

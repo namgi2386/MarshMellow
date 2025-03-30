@@ -8,6 +8,8 @@ import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_detail_modal.dart';
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 
 class TransactionListItem extends ConsumerWidget {
   final Transaction transaction;
@@ -83,68 +85,81 @@ class TransactionListItem extends ConsumerWidget {
       ),
 
       // 원래 컨텐츠 (변경 없음)
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          children: [
-            // 카테고리 아이콘
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.whiteLight,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: AppColors.textLight.withOpacity(0.2)),
+      child: GestureDetector(
+        onTap: () {
+          showCustomModal(
+            context: context,
+            ref: ref,
+            backgroundColor: AppColors.background,
+            child: TransactionDetailModal(
+              householdPk: transaction.householdPk,
+            ),
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              // 카테고리 아이콘
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.whiteLight,
+                  borderRadius: BorderRadius.circular(15),
+                  border:
+                      Border.all(color: AppColors.textLight.withOpacity(0.2)),
+                ),
+                child: iconPath.isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SvgPicture.asset(
+                          iconPath,
+                          width: 40,
+                          height: 40,
+                        ),
+                      )
+                    : const Icon(Icons.help_outline, size: 24),
               ),
-              child: iconPath.isNotEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SvgPicture.asset(
-                        iconPath,
-                        width: 40,
-                        height: 40,
+              const SizedBox(width: 12),
+
+              // 거래 내용
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      transaction.title,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w400,
                       ),
-                    )
-                  : const Icon(Icons.help_outline, size: 24),
-            ),
-            const SizedBox(width: 12),
-
-            // 거래 내용
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    transaction.title,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w400,
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${transaction.householdCategory ?? ''} | ${transaction.paymentMethod ?? ''}',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w300,
+                    const SizedBox(height: 2),
+                    Text(
+                      '${transaction.householdCategory} | ${transaction.paymentMethod}',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w300,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // 금액
-            Text(
-              transaction.type == TransactionType.withdrawal
-                  ? '- ${numberFormat.format(transaction.amount)}원'
-                  : '+ ${numberFormat.format(transaction.amount)}원',
-              style: AppTextStyles.bodyLarge.copyWith(
-                fontSize: 16,
-                color: transaction.type == TransactionType.withdrawal
-                    ? AppColors.textPrimary
-                    : AppColors.blueDark,
+              // 금액
+              Text(
+                transaction.type == TransactionType.withdrawal
+                    ? '- ${numberFormat.format(transaction.amount)}원'
+                    : '+ ${numberFormat.format(transaction.amount)}원',
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontSize: 16,
+                  color: transaction.type == TransactionType.withdrawal
+                      ? AppColors.textPrimary
+                      : AppColors.blueDark,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

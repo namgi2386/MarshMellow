@@ -11,7 +11,8 @@ import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_test_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_transfer_page.dart';
 import 'package:marshmellow/presentation/pages/finance/simple_finance_page.dart';
-import 'package:marshmellow/presentation/pages/testpage/keyboard_test_page.dart'; // 추가
+import 'package:marshmellow/presentation/pages/finance/withdrawal_account_registration_page.dart';
+import 'package:marshmellow/presentation/pages/testpage/keyboard_test_page.dart';
 
 class FinanceRoutes {
   static const String root = '/finance';
@@ -25,6 +26,8 @@ class FinanceRoutes {
   static const String savingDetail = 'account/saving/:accountNo'; // 적금계좌 상세 경로
   static const String loanDetail = 'account/loan/:accountNo'; // 대출계좌 상세 경로
   static const String cardDetail = 'card/:cardNo'; // 카드계좌 상세 경로
+  static const String withdrawalAccountRegistration = 'account/withdrawal-registration/:accountNo'; // 출금계좌 등록
+
   
   // 전체 경로 생성 헬퍼 메서드
   static String getTestPath() => '$root/$test'; // 테스트페이지
@@ -37,6 +40,7 @@ class FinanceRoutes {
   static String getSavingDetailPath(String accountNo) => '$root/account/saving/$accountNo'; // 적금계좌 상세 경로
   static String getLoanDetailPath(String accountNo) => '$root/account/loan/$accountNo'; // 대출계좌 상세 경로
   static String getCardDetailPath(String cardNo) => '$root/card/$cardNo'; // 카드계좌 상세 경로
+  static String getWithdrawalAccountRegistrationPath(String accountNo) => '$root/account/withdrawal-registration/$accountNo'; // 출금계좌 등록
 }
 
 List<RouteBase> financeRoutes = [
@@ -137,6 +141,13 @@ List<RouteBase> financeRoutes = [
             cvc: extra?['cvc'] ?? '',  // cvc 추가
             balance: extra?['balance'] ?? 0,
           );
+        },
+      ),
+      GoRoute(
+        path: FinanceRoutes.withdrawalAccountRegistration,
+        builder: (context, state) {
+          final accountNo = state.pathParameters['accountNo'] ?? '';
+          return WithdrawalAccountRegistrationPage(accountNo: accountNo);
         },
       ),
     ],

@@ -8,7 +8,13 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
 
-class AccountItemWidget extends StatelessWidget {
+// 송금
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/presentation/viewmodels/finance/withdrawal_account_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/finance/certificate_login_modal.dart';
+import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
+
+class AccountItemWidget extends ConsumerWidget {
   final String bankName; // 은행명
   final String accountName; // 계좌 명
   final String accountNo; // 계좌번호
@@ -36,6 +42,7 @@ class AccountItemWidget extends StatelessWidget {
   bool _isPngPath(String path) {
     return path.endsWith('.png');
   }
+
 
   // 계좌번호 마스킹 함수
   // String _maskAccountNumber(String accountNo) {
@@ -187,8 +194,10 @@ class AccountItemWidget extends StatelessWidget {
   }
 
 
-@override
-Widget build(BuildContext context) {
+
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
   return Container(
     margin: const EdgeInsets.only(bottom: 8),
     decoration: BoxDecoration(
@@ -241,7 +250,15 @@ Widget build(BuildContext context) {
                 ? GestureDetector(
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 상세페이지 테스트중 <<<<<<<<<<<<<<<<<<<<<<<<<
                     onTap: () {
-                      context.push(FinanceRoutes.getTransferPath()); 
+                      // 송금 불가능한 상태라면 처리하지 않음
+                      if (!noMoneyMan) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('송금 가능한 계좌가 아닙니다.')),
+                        );
+                        return;
+                      }
+                      // 송금 버튼 핸들러 호출
+                      _handleTransferTap(context, ref);
                     },
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
                     child: Container(
@@ -272,5 +289,39 @@ Widget build(BuildContext context) {
         ),
       ),
     );
+  }
+    // 송금 버튼 클릭 핸들러 추가
+  void _handleTransferTap(BuildContext context, WidgetRef ref) async {
+    // 로딩 표시
+    LoadingManager.show(context, text: '계좌 확인 중...', opacity: 1.0, backgroundColor: AppColors.background);
+    
+    try {
+      // 출금계좌 등록 여부 확인
+      final withdrawalViewModel = ref.read(withdrawalAccountProvider.notifier);
+      final isRegistered = await withdrawalViewModel.isAccountRegisteredAsWithdrawal(accountNo);
+      
+      // 로딩 숨기기
+      LoadingManager.hide();
+      
+      if (isRegistered) {
+        // 이미 등록된 출금계좌라면 인증서 로그인 모달 표시
+        if (context.mounted) {
+          showCertificateLoginModal(context, accountNo: accountNo);
+        }
+      } else {
+        // 등록되지 않은 계좌라면 출금계좌 등록 페이지로 이동
+        if (context.mounted) {
+          context.push(FinanceRoutes.getWithdrawalAccountRegistrationPath(accountNo));
+        }
+      }
+    } catch (e) {
+      // 오류 발생 시 로딩 숨기고 오류 메시지 표시
+      LoadingManager.hide();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('계좌 확인 중 오류가 발생했습니다: ${e.toString()}')),
+        );
+      }
+    }
   }
 }

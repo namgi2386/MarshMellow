@@ -1,6 +1,7 @@
 // lib/router/routes/finance_routes.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/presentation/pages/finance/certificate_auth_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/card_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/demand_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/deposit_detail_page.dart';
@@ -11,6 +12,7 @@ import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_test_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_transfer_page.dart';
 import 'package:marshmellow/presentation/pages/finance/simple_finance_page.dart';
+import 'package:marshmellow/presentation/pages/finance/transfer_page.dart';
 import 'package:marshmellow/presentation/pages/finance/withdrawal_account_registration_page.dart';
 import 'package:marshmellow/presentation/pages/testpage/keyboard_test_page.dart';
 
@@ -27,7 +29,7 @@ class FinanceRoutes {
   static const String loanDetail = 'account/loan/:accountNo'; // 대출계좌 상세 경로
   static const String cardDetail = 'card/:cardNo'; // 카드계좌 상세 경로
   static const String withdrawalAccountRegistration = 'account/withdrawal-registration/:accountNo'; // 출금계좌 등록
-
+  static const String auth = 'auth'; // 송금전 인증페이지 
   
   // 전체 경로 생성 헬퍼 메서드
   static String getTestPath() => '$root/$test'; // 테스트페이지
@@ -41,6 +43,7 @@ class FinanceRoutes {
   static String getLoanDetailPath(String accountNo) => '$root/account/loan/$accountNo'; // 대출계좌 상세 경로
   static String getCardDetailPath(String cardNo) => '$root/card/$cardNo'; // 카드계좌 상세 경로
   static String getWithdrawalAccountRegistrationPath(String accountNo) => '$root/account/withdrawal-registration/$accountNo'; // 출금계좌 등록
+  static String getAuthPath() => '$root/$auth'; // 송금전 인증페이지 
 }
 
 List<RouteBase> financeRoutes = [
@@ -61,10 +64,24 @@ List<RouteBase> financeRoutes = [
         path: FinanceRoutes.rootsimple,
         builder: (context, state) => const SimpleFinancePage(),
       ),
+      // 송금 페이지 라우트 수정
       GoRoute(
         path: FinanceRoutes.transfer,
-        builder: (context, state) => const FinanceTransferPage(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final accountNo = extra?['accountNo'] as String? ?? '';
+          final withdrawalAccountId = extra?['withdrawalAccountId'] as int? ?? 0;
+          
+          return TransferPage(
+            accountNo: accountNo,
+            withdrawalAccountId: withdrawalAccountId,
+          );
+        },
       ),
+      // GoRoute(
+      //   path: FinanceRoutes.transfer,
+      //   builder: (context, state) => const FinanceTransferPage(), //////// 송금 테스트 페이지 였던것
+      // ),
       GoRoute(
         path: FinanceRoutes.analysis,
         builder: (context, state) => const FinanceAnalysisPage(),
@@ -148,6 +165,20 @@ List<RouteBase> financeRoutes = [
         builder: (context, state) {
           final accountNo = state.pathParameters['accountNo'] ?? '';
           return WithdrawalAccountRegistrationPage(accountNo: accountNo);
+        },
+      ),
+      // 인증 페이지 라우트 수정
+      GoRoute(
+        path: FinanceRoutes.auth,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final accountNo = extra?['accountNo'] as String? ?? '';
+          final withdrawalAccountId = extra?['withdrawalAccountId'] as int? ?? 0;
+          
+          return CertificateAuthPage(
+            accountNo: accountNo,
+            withdrawalAccountId: withdrawalAccountId,
+          );
         },
       ),
     ],

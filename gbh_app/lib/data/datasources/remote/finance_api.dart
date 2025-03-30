@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/datasources/remote/api_client.dart';
+import 'package:marshmellow/data/models/finance/transfer_model.dart';
 import 'package:marshmellow/data/models/finance/withdrawal_account_model.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
 //detail
@@ -118,6 +119,7 @@ class FinanceApi {
   // 출금계좌 목록 조회
   Future<WithdrawalAccountResponse> getWithdrawalAccounts(int userPk) async {
     final response = await _apiClient.getWithBody('/asset/withdrawal-account', data: {'userPk': userPk});
+    print('Withdrawal accounts response*****************: $response');
     return WithdrawalAccountResponse.fromJson(response);
   }
 
@@ -160,6 +162,11 @@ class FinanceApi {
     print('API 응답: $response');
     
     return AccountAuthVerifyResponse.fromJson(response);
+  }
+  // 계좌 송금
+  Future<TransferResponse> transferMoney(TransferRequest request) async {
+    final response = await _apiClient.post('/asset/account-transfer', data: request.toJson());
+    return TransferResponse.fromJson(response);
   }
 
 }

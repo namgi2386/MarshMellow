@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/withdrawal_account_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/finance/certificate_login_modal.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
 
@@ -68,8 +69,15 @@ class _WithdrawalAccountRegistrationPageState extends ConsumerState<WithdrawalAc
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
             context.pop(); // 뒤로가기
-            // 여기서 인증서 로그인 모달을 표시하는 함수를 호출할 수 있음
-            // showCertificateLoginModal(context);
+            
+            // 인증서 로그인 모달 표시 (withdrawalAccountId 전달)
+            if (state.withdrawalAccountId != null) {
+              showCertificateLoginModal(
+                context, 
+                accountNo: state.accountNo,
+                withdrawalAccountId: state.withdrawalAccountId!,
+              );
+            }
           }
         });
       });

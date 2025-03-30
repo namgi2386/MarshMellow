@@ -28,6 +28,7 @@ class WithdrawalAccountState {
   final String accountNo;
   final String? authCode;
   final String enteredAuthCode;
+  final int? withdrawalAccountId; // 출금에러수정
   
   // 상태 및 에러 정보
   final bool isLoading;
@@ -51,6 +52,7 @@ class WithdrawalAccountState {
     this.error,
     this.wrongAttempts = 0,
     this.remainingSeconds = 60,
+    this.withdrawalAccountId, // 출금에러수정
   });
 
   // 복사 생성자 (상태 불변성 유지를 위함)
@@ -67,6 +69,7 @@ class WithdrawalAccountState {
     String? error,
     int? wrongAttempts,
     int? remainingSeconds,
+    int? withdrawalAccountId, // 출금에러수정
   }) {
     return WithdrawalAccountState(
       step: step ?? this.step,
@@ -81,6 +84,7 @@ class WithdrawalAccountState {
       error: error,  // error는 null을 허용해야 해서 ?? this.error 패턴을 사용하지 않음
       wrongAttempts: wrongAttempts ?? this.wrongAttempts,
       remainingSeconds: remainingSeconds ?? this.remainingSeconds,
+      withdrawalAccountId: withdrawalAccountId ?? this.withdrawalAccountId, // 출금에러수정
     );
   }
 }
@@ -237,6 +241,7 @@ class WithdrawalAccountViewModel extends StateNotifier<WithdrawalAccountState> {
         state = state.copyWith(
           step: WithdrawalAccountRegistrationStep.complete,
           isLoading: false,
+          withdrawalAccountId: response.data.withdrawalAccountId, // 출금에러수정
         );
         return true;
       } else {
@@ -257,29 +262,44 @@ class WithdrawalAccountViewModel extends StateNotifier<WithdrawalAccountState> {
   }
 
   // 출금계좌 목록에서 특정 계좌 존재 여부 확인
-  Future<bool> isAccountRegisteredAsWithdrawal(String accountNo) async {
+  Future<Map<String, dynamic>> isAccountRegisteredAsWithdrawal(String accountNo) async {
     try {
       state = state.copyWith(isLoading: true, error: null);
       
       final financeApi = _ref.read(financeApiProvider);
-      final response = await financeApi.getWithdrawalAccounts(1); // userPk 1로 고정
+      final response = await financeApi.getWithdrawalAccounts(3); // userPk 3로 고정
       
       // 목록에서 해당 계좌번호 검색
-      final isRegistered = response.data.withdrawalAccountList
-          .any((account) => account.accountNo == accountNo);
+      int? withdrawalAccountId;
+      bool isRegistered = false;
+      
+      for (var account in response.data.withdrawalAccountList) {
+        if (account.accountNo == accountNo) {
+          isRegistered = true;
+          withdrawalAccountId = account.withdrawalAccountId;
+          break;
+        }
+      }
       
       state = state.copyWith(
         isLoading: false,
         accountNo: accountNo,
+        withdrawalAccountId: withdrawalAccountId,
       );
       
-      return isRegistered;
+      return {
+        'isRegistered': isRegistered,
+        'withdrawalAccountId': withdrawalAccountId
+      };
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         error: "출금계좌 목록 조회 중 오류가 발생했습니다: ${e.toString()}",
       );
-      return false;
+      return {
+        'isRegistered': false,
+        'withdrawalAccountId': null
+      };
     }
   }
 

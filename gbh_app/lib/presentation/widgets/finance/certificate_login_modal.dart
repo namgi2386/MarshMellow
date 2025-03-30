@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
 
 // 인증서 로그인 모달 표시 함수
-void showCertificateLoginModal(BuildContext context, {required String accountNo}) {
+void showCertificateLoginModal(BuildContext context, {required String accountNo, required int withdrawalAccountId,}) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -32,9 +32,10 @@ void showCertificateLoginModal(BuildContext context, {required String accountNo}
               onTap: () {
                 // 모달 닫고 인증 페이지로 이동
                 Navigator.pop(context);
-                // 여기서는 실제 경로가 없으므로 임시 경로 사용
-                // 나중에 인증 페이지 경로로 변경 필요
-                context.push('/finance/auth', extra: {'accountNo': accountNo});
+                context.push(
+                  FinanceRoutes.getAuthPath(), 
+                  extra: {'accountNo': accountNo, 'withdrawalAccountId': withdrawalAccountId,}
+                );
               },
               child: Container(
                 padding: const EdgeInsets.all(16),

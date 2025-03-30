@@ -258,7 +258,7 @@ class AccountItemWidget extends ConsumerWidget {
                         return;
                       }
                       // 송금 버튼 핸들러 호출
-                      _handleTransferTap(context, ref);
+                      _handleTransferTap(context, ref, accountNo);
                     },
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
                     child: Container(
@@ -290,31 +290,40 @@ class AccountItemWidget extends ConsumerWidget {
       ),
     );
   }
-    // 송금 버튼 클릭 핸들러 추가
-  void _handleTransferTap(BuildContext context, WidgetRef ref) async {
-    // 로딩 표시
-    LoadingManager.show(context, text: '계좌 확인 중...', opacity: 1.0, backgroundColor: AppColors.background);
+// 계좌 상세 페이지의 송금 버튼 클릭 핸들러 수정
+void _handleTransferTap(BuildContext context, WidgetRef ref, String accountNo) async {
+  // 현재 계좌번호
+  // final accountNo = widget.accountNo;
+  
+  // 로딩 표시
+  LoadingManager.show(context, text: '계좌 확인 중...', opacity: 1.0, backgroundColor: AppColors.background);
+  
+  try {
+    // 출금계좌 등록 여부 확인 (수정된 메서드 사용)
+    final withdrawalViewModel = ref.read(withdrawalAccountProvider.notifier);
+    final result = await withdrawalViewModel.isAccountRegisteredAsWithdrawal(accountNo);
+    final isRegistered = result['isRegistered'] as bool;
+    final withdrawalAccountId = result['withdrawalAccountId'] as int?;
     
-    try {
-      // 출금계좌 등록 여부 확인
-      final withdrawalViewModel = ref.read(withdrawalAccountProvider.notifier);
-      final isRegistered = await withdrawalViewModel.isAccountRegisteredAsWithdrawal(accountNo);
-      
-      // 로딩 숨기기
-      LoadingManager.hide();
-      
-      if (isRegistered) {
-        // 이미 등록된 출금계좌라면 인증서 로그인 모달 표시
-        if (context.mounted) {
-          showCertificateLoginModal(context, accountNo: accountNo);
-        }
-      } else {
-        // 등록되지 않은 계좌라면 출금계좌 등록 페이지로 이동
-        if (context.mounted) {
-          context.push(FinanceRoutes.getWithdrawalAccountRegistrationPath(accountNo));
-        }
+    // 로딩 숨기기
+    LoadingManager.hide();
+    
+    if (isRegistered && withdrawalAccountId != null) {
+      // 이미 등록된 출금계좌라면 인증서 로그인 모달 표시 (withdrawalAccountId 전달)
+      if (context.mounted) {
+        showCertificateLoginModal(
+          context, 
+          accountNo: accountNo,
+          withdrawalAccountId: withdrawalAccountId,
+        );
       }
-    } catch (e) {
+    } else {
+      // 등록되지 않은 계좌라면 출금계좌 등록 페이지로 이동
+      if (context.mounted) {
+        context.push(FinanceRoutes.getWithdrawalAccountRegistrationPath(accountNo));
+      }
+    }
+  } catch (e) {
       // 오류 발생 시 로딩 숨기고 오류 메시지 표시
       LoadingManager.hide();
       if (context.mounted) {

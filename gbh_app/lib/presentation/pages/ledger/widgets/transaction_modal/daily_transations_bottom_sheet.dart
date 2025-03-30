@@ -7,23 +7,45 @@ import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_item.dart';
 import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_form.dart';
+import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
+import 'package:marshmellow/di/providers/date_picker_provider.dart';
+import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
+import 'package:marshmellow/di/providers/calendar_providers.dart';
 
-class DailyTransactionsContent extends ConsumerWidget {
+class DailyTransactionsContent extends ConsumerStatefulWidget {
   final DateTime date;
   final List<Transaction> transactions;
+  final VoidCallback? onTransactionChanged;
 
   const DailyTransactionsContent({
     Key? key,
     required this.date,
     required this.transactions,
+    this.onTransactionChanged,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DailyTransactionsContent> createState() =>
+      _DailyTransactionsContentState();
+}
+
+class _DailyTransactionsContentState
+    extends ConsumerState<DailyTransactionsContent> {
+  late List<Transaction> _transactions;
+
+  @override
+  void initState() {
+    super.initState();
+    _transactions = List.from(widget.transactions);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // 요일 이름 배열 및 날짜 포맷
     final dayNames = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
-    final dayName = dayNames[date.weekday - 1];
-    final dateString = '${date.month}월 ${date.day}일 $dayName';
+    final dayName = dayNames[widget.date.weekday - 1];
+    final dateString = '${widget.date.month}월 ${widget.date.day}일 $dayName';
 
     // 숫자 포맷터
     final numberFormat = NumberFormat('#,###', 'ko_KR');
@@ -32,7 +54,7 @@ class DailyTransactionsContent extends ConsumerWidget {
     int income = 0;
     int expense = 0;
 
-    for (var transaction in transactions) {
+    for (var transaction in _transactions) {
       if (transaction.classification == TransactionClassification.DEPOSIT) {
         income += transaction.householdAmount;
       } else if (transaction.classification ==
@@ -46,20 +68,15 @@ class DailyTransactionsContent extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 날짜 정보
-        Text(
-          dateString,
-          style: AppTextStyles.bodyMedium.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        Text(dateString, style: AppTextStyles.modalTitle),
 
         // 총 건수 및 수입/지출 정보
-        const SizedBox(height: 8),
+        const SizedBox(height: 20),
         Row(
           children: [
             Text(
-              '총 ${transactions.length}건',
-              style: AppTextStyles.bodySmall.copyWith(
+              '총 ${_transactions.length}건',
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
@@ -67,7 +84,7 @@ class DailyTransactionsContent extends ConsumerWidget {
             if (income > 0)
               Text(
                 '+ ${numberFormat.format(income)}원',
-                style: AppTextStyles.bodySmall.copyWith(
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.blueDark,
                 ),
               ),
@@ -75,7 +92,7 @@ class DailyTransactionsContent extends ConsumerWidget {
             if (expense > 0)
               Text(
                 '- ${numberFormat.format(expense)}원',
-                style: AppTextStyles.bodySmall.copyWith(
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -88,7 +105,7 @@ class DailyTransactionsContent extends ConsumerWidget {
 
         // 트랜잭션 목록 또는 빈 상태
         Flexible(
-          child: transactions.isEmpty
+          child: _transactions.isEmpty
               ? Container(
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(vertical: 40),
@@ -114,10 +131,10 @@ class DailyTransactionsContent extends ConsumerWidget {
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   // 트랜잭션 목록 + 내역 추가 항목
-                  itemCount: transactions.length + 1,
+                  itemCount: _transactions.length + 1,
                   itemBuilder: (context, index) {
                     // 마지막 항목은 "내역 추가" 버튼
-                    if (index == transactions.length) {
+                    if (index == _transactions.length) {
                       return GestureDetector(
                         onTap: () {
                           // 내역 추가 화면으로 이동 또는 추가 모달 표시
@@ -128,7 +145,7 @@ class DailyTransactionsContent extends ConsumerWidget {
                             ref: ref,
                             backgroundColor: AppColors.background,
                             child: TransactionForm(
-                              initialDate: date, // 선택한 날짜를 전달
+                              initialDate: widget.date, // 선택한 날짜를 전달
                             ),
                           );
                         },
@@ -141,7 +158,7 @@ class DailyTransactionsContent extends ConsumerWidget {
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: AppColors.whiteLight,
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(15),
                                   border: Border.all(
                                     color: AppColors.textLight.withOpacity(0.3),
                                   ),
@@ -165,11 +182,59 @@ class DailyTransactionsContent extends ConsumerWidget {
                       );
                     }
 
-                    final transaction = transactions[index];
+                    final transaction = _transactions[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: TransactionListItem(
                         transaction: transaction,
+                        onDelete: (transaction) async {
+                          // 삭제 처리
+                          final success = await ref
+                              .read(ledgerViewModelProvider.notifier)
+                              .deleteTransaction(transaction.householdPk);
+
+                          if (context.mounted) {
+                            if (success) {
+                              // 성공 메시지 표시
+                              CompletionMessage.show(context, message: '삭제 완료');
+
+                              // 로컬 상태 업데이트 - 삭제된 항목 제거
+                              setState(() {
+                                _transactions.removeWhere((t) =>
+                                    t.householdPk == transaction.householdPk);
+                              });
+
+                              // 트랜잭션 목록 새로고침
+                              ref.refresh(transactionsProvider);
+
+                              // 캘린더 트랜잭션 데이터 새로고침
+                              ref.refresh(calendarTransactionsProvider);
+
+                              // 수입/지출 카드 업데이트를 위해 ledgerViewModel 새로고침
+                              final datePickerState =
+                                  ref.read(datePickerProvider);
+                              if (datePickerState.selectedRange != null) {
+                                ref
+                                    .read(ledgerViewModelProvider.notifier)
+                                    .loadHouseholdData(
+                                        datePickerState.selectedRange!);
+                              }
+
+                              // 삭제 후 콜백 호출
+                              if (widget.onTransactionChanged != null) {
+                                widget.onTransactionChanged!();
+                              }
+
+                              // 모든 트랜잭션이 삭제된 경우 모달 닫기
+                              if (_transactions.isEmpty) {
+                                Navigator.of(context).pop();
+                              }
+                            } else {
+                              // 실패 메시지 표시
+                              CompletionMessage.show(context, message: '삭제 실패');
+                            }
+                          }
+                        },
                       ),
                     );
                   },
@@ -186,16 +251,18 @@ void showDailyTransactionsModal({
   required WidgetRef ref,
   required DateTime date,
   required List<Transaction> transactions,
+  VoidCallback? onTransactionChanged,
 }) {
   showCustomModal(
     context: context,
     ref: ref,
     backgroundColor: AppColors.background,
     padding: const EdgeInsets.all(20),
-    maxHeight: MediaQuery.of(context).size.height * 0.7,
+    maxHeight: MediaQuery.of(context).size.height * 0.9,
     child: DailyTransactionsContent(
       date: date,
       transactions: transactions,
+      onTransactionChanged: onTransactionChanged,
     ),
   );
 }

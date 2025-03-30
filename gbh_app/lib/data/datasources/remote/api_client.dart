@@ -3,11 +3,12 @@ import 'package:dio/dio.dart';
 
 class ApiClient {
   final Dio _dio;
-  
+
   ApiClient(this._dio);
-  
+
   // 기본 GET 요청
-  Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
+  Future<dynamic> get(String path,
+      {Map<String, dynamic>? queryParameters}) async {
     try {
       final response = await _dio.get(path, queryParameters: queryParameters);
       return _processResponse(response);
@@ -17,7 +18,8 @@ class ApiClient {
   }
 
   // GET 요청에 body를 지원하는 메소드
-  Future<dynamic> getWithBody(String path, {dynamic data, Map<String, dynamic>? queryParameters}) async {
+  Future<dynamic> getWithBody(String path,
+      {dynamic data, Map<String, dynamic>? queryParameters}) async {
     try {
       final options = Options(method: 'GET');
       final response = await _dio.request(
@@ -31,7 +33,7 @@ class ApiClient {
       throw _handleError(e);
     }
   }
-  
+
   // 기본 POST 요청
   Future<dynamic> post(String path, {dynamic data}) async {
     try {
@@ -41,7 +43,7 @@ class ApiClient {
       throw _handleError(e);
     }
   }
-  
+
   // PUT 요청 추가
   Future<dynamic> put(String path, {dynamic data}) async {
     try {
@@ -51,7 +53,7 @@ class ApiClient {
       throw _handleError(e);
     }
   }
-  
+
   // DELETE 요청 추가
   Future<dynamic> delete(String path, {dynamic data}) async {
     try {
@@ -61,12 +63,12 @@ class ApiClient {
       throw _handleError(e);
     }
   }
-  
+
   // 응답 처리 (백엔드의 status 코드 확인)
   dynamic _processResponse(Response response) {
     return response.data;
   }
-  
+
   // 에러 핸들링 (상세)
   Exception _handleError(DioException error) {
     if (error.response != null) {
@@ -84,14 +86,14 @@ class ApiClient {
       }
       return Exception('API 에러: 상태 코드 ${error.response!.statusCode}');
     }
-    
+
     // 네트워크 연결 문제 등
     if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.sendTimeout) {
       return Exception('서버 연결 시간 초과. 네트워크 상태를 확인해주세요.');
     }
-    
+
     return Exception('API 요청 실패: ${error.message}');
   }
 }

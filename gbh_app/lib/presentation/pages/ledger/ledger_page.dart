@@ -7,13 +7,15 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-// 라우터터
+// 라우터
 import 'package:marshmellow/router/routes/ledger_routes.dart';
 import 'package:go_router/go_router.dart';
 
 // 상태관리
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
+import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 
 // 위젯
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
@@ -41,6 +43,7 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
     // 화면 크기 정의
     final screenWidth = MediaQuery.of(context).size.width;
     final contentWidth = screenWidth * 0.9;
+    final ledgerState = ref.watch(ledgerViewModelProvider);
 
     return Scaffold(
       appBar: CustomAppbar(title: '가계부', actions: [
@@ -62,49 +65,10 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
                   // 날짜 선택 컴포넌트
                   DateRangeSelector(
                     onPreviousPressed: () {
-                      // 이전 날짜 범위로 이동하는 로직
-                      final datePickerState = ref.read(datePickerProvider);
-                      if (datePickerState.selectedRange != null &&
-                          datePickerState.selectedRange!.startDate != null) {
-                        final startDate =
-                            datePickerState.selectedRange!.startDate!;
-                        final endDate =
-                            datePickerState.selectedRange!.endDate ?? startDate;
-                        final duration = endDate.difference(startDate);
-
-                        // 이전 기간으로 이동 (현재 기간만큼 뒤로)
-                        final newStartDate = startDate
-                            .subtract(duration + const Duration(days: 1));
-                        final newEndDate =
-                            startDate.subtract(const Duration(days: 1));
-
-                        ref
-                            .read(datePickerProvider.notifier)
-                            .updateSelectedRange(
-                                PickerDateRange(newStartDate, newEndDate));
-                      }
+                      print('이전 기간으로 이동했습니다');
                     },
                     onNextPressed: () {
-                      // 다음 날짜 범위로 이동하는 로직
-                      final datePickerState = ref.read(datePickerProvider);
-                      if (datePickerState.selectedRange != null &&
-                          datePickerState.selectedRange!.startDate != null) {
-                        final startDate =
-                            datePickerState.selectedRange!.startDate!;
-                        final endDate =
-                            datePickerState.selectedRange!.endDate ?? startDate;
-                        final duration = endDate.difference(startDate);
-
-                        // 다음 기간으로 이동 (현재 기간만큼 앞으로)
-                        final newStartDate =
-                            endDate.add(const Duration(days: 1));
-                        final newEndDate = newStartDate.add(duration);
-
-                        ref
-                            .read(datePickerProvider.notifier)
-                            .updateSelectedRange(
-                                PickerDateRange(newStartDate, newEndDate));
-                      }
+                      print('다음 기간으로 이동했습니다');
                     },
                   ),
 
@@ -115,7 +79,7 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
                       Expanded(
                         child: FinanceCard(
                           title: '수입',
-                          amount: 2500000,
+                          amount: ledgerState.totalIncome,
                           backgroundColor: AppColors.bluePrimary,
                           onTap: () {
                             print('수입 카드가 탭됨');
@@ -126,7 +90,7 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
                       Expanded(
                         child: FinanceCard(
                           title: '지출',
-                          amount: 1500000,
+                          amount: ledgerState.totalExpenditure,
                           backgroundColor: AppColors.pinkPrimary,
                           onTap: () {
                             print('지출 카드가 탭됨');

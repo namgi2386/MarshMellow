@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_field.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_fields.dart';
-import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transfer_category.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/picker/transfer_direction_picker.dart';
 
 class TransferForm extends ConsumerStatefulWidget {
   const TransferForm({super.key});
@@ -14,9 +16,9 @@ class _TransferFormState extends ConsumerState<TransferForm> {
   DateTime _selectedDate = DateTime.now();
   String? _merchant;
   String? _memo;
-  DepositCategory? _selectedIncomeCategory;
-  String? _depositAccount;
-  String? _withdrawalAccount; // 출금계좌 변수 추가
+  TransferCategory? _selectedTransferCategory;
+  TransferDirection? _transferDirection;
+  String? _account;
 
   // 날짜 업데이트 함수
   void _updateDate(DateTime date) {
@@ -39,57 +41,83 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     });
   }
 
-  // 카테고리 업데이트 함수
-  void _updateIncomeCategory(DepositCategory category) {
+  // 이체 방향 및 카테고리 업데이트 함수
+  void _updateTransferInfo(
+      TransferDirection direction, TransferCategory category) {
     setState(() {
-      _selectedIncomeCategory = category;
+      _transferDirection = direction;
+      _selectedTransferCategory = category;
+      // 디버깅을 위해 로그 추가
+      print('Direction: $direction, Category: ${category.name}');
     });
   }
 
-  // 출금 계좌 업데이트 함수
-  void _updateWithdrawalAccount(String value) {
+  // 계좌 업데이트 함수
+  void _updateAccount(String value) {
     setState(() {
-      _withdrawalAccount = value;
+      _account = value;
     });
+  }
+
+  // 카테고리 선택 모달 표시
+  void _showCategorySelectionModal() async {
+    final result = await showTransferDirectionPickerModal(context);
+    if (result != null) {
+      _updateTransferInfo(result['direction'], result['category']);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          // 카테고리 필드
-          TransactionFields.incomeCategoryField(
-            context: context,
-            selectedCategory: _selectedIncomeCategory?.name,
-            onCategorySelected: _updateIncomeCategory,
-          ),
-          // 상호명 필드
-          TransactionFields.editableMerchantField(
-            merchantName: _merchant,
-            onMerchantChanged: _updateMerchant,
-          ),
-          // 출금 계좌 필드
-          TransactionFields.withdrawalAccountField(
-            account: _withdrawalAccount,
-            onTap: () {
-              // 출금 계좌 선택 로직 구현
-            },
-          ),
-          // 날짜 필드
-          TransactionFields.dateField(
-            context: context,
-            ref: ref,
-            selectedDate: _selectedDate,
-            onDateChanged: _updateDate,
-          ),
-          // 메모 필드
-          TransactionFields.editableMemoField(
-            memo: _memo,
-            onMemoChanged: _updateMemo,
-          ),
-        ],
-      ),
+    // 카테고리 표시 텍스트
+    String categoryDisplayText = '';
+    if (_transferDirection != null && _selectedTransferCategory != null) {
+      String directionText =
+          _transferDirection == TransferDirection.deposit ? '입금' : '출금';
+      categoryDisplayText =
+          '$directionText > ${_selectedTransferCategory!.name}';
+      // 디버깅을 위해 로그 추가
+      print('Displaying: $categoryDisplayText');
+    }
+
+    return Column(
+      children: [
+        // 카테고리 필드
+        TransactionField(
+          label: '카테고리',
+          value: categoryDisplayText,
+          onTap: _showCategorySelectionModal,
+        ),
+
+        // 상호명 필드
+        TransactionFields.editableMerchantField(
+          merchantName: _merchant,
+          onMerchantChanged: _updateMerchant,
+        ),
+
+        // 계좌 필드
+        TransactionField(
+          label: '계좌',
+          value: _account,
+          onTap: () {
+            // 계좌 선택 로직 구현
+          },
+        ),
+
+        // 날짜 필드
+        TransactionFields.dateField(
+          context: context,
+          ref: ref,
+          selectedDate: _selectedDate,
+          onDateChanged: _updateDate,
+        ),
+
+        // 메모 필드
+        TransactionFields.editableMemoField(
+          memo: _memo,
+          onMemoChanged: _updateMemo,
+        ),
+      ],
     );
   }
 }

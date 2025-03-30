@@ -1,19 +1,7 @@
 package com.gbh.gbh_mm.household.service;
 
-import com.gbh.gbh_mm.household.model.vo.request.RequestCreateHousehold;
-import com.gbh.gbh_mm.household.model.vo.request.RequestDeleteHousehold;
-import com.gbh.gbh_mm.household.model.vo.request.RequestFindHousehold;
-import com.gbh.gbh_mm.household.model.vo.request.RequestFindHouseholdList;
-import com.gbh.gbh_mm.household.model.vo.request.RequestFindTransactionDataList;
-import com.gbh.gbh_mm.household.model.vo.request.RequestUpdateHousehold;
-import com.gbh.gbh_mm.household.model.vo.response.RequestCreateHouseholdList;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHousehold;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHouseholdList;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseDeleteHousehold;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHousehold;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHouseholdList;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseFindTransactionDataList;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseUpdateHousehold;
+import com.gbh.gbh_mm.household.model.vo.request.*;
+import com.gbh.gbh_mm.household.model.vo.response.*;
 
 public interface HouseholdService {
 
@@ -30,4 +18,6 @@ public interface HouseholdService {
     ResponseFindTransactionDataList findTransactionDataList(RequestFindTransactionDataList request);
 
     ResponseCreateHouseholdList createHouseholdList(RequestCreateHouseholdList request);
+
+    ResponseSearchHousehold searchHousehold(RequestSearchHousehold request);
 }

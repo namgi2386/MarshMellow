@@ -1,13 +1,20 @@
 // presentation/pages/finance/widgets/banner_ad_widget.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/router/routes/finance_routes.dart';
 
 class FinanceAnalyticsWidget extends StatelessWidget {
-  const FinanceAnalyticsWidget({Key? key}) : super(key: key);
+  final VoidCallback? onClose; // 닫기 콜백 추가
+  
+  const FinanceAnalyticsWidget({
+    Key? key, 
+    this.onClose,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +49,19 @@ class FinanceAnalyticsWidget extends StatelessWidget {
               style: AppTextStyles.bodyMedium
             ),
             const SizedBox(height: 16),
-            Container(
-              padding: EdgeInsets.fromLTRB(40.0, 14.0, 40.0, 14.0),
-              decoration: BoxDecoration(
-                color: AppColors.buttonBlack,
-                borderRadius: BorderRadius.all(Radius.circular(6.0))
+            GestureDetector(
+              onTap: () {
+                context.push(FinanceRoutes.getAnalysisPath());
+              },
+              child: Container(
+                padding: EdgeInsets.fromLTRB(40.0, 14.0, 40.0, 14.0),
+                decoration: BoxDecoration(
+                  color: AppColors.buttonBlack,
+                  borderRadius: BorderRadius.all(Radius.circular(6.0))
+                ),
+                child: Text('분석하기', style: AppTextStyles.bodyMedium
+                  .copyWith(color: AppColors.blueLight),),
               ),
-              child: Text('분석하기', style: AppTextStyles.bodyMedium
-                .copyWith(color: AppColors.blueLight),),
             ),
           ],
         ),
@@ -62,7 +74,7 @@ class FinanceAnalyticsWidget extends StatelessWidget {
             width: 24,
             height: 24,
           ),
-          onPressed: () {},
+          onPressed: onClose,
         ),
       ),
     ],

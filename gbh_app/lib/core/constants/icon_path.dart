@@ -108,6 +108,10 @@ class IconPath {
   // 이체 
   //기타
   static const String transferEtc = 'assets/icons/transfer/non_category.svg';
+  // 입금
+  static const String paid = 'assets/icons/transfer/paid.svg';
+  // 출금
+  static const String received = 'assets/icons/transfer/received.svg';
 
 
   // nav

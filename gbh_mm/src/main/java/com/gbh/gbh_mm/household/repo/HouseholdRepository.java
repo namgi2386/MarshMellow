@@ -21,11 +21,10 @@ public interface HouseholdRepository extends JpaRepository<Household, Long> {
             (String startDate, String endDate, long userPk, String keyword);
 
     @Query("SELECT h FROM Household h " +
-            "JOIN h.householdDetailCategory c " +
             "WHERE h.tradeDate BETWEEN :startDate AND :endDate " +
             "AND h.user.userPk = :userPk " +
             "AND (h.householdMemo LIKE CONCAT('%', :keyword, '%') " +
-            "OR c.householdDetailCategory LIKE CONCAT('%', :keyword, '%')) " +
+            "OR h.tradeName LIKE CONCAT('%', :keyword, '%')) " +
             "ORDER BY h.tradeDate ASC")
     List<Household> searchHousehold(
             @Param("startDate") String startDate,

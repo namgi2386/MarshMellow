@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/main.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_bubble_chart.dart';
+import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart'; 
@@ -13,78 +16,145 @@ class BudgetPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 라이프사이클 상태 구독
-    final lifecycleState = ref.watch(lifecycleStateProvider);
-    return Scaffold(
-      appBar: CustomAppbar(
-        title: '예산',
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              '환경 설정 테스트3',
-              style: AppTextStyles.mainTitle,
-            ),
-            // CounterPage(),
-            const SizedBox(height: 20),
-            Text(
-              '현재 환경: ${AppConfig.isDevelopment() ? "개발" : "프로덕션"}',
-              style: AppTextStyles.bodyMedium,
-            ),
-            const SizedBox(height: 10),
-            // 라이프사이클 상태 표시 추가
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
+    final state = ref.watch(budgetProvider);
+
+    if (state.isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        )
+      );
+    }
+
+    if (state.errorMessage != null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('오류: ${state.errorMessage}'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(budgetProvider.notifier).fetchBudgets();
+                },
+                child: const Text('다시 시도'),
               ),
-              child: Text(
-                '라이프사이클 상태: $lifecycleState',
-                style: AppTextStyles.subTitle,
-              ),
-            ),
-            Text(
-              'API URL: ${AppConfig.apiBaseUrl}',
-              style: AppTextStyles.bodyExtraSmall,
-            ),
-            // 서비스 로케이터 테스트를 위한 버튼 추가
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                print("tt");
-                // 서비스 로케이터가 제대로 설정되었는지 확인
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('의존성 주입 테스트 성공')),
-                );
-              },
-              child: const Text('의존성 주입 테스트', style: AppTextStyles.button),
-            ),
+            ],
+          ),
+        ),
+      );
+    }
 
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // 테스트 페이지로 이동
-                context.push(SignupRoutes.root);
-              },
-              child: const Text('테스트 페이지로 이동'),
+    if (state.budgets.isEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: const Text(
+            '예산',
+            style: TextStyle(color: Colors.black),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined, color: Colors.black),
+              onPressed: () {},
             ),
-
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // 테스트 페이지로 이동
-                context.push(SignupRoutes.getMyDataAgreementPath());
-              },
-              child: const Text('테스트 페이지로 이동'),
+            IconButton(
+              icon: const Icon(Icons.account_circle_outlined, color: Colors.black),
+              onPressed: () {},
             ),
-
-
           ],
         ),
-      ),
+        body: const Center(
+          child: Text('등록된 예산이 없습니다.'),
+        ),
+      );
+    }
+
+    final selectedBudget = state.selectedBudget;
+    if (selectedBudget == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('선택된 예산이 없습니다다')
+        ),
+      );
+    }
+
+    final categories = selectedBudget.budgetCategoryList;
+    final remainingBudget = state.remainingBudget;
+
+    // 금액 포맷팅 (천 단위 쉼표)
+    String formattedRemainingBudget = remainingBudget.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},'
     );
+
+    return Scaffold(
+      appBar: CustomAppbar(title: '남은 예산 $remainingBudget 원'),
+      body: Column(
+        children: [
+          // 날짜 범위 선택기
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    ref.read(budgetProvider.notifier).navigateToPreviousBudget();
+                  }, 
+                  icon: Icon(Icons.chevron_left),
+                ),
+                Text(
+                  state.dateRangeText,
+                  style: AppTextStyles.bodySmall,
+                ),
+                IconButton(
+                  onPressed: () {
+                    ref.read(budgetProvider.notifier).navigateToNextBudget();
+                  }, 
+                  icon: Icon(Icons.chevron_right)
+                ),
+              ],
+            )
+          ),
+
+          // 메인 버블 차트 
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22.0),
+              child: categories.isNotEmpty
+              ? BudgetBubblechart(categories: categories)
+              : const Center(child: Text('등록된 예산이 없습니다')),
+            ),
+          ),
+
+          // 위시 리스트 섹션
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '위시 리스트',
+                    style: AppTextStyles.bodyMediumLight,
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(child: Center(child: Text('위시 리스트가 비어있습니다.'),))
+                ],
+              )
+            ),
+          )
+        ],
+      )
+    );
+
+
+
   }
 }

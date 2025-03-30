@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/datasources/remote/api_client.dart';
+import 'package:marshmellow/data/models/finance/withdrawal_account_model.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
 //detail
 import 'package:marshmellow/data/models/finance/asset_response_model.dart';
@@ -59,7 +60,7 @@ class FinanceApi {
     final response = await _apiClient.getWithBody('/asset/deposit-payment', data: data);
     return DepositDetailResponse.fromJson(response);
   }
- 
+  
   // 적금 납입 회차 조회 API
   Future<SavingDetailResponse> getSavingAccountPayments({
     required String userKey,
@@ -112,6 +113,53 @@ class FinanceApi {
 
     final response = await _apiClient.getWithBody('/asset/card-transaction', data: data);
     return CardDetailResponse.fromJson(response);
+  }
+
+  // 출금계좌 목록 조회
+  Future<WithdrawalAccountResponse> getWithdrawalAccounts(int userPk) async {
+    final response = await _apiClient.getWithBody('/asset/withdrawal-account', data: {'userPk': userPk});
+    return WithdrawalAccountResponse.fromJson(response);
+  }
+
+  // 계좌 인증 발송 (1원 송금)
+  Future<AccountAuthResponse> sendAccountAuth({
+    required String userKey,
+    required String accountNo,
+  }) async {
+    final data = {
+      'userKey': userKey,
+      'accountNo': accountNo,
+    };
+    
+    final response = await _apiClient.post('/asset/open-account-auth', data: data);
+    return AccountAuthResponse.fromJson(response);
+  }
+
+  // 계좌 인증 검증
+  Future<AccountAuthVerifyResponse> verifyAccountAuth({
+    required String userKey,
+    required String accountNo,
+    required String authCode,
+  }) async {
+    // 디버깅: 타입 확인 및 로그 출력
+    print('authCode 타입: ${authCode.runtimeType}');
+    print('authCode 값: $authCode');
+    
+    final data = {
+      'userKey': userKey,
+      'accountNo': accountNo,
+      'authCode': authCode.toString(), // 명시적으로 문자열 변환
+    };
+    
+    // 요청 데이터 확인용 로그
+    print('API 요청 데이터: $data');
+    
+    final response = await _apiClient.post('/asset/check-account-auth', data: data);
+    
+    // 응답 확인용 로그
+    print('API 응답: $response');
+    
+    return AccountAuthVerifyResponse.fromJson(response);
   }
 
 }

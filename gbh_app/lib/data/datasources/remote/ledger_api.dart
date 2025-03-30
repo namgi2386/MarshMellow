@@ -91,4 +91,57 @@ class LedgerApi {
       throw Exception('가계부 상세 정보를 가져오는데 실패했습니다: $e');
     }
   }
+
+  // 검색 기능
+  // LedgerApi에서 수정할 부분
+  Future<Map<String, dynamic>> searchHousehold({
+    required int userPk,
+    required String startDate,
+    required String endDate,
+    required String keyword,
+  }) async {
+    try {
+      final response = await _apiClient.getWithBody(
+        '/household/search',
+        data: {
+          'userPk': userPk,
+          'startDate': startDate,
+          'endDate': endDate,
+          'keyword': keyword,
+        },
+      );
+
+      if (response['code'] == 200 && response['data'] != null) {
+        final data = response['data'];
+        final householdList = data['householdList'] ?? [];
+
+        // 검색된 트랜잭션 목록
+        final List<Transaction> transactions = [];
+
+        // householdList를 트랜잭션으로 변환
+        for (var item in householdList) {
+          try {
+            // 디버깅을 위해 로그 추가
+            print('Processing item: ${item['tradeName']}');
+
+            // API 응답에 필요한 필드가 모두 있는지 확인
+            final transaction = Transaction.fromJson(item);
+            transactions.add(transaction);
+          } catch (e) {
+            print('Error parsing transaction: $e');
+            // 파싱 오류가 발생해도 계속 진행
+          }
+        }
+
+        // 결과 반환
+        return {
+          'transactions': transactions,
+        };
+      }
+
+      throw Exception('API 응답 에러: ${response['message']}');
+    } catch (e) {
+      throw Exception('가계부 검색에 실패했습니다: $e');
+    }
+  }
 }

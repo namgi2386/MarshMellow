@@ -38,22 +38,64 @@ class Transaction {
   });
 
   // API 응답에서 Transaction 객체 생성 - 명세서에 맞게 수정
+  // Transaction 클래스의 fromJson 메서드를 수정
   factory Transaction.fromJson(Map<String, dynamic> json) {
-    return Transaction(
-      householdPk: json['householdPk'],
-      tradeName: json['tradeName'],
-      tradeDate: json['tradeDate'],
-      tradeTime: json['tradeTime'],
-      householdAmount: json['householdAmount'],
-      householdMemo: null, // API에서 제공하지 않음
-      paymentMethod: json['paymentMethod'],
-      paymentCancelYn: json['paymentCancelYn'],
-      householdCategory: json['householdCategory'],
-      householdDetailCategory: null, // API에서 제공하지 않음
-      classification:
-          _parseClassification(json['householdClassificationCategory']),
-      exceptedBudgetYn: json['exceptedBudgetYn'] ?? 'N', // 기본값 'N' 설정
-    );
+    try {
+      // API에서 반환되는 필드 중 일부를 안전하게 추출
+      final householdPk = json['householdPk'] as int;
+      final tradeName = json['tradeName'] as String;
+      final tradeDate = json['tradeDate'] as String;
+      final tradeTime = json['tradeTime'] as String;
+      final householdAmount = json['householdAmount'] as int;
+
+      // 선택적 필드는 안전하게 추출
+      final householdMemo = json['householdMemo'] as String?;
+      final paymentMethod = json['paymentMethod'] as String;
+      final paymentCancelYn = json['paymentCancelYn'] as String;
+      final exceptedBudgetYn = json['exceptedBudgetYn'] as String? ?? 'N';
+
+      // 카테고리 정보 추출 (nested objects 처리)
+      String householdCategory = '';
+      String? householdDetailCategory;
+
+      if (json['householdDetailCategory'] != null &&
+          json['householdDetailCategory'] is Map) {
+        final detailCategory = json['householdDetailCategory'] as Map;
+        householdDetailCategory =
+            detailCategory['householdDetailCategory'] as String?;
+
+        if (detailCategory['householdCategory'] != null &&
+            detailCategory['householdCategory'] is Map) {
+          final category = detailCategory['householdCategory'] as Map;
+          householdCategory =
+              category['householdCategoryName'] as String? ?? '';
+        }
+      }
+
+      // 분류 카테고리 추출
+      final classificationStr =
+          json['householdClassificationCategory'] as String;
+      final classification = _parseClassification(classificationStr);
+
+      return Transaction(
+        householdPk: householdPk,
+        tradeName: tradeName,
+        tradeDate: tradeDate,
+        tradeTime: tradeTime,
+        householdAmount: householdAmount,
+        householdMemo: householdMemo,
+        paymentMethod: paymentMethod,
+        paymentCancelYn: paymentCancelYn,
+        exceptedBudgetYn: exceptedBudgetYn,
+        householdCategory: householdCategory,
+        householdDetailCategory: householdDetailCategory,
+        classification: classification,
+      );
+    } catch (e) {
+      print('Error in Transaction.fromJson: $e');
+      print('JSON: $json');
+      rethrow; // 디버깅을 위해 예외 다시 발생
+    }
   }
 
   // 문자열을 TransactionClassification 열거형으로 변환

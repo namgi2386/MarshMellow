@@ -7,7 +7,8 @@ import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_view
 
 class IncomeForm extends ConsumerStatefulWidget {
   final Transaction? initialData; // 초기 데이터 추가
-  const IncomeForm({super.key, this.initialData});
+  final DateTime? initialDate; // 초기 날짜
+  const IncomeForm({super.key, this.initialData, this.initialDate});
 
   @override
   ConsumerState<IncomeForm> createState() => _IncomeFormState();
@@ -23,7 +24,7 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
   @override
   void initState() {
     super.initState();
-    // 초기 데이터가 있으면 설정
+    // 초기 데이터가 있으면 설정 (우선순위: initialData > initialDate > 현재 날짜)
     if (widget.initialData != null) {
       final transaction = widget.initialData!;
       final categoryRepository = ref.read(ledgerRepositoryProvider);
@@ -38,6 +39,9 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
       // 카테고리 설정
       _selectedIncomeCategory = categoryRepository.getDepositCategoryByName(
           transaction.householdCategory); // 수입 카테고리로 변경
+    } else {
+      // initialDate가 있으면 그 날짜를 사용, 없으면 현재 날짜 사용
+      _selectedDate = widget.initialDate ?? DateTime.now();
     }
   }
 

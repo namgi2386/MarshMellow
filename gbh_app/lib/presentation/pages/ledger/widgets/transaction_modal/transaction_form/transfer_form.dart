@@ -9,7 +9,8 @@ import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_view
 
 class TransferForm extends ConsumerStatefulWidget {
   final Transaction? initialData; // 초기 데이터 추가
-  const TransferForm({super.key, this.initialData});
+  final DateTime? initialDate; // 초기 날짜
+  const TransferForm({super.key, this.initialData, this.initialDate});
 
   @override
   ConsumerState<TransferForm> createState() => _TransferFormState();
@@ -40,9 +41,12 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       // 카테고리 설정
       _selectedTransferCategory = categoryRepository
           .getTransferCategoryByName(transaction.householdCategory);
-      
+
       // 트랜잭션 방향 설정 - 기본적으로 출금으로 설정하고, 필요하면 수정
       _transferDirection = TransferDirection.withdrawal;
+    } else {
+      // initialDate가 있으면 그 날짜를 사용, 없으면 현재 날짜 사용
+      _selectedDate = widget.initialDate ?? DateTime.now();
     }
   }
 

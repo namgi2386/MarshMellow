@@ -6,7 +6,8 @@ import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
-import 'package:marshmellow/di/providers/date_picker_provider.dart'; // 이 import 추가
+import 'package:marshmellow/di/providers/date_picker_provider.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/daily_transations_bottom_sheet.dart';
 
 // 캘린더 기간 프로바이더 - 월급일 기준
 final calendarPeriodProvider =
@@ -115,6 +116,31 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
     };
   }
 
+  // 특정 날짜의 트랜잭션 목록 필터링
+  List<Transaction> _filterTransactionsByDate(
+      List<Transaction> transactions, DateTime date) {
+    return transactions.where((transaction) {
+      return transaction.dateTime.year == date.year &&
+          transaction.dateTime.month == date.month &&
+          transaction.dateTime.day == date.day;
+    }).toList();
+  }
+
+  // 날짜를 탭했을 때 트랜잭션 목록 모달 표시
+  void _showDailyTransactionsModal(
+      DateTime date, List<Transaction> transactions) {
+    // 해당 날짜의 트랜잭션 필터링
+    final dailyTransactions = _filterTransactionsByDate(transactions, date);
+
+    // 모달 표시
+    showDailyTransactionsModal(
+      context: context,
+      ref: ref,
+      date: date,
+      transactions: dailyTransactions,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // DatePicker의 변경을 감지
@@ -156,7 +182,7 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
                           child: Center(
                             child: Text(
                               day,
-                              style: AppTextStyles.bodyMedium.copyWith(
+                              style: AppTextStyles.bodyLarge.copyWith(
                                 fontWeight: FontWeight.w300,
                                 color: AppColors.textPrimary,
                               ),
@@ -194,6 +220,9 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
                   final hasIncome = summary['income']! > 0;
                   final hasExpense = summary['expense']! > 0;
 
+                  // 해당 날짜에 트랜잭션이 있는지 확인
+                  final hasTransactions = hasIncome || hasExpense;
+
                   // 오늘 날짜 확인
                   final isToday = day.year == DateTime.now().year &&
                       day.month == DateTime.now().month &&
@@ -214,17 +243,24 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
 
                   return GestureDetector(
                     onTap: () {
+                      // 날짜 선택 상태 업데이트
                       setState(() {
                         _selectedDay = day;
                       });
-                      // 선택된 날짜의 트랜잭션을 보여주는 다이얼로그 등을 여기서 구현할 수 있음
+
+                      // 날짜가 표시 기간 내에 있고, 트랜잭션이 있거나 없는 경우 모두 모달 표시
+                      if (isInDisplayPeriod) {
+                        _showDailyTransactionsModal(day, transactions);
+                      }
                     },
                     child: Container(
                       height: cellHeight,
                       width: cellWidth,
                       margin: const EdgeInsets.all(1),
                       decoration: BoxDecoration(
-                        color: Colors.transparent,
+                        color: isSelected && isInDisplayPeriod
+                            ? AppColors.textLight.withOpacity(0.1)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
@@ -253,7 +289,7 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
                                           : isWeekend
                                               ? AppColors.textPrimary
                                               : AppColors.textPrimary,
-                                  fontWeight: isToday
+                                  fontWeight: isToday || isSelected
                                       ? FontWeight.bold
                                       : FontWeight.normal,
                                 ),

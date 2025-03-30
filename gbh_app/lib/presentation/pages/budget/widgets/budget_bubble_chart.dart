@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:marshmellow/core/theme/app_colors.dart';
-import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'dart:math' as math;
-import 'package:marshmellow/data/models/budget/budget_model.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/data/models/budget/budget_model.dart';
 
-class BudgetBubblechart extends ConsumerWidget {
+class BudgetBubblechart extends ConsumerStatefulWidget {
   final List<BudgetCategory> categories;
   final double maxRadius;
   final double padding;
@@ -18,8 +19,35 @@ class BudgetBubblechart extends ConsumerWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (categories.isEmpty) {
+  ConsumerState<BudgetBubblechart> createState() => _BudgetBubblechartState();
+}
+
+class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
+  // Accelerometer data
+  double _tiltX = 0.0;
+  double _tiltY = 0.0;
+  
+  // Maximum tilt angles (in radians)
+  final double _maxTiltAngle = 0.5;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Listen to accelerometer events
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      if (mounted) {
+        setState(() {
+          // X축은 좌우 기울기 Y축은 앞뒤 기울기
+          _tiltX = (event.x / 9.8).clamp(-_maxTiltAngle, _maxTiltAngle);
+          _tiltY = (event.y / 9.8).clamp(-_maxTiltAngle, _maxTiltAngle);
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.categories.isEmpty) {
       return const Center(
         child: Text(
           '등록된 예산 카테고리가 없습니다',
@@ -29,20 +57,25 @@ class BudgetBubblechart extends ConsumerWidget {
     }
 
     // 전체 예산 합계 계산
-    int totalBudget = categories.fold(0, (sum, category) => sum + category.budgetCategoryPrice);
+    int totalBudget = widget.categories.fold(
+        0, (sum, category) => sum + category.budgetCategoryPrice);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         return Container(
           width: constraints.maxWidth,
           height: constraints.maxHeight,
-          child: CustomPaint(
-            painter: BubblesPainter(
-              budgetCategories: categories,
-              totalBudget: totalBudget,
-              maxRadius: maxRadius,
-              padding: padding,
-              containerSize: math.min(constraints.maxWidth, constraints.maxHeight),
+          child: RepaintBoundary(
+            child: CustomPaint(
+              painter: BubblesPainter(
+                budgetCategories: widget.categories,
+                totalBudget: totalBudget,
+                maxRadius: widget.maxRadius,
+                padding: widget.padding,
+                containerSize: math.min(constraints.maxWidth, constraints.maxHeight),
+                tiltX: _tiltX,
+                tiltY: _tiltY,
+              ),
             ),
           ),
         );
@@ -57,6 +90,8 @@ class BubblesPainter extends CustomPainter {
   final double maxRadius;
   final double padding;
   final double containerSize;
+  final double tiltX;
+  final double tiltY;
 
   BubblesPainter({
     required this.budgetCategories,
@@ -64,6 +99,8 @@ class BubblesPainter extends CustomPainter {
     required this.maxRadius,
     required this.padding,
     required this.containerSize,
+    required this.tiltX,
+    required this.tiltY,
   });
 
   @override
@@ -115,53 +152,65 @@ class BubblesPainter extends CustomPainter {
     }
   }
 
-  // 버블 위치 최적화 *이곳을 수정합니다!
+  // 버블 위치 최적화 
   void optimizeBubblePositions(List<Bubble> bubbles, Size size) {
     // 반복 횟수
-    int iterations = 200;
+    int iterations = 12;
     
-    // 반발력 및 중력 상수
-    double repulsionForce = 3.2;
-    double centerForce = 0.00004;
+    // 버블 간 힘과 중앙 힘 조정
+    double repulsionForce = 5.8;
+    double centerForce = 0.00001;
     
     final center = Offset(size.width / 2, size.height / 2);
     
+    // 초기 위치를 원형으로 배치
+    if (bubbles.length > 1) {
+      double angleStep = (math.pi * 2) / bubbles.length;
+      double radius = size.width * 0.3;
+      
+      for (int i = 0; i < bubbles.length; i++) {
+        double angle = i * angleStep;
+        bubbles[i].position = Offset(
+          center.dx + math.cos(angle) * radius,
+          center.dy + math.sin(angle) * radius
+        );
+      }
+    } else if (bubbles.length == 1) {
+      // 하나만 있으면 중앙에 배치
+      bubbles[0].position = center;
+    }
+    
+    // 간단한 최적화 수행
     for (int i = 0; i < iterations; i++) {
-      // 각 버블에 대해 반복
       for (int j = 0; j < bubbles.length; j++) {
         Bubble bubble = bubbles[j];
         Offset force = Offset.zero;
         
-        // 다른 모든 버블과의 상호작용을 계산
+        // 다른 버블과 충돌 검사
         for (int k = 0; k < bubbles.length; k++) {
-          if (j == k) continue;  // 자기 자신은 건너뛰기
+          if (j == k) continue;
           
           Bubble other = bubbles[k];
           Offset direction = bubble.position - other.position;
           double distance = direction.distance;
           
-          // 최소 거리 (두 원의 반지름 합)
           double minDist = bubble.radius + other.radius + padding;
           
-          // 충돌 방지 (너무 가까우면 밀어내기)
+          // 충돌시 밀어내기
           if (distance < minDist) {
-            // 방향 단위 벡터 계산
             Offset norm = direction / (distance == 0 ? 1 : distance);
-            
-            // 밀어내는 힘 계산
-            double pushForce = repulsionForce * (minDist - distance) / minDist;
-            force += norm * pushForce;
+            force += norm * repulsionForce;
           }
         }
         
-        // 화면 중앙으로 끌어당기는 힘
-        Offset centerDirection = center - bubble.position;
-        double centerDistance = centerDirection.distance;
+        // 중앙으로 끌어당기기
+        Offset toCenter = center - bubble.position;
+        double centerDistance = toCenter.distance;
         if (centerDistance > 0) {
-          force += centerDirection / centerDistance * centerForce * centerDistance;
+          force += toCenter / centerDistance * centerForce * centerDistance;
         }
         
-        // 화면 경계 체크
+        // 화면 밖으로 나가지 않도록
         if (bubble.position.dx - bubble.radius < 0) {
           force += Offset(repulsionForce, 0);
         }
@@ -178,6 +227,14 @@ class BubblesPainter extends CustomPainter {
         // 버블 위치 업데이트
         bubble.position += force;
       }
+    }
+    
+    // 최종적으로 모든 버블이 화면 안에 있도록 보정
+    for (Bubble bubble in bubbles) {
+      bubble.position = Offset(
+        bubble.position.dx.clamp(bubble.radius, size.width - bubble.radius),
+        bubble.position.dy.clamp(bubble.radius, size.height - bubble.radius)
+      );
     }
   }
 
@@ -203,38 +260,47 @@ class BubblesPainter extends CustomPainter {
     if (spentPercent > 0) {
       // 검정색 영역 그리기
       final fillPaint = Paint()
-        ..color = Colors.black.withOpacity(0.8)
+        ..color = AppColors.backgroundBlack
         ..style = PaintingStyle.fill;
       
       if (isOverBudget) {
         // 초과 지출은 전체 원을 검정색으로
         canvas.drawCircle(position, radius, fillPaint);
       } else {
-        // 사용 비율에 맞게 원의 아래쪽부터 채우기
-        // 원의 바닥에서부터 사용 비율만큼 채워짐
+        // 기울기에 따른 "액체 표면" 계산
+        // 기본 높이 계산 (원의 바닥에서부터 비율만큼 채워짐)
         final filledHeight = 2 * radius * spentPercent;
+        final baseHeight = position.dy + radius - filledHeight;
         
-        // 채울 영역 계산 (원의 바닥부터 시작)
-        final startY = position.dy + radius - filledHeight;
+        // 기울기를 액체 표면 기울기로 변환
+        final surfaceTiltX = tiltX * 2.0;  // 기울기 효과 증폭
+        // final surfaceTiltY = tiltY * 1.5;
         
-        // 채울 직사각형 영역
-        final rect = Rect.fromLTRB(
-          position.dx - radius,
-          startY,
-          position.dx + radius,
-          position.dy + radius
-        );
+        // 기울어진 액체 표면의 경로
+        final clipPath = Path()..addOval(Rect.fromCircle(center: position, radius: radius));
         
-        // 원 모양 클리핑
+        // 액체 표면 그리기
         canvas.save();
-        canvas.clipPath(Path()..addOval(Rect.fromCircle(center: position, radius: radius)));
-        canvas.drawRect(rect, fillPaint);
+        canvas.clipPath(clipPath);
+        
+        // 액체 표면의 4개 꼭지점 계산
+        final leftOffset = surfaceTiltX * radius;
+        final rightOffset = -surfaceTiltX * radius;
+        
+        // 기울어진 액체 표면의 경로
+        final liquidPath = Path()
+          ..moveTo(position.dx - radius, position.dy + radius)  // 좌하단
+          ..lineTo(position.dx - radius, baseHeight + leftOffset)  // 좌상단
+          ..lineTo(position.dx + radius, baseHeight + rightOffset)  // 우상단
+          ..lineTo(position.dx + radius, position.dy + radius)  // 우하단
+          ..close();
+        
+        canvas.drawPath(liquidPath, fillPaint);
         canvas.restore();
       }
     }
     
-    // 지출 금액 표시
-    final amount = formatNumber(category.budgetExpendAmount ?? 0);
+    // 카테고리 텍스트 그리기
     final fontSize = math.max(radius * 0.3, 12.0);
     
     final textStyle = AppTextStyles.bodyMediumLight.copyWith(
@@ -242,12 +308,6 @@ class BubblesPainter extends CustomPainter {
       fontSize: fontSize,
     );
     
-    // final textSpan = TextSpan(
-    //   text: amount,
-    //   style: textStyle,
-    // );
-
-    // 카테고리 텍스트 그리기
     final textSpan = TextSpan(
       text: category.budgetCategoryName,
       style: textStyle,
@@ -280,7 +340,7 @@ class BubblesPainter extends CustomPainter {
     double angle = 0;
     double distance = bubble.radius + placedBubbles.first.radius + padding;
     double step = 0.2;
-    int maxAttempts = 500;
+    int maxAttempts = 100; // 줄임
 
     while (maxAttempts > 0) {
       double x = center.dx + math.cos(angle) * distance;
@@ -334,16 +394,15 @@ class BubblesPainter extends CustomPainter {
     bubble.position = Offset(x, y);
   }
 
-  // 숫자 포맷팅 (천 단위 쉼표)
-  String formatNumber(int number) {
-    return number.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},'
-    );
-  }
-
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    if (oldDelegate is BubblesPainter) {
+      return oldDelegate.tiltX != tiltX || 
+             oldDelegate.tiltY != tiltY ||
+             oldDelegate.budgetCategories != budgetCategories;
+    }
+    return true;
+  }
 }
 
 // 버블 클래스

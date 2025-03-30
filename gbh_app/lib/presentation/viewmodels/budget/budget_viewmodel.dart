@@ -229,14 +229,14 @@ class BudgetViewmodel extends StateNotifier<BudgetState> {
   
   // 이전/ 다음 예산으로 이동
   void navigateToPreviousBudget() {
-    if (state.selectedBudgetIndex == null || state.selectedBudgetIndex! <= 0) {
+    if (state.selectedBudgetIndex == null || state.selectedBudgetIndex! >= state.budgets.length - 1) {
       return;
     }
     state = state.copyWith(selectedBudgetIndex: state.selectedBudgetIndex! + 1);
   }
 
   void navigateToNextBudget() {
-    if (state.selectedBudgetIndex == null || state.selectedBudgetIndex! >= state.budgets.length -1) {
+    if (state.selectedBudgetIndex == null || state.selectedBudgetIndex! <= 0) {
       return;
     }
     state = state.copyWith(selectedBudgetIndex: state.selectedBudgetIndex! - 1);

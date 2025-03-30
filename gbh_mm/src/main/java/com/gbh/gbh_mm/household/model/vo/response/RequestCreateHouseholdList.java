@@ -7,5 +7,5 @@ import lombok.Data;
 
 @Data
 public class RequestCreateHouseholdList {
-    List<HouseHoldDto> transactionList;
+    private List<HouseHoldDto> transactionList;
 }

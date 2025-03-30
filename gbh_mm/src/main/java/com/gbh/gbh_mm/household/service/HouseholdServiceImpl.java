@@ -14,20 +14,8 @@ import com.gbh.gbh_mm.household.model.entity.Household;
 import com.gbh.gbh_mm.household.model.entity.HouseholdCategory;
 import com.gbh.gbh_mm.household.model.entity.HouseholdDetailCategory;
 import com.gbh.gbh_mm.household.model.enums.HouseholdClassificationEnum;
-import com.gbh.gbh_mm.household.model.vo.request.RequestCreateHousehold;
-import com.gbh.gbh_mm.household.model.vo.request.RequestDeleteHousehold;
-import com.gbh.gbh_mm.household.model.vo.request.RequestFindHousehold;
-import com.gbh.gbh_mm.household.model.vo.request.RequestFindHouseholdList;
-import com.gbh.gbh_mm.household.model.vo.request.RequestFindTransactionDataList;
-import com.gbh.gbh_mm.household.model.vo.request.RequestUpdateHousehold;
-import com.gbh.gbh_mm.household.model.vo.response.RequestCreateHouseholdList;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHousehold;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseCreateHouseholdList;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseDeleteHousehold;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHousehold;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseFindHouseholdList;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseFindTransactionDataList;
-import com.gbh.gbh_mm.household.model.vo.response.ResponseUpdateHousehold;
+import com.gbh.gbh_mm.household.model.vo.request.*;
+import com.gbh.gbh_mm.household.model.vo.response.*;
 import com.gbh.gbh_mm.household.repo.HouseholdCategoryRepository;
 import com.gbh.gbh_mm.household.repo.HouseholdDetailCategoryRepository;
 import com.gbh.gbh_mm.household.repo.AiCategoryRepository;
@@ -132,6 +120,11 @@ public class HouseholdServiceImpl implements HouseholdService {
             householdDetailCategoryRepository
                 .findByHouseholdDetailCategory(
                     request.getHouseholdDetailCategoryName().replaceAll("\\s+", ""));
+
+        if (householdDetailCategory == null) {
+            householdDetailCategory = householdDetailCategoryRepository
+                    .findByHouseholdDetailCategory("미분류");
+        }
 
         household.setUser(user);
         household.setHouseholdClassificationCategory(request.getHouseholdClassification());
@@ -395,31 +388,113 @@ public class HouseholdServiceImpl implements HouseholdService {
         List<Household> householdList = new ArrayList<>();
         for (HouseHoldDto householdDto : householdDtoList) {
             String category = householdDto.getCategory().replaceAll("\\s+", "");
-            ;
+
 
             HouseholdDetailCategory householdDetailCategory =
-                householdDetailCategoryRepository
-                    .findByHouseholdDetailCategory(category);
+                householdDetailCategoryRepository.findByHouseholdDetailCategory(category);
             String tradeTimeSec = householdDto.getTradeTime();
             String tradeTime = tradeTimeSec.substring(0, tradeTimeSec.length() - 2);
 
+            if (householdDetailCategory == null){
+                householdDetailCategory = householdDetailCategoryRepository
+                        .findByHouseholdDetailCategory("미분류");
+            }
+
             Household household = Household.builder()
-                .tradeName(householdDto.getTradeName())
-                .tradeDate(householdDto.getTradeDate())
-                .tradeTime(tradeTime)
-                .householdAmount(householdDto.getHouseholdAmount())
-                .paymentMethod(householdDto.getPaymentMethod())
-                .paymentCancelYn(householdDto.getPaymentCancelYn())
-                .exceptedBudgetYn(householdDto.getExceptedBudgetYn())
-                .user(householdDto.getUser())
-                .householdDetailCategory(householdDetailCategory)
-                .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
-                .build();
+                    .tradeName(householdDto.getTradeName())
+                    .tradeDate(householdDto.getTradeDate())
+                    .tradeTime(tradeTime)
+                    .householdAmount(householdDto.getHouseholdAmount())
+                    .paymentMethod(householdDto.getPaymentMethod())
+                    .paymentCancelYn(householdDto.getPaymentCancelYn())
+                    .exceptedBudgetYn(householdDto.getExceptedBudgetYn())
+                    .user(householdDto.getUser())
+                    .householdDetailCategory(householdDetailCategory)
+                    .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
+                    .build();
             householdList.add(household);
         }
 
         householdRepository.saveAll(householdList);
 
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String currentString = currentDate.format(formatter);
+        String lastDate = "20200101";
+
+        if (!householdList.isEmpty()){
+            long userPk = householdList.get(0).getUser().getUserPk();
+            List<Household> afterHouseholdList = householdRepository
+                .findAllByTradeDateBetweenAndUser_UserPkOrderByTradeDateAsc(lastDate, currentString, userPk);
+
+
+            long totalIncome = afterHouseholdList.stream()
+                    .filter(h -> h.getHouseholdClassificationCategory()
+                            .equals(HouseholdClassificationEnum.DEPOSIT))
+                    .mapToLong(Household::getHouseholdAmount)
+                    .sum();
+
+            long totalExpenditure = afterHouseholdList.stream()
+                    .filter(h -> h.getHouseholdClassificationCategory()
+                            .equals(HouseholdClassificationEnum.WITHDRAWAL))
+                    .mapToLong(Household::getHouseholdAmount)
+                    .sum();
+
+            Map<String, List<HouseholdDetailDto>> grouped = afterHouseholdList.stream()
+                    .collect(Collectors.groupingBy(Household::getTradeDate,
+                            Collectors.mapping(h -> {
+                                HouseholdDetailDto householdDetailDto = HouseholdDetailDto.builder()
+                                        .householdPk(h.getHouseholdPk())
+                                        .tradeName(h.getTradeName())
+                                        .tradeDate(h.getTradeDate())
+                                        .tradeTime(h.getTradeTime())
+                                        .householdAmount(h.getHouseholdAmount())
+                                        .paymentMethod(h.getPaymentMethod())
+                                        .paymentCancelYn(h.getPaymentCancelYn())
+                                        .householdCategory(h.getHouseholdDetailCategory()
+                                                .getHouseholdCategory()
+                                                .getHouseholdCategoryName())
+                                        .householdClassificationCategory(h.getHouseholdClassificationCategory())
+                                        .build();
+
+                                return householdDetailDto;
+                            }, Collectors.toList())
+                    ));
+
+            List<DateGroupDto> households = grouped.entrySet().stream()
+                    .sorted((a, b) -> b.getKey().compareTo(a.getKey()))
+                    .map(entry -> {
+                        DateGroupDto dto = DateGroupDto.builder()
+                                .date(entry.getKey())
+                                .list(entry.getValue())
+                                .build();
+
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+
+
+            ResponseCreateHouseholdList response = ResponseCreateHouseholdList.builder()
+                    .totalIncome(totalIncome)
+                    .totalExpenditure(totalExpenditure)
+                    .houseHoldList(households)
+                    .build();
+
+            return response;
+        }
+
         return null;
+    }
+
+    @Override
+    public ResponseSearchHousehold searchHousehold(RequestSearchHousehold request) {
+        List<Household> householdList = householdRepository.searchHousehold
+                (request.getStartDate(), request.getEndDate(), request.getUserPk(), request.getKeyword());
+
+        ResponseSearchHousehold response = ResponseSearchHousehold.builder()
+                .householdList(householdList)
+                .build();
+
+        return response;
     }
 }

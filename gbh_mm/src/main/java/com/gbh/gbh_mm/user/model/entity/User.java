@@ -38,6 +38,10 @@ public class User {
     @Column(name = "pin")
     private String pin;
 
+    @Column(name = "connection_information")
+    private String connectionInformation;
+
+
     @Column(name = "user_key")
     private String userKey;
 

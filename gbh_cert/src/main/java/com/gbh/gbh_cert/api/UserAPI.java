@@ -6,9 +6,11 @@ import com.gbh.gbh_cert.model.dto.request.RequestCreateUserKey;
 import com.gbh.gbh_cert.model.dto.request.RequestReissueUserKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,16 +33,29 @@ public class UserAPI {
     public Map<String, Object> createUserKey(RequestCreateUserKey request)
             throws JsonProcessingException {
         Map<String, Object> requestBody = new HashMap<>();
-        System.out.println("API_KEY = " + API_KEY);
         requestBody.put("apiKey", API_KEY);
         requestBody.put("userId", request.getUserId());
-
+        System.out.println("requestBody.get(\"apiKey\") = " + requestBody.get("apiKey"));
+        System.out.println("requestBody.get(\"userId\") = " + requestBody.get("userId"));
         Map<String, Object> responseJson = new LinkedHashMap<>(); // 반환할 JSON 객체
 
         String response = webClient.post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, res ->
+                        res.bodyToMono(String.class).flatMap(body -> {
+                            System.out.println("❗ 4xx Error Response: " + body);
+                            if (body.contains("이미 존재") || body.contains("중복")) {
+                                return Mono.error(new RuntimeException("이미 존재하는 userId입니다."));
+                            }
+                            return Mono.error(new RuntimeException("기타 클라이언트 에러: " + body));
+                        }))
+                .onStatus(HttpStatusCode::is5xxServerError, res ->
+                        res.bodyToMono(String.class).flatMap(body -> {
+                            System.out.println("❗ 5xx Error Response: " + body);
+                            return Mono.error(new RuntimeException("서버 에러: " + body));
+                        }))
                 .bodyToMono(String.class)
                 .block(); // ⚠️ 동기 처리
         // ✅ String -> JSON 변환

@@ -1,11 +1,8 @@
 package com.gbh.gbh_cert.util;
 
 import com.gbh.gbh_cert.model.dto.request.CIRequestDto;
-import com.gbh.gbh_cert.model.dto.response.CIResponseDto;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;

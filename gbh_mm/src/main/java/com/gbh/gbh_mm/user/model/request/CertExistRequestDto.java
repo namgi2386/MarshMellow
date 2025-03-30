@@ -1,4 +1,4 @@
-package com.gbh.gbh_cert.model.dto.request;
+package com.gbh.gbh_mm.user.model.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class CertExistRequestDto {
 
     String connectionInformation;
-
 }

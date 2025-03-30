@@ -1,6 +1,5 @@
 package com.gbh.gbh_cert.controller;
 
-
 import com.gbh.gbh_cert.model.dto.request.CIRequestDto;
 import com.gbh.gbh_cert.model.dto.request.CertExistRequestDto;
 import com.gbh.gbh_cert.model.dto.request.CertIssueRequestDto;
@@ -10,7 +9,10 @@ import com.gbh.gbh_cert.model.dto.response.CertResponseDto;
 import com.gbh.gbh_cert.service.CertService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController

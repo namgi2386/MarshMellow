@@ -1,12 +1,8 @@
 package com.gbh.gbh_cert.service;
 
-import com.gbh.gbh_cert.api.UserAPI;
-import com.gbh.gbh_cert.global.exception.CustomException;
-import com.gbh.gbh_cert.global.exception.ErrorCode;
 import com.gbh.gbh_cert.model.dto.request.CIRequestDto;
 import com.gbh.gbh_cert.model.dto.request.CertExistRequestDto;
 import com.gbh.gbh_cert.model.dto.request.CertIssueRequestDto;
-import com.gbh.gbh_cert.model.dto.request.RequestCreateUserKey;
 import com.gbh.gbh_cert.model.dto.response.CIResponseDto;
 import com.gbh.gbh_cert.model.dto.response.CertExistResponseDto;
 import com.gbh.gbh_cert.model.dto.response.CertResponseDto;
@@ -28,17 +24,22 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -63,28 +64,10 @@ public class CertService {
     }
     @Transactional
     public CertResponseDto createCertificate(CertIssueRequestDto certIssueRequestDto) throws Exception {
-        String rawCsrPem = certIssueRequestDto.getCsrPem();
-        System.out.println(">>> Raw CSR PEM: [" + rawCsrPem + "]");
+        System.out.println("certIssueRequestDto = " + certIssueRequestDto);
+        String base64Data = getBase64Data(certIssueRequestDto);
 
-        // 2. CSR PEM 문자열 정리: 캐리지 리턴 제거, 이스케이프된 줄바꿈 변환, 앞뒤 공백 제거
-        String csrPem = rawCsrPem
-                .replace("\r", "")
-                .replace("\\n", "\n")
-                .trim();
-
-        // 3. 헤더/푸터 검증
-        if (!csrPem.startsWith("-----BEGIN CERTIFICATE REQUEST-----") ||
-                !csrPem.endsWith("-----END CERTIFICATE REQUEST-----")) {
-            throw new IllegalArgumentException("Invalid CSR format");
-        }
-
-        // 4. 헤더와 푸터를 제거하여 Base64 데이터만 추출 후 모든 공백 제거
-        String base64Data = csrPem
-                .replace("-----BEGIN CERTIFICATE REQUEST-----", "")
-                .replace("-----END CERTIFICATE REQUEST-----", "")
-                .replaceAll("\\s+", "").trim();
-
-        byte[] decodedBytes = java.util.Base64.getDecoder().decode(base64Data);
+        byte[] decodedBytes = Base64.getDecoder().decode(base64Data);
         PKCS10CertificationRequest csr = new PKCS10CertificationRequest(decodedBytes);
 
         // 보안 프로바이더 설정
@@ -146,6 +129,28 @@ public class CertService {
                 .build();
     }
 
+    private static String getBase64Data(CertIssueRequestDto certIssueRequestDto) {
+        String rawCsrPem = certIssueRequestDto.getCsrPem();
+
+        // 2. CSR PEM 문자열 정리: 캐리지 리턴 제거, 이스케이프된 줄바꿈 변환, 앞뒤 공백 제거
+        String csrPem = rawCsrPem
+                .replace("\r", "")
+                .replace("\\n", "\n")
+                .trim();
+
+        // 3. 헤더/푸터 검증
+        if (!csrPem.startsWith("-----BEGIN CERTIFICATE REQUEST-----") ||
+                !csrPem.endsWith("-----END CERTIFICATE REQUEST-----")) {
+            throw new IllegalArgumentException("Invalid CSR format");
+        }
+
+        // 4. 헤더와 푸터를 제거하여 Base64 데이터만 추출 후 모든 공백 제거
+        return csrPem
+                .replace("-----BEGIN CERTIFICATE REQUEST-----", "")
+                .replace("-----END CERTIFICATE REQUEST-----", "")
+                .replaceAll("\\s+", "").trim();
+    }
+
     private PrivateKey loadCaPrivateKey() throws Exception {
         // 예: src/main/resources/ca/ca_private_key.pem
         // 여기선 간단하게 KeyStore, 또는 파일 기반 PEM 파싱으로 구현 가능
@@ -180,24 +185,15 @@ public class CertService {
 
     public CertExistResponseDto checkCertificateExistence(CertExistRequestDto certExistRequestDto) {
         User user = userService.lookUpUserByCI(certExistRequestDto.getConnectionInformation());
-        System.out.println(">>> [User] ID: " + user.getUserId());
-        Optional<Certificate> certOpt = certficateRepository.findByUserAndCertStatus(user, Certificate.CertStatus.VALID);
 
-        certOpt.ifPresent(cert -> System.out.println(">>> [Cert] ID: " + cert.getCertId()));
-
-        if (certOpt.isPresent()) {
-            System.out.println("exist yes");
-            Certificate cert = certOpt.get();
-            return CertExistResponseDto.builder()
-                    .exist(true)
-                    .status(cert.getCertStatus().name())
-                    .certificatePem(cert.getCertData())
-                    .build();
-        } else {
-            System.out.println("exist no");
-            return CertExistResponseDto.builder()
-                    .exist(false)
-                    .build();
-        }
+        return certficateRepository.findByUserAndCertStatus(user, Certificate.CertStatus.VALID)
+                .map(cert -> CertExistResponseDto.builder()
+                        .exist(true)
+                        .status(cert.getCertStatus().name())
+                        .certificatePem(cert.getCertData())
+                        .build())
+                .orElseGet(() -> CertExistResponseDto.builder()
+                        .exist(false)
+                        .build());
     }
 }

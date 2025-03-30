@@ -3,16 +3,10 @@ package com.gbh.gbh_mm.user.service;
 import com.gbh.gbh_mm.common.exception.CustomException;
 import com.gbh.gbh_mm.common.exception.ErrorCode;
 import com.gbh.gbh_mm.user.model.entity.User;
-import com.gbh.gbh_mm.user.model.request.IdentityVerificationRequestDto;
-import com.gbh.gbh_mm.user.model.request.LoginByBioRequestDto;
-import com.gbh.gbh_mm.user.model.request.LoginByPinRequestDto;
-import com.gbh.gbh_mm.user.model.request.SignUpRequestDto;
-import com.gbh.gbh_mm.user.model.response.IdentityVerificationResponseDto;
-import com.gbh.gbh_mm.user.model.response.LoginResponseDto;
-import com.gbh.gbh_mm.user.model.response.SignUpResponseDto;
+import com.gbh.gbh_mm.user.model.request.*;
+import com.gbh.gbh_mm.user.model.response.*;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.user.util.JwtTokenProvider;
-import com.gbh.gbh_mm.user.util.RSAUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +31,8 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, Object> redisTemplate;
     private final SecureRandom secureRandom = new SecureRandom();
+    private final CertService certService;
+
     @Value("${spring.mail.username}")
     private String serverEmail;
 
@@ -82,17 +77,21 @@ public class UserService {
             gender = 'F';
         }
 
-        // RSAKey 생성
-        HashMap<String, String> keyPair = RSAUtil.generateKeyPair();
-        String publicKey = keyPair.get("publicKey");
-        String privateKey = keyPair.get("privateKey");
+
+        CIResponseDto connectionInformation = certService.createConnectionInformation(
+                CIRequestDto.builder()
+                        .userName(signUpRequestDto.getUserName())
+                        .phoneNumber(signUpRequestDto.getPhoneNumber())
+                        .userCode(signUpRequestDto.getUserCode())
+                        .build()
+        );
 
         User user = User.builder()
                 .userName(signUpRequestDto.getUserName())
-                .userEmail(signUpRequestDto.getUserEmail())
                 .phoneNumber(signUpRequestDto.getPhoneNumber())
                 .birth(birthDate)
                 .gender(gender)
+                .connectionInformation(connectionInformation.getConnectionInformation())
                 .pin(bCryptPasswordEncoder.encode(signUpRequestDto.getPin()))
                 .build();
         userRepository.save(user);
@@ -192,5 +191,30 @@ public class UserService {
         User user = userRepository.findByUserPk(userPk)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         return !Objects.isNull(user.getUserKey());
+    }
+
+    public CertResponseDto issueCertificate(ClientCertIssueRequestDto clientCertIssueRequestDto, Long userPk) {
+        User user = userRepository.findByUserPk(userPk)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        CertIssueRequestDto certIssueRequestDto = CertIssueRequestDto.builder()
+                .csrPem(clientCertIssueRequestDto.getCsrPem())
+                .userEmail(clientCertIssueRequestDto.getUserEmail())
+                .connectionInformation(user.getConnectionInformation())
+                .userName(user.getUserName())
+                .phoneNumber(user.getPhoneNumber())
+                .birth(user.getBirth())
+                .build();
+        return certService.createCertificate(certIssueRequestDto);
+    }
+
+    public CertExistResponseDto checkCertificateExistence(Long userPk) {
+        User user = userRepository.findByUserPk(userPk)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return certService.checkCertificateExistence(CertExistRequestDto.builder()
+                .connectionInformation(user.getConnectionInformation())
+                .build()
+        );
     }
 }

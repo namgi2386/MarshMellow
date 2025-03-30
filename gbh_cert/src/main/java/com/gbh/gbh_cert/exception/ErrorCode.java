@@ -1,4 +1,4 @@
-package com.gbh.gbh_cert.global.exception;
+package com.gbh.gbh_cert.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

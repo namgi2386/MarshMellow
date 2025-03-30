@@ -1,4 +1,4 @@
-package com.gbh.gbh_cert.model.dto.request;
+package com.gbh.gbh_mm.user.model.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CertExistRequestDto {
-
-    String connectionInformation;
-
+public class ClientCertIssueRequestDto {
+    private String csrPem;
+    private String userEmail;
 }

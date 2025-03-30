@@ -1,16 +1,16 @@
-package com.gbh.gbh_cert.model.dto.request;
+package com.gbh.gbh_mm.user.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CertExistRequestDto {
+@Builder
+@Getter
+public class CIResponseDto {
 
-    String connectionInformation;
+    private String connectionInformation;
 
 }

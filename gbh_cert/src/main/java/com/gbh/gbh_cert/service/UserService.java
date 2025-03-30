@@ -2,8 +2,8 @@ package com.gbh.gbh_cert.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gbh.gbh_cert.api.UserAPI;
-import com.gbh.gbh_cert.global.exception.CustomException;
-import com.gbh.gbh_cert.global.exception.ErrorCode;
+import com.gbh.gbh_cert.exception.CustomException;
+import com.gbh.gbh_cert.exception.ErrorCode;
 import com.gbh.gbh_cert.model.dto.request.CIRequestDto;
 import com.gbh.gbh_cert.model.dto.request.RequestCreateUserKey;
 import com.gbh.gbh_cert.model.entity.User;

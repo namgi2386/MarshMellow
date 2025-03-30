@@ -1,12 +1,14 @@
-package com.gbh.gbh_cert.model.dto.request;
+package com.gbh.gbh_mm.user.model.request;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class CertIssueRequestDto {
     private String csrPem;
     private String userEmail;

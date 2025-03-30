@@ -9,6 +9,10 @@ import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_view
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_field.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/type_selector.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
+import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
+import 'package:marshmellow/di/providers/calendar_providers.dart';
+import 'package:marshmellow/di/providers/date_picker_provider.dart';
+import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
 
 // 기존 폼들 import
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/expense_form.dart';
@@ -141,10 +145,39 @@ class _TransactionDetailModalState
                   const SizedBox(width: 10), // 버튼 사이 간격
                   Button(
                     text: '삭제',
-                    width:
-                        MediaQuery.of(context).size.width * 0.43, // 화면 너비의 43%
-                    onPressed: () {
-                      print('아니오 선택됨');
+                    width: MediaQuery.of(context).size.width * 0.43,
+                    onPressed: () async {
+                      // 삭제 처리
+                      final success = await ref
+                          .read(ledgerViewModelProvider.notifier)
+                          .deleteTransaction(widget.householdPk);
+
+                      if (context.mounted) {
+                        if (success) {
+                          // 성공 메시지 표시
+                          CompletionMessage.show(context, message: '삭제 완료');
+                          // 모달 닫기
+                          Navigator.of(context).pop();
+
+                          // 트랜잭션 목록 새로고침
+                          ref.refresh(transactionsProvider);
+
+                          // 캘린더 데이터 새로고침
+                          ref.refresh(calendarTransactionsProvider);
+
+                          // ledgerViewModel 새로고침 (수입/지출 카드 업데이트)
+                          final datePickerState = ref.read(datePickerProvider);
+                          if (datePickerState.selectedRange != null) {
+                            ref
+                                .read(ledgerViewModelProvider.notifier)
+                                .loadHouseholdData(
+                                    datePickerState.selectedRange!);
+                          }
+                        } else {
+                          // 실패 메시지 표시
+                          CompletionMessage.show(context, message: '삭제 실패');
+                        }
+                      }
                     },
                   ),
                 ],

@@ -27,7 +27,7 @@ public class BudgetService {
 
     // 전체 예산 조회
     public ResponseFindBudgetList getBudgetList(Long userPk) {
-        List<Budget> budgets = budgetRepository.findAllByUser_UserPk(userPk);
+        List<Budget> budgets = budgetRepository.findAllByUser_UserPkOrderByBudgetPkDesc(userPk);
 
         if (budgets.isEmpty()) {
             throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);

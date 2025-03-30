@@ -2,6 +2,7 @@ package com.gbh.gbh_mm.budget.service;
 
 import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
+import com.gbh.gbh_mm.budget.model.request.RequestCreateBudget;
 import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.*;
 import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
@@ -14,9 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,13 +70,76 @@ public class BudgetService {
 
     // 예산 생성
     @Transactional
-    public ResponseCreateBudget createBudget(Long userPk, Budget budget) {
+    public ResponseCreateBudget createBudget(Long userPk, RequestCreateBudget requestCreateBudget) {
 
         User user = userRepository.findById(userPk).
                 orElseThrow(() -> new CustomException(ErrorCode.CHILD_NOT_FOUND));
 
+        Budget budget = new Budget();
+
+        int salaryDate = user.getSalaryDate();
+        LocalDate today = LocalDate.now();
+
+        LocalDate startDate;
+        LocalDate endDate;
+
+        // 1월 말일 때 로직 추가 전
+        // 오늘이 월급일 전일 때 -> 이전 달부터의 예산 생성
+        if (today.getDayOfMonth() < salaryDate) {
+            LocalDate previousMonth = today.minusMonths(1);
+            int lastDayOfPreviousMonth = previousMonth.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+            int validSalaryDate = Math.min(salaryDate, lastDayOfPreviousMonth);
+            startDate = previousMonth.withDayOfMonth(validSalaryDate);
+            endDate = today.withDayOfMonth(salaryDate - 1);
+        }
+        // 오늘이 월급날 이상일 때 -> 이번 달부터 예산 생성
+        else {
+            startDate = today.withDayOfMonth(salaryDate);
+            LocalDate nextMonth = today.plusMonths(1);
+            int lastDayOfNextMonth = nextMonth.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+            int validEndDate = Math.min(salaryDate - 1, lastDayOfNextMonth);
+
+            endDate = nextMonth.withDayOfMonth(validEndDate);
+        }
+
+        // Salary가 null이면 기본값 0L 사용
+        long salary = Optional.ofNullable(requestCreateBudget.getSalary()).orElse(0L);
+
+        // 카테고리별 비율 매핑
+        Map<String, Float> categoryMap = Map.of(
+                "고정지출", requestCreateBudget.getFixedExpense(),
+                "식비/외식", requestCreateBudget.getFoodExpense(),
+                "교통/자동차", requestCreateBudget.getTransportationExpense(),
+                "편의점/마트", requestCreateBudget.getMarketExpense(),
+                "금융", requestCreateBudget.getFinancialExpense(),
+                "여가비", requestCreateBudget.getLeisureExpense(),
+                "커피/디저트", requestCreateBudget.getCoffeeExpense(),
+                "쇼핑", requestCreateBudget.getShoppingExpense(),
+                "비상금", requestCreateBudget.getEmergencyExpense()
+        );
+
+        // 총 예산 금액 계산
+        float totalPercentage = (float) categoryMap.values().stream().mapToDouble(Float::doubleValue).sum();
+        long budgetAmount = Math.round(salary * totalPercentage);
+
+        budget.setBudgetAmount(budgetAmount);
+        budget.setStartDate(String.valueOf(startDate));
+        budget.setEndDate(String.valueOf(endDate));
         budget.setUser(user);
         budgetRepository.save(budget);
+
+        // 카테고리별 BudgetCategory 생성 및 저장
+        List<BudgetCategory> budgetCategories = categoryMap.entrySet().stream()
+                .map(entry -> {
+                    BudgetCategory budgetCategory = new BudgetCategory();
+                    budgetCategory.setBudget(budget);
+                    budgetCategory.setBudgetCategoryName(entry.getKey());
+                    budgetCategory.setBudgetCategoryPrice((long) Math.round(salary * entry.getValue()));
+                    return budgetCategory;
+                })
+                .collect(Collectors.toList());
+
+        budgetCategoryRepository.saveAll(budgetCategories);
 
         return ResponseCreateBudget.builder()
                 .message("예산 생성 완료")

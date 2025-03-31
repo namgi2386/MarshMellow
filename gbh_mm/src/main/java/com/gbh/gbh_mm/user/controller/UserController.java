@@ -76,5 +76,12 @@ public class UserController {
         return userService.findAccountList(request);
     }
 
+    @GetMapping("/deposit-list")
+    public ResponseDepositList findDepositList(
+        @RequestBody RequestDepositList request
+    ) {
+        return userService.findDepositList(request);
+    }
+
 
 }

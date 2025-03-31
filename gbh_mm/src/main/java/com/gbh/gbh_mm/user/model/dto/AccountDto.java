@@ -1,4 +1,4 @@
-package com.gbh.gbh_mm.user.model;
+package com.gbh.gbh_mm.user.model.dto;
 
 import lombok.Data;
 

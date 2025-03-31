@@ -1,6 +1,6 @@
 package com.gbh.gbh_mm.user.model.response;
 
-import com.gbh.gbh_mm.user.model.dto.AccountDto;
+import com.gbh.gbh_mm.user.model.dto.DepositDto;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResponseFindAccountList {
-    private List<AccountDto> accountList;
+public class ResponseDepositList {
+    private List<DepositDto> depositList;
 }

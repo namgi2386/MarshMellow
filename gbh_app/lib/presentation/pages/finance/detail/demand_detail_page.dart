@@ -197,9 +197,10 @@ Widget _buildFilterButtons() {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.end, // 오른쪽 정렬
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // PopupMenuButton을 Material로 감싸서 너비 설정
+        Text('이용내역' , style: AppTextStyles.bodyMediumLight,),
         Material(
           color: Colors.transparent,
           child: PopupMenuButton<String>(
@@ -248,10 +249,6 @@ Widget _buildFilterButtons() {
               onTap: () => _selectDate(context, true),
               child: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(4),
-                ),
                 child: Text(
                   _formatDateForDisplay(startDate),
                   textAlign: TextAlign.center,
@@ -268,10 +265,6 @@ Widget _buildFilterButtons() {
               onTap: () => _selectDate(context, false),
               child: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(4),
-                ),
                 child: Text(
                   _formatDateForDisplay(endDate),
                   textAlign: TextAlign.center,

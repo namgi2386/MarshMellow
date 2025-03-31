@@ -56,7 +56,7 @@ class CardItemWidget extends StatelessWidget {
         children: [
           IconButton(
             iconSize: 64, // 아이콘 버튼 크기 설정
-            icon: SvgPicture.asset(IconPath.testCard,
+            icon: SvgPicture.asset('assets/icons/card/testCard.svg',
               width: 64, // SVG 너비
               height: 64, // SVG 높이
             ),

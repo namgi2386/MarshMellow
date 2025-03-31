@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 // .allowedOrigins("http://localhost:9000")  // MM 서버의 포트 명시
-                .allowedOrigins("http://yun-server.zapto.org")
+                .allowedOrigins("http://j12c108.p.ssafy.io:9000")
                 .allowedMethods("POST", "GET", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

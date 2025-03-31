@@ -15,40 +15,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "tbl_portfolio")
+@Table(name = "tbl_portfolio_category")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Portfolio {
+public class PortfolioCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "portfolio_pk")
-    private int portfolioPk;
+    @Column(name = "portfolio_category_pk")
+    private int portfolioCategoryPk;
 
-    @Column(name = "file_url")
-    private String fileUrl;
+    @Column(name = "portfolio_category_name")
+    private String portfolioCategoryName;
 
-    @Column(name = "craete_date")
-    private String createDate;
-
-    @Column(name = "create_time")
-    private String createTime;
-
-    @Column(name = "origin_file_name")
-    private String originFileName;
-
-    @Column(name = "file_name")
-    private String fileName;
-
-    @Column(name = "portfolio_memo")
-    private String portfolioMemo;
+    @Column(name = "portfolio_category_memo")
+    private String portfolioCategoryMemo;
 
     @ManyToOne
     @JoinColumn(name = "user_pk")
     private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "portfolio_category_pk")
-    private PortfolioCategory portfolioCategory;
 }

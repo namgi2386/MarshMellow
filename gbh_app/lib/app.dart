@@ -36,7 +36,7 @@ class _AppState extends ConsumerState<App> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
         title: 'MMApp',
-        debugShowCheckedModeBanner: AppConfig.isDevelopment(),
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: AppColors.background,
           scaffoldBackgroundColor: AppColors.background,
@@ -44,6 +44,9 @@ class _AppState extends ConsumerState<App> {
           textTheme: TextTheme(
             bodyLarge: AppTextStyles.bodyLarge,
             titleLarge: AppTextStyles.appBar,
+          ),
+          colorScheme: ColorScheme.light(
+            primary: AppColors.textPrimary,
           ),
           useMaterial3: true,
         ),

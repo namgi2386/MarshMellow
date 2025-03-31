@@ -88,4 +88,41 @@ class LedgerRepository {
     // 모든 트랜잭션 반환
     return result['allTransactions'] as List<Transaction>;
   }
+
+  // 가계부 상세 조회
+  Future<Transaction> getHouseholdDetail(int householdPk) async {
+    return await _ledgerApi.getHouseholdDetail(householdPk);
+  }
+
+  // 검색 기능
+  Future<List<Transaction>> searchTransactions({
+    required int userPk,
+    required String startDate,
+    required String endDate,
+    required String keyword,
+  }) async {
+    try {
+      final result = await _ledgerApi.searchHousehold(
+        userPk: userPk,
+        startDate: startDate,
+        endDate: endDate,
+        keyword: keyword,
+      );
+
+      return result['transactions'] as List<Transaction>;
+    } catch (e) {
+      throw Exception('거래 검색에 실패했습니다: $e');
+    }
+  }
+
+  // 트랜잭션 삭제 메서드 추가
+  Future<void> deleteTransaction(int householdPk) async {
+    try {
+      await _ledgerApi.deleteHousehold(householdPk: householdPk);
+      // 성공적으로 삭제됨
+    } catch (e) {
+      // 예외 처리
+      throw Exception('거래 내역 삭제 실패: $e');
+    }
+  }
 }

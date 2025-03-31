@@ -7,7 +7,7 @@ import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/main/ledger_calendar.dart';
+import 'package:marshmellow/di/providers/calendar_providers.dart';
 
 class DateRangeSelector extends ConsumerWidget {
   final String? dateRange;

@@ -3,9 +3,7 @@ package com.gbh.gbh_mm.user.controller;
 import com.gbh.gbh_mm.common.dto.ApiResponse;
 import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import com.gbh.gbh_mm.user.model.request.*;
-import com.gbh.gbh_mm.user.model.response.IdentityVerificationResponseDto;
-import com.gbh.gbh_mm.user.model.response.LoginResponseDto;
-import com.gbh.gbh_mm.user.model.response.SignUpResponseDto;
+import com.gbh.gbh_mm.user.model.response.*;
 import com.gbh.gbh_mm.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,11 +48,23 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public String logout(@RequestHeader("Authorization") String bearerToken) {
+    public ApiResponse<?> logout(@RequestHeader("Authorization") String bearerToken) {
         userService.logout(bearerToken);
-        return "로그아웃 성공";
+        return ApiResponse.builder().code(200).message("로그아웃 성공").build();
     }
 
+    @GetMapping("/cert/exist")
+    public CertExistResponseDto isExistCertificate(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return userService.checkCertificateExistence(userDetails.getUserPk());
+    }
+
+    @PostMapping("/cert/issue")
+    public CertResponseDto issueCertificate(@RequestBody ClientCertIssueRequestDto clientCertIssueRequestDto,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return userService.issueCertificate(clientCertIssueRequestDto, userDetails.getUserPk());
+    }
+
+    // 통합인증 진행했는지 여부 검증(userKey가 있거나 없거나로 가야하나?)
     @GetMapping("/integrated-status")
     public Boolean checkIntegratedStatus(@AuthenticationPrincipal CustomUserDetails userDetails){
         return userService.isIntegratedAuthenticated(userDetails.getUserPk());

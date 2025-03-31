@@ -16,7 +16,12 @@ import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/keyboard_modal.dart';
 
 class TransactionForm extends StatefulWidget {
-  const TransactionForm({super.key});
+  final DateTime? initialDate; //초기 날짜 
+
+  const TransactionForm({
+    super.key,
+    this.initialDate,
+  });
 
   @override
   State<TransactionForm> createState() => _TransactionFormState();
@@ -26,17 +31,31 @@ class _TransactionFormState extends State<TransactionForm> {
   String _selectedType = '지출'; // 기본값을 지출로 설정
   String _amount = '0'; // 금액 상태 추가
 
-  // 선택된 타입에 따라 다른 폼을 반환하는 메서드
+  // 선택된 타입에 따라 다른 폼을 반환하는 메서드 (수정)
   Widget _getFormByType() {
+    // initialDate가 있으면 전달, 없으면 각 폼에서 기본적으로 DateTime.now() 사용
+    final initialDate = widget.initialDate;
+
     switch (_selectedType) {
       case '수입':
-        return const IncomeForm();
+        // 여기서는 날짜만 전달하고 싶지만, 현재 IncomeForm은 initialDate를 직접 받지 않음
+        // 대신 IncomeForm 내부에서 initialDate를 활용하도록 IncomeForm도 수정 필요
+        return IncomeForm(
+          // 참고: 이 부분은 IncomeForm 클래스가 initialDate를 받을 수 있도록 수정되어야 함
+          initialDate: initialDate,
+        );
       case '지출':
-        return const ExpenseForm();
+        return ExpenseForm(
+          initialDate: initialDate,
+        );
       case '이체':
-        return const TransferForm();
+        return TransferForm(
+          initialDate: initialDate,
+        );
       default:
-        return const ExpenseForm();
+        return ExpenseForm(
+          initialDate: initialDate,
+        );
     }
   }
 

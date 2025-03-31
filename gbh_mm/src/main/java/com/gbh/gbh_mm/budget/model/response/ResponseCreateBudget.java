@@ -12,6 +12,5 @@ public class ResponseCreateBudget {
     private Long budgetAmount;
     private String startDate;
     private String endDate;
-    private String isSelected;
 
 }

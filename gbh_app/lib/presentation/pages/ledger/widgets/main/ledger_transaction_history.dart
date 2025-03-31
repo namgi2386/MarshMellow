@@ -4,8 +4,13 @@ import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/transaction_category.dart';
+import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_item.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_item.dart';
+import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:marshmellow/di/providers/date_picker_provider.dart';
 
 class LedgerTransactionHistory extends ConsumerStatefulWidget {
   const LedgerTransactionHistory({super.key});
@@ -18,6 +23,10 @@ class LedgerTransactionHistory extends ConsumerStatefulWidget {
 class _LedgerTransactionHistoryState
     extends ConsumerState<LedgerTransactionHistory> {
   final _numberFormat = NumberFormat('#,###', 'ko_KR');
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +83,7 @@ class _LedgerTransactionHistoryState
             final dayName = dayNames[date.weekday - 1];
 
             return Column(
+              key: ValueKey('date-group-${date.toString()}'),
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 날짜 헤더
@@ -112,21 +122,51 @@ class _LedgerTransactionHistoryState
                   ),
                 ),
                 // 날짜 바로 아래에 Divider 추가
-                const Divider(height: 1, thickness: 0.5),
+                const Divider(
+                    height: 1, thickness: 0.5, color: AppColors.textSecondary),
 
                 // 해당 날짜의 거래 목록
                 const SizedBox(height: 10),
-                ...items.map((item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: TransactionListItem(
-                        transaction: item,
-                        // onTap: () {},
-                        onDelete: (transaction) {
-                          // 삭제 로직 추가
-                          // ref.read(transactionRepositoryProvider).deleteTransaction(transaction.id);
-                        },
-                      ),
-                    )),
+                ...items
+                    .map((item) => Padding(
+                          key: ValueKey('transaction-item-${item.householdPk}'),
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: TransactionListItem(
+                            transaction: item,
+                            onDelete: (transaction) async {
+                              // 삭제 처리
+                              final success = await ref
+                                  .read(ledgerViewModelProvider.notifier)
+                                  .deleteTransaction(transaction.householdPk);
+
+                              if (context.mounted) {
+                                if (success) {
+                                  // 성공 메시지 표시
+                                  CompletionMessage.show(context,
+                                      message: '삭제 완료');
+
+                                  // 트랜잭션 목록 새로고침 (transactionProvider 강제 새로고침)
+                                  ref.refresh(transactionsProvider);
+
+                                  // 또한 ledgerViewModel 새로고침 (수입/지출 카드 업데이트를 위해)
+                                  final datePickerState =
+                                      ref.read(datePickerProvider);
+                                  if (datePickerState.selectedRange != null) {
+                                    ref
+                                        .read(ledgerViewModelProvider.notifier)
+                                        .loadHouseholdData(
+                                            datePickerState.selectedRange!);
+                                  }
+                                } else {
+                                  // 실패 메시지 표시
+                                  CompletionMessage.show(context,
+                                      message: '삭제 실패');
+                                }
+                              }
+                            },
+                          ),
+                        ))
+                    .toList(),
               ],
             );
           },

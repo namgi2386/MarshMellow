@@ -18,6 +18,6 @@ public class ResponseFindBudgetCategoryList {
         private String budgetCategoryName;
         private Long budgetCategoryPrice;
         private Long budgetExpendAmount;
-
+        private double budgetExpendPercent;
     }
 }

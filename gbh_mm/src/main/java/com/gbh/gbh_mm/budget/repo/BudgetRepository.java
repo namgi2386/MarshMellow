@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface BudgetRepository extends JpaRepository<Budget, Long> {
-    List<Budget> findAllByUser_UserPk(Long userPk);
+    List<Budget> findAllByUser_UserPkOrderByBudgetPkDesc(Long userPk);
 }

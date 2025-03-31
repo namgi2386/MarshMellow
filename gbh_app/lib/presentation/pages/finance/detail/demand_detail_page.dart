@@ -2,9 +2,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:marshmellow/core/constants/icon_path.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/detail/demand_detail_model.dart';
+import 'package:marshmellow/presentation/pages/finance/services/transfer_service.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/demand_detail_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/widgets/finance/bank_icon.dart';
 
 class DemandDetailPage extends ConsumerStatefulWidget {
   final String accountNo;
@@ -21,6 +29,10 @@ class DemandDetailPage extends ConsumerStatefulWidget {
     required this.balance,
     required this.noMoneyMan,
   }) : super(key: key);
+
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 아이콘 하드코딩 <<<<<<<<<<<<<<<<<<<<<<<
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 아이콘 하드코딩 >>>>>>>>>>>>>>>>>>>>>
 
   @override
   ConsumerState<DemandDetailPage> createState() => _DemandDetailPageState();
@@ -84,8 +96,8 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
     final transactionsAsync = ref.watch(demandTransactionsProvider(params));
     
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.bankName} - ${widget.accountName}'),
+      appBar: CustomAppbar(
+        title: 'my little 자산',
       ),
       body: Column(
         children: [
@@ -107,7 +119,6 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
   Widget _buildAccountHeader() {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -116,19 +127,47 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
-          Text(
-            widget.accountNo,
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              BankIcon(bankName: widget.bankName , size: 30),
+              Text(
+                widget.bankName,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const SizedBox(width: 4,),
+              Text(
+                widget.accountNo,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              IconButton(
+                icon: SvgPicture.asset('assets/icons/body/CopySimple.svg',
+                height: 16,
+              ),
+                onPressed: () {
+                  // _onAccountItemTap(context);
+                },
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('현재 잔액', style: TextStyle(fontSize: 14)),
               Text(
                 '${NumberFormat('#,###').format(widget.balance)}원',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: AppTextStyles.appBar
               ),
+              Button(
+                text: '송금',
+                width: 60,
+                height: 40,
+                onPressed: () {
+                  TransferService.handleTransfer(context, ref, widget.accountNo);
+                },
+              ),
+
             ],
           ),
         ],

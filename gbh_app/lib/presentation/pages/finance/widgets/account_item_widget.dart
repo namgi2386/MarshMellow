@@ -4,15 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/core/constants/icon_path.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/presentation/pages/finance/services/transfer_service.dart';
+import 'package:marshmellow/presentation/widgets/finance/bank_icon.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
-
-// 송금
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:marshmellow/presentation/viewmodels/finance/withdrawal_account_viewmodel.dart';
-import 'package:marshmellow/presentation/widgets/finance/certificate_login_modal.dart';
-import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
 
 class AccountItemWidget extends ConsumerWidget {
   final String bankName; // 은행명
@@ -39,97 +34,7 @@ class AccountItemWidget extends ConsumerWidget {
     final formatter = NumberFormat('#,###');
     return formatter.format(amount);
   }
-  bool _isPngPath(String path) {
-    return path.endsWith('.png');
-  }
 
-
-  // 계좌번호 마스킹 함수
-  // String _maskAccountNumber(String accountNo) {
-  //   if (accountNo.length < 6) return accountNo;
-  //   return '${accountNo.substring(0, 3)}****${accountNo.substring(accountNo.length - 4)}';
-  // }
-
-  // 은행 이름에 따라 아이콘 경로를 반환하는 메서드
-  String _getBankIconPath(String bankName) {
-    switch (bankName.toLowerCase()) {
-      case "한국은행":
-      case "korea bank":
-        return IconPath.koreaBank2;
-      case "산업은행":
-      case "kdb bank":
-        return IconPath.kdbBank;
-      case "기업은행":
-      case "ibk bank":
-        return IconPath.ibkBank;
-      case "국민은행":
-      case "kb bank":
-        return IconPath.kbBank;
-      case "농협은행":
-      case "nh bank":
-        return IconPath.nhBank;
-      case "우리은행":
-      case "woori bank":
-        return IconPath.wooriBank;
-      case "sc제일은행":
-      case "standard chartered bank":
-      case "sc bank":
-        return IconPath.scBank;
-      case "시티은행":
-      case "citi bank":
-        return IconPath.citiBank;
-      case "대구은행":
-      case "daegu bank":
-        return IconPath.dgBank;
-      case "광주은행":
-      case "gwangju bank":
-        return IconPath.gjBank;
-      case "제주은행":
-      case "jeju bank":
-        return IconPath.jejuBank;
-      case "전북은행":
-      case "jeonbuk bank":
-        return IconPath.jbBank;
-      case "경남은행":
-      case "gyeongnam bank":
-        return IconPath.gnBank;
-      case "새마을금고":
-      case "mg":
-        return IconPath.mgBank;
-      case "하나은행":
-      case "hana bank":
-        return IconPath.hanaBank;
-      case "신한은행":
-      case "shinhan bank":
-        return IconPath.shinhanBank;
-      case "카카오뱅크":
-      case "kakao bank":
-        return IconPath.kakaoBank;
-      case "싸피뱅크":
-      case "ssafy bank":
-      case "toss bank":
-        return IconPath.ssafyBank2;
-      default:
-        return IconPath.ibkBank; // 기본값으로 IBK 아이콘 사용
-    }
-  }
-  Widget _buildBankIcon(String bankName) {
-    final String iconPath = _getBankIconPath(bankName);
-    
-    if (_isPngPath(iconPath)) {
-      return Image.asset(
-        iconPath,
-        width: 40, // 원하는 크기로 조정
-        height: 40,
-      );
-    } else {
-      return SvgPicture.asset(
-        iconPath,
-        width: 40, // 원하는 크기로 조정
-        height: 40,
-      );
-    }
-  }
   // AccountItemWidget.dart의 onTap 처리 메서드 예시
   void _onAccountItemTap(BuildContext context) {
     print("계좌 클릭: 유형=$type, 계좌번호=$accountNo");
@@ -218,14 +123,11 @@ class AccountItemWidget extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(8.0, 8.0, 14.0, 8.0),
           child: Row(
             children: [
-              IconButton(
-              icon: _buildBankIcon(bankName),
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 상세페이지 테스트중 <<<<<<<<<<<<<<<<<<<<<<<<<
-              onPressed: () {
-                _onAccountItemTap(context);
-              },
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: BankIcon(bankName: bankName, size: 40),
               ),
+
               const SizedBox(width: 2),
               Expanded(
                 child: Column(
@@ -258,7 +160,7 @@ class AccountItemWidget extends ConsumerWidget {
                         return;
                       }
                       // 송금 버튼 핸들러 호출
-                      _handleTransferTap(context, ref, accountNo);
+                      TransferService.handleTransfer(context, ref, accountNo);
                     },
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
                     child: Container(
@@ -290,47 +192,5 @@ class AccountItemWidget extends ConsumerWidget {
       ),
     );
   }
-// 계좌 상세 페이지의 송금 버튼 클릭 핸들러 수정
-void _handleTransferTap(BuildContext context, WidgetRef ref, String accountNo) async {
-  // 현재 계좌번호
-  // final accountNo = widget.accountNo;
-  
-  // 로딩 표시
-  LoadingManager.show(context, text: '계좌 확인 중...', opacity: 1.0, backgroundColor: AppColors.background);
-  
-  try {
-    // 출금계좌 등록 여부 확인 (수정된 메서드 사용)
-    final withdrawalViewModel = ref.read(withdrawalAccountProvider.notifier);
-    final result = await withdrawalViewModel.isAccountRegisteredAsWithdrawal(accountNo);
-    final isRegistered = result['isRegistered'] as bool;
-    final withdrawalAccountId = result['withdrawalAccountId'] as int?;
-    
-    // 로딩 숨기기
-    LoadingManager.hide();
-    
-    if (isRegistered && withdrawalAccountId != null) {
-      // 이미 등록된 출금계좌라면 인증서 로그인 모달 표시 (withdrawalAccountId 전달)
-      if (context.mounted) {
-        showCertificateLoginModal(
-          context, 
-          accountNo: accountNo,
-          withdrawalAccountId: withdrawalAccountId,
-        );
-      }
-    } else {
-      // 등록되지 않은 계좌라면 출금계좌 등록 페이지로 이동
-      if (context.mounted) {
-        context.push(FinanceRoutes.getWithdrawalAccountRegistrationPath(accountNo));
-      }
-    }
-  } catch (e) {
-      // 오류 발생 시 로딩 숨기고 오류 메시지 표시
-      LoadingManager.hide();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('계좌 확인 중 오류가 발생했습니다: ${e.toString()}')),
-        );
-      }
-    }
-  }
+
 }

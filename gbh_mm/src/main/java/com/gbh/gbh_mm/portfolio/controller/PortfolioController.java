@@ -1,12 +1,15 @@
 package com.gbh.gbh_mm.portfolio.controller;
 
 import com.gbh.gbh_mm.portfolio.model.entity.Portfolio;
+import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
 import com.gbh.gbh_mm.portfolio.service.PortfolioService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +20,13 @@ public class PortfolioController {
     private final PortfolioService portfolioService;
 
     @PostMapping("/category")
-    public void createPortfolioCategory() {}
+    public ResponseCreateCategory createPortfolioCategory(
+        @RequestBody RequestCreateCategory request
+    ) {
+        ResponseCreateCategory response = portfolioService.createCategory(request);
+
+        return response;
+    }
 
     @GetMapping("/category-list")
     public void findPortfolioCategoryList() {}

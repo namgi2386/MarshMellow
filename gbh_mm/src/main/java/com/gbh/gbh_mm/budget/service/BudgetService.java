@@ -3,6 +3,7 @@ package com.gbh.gbh_mm.budget.service;
 import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.model.request.RequestCreateBudget;
+import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetAlarm;
 import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.*;
 import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
@@ -251,6 +252,20 @@ public class BudgetService {
                 .budgetAmount(budgetAmount)
                 .remainBudgetAmount(budgetAmount - totalExpendAmount)
                 .dailyBudgetAmount((budgetAmount - totalExpendAmount) / remainDay)
+                .build();
+    }
+
+    // 예산 알람 시간 수정
+    public ResponseUpdateBudgetAlarm updateBudgetAlarm(Long userPk, RequestUpdateBudgetAlarm requestUpdateBudgetAlarm) {
+        User user =  userRepository.findById(userPk)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        user.setBudgetAlarmTime(requestUpdateBudgetAlarm.getBudgetAlarmTime());
+        userRepository.save(user);
+
+        return ResponseUpdateBudgetAlarm.builder()
+                .message("예산 알람 시간 수정 완료")
+                .newAlarmTime(user.getBudgetAlarmTime())
                 .build();
     }
 }

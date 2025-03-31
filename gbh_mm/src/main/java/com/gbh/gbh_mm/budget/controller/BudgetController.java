@@ -3,6 +3,7 @@ package com.gbh.gbh_mm.budget.controller;
 import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.model.request.RequestCreateBudget;
+import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetAlarm;
 import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.*;
 import com.gbh.gbh_mm.budget.service.BudgetService;
@@ -54,5 +55,11 @@ public class BudgetController {
     @GetMapping("/daily")
     public ResponseFindDailyBudget getDailyBudget(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return budgetService.getDailyBudget(userDetails.getUserPk());
+    }
+
+    // 예산 알람 수정
+    @PostMapping("/alarm")
+    public ResponseUpdateBudgetAlarm updateBudgetAlarm(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody RequestUpdateBudgetAlarm requestUpdateBudgetAlarm) {
+        return budgetService.updateBudgetAlarm(userDetails.getUserPk(), requestUpdateBudgetAlarm);
     }
 }

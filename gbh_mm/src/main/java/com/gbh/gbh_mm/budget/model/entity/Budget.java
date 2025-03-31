@@ -25,9 +25,7 @@ public class Budget {
 
     private String endDate;
 
-    private String isSelected = "Y";
-
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_pk")  // 예산이 속한 사용자와의 관계를 설정
     private User user;
 }

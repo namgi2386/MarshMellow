@@ -2,6 +2,7 @@ package com.gbh.gbh_mm.budget.controller;
 
 import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
+import com.gbh.gbh_mm.budget.model.request.RequestCreateBudget;
 import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.*;
 import com.gbh.gbh_mm.budget.service.BudgetService;
@@ -25,8 +26,8 @@ public class BudgetController {
 
     // 예산 생성
     @PostMapping
-    public ResponseCreateBudget createBudget(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody Budget budget) {
-        return budgetService.createBudget(userDetails.getUserPk(), budget);
+    public ResponseCreateBudget createBudget(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody RequestCreateBudget requestCreateBudget) {
+        return budgetService.createBudget(userDetails.getUserPk(), requestCreateBudget);
     }
 
     // 세부 예산 리스트 조회

@@ -126,7 +126,7 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 은행아이콘콘
+              // 은행아이콘
               BankIcon(bankName: widget.bankName, size: 30),
               // 은행명 
               Text(

@@ -3,8 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/detail/card_detail_model.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/card_detail_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/widgets/finance/card_image_util.dart';
 
 class CardDetailPage extends ConsumerStatefulWidget {
   final String cardNo;
@@ -60,8 +64,8 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
     final transactionsAsync = ref.watch(cardTransactionsProvider(params));
     
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.bankName} - ${widget.cardName}'),
+      appBar: CustomAppbar(
+        title: 'my little 자산',
       ),
       body: Column(
         children: [
@@ -81,31 +85,41 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
 
   Widget _buildCardHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin : const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(20),
+      // color: Colors.white,
+      decoration: BoxDecoration(
+        border: Border.all(width: 2.0 , color: AppColors.divider),
+        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            widget.cardName,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '카드번호: ${_formatCardNumber(widget.cardNo)}',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('이번달 예상 청구금액', style: TextStyle(fontSize: 14)),
               Text(
-                '${NumberFormat('#,###').format(widget.balance)}원',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                widget.cardName,
+                style: AppTextStyles.bodyLarge
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '신용 | ${_formatCardNumber(widget.cardNo)}', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)
+              ),
+              const SizedBox(height: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('결제 예정 금액', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider) ),
+                  Text(
+                    '${NumberFormat('#,###').format(widget.balance)}원',
+                    style: AppTextStyles.bodyExtraLarge
+                  ),
+                ],
               ),
             ],
           ),
+          
+          CardImageUtil.getCardImageWidget(widget.cardName, size: 128),
         ],
       ),
     );
@@ -114,12 +128,13 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
   // 카드번호 형식화 (1234-5678-9012-3456)
   String _formatCardNumber(String cardNo) {
     if (cardNo.length != 16) return cardNo;
-    return '${cardNo.substring(0, 4)}-${cardNo.substring(4, 8)}-${cardNo.substring(8, 12)}-${cardNo.substring(12, 16)}';
+    // return '${cardNo.substring(0, 4)}-${cardNo.substring(4, 8)}-${cardNo.substring(8, 12)}-${cardNo.substring(12, 16)}';
+    return cardNo.substring(12, 16);
   }
 
   Widget _buildDateSelector() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(1.0),
       child: Row(
         children: [
           Expanded(
@@ -127,10 +142,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
               onTap: () => _selectDate(context, true),
               child: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(4),
-                ),
+                // decoration: BoxDecoration(
+                //   border: Border.all(color: Colors.grey),
+                //   borderRadius: BorderRadius.circular(4),
+                // ),
                 child: Text(
                   _formatDateForDisplay(startDate),
                   textAlign: TextAlign.center,
@@ -147,10 +162,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
               onTap: () => _selectDate(context, false),
               child: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(4),
-                ),
+                // decoration: BoxDecoration(
+                //   border: Border.all(color: Colors.grey),
+                //   borderRadius: BorderRadius.circular(4),
+                // ),
                 child: Text(
                   _formatDateForDisplay(endDate),
                   textAlign: TextAlign.center,

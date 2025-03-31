@@ -44,46 +44,52 @@ class CardItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 80,
-            child: IconButton(
-              iconSize: 64, // 아이콘 버튼 크기 설정
-              icon: CardImageUtil.getCardImageWidget(card.cardName, size: 64),
-              onPressed: () {
-                _onCardItemTap(context);
-              },
+    return InkWell(
+      onTap: () => _onCardItemTap(context),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // 주 축에서 공간을 균등하게 분배
+          children: [
+            // 이미지 영역
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.2, // 화면 너비의 20%
+              child: Center(
+                child: CardImageUtil.getCardImageWidget(card.cardName, size: 64),
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  card.cardName,
-                  style: AppTextStyles.subTitle
-                ),
-                Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall ),
-                Text('${formatAmount(card.cardBalance)}원 지출', style: AppTextStyles.subTitle),
-              ],
+            // 텍스트 영역
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.55, // 화면 너비의 55% (패딩 고려)
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    card.cardName,
+                    style: AppTextStyles.subTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall),
+                  Text('${formatAmount(card.cardBalance)}원 지출', style: AppTextStyles.subTitle),
+                ],
+              ),
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.arrow_forward_ios, size: 16),
-            onPressed: () {
-              _onCardItemTap(context);
-            },
-          ),
-        ],
+            // 아이콘 영역
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.05, // 화면 너비의 5%
+              child: Center(
+                child: Icon(Icons.arrow_forward_ios, size: 16),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

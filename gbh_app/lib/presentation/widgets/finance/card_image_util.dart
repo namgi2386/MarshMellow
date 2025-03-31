@@ -112,29 +112,69 @@ class CardImageUtil {
   static String getCardImageCode(String cardName) {
     final cardData = cardDataList.firstWhere(
       (card) => card["cardName"] == cardName,
-      orElse: () => {"imgCode": "testCard.svg"},
+      // orElse: () => {"imgCode": "testCard.svg"},
+      orElse: () => {"imgCode": "1003-2.png"},
     );
     
-    return cardData["imgCode"] ?? "testCard.svg";
+    return cardData["imgCode"] ?? "1003-2.png";
   }
 
-  // 이미지 위젯 만드는 함수
-  static Widget getCardImageWidget(String cardName, {double size = 64}) {
-    final imgCode = getCardImageCode(cardName);
-    final imgPath = 'assets/icons/card/$imgCode';
-    
-    if (imgCode.endsWith('.svg')) {
-      return SvgPicture.asset(
-        imgPath,
-        width: size,
-        height: size,
-      );
-    } else {
-      return Image.asset(
-        imgPath,
-        width: size,
-        height: size,
-      );
-    }
+// 이미지 위젯 만드는 함수
+static Widget getCardImageWidget(String cardName, {double size = 64}) {
+  final imgCode = getCardImageCode(cardName);
+  final imgPath = 'assets/icons/card/$imgCode';
+  
+  // gif 파일인 경우 가로형 카드, 그 외는 세로형 카드
+  final bool isHorizontal = imgCode.endsWith('.gif');
+  
+  // 가로/세로 비율 설정
+  final double aspectRatio = isHorizontal ? 1.6 : 0.63; // 가로형: 8:5, 세로형: 5:8 비율
+  
+  // 크기 계산
+  double width, height;
+  if (isHorizontal) {
+    // 가로형: 너비를 size로 제한하고 높이를 비율에 맞게 조정
+    width = size;
+    height = size / aspectRatio;
+  } else {
+    // 세로형: 높이를 size로 제한하고 너비를 비율에 맞게 조정
+    height = size;
+    width = size * aspectRatio;
   }
+  
+  Widget imageWidget;
+  if (imgCode.endsWith('.svg')) {
+    imageWidget = SvgPicture.asset(
+      imgPath,
+      width: width,
+      height: height,
+      fit: BoxFit.contain,
+    );
+  } else {
+    imageWidget = Image.asset(
+      imgPath,
+      width: width,
+      height: height,
+      fit: BoxFit.contain,
+    );
+  }
+  
+  // Container에 이미지 비율에 맞는 width와 height 적용
+  return Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(8), // 카드 모서리 둥글게
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.8),
+          spreadRadius: 1,
+          blurRadius: 4,
+          offset: const Offset(2, 2),
+        ),
+      ],
+    ),
+    child: imageWidget,
+  );
+}
 }

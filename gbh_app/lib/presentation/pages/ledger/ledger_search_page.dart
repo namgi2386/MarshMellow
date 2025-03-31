@@ -16,6 +16,8 @@ import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/search_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
+import 'package:marshmellow/router/routes/ledger_routes.dart';
+import 'package:go_router/go_router.dart';
 
 class LedgerSearchPage extends ConsumerStatefulWidget {
   const LedgerSearchPage({super.key});
@@ -107,7 +109,14 @@ class _LedgerSearchPageState extends ConsumerState<LedgerSearchPage> {
     final searchState = ref.watch(searchViewModelProvider);
 
     return Scaffold(
-      appBar: CustomAppbar(title: '검색'),
+      appBar: CustomAppbar(title: '검색', actions: [
+        IconButton(
+          icon: SvgPicture.asset(IconPath.analysis),
+          onPressed: () {
+            context.push(LedgerRoutes.getAnalysisPath());
+          },
+        )
+      ]),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

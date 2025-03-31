@@ -330,4 +330,56 @@ public class UserService {
 
         return null;
     }
+
+    public ResponseCreateSalary createSalary(RequestCreateSalary request) {
+        try {
+            User user = userRepository.findById(request.getUserPk())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+            user.setSalaryAmount(request.getSalary());
+            user.setSalaryDate(request.getDate());
+
+            userRepository.save(user);
+
+            ResponseCreateSalary response = ResponseCreateSalary.builder()
+                .message("SUCCESS")
+                .build();
+
+            return response;
+        } catch (CustomException e) {
+            System.out.println(e.getMessage());
+        }
+
+        ResponseCreateSalary response = ResponseCreateSalary.builder()
+            .message("FAIL")
+            .build();
+
+        return response;
+    }
+
+    public ResponseUpdateSalary updateSalary(RequestUpdateSalary request) {
+        try {
+            User user = userRepository.findById(request.getUserPk())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+            user.setSalaryAmount(request.getSalary());
+            user.setSalaryDate(request.getDate());
+
+            userRepository.save(user);
+
+            ResponseUpdateSalary response = ResponseUpdateSalary.builder()
+                .message("SUCCESS")
+                .build();
+
+            return response;
+        } catch (CustomException e) {
+            System.out.println(e.getMessage());
+        }
+
+        ResponseUpdateSalary response = ResponseUpdateSalary.builder()
+            .message("FAIL")
+            .build();
+
+        return response;
+    }
 }

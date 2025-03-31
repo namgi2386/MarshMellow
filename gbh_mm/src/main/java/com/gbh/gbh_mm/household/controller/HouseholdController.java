@@ -90,4 +90,13 @@ public class HouseholdController {
 
         return response;
     }
+
+    @GetMapping("/filter")
+    public ResponseFilterHousehold filterHousehold(
+        @RequestBody RequestFilterHousehold request
+    ) {
+        ResponseFilterHousehold response = householdService.filterHousehold(request);
+
+        return response;
+    }
 }

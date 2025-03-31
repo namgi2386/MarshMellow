@@ -112,6 +112,10 @@ class NameInputSection extends ConsumerWidget {
     
     final name = ref.watch(nameProvider);
 
+    if (_nameController.text != name) {
+      _nameController.text = name;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

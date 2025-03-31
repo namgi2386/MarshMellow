@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/di/providers/auth/identity_verification_provider.dart';
+import 'package:marshmellow/di/providers/auth/user_provider.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; 
@@ -561,6 +562,9 @@ class _TermsAgreementModalState extends ConsumerState<TermsAgreementModal> {
   // 본인확인 처리 메서드
   void _processVerification(BuildContext context) async {
     final phone = ref.read(phoneProvider);
+    final name = ref.read(nameProvider);
+    final idNum = ref.read(idNumProvider);
+    final carrier = ref.read(carrierProvider) ?? '';
 
     // 본인확인 요청
     await ref.read(identityVerificationProvider.notifier).verifyIdentity(phone);
@@ -569,9 +573,17 @@ class _TermsAgreementModalState extends ConsumerState<TermsAgreementModal> {
     final state = ref.read(identityVerificationProvider);
 
     if (state.status == VerificationStatus.emailSent) {
+      // 사용자 정보 저장
+      await ref.read(userStateProvider.notifier).setVerificationData(
+        userName: name, 
+        phoneNumber: phone, 
+        userCode: idNum, 
+        carrier: carrier
+      );
+      
+      // 인증 메시지 페이지로 이동
       // 인증코드 발송 성공 - 모달 닫기 및 메시지 페이지로 이동
       Navigator.pop(context);
-      // 인증 메시지 페이지로 이동
       context.go(SignupRoutes.getAuthMessagePath(), extra: {
         'name': ref.read(nameProvider),
         'idNum': ref.read(idNumProvider),

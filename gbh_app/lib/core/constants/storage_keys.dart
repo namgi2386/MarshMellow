@@ -1,38 +1,48 @@
 // 로컬 저장소 키 상수 정의
 class StorageKeys {
   // SharedPreferences 키
-  static const String AUTH_TOKEN = 'auth_token';
-  static const String REFRESH_TOKEN = 'refresh_token';
-  static const String USER_ID = 'user_id';
-  static const String USER_NAME = 'user_name';
-  static const String IS_LOGGED_IN = 'is_logged_in';
-  static const String LAST_LOGIN_TIME = 'last_login_time';
-  static const String APP_THEME = 'app_theme';
-  static const String LANGUAGE_CODE = 'language_code';
+  static const String accessToken = 'access_token';
+  static const String refreshToken = 'refresh_token';
+  static const String userId = 'user_id';
+  static const String isLoggedIn = 'is_logged_in';
+  static const String lastLoginTime = 'last_login_time';
+  static const String appTheme = 'app_theme';
+  static const String languageCode = 'language_code';
   
   // Secure Storage 키
-  static const String ENCRYPTED_PIN = 'encrypted_pin';
-  static const String PRIVATE_KEY = 'private_key';
-  static const String CERTIFICATE = 'certificate';
+  static const String encryptedPin = 'encrypted_pin';
+  static const String privateKey = 'private_key';
+  static const String certificate = 'certificate';
+  static const String useBiometrics = 'use_biometrics';
+  static const String userName = 'user_name';
+  static const String phoneNumber = 'phone_number';
+  static const String userCode = 'user_code';
+  static const String carrier = 'user_carrier';
   
   // Hive Box 이름
-  static const String USER_BOX = 'user_box';
-  static const String SETTINGS_BOX = 'settings_box';
-  static const String TRANSACTION_BOX = 'transaction_box';
+  static const String userBox = 'user_box';
+  static const String settingsBox = 'settings_box';
+  static const String transactionBox = 'transaction_box';
 }
 
 // 사용 예시
 
 /*
 
-import 'package:test0316_1/core/constants/storage_keys.dart';
+import 'package:marshmellow/core/constants/storage_keys.dart';
 
 // SharedPreferences 사용시
 final prefs = await SharedPreferences.getInstance();
-final token = prefs.getString(StorageKeys.AUTH_TOKEN);
+final token = prefs.getString(StorageKeys.accessToken);
 
 // Secure Storage 사용시
 final storage = FlutterSecureStorage();
-await storage.write(key: StorageKeys.ENCRYPTED_PIN, value: encryptedPin);
+await storage.write(key: StorageKeys.encryptedPin, value: encryptedPin);
+
+// 생체인식 설정 저장
+await storage.write(key: StorageKeys.useBiometrics, value: useBiometrics.toString());
+
+// 사용자 전화번호 저장
+await storage.write(key: StorageKeys.phoneNumber, value: phoneNumber);
 
 */

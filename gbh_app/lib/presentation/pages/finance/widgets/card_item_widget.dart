@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/card_model.dart';
 import 'package:marshmellow/presentation/widgets/finance/card_image_util.dart';
@@ -77,7 +78,13 @@ class CardItemWidget extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall),
-                  Text('${formatAmount(card.cardBalance)}원 지출', style: AppTextStyles.subTitle),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('${formatAmount(card.cardBalance)}원', style: AppTextStyles.subTitle),
+                      Text(' 결제 예정', style: AppTextStyles.bodySmall.copyWith(color: AppColors.divider)),
+                    ],
+                  ),
                 ],
               ),
             ),

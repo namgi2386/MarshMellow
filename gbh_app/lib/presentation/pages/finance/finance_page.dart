@@ -176,7 +176,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           // 카드 정보
           FinancialSectionWidget(
             key: sectionKeys['카드'], // 섹션 위치 추적용 키
-            title: '${currentMonth}월 카드 지출',
+            title: '${currentMonth}월 카드 결제',
             totalAmount: data.data.cardData.totalAmount,
             isEmpty: data.data.cardData.cardList.isEmpty,
             emptyMessage: '등록된 카드가 없습니다.',

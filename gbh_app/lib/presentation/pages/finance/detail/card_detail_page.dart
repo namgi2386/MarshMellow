@@ -70,7 +70,23 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
       body: Column(
         children: [
           _buildCardHeader(),
-          _buildDateSelector(),
+          Row(
+            children: [
+              Expanded(child: _buildDateSelector()),
+              Container(
+                // color: Colors.amber,
+                child: transactionsAsync.when(
+                  data: (response) => _buildEstimatedBalance(response.data.estimatedBalance),
+                  loading: () => const SizedBox(
+                    height: 80, // _buildDateSelector와 비슷한 높이로 설정
+                  ),
+                  error: (_, __) => const SizedBox(
+                    height: 80, // _buildDateSelector와 비슷한 높이로 설정
+                  ),
+                ),
+              ),
+            ],
+          ),
           Expanded(
             child: transactionsAsync.when(
               data: (response) => _buildTransactionList(response.data.transactionList),
@@ -132,51 +148,52 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
     return cardNo.substring(12, 16);
   }
 
-  Widget _buildDateSelector() {
-    return Padding(
-      padding: const EdgeInsets.all(1.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _selectDate(context, true),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                // decoration: BoxDecoration(
-                //   border: Border.all(color: Colors.grey),
-                //   borderRadius: BorderRadius.circular(4),
-                // ),
-                child: Text(
-                  _formatDateForDisplay(startDate),
-                  textAlign: TextAlign.center,
+Widget _buildDateSelector() {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(  
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('조회 기간', style: AppTextStyles.bodyMedium),
+        const SizedBox(height: 4),
+        GestureDetector(
+          onTap: () => _selectDate(context, true),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.calendar_today, size: 16, color: AppColors.divider),
+                const SizedBox(width: 4),
+                Text(
+                  '시작: ${_formatDateForDisplay(startDate)}',
+                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
                 ),
-              ),
+              ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Text('~'),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _selectDate(context, false),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                // decoration: BoxDecoration(
-                //   border: Border.all(color: Colors.grey),
-                //   borderRadius: BorderRadius.circular(4),
-                // ),
-                child: Text(
-                  _formatDateForDisplay(endDate),
-                  textAlign: TextAlign.center,
+        ),
+        GestureDetector(  
+          onTap: () => _selectDate(context, false),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.calendar_today, size: 16, color: AppColors.divider),
+                const SizedBox(width: 4),
+                Text(
+                  '종료: ${_formatDateForDisplay(endDate)}',
+                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final initialDate = _parseDate(isStartDate ? startDate : endDate);
@@ -212,6 +229,28 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
     final month = dateStr.substring(4, 6);
     final day = dateStr.substring(6, 8);
     return '$year.$month.$day';
+  }
+
+  Widget _buildEstimatedBalance(int estimatedBalance) {
+    return Container(
+      height: 80, // _buildDateSelector와 비슷한 높이로 맞춤
+      padding: const EdgeInsets.fromLTRB(0, 4.0, 16.0, 0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start, // 세로 중앙 정렬 추가
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text('총 사용금액', style: AppTextStyles.bodyMedium),
+          const SizedBox(height: 16), // 간격 약간 늘림
+          Text(
+            '${NumberFormat('#,###').format(estimatedBalance)}원',
+            style: AppTextStyles.bodyLarge.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.blueDark,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildTransactionList(List<CardTransactionItem> transactions) {

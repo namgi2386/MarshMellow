@@ -9,12 +9,14 @@ import com.gbh.gbh_mm.portfolio.model.entity.PortfolioCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
+import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioCategoryRepository;
@@ -180,6 +182,20 @@ public class PortfolioServiceImpl implements PortfolioService {
         ResponseFindPortfolioList response = ResponseFindPortfolioList.builder()
             .portfolioList(portfolioDtoList)
             .build();
+
+        return response;
+    }
+
+    @Override
+    public ResponseFindPortfolio findPortfolio(RequestFindPortfolio request) {
+        Portfolio portfolio = portfolioRepository.findById(request.getPortfolioPk())
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 포트폴리오"));
+
+        PortfolioCategoryDto portfolioCategoryDto =
+            mapper.map(portfolio.getPortfolioCategory(), PortfolioCategoryDto.class);
+
+        ResponseFindPortfolio response = mapper.map(portfolio, ResponseFindPortfolio.class);
+        response.setPortfolioCategory(portfolioCategoryDto);
 
         return response;
     }

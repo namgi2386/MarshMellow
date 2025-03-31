@@ -4,12 +4,14 @@ import com.gbh.gbh_mm.portfolio.model.entity.Portfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
+import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
 import com.gbh.gbh_mm.portfolio.service.PortfolioService;
@@ -81,7 +83,11 @@ public class PortfolioController {
     }
 
     @GetMapping
-    public void findPortfolio() {}
+    public ResponseFindPortfolio findPortfolio(
+        @RequestBody RequestFindPortfolio request
+    ) {
+        return portfolioService.findPortfolio(request);
+    }
 
     @PatchMapping
     public void updatePortfolio() {}

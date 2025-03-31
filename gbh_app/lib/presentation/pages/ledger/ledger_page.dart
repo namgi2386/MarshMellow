@@ -14,6 +14,7 @@ import 'package:go_router/go_router.dart';
 // 상태관리
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
+import 'package:marshmellow/di/providers/date_picker_provider.dart';
 
 // 위젯
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
@@ -35,6 +36,44 @@ class LedgerPage extends ConsumerStatefulWidget {
 class _LedgerPageState extends ConsumerState<LedgerPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // 앱 시작 시 날짜 범위 설정
+    // 빌드 완료 후 실행되도록 설정
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeDefaultDateRange();
+    });
+  }
+
+  // 초기 날짜 범위 설정
+  void _initializeDefaultDateRange() {
+    final datePickerState = ref.read(datePickerProvider);
+
+    // 날짜 범위가 아직 설정되지 않았으면 현재 월로 설정
+    if (datePickerState.selectedRange == null ||
+        datePickerState.selectedRange!.startDate == null) {
+      final now = DateTime.now();
+      final firstDay = DateTime(now.year, now.month, 1);
+      final lastDay = DateTime(now.year, now.month + 1, 0);
+
+      // DatePicker 상태 업데이트
+      ref
+          .read(datePickerProvider.notifier)
+          .updateSelectedRange(PickerDateRange(firstDay, lastDay));
+
+      // 데이터 로드
+      ref
+          .read(ledgerViewModelProvider.notifier)
+          .loadHouseholdData(PickerDateRange(firstDay, lastDay));
+    } else {
+      // 이미 날짜 범위가 있다면 해당 범위로 데이터 로드
+      ref
+          .read(ledgerViewModelProvider.notifier)
+          .loadHouseholdData(datePickerState.selectedRange!);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

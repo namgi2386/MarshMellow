@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/di/providers/auth/identity_verification_provider.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
@@ -11,23 +12,48 @@ import 'package:marshmellow/presentation/pages/auth/widgets/etc/custom_button.da
 /*
   본인인증 메세지 전송 UI
 */
-class AuthMessagePage extends ConsumerWidget {
-  final String name;
-  final String idNum;
-  final String phone;
-  final String carrier;
+class AuthMessagePage extends ConsumerStatefulWidget {
+  final Map<String, dynamic> userInfo;
 
   const AuthMessagePage({
     Key? key,
-    required this.name,
-    required this.idNum,
-    required this.phone,
-    required this.carrier,
+    required this.userInfo
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AuthMessagePage> createState() => _AuthMessagePageState();
+}
+
+class _AuthMessagePageState extends ConsumerState<AuthMessagePage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // 필요시 리소스 정리
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 인증 상태 감시
+    final verificationState = ref.watch(identityVerificationProvider);
+
+    // 인증 상태에 따라 UI 업데이트
+    if (verificationState.status == VerificationStatus.verified) {
+      // 인증 완료시 다음 단계로 자동 이동
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.go(SignupRoutes.getAuthCompletePath());
+      });
+    }
+
     final screenHeight = MediaQuery.of(context).size.height;
+
+    final serverEmail = widget.userInfo['serverEmail'] ?? '';
+    final verificationCode = widget.userInfo['verificationCode'] ?? '';
+    final expiresIn = widget.userInfo['expiresIn'];
 
     return Scaffold(
       body: Padding(
@@ -42,6 +68,41 @@ class AuthMessagePage extends ConsumerWidget {
             const SizedBox(height: 10),
             Text('내용은 mm이 써두었으니', style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled)),
             Text('[문자 보내기]만 눌러주세요', style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled)),
+            const SizedBox(height: 10),
+            if (widget.userInfo['expiredIn'] != null)
+              Text(
+                '인증코드 유효시간: ${widget.userInfo['expiredIn']}초', 
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled)),
+
+            // 인증 상태 메시지 표시
+            if (verificationState.status == VerificationStatus.verifying)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(
+                  '인증 확인 정보를 불러오는 중입니다...',
+                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.blueDark),
+                ),
+              ),
+
+            if (verificationState.status == VerificationStatus.expired)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(
+                  '인증 코드가 만료되었습니다. 다시 시도해주세요.',
+                  style: AppTextStyles.bodySmall.copyWith(color: Colors.red),
+                ),
+              ),
+
+            if (verificationState.status == VerificationStatus.failed && 
+                verificationState.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(
+                  verificationState.errorMessage!,
+                  style: AppTextStyles.bodySmall.copyWith(color: Colors.red),
+                ),
+              ),
+
             const Spacer(),
 
             // 이미지
@@ -59,6 +120,20 @@ class AuthMessagePage extends ConsumerWidget {
                 isEnabled: true,
               ),
             ),
+
+            // 인증 코드 만료시 재요청 버튼
+            if (verificationState.status == VerificationStatus.expired ||
+                verificationState.status == VerificationStatus.failed)
+               Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: TextButton(
+                  onPressed: () => _requestNewCode(context),
+                  child: Text(
+                    '인증 코드 재요청',
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.blueDark),
+                  ),
+                ),
+              ),
             SizedBox(height: screenHeight * 0.05),
           ],
         ),
@@ -68,12 +143,14 @@ class AuthMessagePage extends ConsumerWidget {
 
   void _sendAuthMessage(BuildContext context) async {
     // 문자 내용
-    final messageBody = '[MM]본인 확인을 위해 인증을 요청합니다.';
+    final serverEmail = widget.userInfo['serverEmail'] ?? '';
+    final verificationCode = widget.userInfo['verificationCode'] ?? '';
+    final messageBody = '$verificationCode';
 
     // SMS 앱 열기
     final uri = Uri(
       scheme: 'sms',
-      path: '6004', // 문자 보낼 사람
+      path: '$serverEmail', // 문자 보낼 사람
       queryParameters: {'body': messageBody},
     );
 
@@ -106,4 +183,18 @@ class AuthMessagePage extends ConsumerWidget {
       );
     }
   }
+
+  // 인증 코드 재요청
+  void _requestNewCode(BuildContext context) {
+    // 전화번호 가져오기
+    final phone = widget.userInfo['phone'] as String;
+
+    // 인증 요청 다시 시작
+    ref.read(identityVerificationProvider.notifier).verifyIdentity(phone);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('인증 코드를 재요청했습니다. 잠시만 기다려주세요.'))
+    );
+  }
 }
+

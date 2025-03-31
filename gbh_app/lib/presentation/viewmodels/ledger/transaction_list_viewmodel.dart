@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/data/repositories/ledger_repository.dart';
@@ -28,9 +29,8 @@ final transactionRepositoryProvider = Provider<LedgerRepository>((ref) {
   return ref.watch(ledgerRepositoryProvider);
 });
 
-// 거래 목록 비동기 프로바이더
-final transactionsProvider = FutureProvider<List<Transaction>>((ref) async {
-  final repository = ref.watch(transactionRepositoryProvider);
+// 현재 선택된 날짜 범위를 확인하는 프로바이더
+final selectedDateRangeProvider = Provider<PickerDateRange>((ref) {
   final datePickerState = ref.watch(datePickerProvider);
 
   // 선택된 날짜 범위가 없으면 현재 월 사용
@@ -40,24 +40,19 @@ final transactionsProvider = FutureProvider<List<Transaction>>((ref) async {
     final firstDay = DateTime(now.year, now.month, 1);
     final lastDay = DateTime(now.year, now.month + 1, 0);
 
-    // 기본 날짜 범위 설정
-    ref
-        .read(datePickerProvider.notifier)
-        .updateSelectedRange(PickerDateRange(firstDay, lastDay));
-
-    // 해당 기간의 트랜잭션 조회
-    final result = await repository.getHouseholdList(
-      userPk: UserInfo.userPk,
-      startDate: _formatDate(firstDay),
-      endDate: _formatDate(lastDay),
-    );
-
-    return result['allTransactions'] as List<Transaction>;
+    return PickerDateRange(firstDay, lastDay);
   }
 
-  // 선택된 날짜 범위에 따른 트랜잭션 조회
-  final startDate = datePickerState.selectedRange!.startDate!;
-  final endDate = datePickerState.selectedRange!.endDate ?? startDate;
+  return datePickerState.selectedRange!;
+});
+
+// 거래 목록 비동기 프로바이더
+final transactionsProvider = FutureProvider<List<Transaction>>((ref) async {
+  final repository = ref.watch(transactionRepositoryProvider);
+  final dateRange = ref.watch(selectedDateRangeProvider);
+
+  final startDate = dateRange.startDate!;
+  final endDate = dateRange.endDate ?? startDate;
 
   final result = await repository.getHouseholdList(
     userPk: UserInfo.userPk,
@@ -82,3 +77,6 @@ final transactionDetailProvider =
   final repository = ref.watch(ledgerRepositoryProvider);
   return repository.getHouseholdDetail(householdPk);
 });
+
+// 날짜 범위 초기화 수행 여부를 추적하는 프로바이더
+final dateRangeInitializedProvider = StateProvider<bool>((ref) => false);

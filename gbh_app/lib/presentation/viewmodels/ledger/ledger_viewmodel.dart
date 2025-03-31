@@ -100,25 +100,25 @@ class LedgerViewModel extends StateNotifier<LedgerState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      // 삭제할 트랜잭션 찾기
+      // 삭제할 거래 찾기
       final transactionToDelete = state.transactions.firstWhere(
         (transaction) => transaction.householdPk == transactionId,
         orElse: () => throw Exception('트랜잭션을 찾을 수 없습니다'),
       );
 
-      // 저장소를 통해 트랜잭션 삭제
+      // 저장소를 통해 거래 삭제
       await _repository.deleteTransaction(transactionId);
 
-      // 삭제 후 상태 업데이트: 해당 트랜잭션을 리스트에서 제거
+      // 삭제 후 상태 업데이트: 해당 거래를 리스트에서 제거
       final updatedTransactions = state.transactions
           .where((transaction) => transaction.householdPk != transactionId)
           .toList();
 
-      // 날짜별 그룹화된 트랜잭션도 업데이트
+      // 날짜별 그룹화된 거래도 업데이트
       final updatedGroupedTransactions =
           Map<String, List<Transaction>>.from(state.groupedTransactions);
 
-      // 각 날짜별 그룹에서 해당 트랜잭션 제거
+      // 각 날짜별 그룹에서 해당 거래 제거
       String? dateToRemove;
       updatedGroupedTransactions.forEach((date, transactions) {
         final updatedList = transactions
@@ -142,7 +142,7 @@ class LedgerViewModel extends StateNotifier<LedgerState> {
       int updatedIncome = state.totalIncome;
       int updatedExpenditure = state.totalExpenditure;
 
-      // 삭제된 트랜잭션이 수입인지 지출인지에 따라 총액 조정
+      // 삭제된 거래가 수입인지 지출인지에 따라 총액 조정
       if (transactionToDelete.classification ==
           TransactionClassification.DEPOSIT) {
         updatedIncome -= transactionToDelete.householdAmount;
@@ -166,6 +166,86 @@ class LedgerViewModel extends StateNotifier<LedgerState> {
         errorMessage: e.toString(),
       );
       return false; // 삭제 실패
+    }
+  }
+
+  // 가계부 수정
+  Future<bool> updateTransaction({
+    required int transactionId,
+    int? amount,
+    String? memo,
+    String? exceptedBudgetYn,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      // 저장소를 통해 거래 수정
+      final updatedTransaction = await _repository.updateTransaction(
+        householdPk: transactionId,
+        householdAmount: amount,
+        householdMemo: memo,
+        exceptedBudgetYn: exceptedBudgetYn,
+      );
+
+      // 수정된 거래로 상태 업데이트
+      final updatedTransactions = state.transactions.map((transaction) {
+        if (transaction.householdPk == transactionId) {
+          return updatedTransaction;
+        }
+        return transaction;
+      }).toList();
+
+      // 그룹화된 거래도도 업데이트
+      final updatedGroupedTransactions =
+          Map<String, List<Transaction>>.from(state.groupedTransactions);
+      updatedGroupedTransactions.forEach((date, transactions) {
+        final index =
+            transactions.indexWhere((t) => t.householdPk == transactionId);
+        if (index != -1) {
+          final updatedList = List<Transaction>.from(transactions);
+          updatedList[index] = updatedTransaction;
+          updatedGroupedTransactions[date] = updatedList;
+        }
+      });
+
+      // 총액 업데이트 (금액이 변경된 경우)
+      int updatedIncome = state.totalIncome;
+      int updatedExpenditure = state.totalExpenditure;
+
+      if (amount != null) {
+        // 기존 거래 찾기
+        final oldTransaction = state.transactions.firstWhere(
+          (t) => t.householdPk == transactionId,
+        );
+
+        // 금액 차이 계산
+        final amountDiff = amount - oldTransaction.householdAmount;
+
+        // 거래 타입에 따라 총액 조정
+        if (oldTransaction.classification ==
+            TransactionClassification.DEPOSIT) {
+          updatedIncome += amountDiff;
+        } else if (oldTransaction.classification ==
+            TransactionClassification.WITHDRAWAL) {
+          updatedExpenditure += amountDiff;
+        }
+      }
+
+      state = state.copyWith(
+        isLoading: false,
+        transactions: updatedTransactions,
+        groupedTransactions: updatedGroupedTransactions,
+        totalIncome: updatedIncome,
+        totalExpenditure: updatedExpenditure,
+      );
+
+      return true; // 수정 성공
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      return false; // 수정 실패
     }
   }
 }

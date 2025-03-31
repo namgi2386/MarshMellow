@@ -412,6 +412,8 @@ public class HouseholdServiceImpl implements HouseholdService {
                 .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
                 .build();
             householdList.add(household);
+
+
         }
 
         householdRepository.saveAll(householdList);

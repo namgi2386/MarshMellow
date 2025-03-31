@@ -9,6 +9,7 @@ import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
 import com.gbh.gbh_mm.budget.repo.BudgetRepository;
 import com.gbh.gbh_mm.common.exception.CustomException;
 import com.gbh.gbh_mm.common.exception.ErrorCode;
+import com.gbh.gbh_mm.household.repo.HouseholdRepository;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import lombok.RequiredArgsConstructor;

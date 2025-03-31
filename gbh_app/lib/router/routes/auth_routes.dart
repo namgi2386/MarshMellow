@@ -61,12 +61,7 @@ List<RouteBase> signupRoutes = [
         path: SignupRoutes.authmessage,
         builder: (context, state) {
           final Map<String, dynamic> extra = state.extra as Map<String, dynamic>;
-          return AuthMessagePage(
-            name: extra['name'] as String,
-            idNum: extra['idNum'] as String,
-            phone: extra['phone'] as String,
-            carrier: extra['carrier'] as String,
-          );
+          return AuthMessagePage(userInfo:  extra);
         },
       ),
 

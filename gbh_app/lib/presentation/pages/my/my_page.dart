@@ -5,6 +5,7 @@ import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; // 추가
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/router/routes/my_routes.dart';
 
 class MyPage extends ConsumerWidget {
@@ -77,6 +78,13 @@ class MyPage extends ConsumerWidget {
                 context.push(MyRoutes.getDatepickerTestPath());
               },
               child: const Text('데이트피커 테스트페이지'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(SignupRoutes.root);
+              },
+              child: const Text('회원가입 테스트페이지'),
             ),
           ],
         ),

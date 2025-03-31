@@ -1,10 +1,10 @@
 // lib/presentation/pages/finance/demand_detail_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/detail/demand_detail_model.dart';
@@ -29,10 +29,6 @@ class DemandDetailPage extends ConsumerStatefulWidget {
     required this.balance,
     required this.noMoneyMan,
   }) : super(key: key);
-
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 아이콘 하드코딩 <<<<<<<<<<<<<<<<<<<<<<<
-
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 아이콘 하드코딩 >>>>>>>>>>>>>>>>>>>>>
 
   @override
   ConsumerState<DemandDetailPage> createState() => _DemandDetailPageState();
@@ -124,31 +120,40 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
         children: [
           Text(
             widget.accountName,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: AppTextStyles.appBar
           ),
-          const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              BankIcon(bankName: widget.bankName , size: 30),
+              // 은행아이콘콘
+              BankIcon(bankName: widget.bankName, size: 30),
+              // 은행명 
               Text(
                 widget.bankName,
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
               const SizedBox(width: 4,),
+              //계좌번호 
               Text(
                 widget.accountNo,
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
-              IconButton(
-                icon: SvgPicture.asset('assets/icons/body/CopySimple.svg',
-                height: 16,
-              ),
-                onPressed: () {
-                  // _onAccountItemTap(context);
+              //복사버튼 
+              InkWell(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: widget.accountNo));
                 },
-              ),
+                borderRadius: BorderRadius.circular(4), // 원하는 모서리 둥글기
+                child: Padding(
+                  padding: const EdgeInsets.all(4), // 필요한 만큼만 패딩 추가
+                  child: SvgPicture.asset(
+                    'assets/icons/body/CopySimple.svg',
+                    height: 16,
+                    color: AppColors.disabled,
+                  ),
+                ),
+              )
             ],
           ),
           const SizedBox(height: 8),
@@ -157,7 +162,7 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
             children: [
               Text(
                 '${NumberFormat('#,###').format(widget.balance)}원',
-                style: AppTextStyles.appBar
+                style: AppTextStyles.bodyExtraLarge
               ),
               Button(
                 text: '송금',
@@ -167,7 +172,6 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
                   TransferService.handleTransfer(context, ref, widget.accountNo);
                 },
               ),
-
             ],
           ),
         ],
@@ -175,36 +179,63 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
     );
   }
 
-  Widget _buildFilterButtons() {
-    final transactionType = ref.watch(transactionFilterProvider);
-    final viewModel = ref.read(demandDetailViewModelProvider);
-    
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          _filterButton('전체', 'A', transactionType, viewModel),
-          const SizedBox(width: 8),
-          _filterButton('입금', 'M', transactionType, viewModel),
-          const SizedBox(width: 8),
-          _filterButton('출금', 'D', transactionType, viewModel),
-        ],
-      ),
-    );
-  }
 
-  Widget _filterButton(String label, String value, String currentValue, DemandDetailViewModel viewModel) {
-    final isSelected = value == currentValue;
-    
-    return ElevatedButton(
-      onPressed: () => viewModel.changeTransactionFilter(value),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.blue : Colors.grey.shade200,
-        foregroundColor: isSelected ? Colors.white : Colors.black,
-      ),
-      child: Text(label),
-    );
-  }
+Widget _buildFilterButtons() {
+  final transactionType = ref.watch(transactionFilterProvider);
+  final viewModel = ref.read(demandDetailViewModelProvider);
+  
+  // 드롭다운 옵션 매핑
+  final Map<String, String> filterOptions = {
+    'A': '전체', 
+    'M': '입금',
+    'D': '출금'
+  };
+  
+  // 현재 선택된 필터 텍스트
+  final String currentFilterText = filterOptions[transactionType] ?? '전체';
+  
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.end, // 오른쪽 정렬
+      children: [
+        // PopupMenuButton을 Material로 감싸서 너비 설정
+        Material(
+          color: Colors.transparent,
+          child: PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            offset: const Offset(0, 20),
+            constraints: const BoxConstraints(
+              minWidth: 60, // 최소 너비
+              maxWidth: 60, // 최대 너비
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(currentFilterText),
+                const Icon(Icons.arrow_drop_down, size: 20),
+              ],
+            ),
+            itemBuilder: (context) => filterOptions.entries.map((entry) {
+              return PopupMenuItem<String>(
+                value: entry.key,
+                height: 36, // 작은 높이값
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), // 작은 패딩
+                child: Text(entry.value),
+              );
+            }).toList(),
+            onSelected: (String value) {
+              viewModel.changeTransactionFilter(value);
+            },
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildDateSelector() {
     // 기간 선택 UI 구현 (간단한 버튼 형태로 구현)

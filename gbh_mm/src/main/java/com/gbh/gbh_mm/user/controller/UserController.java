@@ -70,5 +70,11 @@ public class UserController {
         return userService.isIntegratedAuthenticated(userDetails.getUserPk());
     }
 
+    @GetMapping("/account-list")
+    public ResponseFindAccountList findAccountList(
+        @RequestBody RequestFindAccountList request) {
+        return userService.findAccountList(request);
+    }
+
 
 }

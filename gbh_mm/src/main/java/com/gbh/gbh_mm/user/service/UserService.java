@@ -1,14 +1,21 @@
 package com.gbh.gbh_mm.user.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gbh.gbh_mm.api.DemandDepositAPI;
 import com.gbh.gbh_mm.common.exception.CustomException;
 import com.gbh.gbh_mm.common.exception.ErrorCode;
+import com.gbh.gbh_mm.user.model.AccountDto;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.model.request.*;
 import com.gbh.gbh_mm.user.model.response.*;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.user.util.JwtTokenProvider;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,6 +39,9 @@ public class UserService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final SecureRandom secureRandom = new SecureRandom();
     private final CertService certService;
+
+    private final DemandDepositAPI demandDepositAPI;
+    private final ModelMapper mapper;
 
     @Value("${spring.mail.username}")
     private String serverEmail;
@@ -216,5 +226,36 @@ public class UserService {
                 .connectionInformation(user.getConnectionInformation())
                 .build()
         );
+    }
+
+    public ResponseFindAccountList findAccountList(RequestFindAccountList request) {
+        try {
+            User user = userRepository.findById(request.getUserPk())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+            Map<String, Object> responseData = demandDepositAPI
+                .findDemandDepositAccountList(user.getUserKey());
+            Map<String, Object> apiData = (Map<String, Object>) responseData.get("apiResponse");
+            List<Map<String, Object>> recData = (List<Map<String, Object>>) apiData.get("REC");
+
+            List<AccountDto> accountDtoList = new ArrayList<>();
+            for (Map<String, Object> recDatum : recData) {
+                AccountDto accountDto = mapper.map(recDatum, AccountDto.class);
+
+                accountDtoList.add(accountDto);
+            }
+
+            ResponseFindAccountList response= ResponseFindAccountList.builder()
+                .accountList(accountDtoList)
+                .build();
+
+            return response;
+        } catch (CustomException e) {
+            System.out.println(e.getMessage());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
     }
 }

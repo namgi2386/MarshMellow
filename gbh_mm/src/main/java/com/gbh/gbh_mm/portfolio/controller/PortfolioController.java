@@ -3,6 +3,7 @@ package com.gbh.gbh_mm.portfolio.controller;
 import com.gbh.gbh_mm.portfolio.model.entity.Portfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
+import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolioList;
@@ -10,6 +11,7 @@ import com.gbh.gbh_mm.portfolio.model.request.RequestUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
@@ -89,9 +91,14 @@ public class PortfolioController {
         return portfolioService.findPortfolio(request);
     }
 
+    @DeleteMapping
+    public ResponseDeletePortfolio deletePortfolio(
+        @RequestBody RequestDeletePortfolio request
+    ) {
+        return portfolioService.deletePortfolio(request);
+    }
+
     @PatchMapping
     public void updatePortfolio() {}
 
-    @DeleteMapping
-    public void deletePortfolio() {}
 }

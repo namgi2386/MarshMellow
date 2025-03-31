@@ -1,7 +1,11 @@
 package com.gbh.gbh_mm.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,9 @@ public class S3Component {
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
+
+    @Value("${aws.s3.region}")
+    private String region;
 
     public S3Component(AmazonS3 amazonS3) {
         this.amazonS3 = amazonS3;
@@ -68,5 +75,22 @@ public class S3Component {
         } else {
             return "others";
         }
+    }
+
+    public void deleteFileByUrl(String fileUrl) throws URISyntaxException {
+        URI uri = new URI(fileUrl);
+        String host = uri.getHost(); // 예: gbh-file-server.s3.ap-northeast-2.amazonaws.com
+
+        // 객체 키는 URL의 경로 부분이며, 선행 "/" 제거
+        String key = uri.getPath().substring(1);
+
+        // S3 클라이언트 생성 (리전 설정에 주의)
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+            .withRegion(region)
+            .build();
+
+        // 객체 삭제
+        s3Client.deleteObject(new DeleteObjectRequest(bucketName, key));
+        System.out.println("파일 삭제 완료: " + key);
     }
 }

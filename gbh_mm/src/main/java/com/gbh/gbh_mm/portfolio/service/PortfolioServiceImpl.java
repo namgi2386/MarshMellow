@@ -8,6 +8,7 @@ import com.gbh.gbh_mm.portfolio.model.entity.Portfolio;
 import com.gbh.gbh_mm.portfolio.model.entity.PortfolioCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
+import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolioList;
@@ -15,6 +16,7 @@ import com.gbh.gbh_mm.portfolio.model.request.RequestUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
@@ -25,6 +27,7 @@ import com.gbh.gbh_mm.s3.S3Component;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -198,5 +201,34 @@ public class PortfolioServiceImpl implements PortfolioService {
         response.setPortfolioCategory(portfolioCategoryDto);
 
         return response;
+    }
+
+    @Override
+    public ResponseDeletePortfolio deletePortfolio(RequestDeletePortfolio request) {
+        Portfolio portfolio = portfolioRepository.findById(request.getPortfolioPk())
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 포트폴리오"));
+
+        ResponseDeletePortfolio response = new ResponseDeletePortfolio();
+        String fileUrl = portfolio.getFileUrl();
+
+        try {
+            s3Component.deleteFileByUrl(fileUrl);
+
+            portfolioRepository.delete(portfolio);
+
+            response.setMessage("SUCCESS");
+
+            return response;
+
+        } catch (URISyntaxException e) {
+            response.setMessage("FAIL");
+
+            return response;
+        } catch (Exception e) {
+            response.setMessage("FAIL");
+
+            return response;
+        }
+
     }
 }

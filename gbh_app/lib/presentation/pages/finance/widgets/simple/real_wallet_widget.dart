@@ -3,6 +3,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/presentation/widgets/finance/card_image_util.dart';
 
 // 은행별 카드 색상 매핑
 class BankColors {
@@ -313,7 +314,30 @@ class DefaultWalletWidget extends StatelessWidget {
                   maxLines: 1,
                 ),
               )
-            : Row(
+            : accountType == "카드" ? Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: CardImageUtil.getCardImageWidget(card.cardName, size: 64),
+                    onPressed: () {
+                      // _onAccountItemTap(context);
+                    },
+                  ),
+                  Expanded(  // 여기가 중요한 변경점입니다
+                    child: Container(
+                      alignment: Alignment.topCenter,
+                      padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0),
+                      child: Text(
+                        card.cardName,
+                        style: AppTextStyles.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ),
+                ],
+              ) : Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -336,7 +360,7 @@ class DefaultWalletWidget extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
+              )
     );
   }
   

@@ -2,12 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/card_model.dart';
-import 'package:marshmellow/core/constants/icon_path.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/presentation/widgets/finance/card_image_util.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
+
 
 class CardItemWidget extends StatelessWidget {
   final CardItem card;
@@ -54,15 +53,15 @@ class CardItemWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          IconButton(
-            iconSize: 64, // 아이콘 버튼 크기 설정
-            icon: SvgPicture.asset('assets/icons/card/testCard.svg',
-              width: 64, // SVG 너비
-              height: 64, // SVG 높이
+          SizedBox(
+            width: 80,
+            child: IconButton(
+              iconSize: 64, // 아이콘 버튼 크기 설정
+              icon: CardImageUtil.getCardImageWidget(card.cardName, size: 64),
+              onPressed: () {
+                _onCardItemTap(context);
+              },
             ),
-            onPressed: () {
-              _onCardItemTap(context);
-            },
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -73,13 +72,7 @@ class CardItemWidget extends StatelessWidget {
                   card.cardName,
                   style: AppTextStyles.subTitle
                 ),
-                // Text(
-                //   card.cardName,
-                //   style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600,
-                //   color: AppColors.blackLight),
-                // ),
                 Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall ),
-                // Text('발급사: ${card.cardIssuerName}'),
                 Text('${formatAmount(card.cardBalance)}원 지출', style: AppTextStyles.subTitle),
               ],
             ),

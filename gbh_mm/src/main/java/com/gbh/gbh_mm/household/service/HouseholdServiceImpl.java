@@ -3,6 +3,10 @@ package com.gbh.gbh_mm.household.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gbh.gbh_mm.api.CardAPI;
 import com.gbh.gbh_mm.api.DemandDepositAPI;
+import com.gbh.gbh_mm.budget.model.entity.Budget;
+import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
+import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
+import com.gbh.gbh_mm.budget.repo.BudgetRepository;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.household.model.dto.CardDto;
@@ -20,6 +24,7 @@ import com.gbh.gbh_mm.household.repo.HouseholdCategoryRepository;
 import com.gbh.gbh_mm.household.repo.HouseholdDetailCategoryRepository;
 import com.gbh.gbh_mm.household.repo.AiCategoryRepository;
 import com.gbh.gbh_mm.household.repo.HouseholdRepository;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,6 +38,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -44,6 +50,10 @@ public class HouseholdServiceImpl implements HouseholdService {
     private final HouseholdDetailCategoryRepository householdDetailCategoryRepository;
     private final AiCategoryRepository aiCategoryRepository;
     private final UserRepository userRepository;
+
+    // 예산
+    private final BudgetRepository budgetRepository;
+    private final BudgetCategoryRepository budgetCategoryRepository;
 
     private final CardAPI cardAPI;
     private final DemandDepositAPI demandDepositAPI;
@@ -416,6 +426,42 @@ public class HouseholdServiceImpl implements HouseholdService {
                 .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
                 .build();
             householdList.add(household);
+
+            // 입출금 내역 예산 반영
+            if (household.getHouseholdClassificationCategory().equals("WITHDRAWAL")) {
+
+                Budget budget =
+                        budgetRepository.
+                                findAllByUser_UserPkOrderByBudgetPkDesc(household.getUser().getUserPk()).get(0);
+
+                DateTimeFormatter budgetFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                DateTimeFormatter householdFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+                LocalDate budgetStartDate = LocalDate.parse(budget.getStartDate(), budgetFormatter);
+                LocalDate budgetEndDate = LocalDate.parse(budget.getEndDate(), budgetFormatter);
+                LocalDate tradeDate = LocalDate.parse(household.getTradeDate(), householdFormatter);
+
+                // if 예산 시작일 < 거래일 < 예산 종료일
+                if (!tradeDate.isBefore(budgetStartDate) && !tradeDate.isAfter(budgetEndDate)) {
+                    String aiCategoryName = householdDetailCategory.getAiCategory().getAiCategory();
+                    List<BudgetCategory> budgetCategories =
+                            budgetCategoryRepository.findAllByBudget_BudgetPk(budget.getBudgetPk());
+
+
+                    for (BudgetCategory budgetCategory : budgetCategories) {
+                        if (budgetCategory.getBudgetCategoryName().equals(aiCategoryName)) {
+                            budgetCategory.setBudgetExpendAmount((
+                                    budgetCategory.getBudgetExpendAmount() + householdDto.getHouseholdAmount()
+                            ));
+                            budgetCategoryRepository.save(budgetCategory);
+                            break;
+                        }
+                    }
+                }
+
+
+            }
+
         }
 
         householdRepository.saveAll(householdList);

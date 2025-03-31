@@ -8,13 +8,16 @@ import com.gbh.gbh_mm.portfolio.model.entity.PortfolioCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
+import com.gbh.gbh_mm.portfolio.model.request.RequestUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioCategoryRepository;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioRepository;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -87,5 +90,26 @@ public class PortfolioServiceImpl implements PortfolioService {
 
             return response;
         }
+    }
+
+    @Override
+    public ResponseUpdateCategory updateCategory(RequestUpdateCategory request) {
+        PortfolioCategory portfolioCategory = portfolioCategoryRepository
+            .findById(request.getCategoryPk())
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 카테고리"));
+
+        if (request.getCategoryMemo() != null) {
+            portfolioCategory.setPortfolioCategoryMemo(request.getCategoryMemo());
+        }
+
+        if (request.getCategoryName() != null) {
+            portfolioCategory.setPortfolioCategoryName(request.getCategoryName());
+        }
+
+        portfolioCategoryRepository.save(portfolioCategory);
+
+        ResponseUpdateCategory response = mapper.map(portfolioCategory, ResponseUpdateCategory.class);
+
+        return response;
     }
 }

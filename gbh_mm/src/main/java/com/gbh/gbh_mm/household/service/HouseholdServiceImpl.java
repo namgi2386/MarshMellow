@@ -424,7 +424,7 @@ public class HouseholdServiceImpl implements HouseholdService {
             householdList.add(household);
 
             // 입출금 내역 예산 반영
-            if (household.getHouseholdClassificationCategory().equals("WITHDRAW")) {
+            if (household.getHouseholdClassificationCategory().equals("WITHDRAWAL")) {
 
                 Budget budget =
                         budgetRepository.
@@ -439,7 +439,7 @@ public class HouseholdServiceImpl implements HouseholdService {
 
                 // if 예산 시작일 < 거래일 < 예산 종료일
                 if (!tradeDate.isBefore(budgetStartDate) && !tradeDate.isAfter(budgetEndDate)) {
-                    String aiCategoryName = householdDetailCategory.getAiCategory().toString();
+                    String aiCategoryName = householdDetailCategory.getAiCategory().getAiCategory();
                     List<BudgetCategory> budgetCategories =
                             budgetCategoryRepository.findAllByBudget_BudgetPk(budget.getBudgetPk());
 
@@ -449,6 +449,7 @@ public class HouseholdServiceImpl implements HouseholdService {
                             budgetCategory.setBudgetExpendAmount((
                                     budgetCategory.getBudgetExpendAmount() + householdDto.getHouseholdAmount()
                             ));
+                            budgetCategoryRepository.save(budgetCategory);
                             break;
                         }
                     }

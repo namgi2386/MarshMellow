@@ -1,32 +1,25 @@
 // data/datasources/remote/auth_api.dart
 import 'package:dio/dio.dart';
-import 'package:marshmellow/core/config/app_config.dart';
 
 class AuthApi {
   final Dio _dio;
   
-  // 엔드포인트 정의
-  static const String _BASE_PATH = '/auth';
-  static const String LOGIN = '$_BASE_PATH/login';
-  static const String REGISTER = '$_BASE_PATH/register';
-  static const String VERIFY_EMAIL = '$_BASE_PATH/verify-email';
-  static const String RESET_PASSWORD = '$_BASE_PATH/reset-password';
-  
   AuthApi(this._dio);
-  
-  Future<Response> login(String email, String password) async {
-    return await _dio.post(
-      AppConfig.apiBaseUrl + LOGIN,
-      data: {'email': email, 'password': password},
+
+  // 본인확인 api
+  Future<Map<String, dynamic>> verifyIdentity(String phoneNumber) async {
+    final response = await _dio.post(
+      '/api/mm/auth/identity-verify',
+      data: {
+        'phoneNumber' : phoneNumber,
+      }
     );
+    return response.data;
   }
-  
-  Future<Response> register(Map<String, dynamic> userData) async {
-    return await _dio.post(
-      AppConfig.apiBaseUrl + REGISTER,
-      data: userData,
-    );
+
+  // SSE 연결을 위한 URL 반환
+  String getIdentityVerificationSubscribeURl(String phoneNumber) {
+    return '/api/mm/auth/subscribe/$phoneNumber';
   }
-  
-  // 다른 인증 관련 API 메서드들...
+
 }

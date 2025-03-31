@@ -123,7 +123,7 @@ public class HouseholdServiceImpl implements HouseholdService {
 
         if (householdDetailCategory == null) {
             householdDetailCategory = householdDetailCategoryRepository
-                    .findByHouseholdDetailCategory("미분류");
+                .findByHouseholdDetailCategory("미분류");
         }
 
         household.setUser(user);
@@ -389,29 +389,28 @@ public class HouseholdServiceImpl implements HouseholdService {
         for (HouseHoldDto householdDto : householdDtoList) {
             String category = householdDto.getCategory().replaceAll("\\s+", "");
 
-
             HouseholdDetailCategory householdDetailCategory =
                 householdDetailCategoryRepository.findByHouseholdDetailCategory(category);
             String tradeTimeSec = householdDto.getTradeTime();
             String tradeTime = tradeTimeSec.substring(0, tradeTimeSec.length() - 2);
 
-            if (householdDetailCategory == null){
+            if (householdDetailCategory == null) {
                 householdDetailCategory = householdDetailCategoryRepository
-                        .findByHouseholdDetailCategory("미분류");
+                    .findByHouseholdDetailCategory("미분류");
             }
 
             Household household = Household.builder()
-                    .tradeName(householdDto.getTradeName())
-                    .tradeDate(householdDto.getTradeDate())
-                    .tradeTime(tradeTime)
-                    .householdAmount(householdDto.getHouseholdAmount())
-                    .paymentMethod(householdDto.getPaymentMethod())
-                    .paymentCancelYn(householdDto.getPaymentCancelYn())
-                    .exceptedBudgetYn(householdDto.getExceptedBudgetYn())
-                    .user(householdDto.getUser())
-                    .householdDetailCategory(householdDetailCategory)
-                    .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
-                    .build();
+                .tradeName(householdDto.getTradeName())
+                .tradeDate(householdDto.getTradeDate())
+                .tradeTime(tradeTime)
+                .householdAmount(householdDto.getHouseholdAmount())
+                .paymentMethod(householdDto.getPaymentMethod())
+                .paymentCancelYn(householdDto.getPaymentCancelYn())
+                .exceptedBudgetYn(householdDto.getExceptedBudgetYn())
+                .user(householdDto.getUser())
+                .householdDetailCategory(householdDetailCategory)
+                .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
+                .build();
             householdList.add(household);
         }
 
@@ -422,63 +421,62 @@ public class HouseholdServiceImpl implements HouseholdService {
         String currentString = currentDate.format(formatter);
         String lastDate = "20200101";
 
-        if (!householdList.isEmpty()){
+        if (!householdList.isEmpty()) {
             long userPk = householdList.get(0).getUser().getUserPk();
             List<Household> afterHouseholdList = householdRepository
-                .findAllByTradeDateBetweenAndUser_UserPkOrderByTradeDateAsc(lastDate, currentString, userPk);
-
+                .findAllByTradeDateBetweenAndUser_UserPkOrderByTradeDateAsc(lastDate, currentString,
+                    userPk);
 
             long totalIncome = afterHouseholdList.stream()
-                    .filter(h -> h.getHouseholdClassificationCategory()
-                            .equals(HouseholdClassificationEnum.DEPOSIT))
-                    .mapToLong(Household::getHouseholdAmount)
-                    .sum();
+                .filter(h -> h.getHouseholdClassificationCategory()
+                    .equals(HouseholdClassificationEnum.DEPOSIT))
+                .mapToLong(Household::getHouseholdAmount)
+                .sum();
 
             long totalExpenditure = afterHouseholdList.stream()
-                    .filter(h -> h.getHouseholdClassificationCategory()
-                            .equals(HouseholdClassificationEnum.WITHDRAWAL))
-                    .mapToLong(Household::getHouseholdAmount)
-                    .sum();
+                .filter(h -> h.getHouseholdClassificationCategory()
+                    .equals(HouseholdClassificationEnum.WITHDRAWAL))
+                .mapToLong(Household::getHouseholdAmount)
+                .sum();
 
             Map<String, List<HouseholdDetailDto>> grouped = afterHouseholdList.stream()
-                    .collect(Collectors.groupingBy(Household::getTradeDate,
-                            Collectors.mapping(h -> {
-                                HouseholdDetailDto householdDetailDto = HouseholdDetailDto.builder()
-                                        .householdPk(h.getHouseholdPk())
-                                        .tradeName(h.getTradeName())
-                                        .tradeDate(h.getTradeDate())
-                                        .tradeTime(h.getTradeTime())
-                                        .householdAmount(h.getHouseholdAmount())
-                                        .paymentMethod(h.getPaymentMethod())
-                                        .paymentCancelYn(h.getPaymentCancelYn())
-                                        .householdCategory(h.getHouseholdDetailCategory()
-                                                .getHouseholdCategory()
-                                                .getHouseholdCategoryName())
-                                        .householdClassificationCategory(h.getHouseholdClassificationCategory())
-                                        .build();
+                .collect(Collectors.groupingBy(Household::getTradeDate,
+                    Collectors.mapping(h -> {
+                        HouseholdDetailDto householdDetailDto = HouseholdDetailDto.builder()
+                            .householdPk(h.getHouseholdPk())
+                            .tradeName(h.getTradeName())
+                            .tradeDate(h.getTradeDate())
+                            .tradeTime(h.getTradeTime())
+                            .householdAmount(h.getHouseholdAmount())
+                            .paymentMethod(h.getPaymentMethod())
+                            .paymentCancelYn(h.getPaymentCancelYn())
+                            .householdCategory(h.getHouseholdDetailCategory()
+                                .getHouseholdCategory()
+                                .getHouseholdCategoryName())
+                            .householdClassificationCategory(h.getHouseholdClassificationCategory())
+                            .build();
 
-                                return householdDetailDto;
-                            }, Collectors.toList())
-                    ));
+                        return householdDetailDto;
+                    }, Collectors.toList())
+                ));
 
             List<DateGroupDto> households = grouped.entrySet().stream()
-                    .sorted((a, b) -> b.getKey().compareTo(a.getKey()))
-                    .map(entry -> {
-                        DateGroupDto dto = DateGroupDto.builder()
-                                .date(entry.getKey())
-                                .list(entry.getValue())
-                                .build();
+                .sorted((a, b) -> b.getKey().compareTo(a.getKey()))
+                .map(entry -> {
+                    DateGroupDto dto = DateGroupDto.builder()
+                        .date(entry.getKey())
+                        .list(entry.getValue())
+                        .build();
 
-                        return dto;
-                    })
-                    .collect(Collectors.toList());
-
+                    return dto;
+                })
+                .collect(Collectors.toList());
 
             ResponseCreateHouseholdList response = ResponseCreateHouseholdList.builder()
-                    .totalIncome(totalIncome)
-                    .totalExpenditure(totalExpenditure)
-                    .houseHoldList(households)
-                    .build();
+                .totalIncome(totalIncome)
+                .totalExpenditure(totalExpenditure)
+                .houseHoldList(households)
+                .build();
 
             return response;
         }
@@ -489,11 +487,100 @@ public class HouseholdServiceImpl implements HouseholdService {
     @Override
     public ResponseSearchHousehold searchHousehold(RequestSearchHousehold request) {
         List<Household> householdList = householdRepository.searchHousehold
-                (request.getStartDate(), request.getEndDate(), request.getUserPk(), request.getKeyword());
+            (request.getStartDate(), request.getEndDate(), request.getUserPk(),
+                request.getKeyword());
+
+        Map<String, List<HouseholdDetailDto>> grouped = householdList.stream()
+            .collect(Collectors.groupingBy(Household::getTradeDate,
+                Collectors.mapping(h -> {
+                    HouseholdDetailDto householdDetailDto = HouseholdDetailDto.builder()
+                        .householdPk(h.getHouseholdPk())
+                        .tradeName(h.getTradeName())
+                        .tradeDate(h.getTradeDate())
+                        .tradeTime(h.getTradeTime())
+                        .householdAmount(h.getHouseholdAmount())
+                        .paymentMethod(h.getPaymentMethod())
+                        .paymentCancelYn(h.getPaymentCancelYn())
+                        .householdCategory(h.getHouseholdDetailCategory()
+                            .getHouseholdCategory()
+                            .getHouseholdCategoryName())
+                        .householdClassificationCategory(h.getHouseholdClassificationCategory())
+                        .build();
+
+                    return householdDetailDto;
+                }, Collectors.toList())
+            ));
+
+        List<DateGroupDto> households = grouped.entrySet().stream()
+            .sorted((a, b) -> b.getKey().compareTo(a.getKey()))
+            .map(entry -> {
+                DateGroupDto dto = DateGroupDto.builder()
+                    .date(entry.getKey())
+                    .list(entry.getValue())
+                    .build();
+
+                return dto;
+            })
+            .collect(Collectors.toList());
 
         ResponseSearchHousehold response = ResponseSearchHousehold.builder()
-                .householdList(householdList)
-                .build();
+            .householdList(households)
+            .build();
+
+        return response;
+    }
+
+    @Override
+    public ResponseFilterHousehold filterHousehold(RequestFilterHousehold request) {
+        List<Household> householdList = householdRepository
+            .findAllByTradeDateBetweenAndUser_UserPkAndHouseholdClassificationCategory
+                (request.getStartDate(), request.getEndDate(), request.getUserPk(),
+                    request.getClassification());
+
+        long total = householdList.stream()
+            .filter(h -> h.getHouseholdClassificationCategory()
+                .equals(request.getClassification()))
+            .mapToLong(Household::getHouseholdAmount)
+            .sum();
+
+
+        Map<String, List<HouseholdDetailDto>> grouped = householdList.stream()
+            .collect(Collectors.groupingBy(Household::getTradeDate,
+                Collectors.mapping(h -> {
+                    HouseholdDetailDto householdDetailDto = HouseholdDetailDto.builder()
+                        .householdPk(h.getHouseholdPk())
+                        .tradeName(h.getTradeName())
+                        .tradeDate(h.getTradeDate())
+                        .tradeTime(h.getTradeTime())
+                        .householdAmount(h.getHouseholdAmount())
+                        .paymentMethod(h.getPaymentMethod())
+                        .paymentCancelYn(h.getPaymentCancelYn())
+                        .householdCategory(h.getHouseholdDetailCategory()
+                            .getHouseholdCategory()
+                            .getHouseholdCategoryName())
+                        .householdClassificationCategory(h.getHouseholdClassificationCategory())
+                        .build();
+
+                    return householdDetailDto;
+                }, Collectors.toList())
+            ));
+
+        List<DateGroupDto> households = grouped.entrySet().stream()
+            .sorted((a, b) -> b.getKey().compareTo(a.getKey()))
+            .map(entry -> {
+                DateGroupDto dto = DateGroupDto.builder()
+                    .date(entry.getKey())
+                    .list(entry.getValue())
+                    .build();
+
+                return dto;
+            })
+            .collect(Collectors.toList());
+
+        ResponseFilterHousehold response = ResponseFilterHousehold.builder()
+            .total(total)
+            .householdList(households)
+            .build();
 
         return response;
     }

@@ -20,4 +20,6 @@ public interface HouseholdService {
     ResponseCreateHouseholdList createHouseholdList(RequestCreateHouseholdList request);
 
     ResponseSearchHousehold searchHousehold(RequestSearchHousehold request);
+
+    ResponseFilterHousehold filterHousehold(RequestFilterHousehold request);
 }

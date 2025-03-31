@@ -103,7 +103,7 @@ class _DailyTransactionsContentState
         const SizedBox(height: 12),
         const Divider(height: 1, thickness: 0.5, color: AppColors.textLight),
 
-        // 트랜잭션 목록 또는 빈 상태
+        // 거래 목록 또는 빈 상태
         Flexible(
           child: _transactions.isEmpty
               ? Container(
@@ -130,7 +130,7 @@ class _DailyTransactionsContentState
               : ListView.builder(
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  // 트랜잭션 목록 + 내역 추가 항목
+                  // 거래 목록 + 내역 추가 항목
                   itemCount: _transactions.length + 1,
                   itemBuilder: (context, index) {
                     // 마지막 항목은 "내역 추가" 버튼
@@ -139,7 +139,7 @@ class _DailyTransactionsContentState
                         onTap: () {
                           // 내역 추가 화면으로 이동 또는 추가 모달 표시
                           Navigator.of(context).pop(); // 현재 모달 닫기
-                          // 트랜잭션 추가 모달 표시
+                          // 거래 추가 모달 표시
                           showCustomModal(
                             context: context,
                             ref: ref,
@@ -204,10 +204,10 @@ class _DailyTransactionsContentState
                                     t.householdPk == transaction.householdPk);
                               });
 
-                              // 트랜잭션 목록 새로고침
+                              // 거래 목록 새로고침
                               ref.refresh(transactionsProvider);
 
-                              // 캘린더 트랜잭션 데이터 새로고침
+                              // 캘린더 거래 데이터 새로고침
                               ref.refresh(calendarTransactionsProvider);
 
                               // 수입/지출 카드 업데이트를 위해 ledgerViewModel 새로고침
@@ -245,7 +245,7 @@ class _DailyTransactionsContentState
   }
 }
 
-// 트랜잭션 모달을 표시하는 함수
+// 거래 모달을 표시하는 함수
 void showDailyTransactionsModal({
   required BuildContext context,
   required WidgetRef ref,
@@ -253,12 +253,17 @@ void showDailyTransactionsModal({
   required List<Transaction> transactions,
   VoidCallback? onTransactionChanged,
 }) {
+  // 거래가 없을 때 더 작은 높이를 사용
+  final double modalMaxHeight = transactions.isEmpty
+      ? MediaQuery.of(context).size.height * 0.5 // 빈 상태일 때 50%
+      : MediaQuery.of(context).size.height * 0.9; // 거래가 있을 때 90%
+
   showCustomModal(
     context: context,
     ref: ref,
     backgroundColor: AppColors.background,
     padding: const EdgeInsets.all(20),
-    maxHeight: MediaQuery.of(context).size.height * 0.9,
+    maxHeight: modalMaxHeight,
     child: DailyTransactionsContent(
       date: date,
       transactions: transactions,

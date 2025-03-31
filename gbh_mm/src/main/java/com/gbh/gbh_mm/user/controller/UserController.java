@@ -70,5 +70,28 @@ public class UserController {
         return userService.isIntegratedAuthenticated(userDetails.getUserPk());
     }
 
+    @GetMapping("/account-list")
+    public ResponseFindAccountList findAccountList(
+        @RequestBody RequestFindAccountList request) {
+        return userService.findAccountList(request);
+    }
+
+    @GetMapping("/deposit-list")
+    public ResponseDepositList findDepositList(
+        @RequestBody RequestDepositList request
+    ) {
+        return userService.findDepositList(request);
+    }
+
+    @PostMapping("/salary")
+    public ResponseCreateSalary createSalary(@RequestBody RequestCreateSalary request) {
+        return userService.createSalary(request);
+    }
+
+    @PatchMapping("/salary")
+    public ResponseUpdateSalary updateSalary(@RequestBody RequestUpdateSalary request) {
+        return userService.updateSalary(request);
+    }
+
 
 }

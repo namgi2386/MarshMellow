@@ -40,6 +40,12 @@ class _AuthMessagePageState extends ConsumerState<AuthMessagePage> {
   Widget build(BuildContext context) {
     // 인증 상태 감시
     final verificationState = ref.watch(identityVerificationProvider);
+    // 인증 상태에 따라 버튼 활성화
+    final isButtonEnabled = verificationState.status == VerificationStatus.emailSent ||
+                            verificationState.status == VerificationStatus.connectionClosed;
+    // 인증 코드 만료 또는 실패 상태 확인(재요청버튼으로전환하기위함)
+    final isCodeExpiredOrFailed = verificationState.status == VerificationStatus.expired ||
+                                  verificationState.status == VerificationStatus.failed;
 
     // 인증 상태에 따라 UI 업데이트
     if (verificationState.status == VerificationStatus.verified) {
@@ -114,26 +120,18 @@ class _AuthMessagePageState extends ConsumerState<AuthMessagePage> {
             // 문자 보내기 버튼
             Padding(
               padding: const EdgeInsets.only(top: 0),
-              child: CustomButton(
-                text: '문자 보내기', 
-                onPressed: () => _sendAuthMessage(context),
-                isEnabled: true,
-              ),
-            ),
-
-            // 인증 코드 만료시 재요청 버튼
-            if (verificationState.status == VerificationStatus.expired ||
-                verificationState.status == VerificationStatus.failed)
-               Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: TextButton(
+              child: isCodeExpiredOrFailed
+                ? CustomButton(
+                  text: '인증 코드 재요청', 
                   onPressed: () => _requestNewCode(context),
-                  child: Text(
-                    '인증 코드 재요청',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.blueDark),
+                  isEnabled: isButtonEnabled,
+                  )
+                : CustomButton(
+                  text: '문자 보내기', 
+                  onPressed: () => _sendAuthMessage(context),
+                  isEnabled: isButtonEnabled,
                   ),
-                ),
-              ),
+            ),
             SizedBox(height: screenHeight * 0.05),
           ],
         ),
@@ -142,15 +140,18 @@ class _AuthMessagePageState extends ConsumerState<AuthMessagePage> {
   }
 
   void _sendAuthMessage(BuildContext context) async {
+    // 문자 내용 웹훅 연결후 사용 예정
+    // final serverEmail = widget.userInfo['serverEmail'] ?? '';
+    // final verificationCode = widget.userInfo['verificationCode'] ?? '';
+    // final messageBody = '$verificationCode';
+
     // 문자 내용
-    final serverEmail = widget.userInfo['serverEmail'] ?? '';
-    final verificationCode = widget.userInfo['verificationCode'] ?? '';
-    final messageBody = '$verificationCode';
+    final messageBody = '[MM]본인 확인용 인증메시지 a5923094948jdkcmdske';
 
     // SMS 앱 열기
     final uri = Uri(
       scheme: 'sms',
-      path: '$serverEmail', // 문자 보낼 사람
+      path: 'user@mm.com', // 문자 보낼 사람
       queryParameters: {'body': messageBody},
     );
 

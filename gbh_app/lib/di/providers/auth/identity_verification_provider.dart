@@ -14,6 +14,7 @@ enum VerificationStatus {
   verified,
   expired,
   failed,
+  connectionClosed, // sse 연결 종료 감지(임시)
 }
 
 // 인증 상태 정보를 담는 클래스
@@ -102,6 +103,9 @@ class IdentityVerificationNotifier extends StateNotifier<VerificationState> {
     }
   }
 
+  DateTime _connectionStartTime = DateTime.now();
+  String _lastReceivedData = '';
+
   // SSE(server-sent events) 연결 설정
   void _setupSSEConnection(String phoneNumber) async {
     try {
@@ -149,15 +153,15 @@ class IdentityVerificationNotifier extends StateNotifier<VerificationState> {
               );
             },
             onDone: () {
-              // 연결이 종료된 경우
               if (state.status == VerificationStatus.verifying ||
                   state.status == VerificationStatus.emailSent) {
                 state = state.copyWith(
-                  status: VerificationStatus.failed,
+                  status: VerificationStatus.connectionClosed,
                   errorMessage: 'SSE 연결이 종료되었습니다.',
                 );
               }
             },
+
           );
       } else {
         state = state.copyWith(
@@ -175,6 +179,7 @@ class IdentityVerificationNotifier extends StateNotifier<VerificationState> {
 
   // SSE 라인 처리
   void _processSSELine(String line) {
+    _lastReceivedData = line;
     try {
       // 빈 라인은 이벤트의 끝을 의미
       if (line.isEmpty) {
@@ -229,6 +234,8 @@ class IdentityVerificationNotifier extends StateNotifier<VerificationState> {
         state = state.copyWith(status: VerificationStatus.failed);
       } else if (eventData.contains('EventStream Created')) {
         state = state.copyWith(status: VerificationStatus.verifying);
+      } else if (eventData.contains('EventStream Closed')) {
+        state = state.copyWith(status: VerificationStatus.connectionClosed);
       }
     }
   }

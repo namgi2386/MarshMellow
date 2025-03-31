@@ -6,6 +6,7 @@ import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
@@ -17,7 +18,10 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/portfolio")
@@ -56,7 +60,16 @@ public class PortfolioController {
     }
 
     @PostMapping
-    public void createPortfolio() {}
+    public ResponseCreatePortfolio createPortfolio(
+        @RequestParam MultipartFile file,
+        @RequestParam String portfolioMemo,
+        @RequestParam String fileName,
+        @RequestParam long userPk,
+        @RequestParam int portfolioCategoryPk
+    ) {
+        return portfolioService
+            .createPortfolio(file, portfolioMemo, fileName,userPk, portfolioCategoryPk);
+    }
 
     @GetMapping("/list")
     public void findPortfolioList() {}

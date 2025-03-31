@@ -5,9 +5,11 @@ import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface PortfolioService {
 
@@ -18,4 +20,7 @@ public interface PortfolioService {
     ResponseDeleteCategory deleteCategory(RequestDeleteCategory request);
 
     ResponseUpdateCategory updateCategory(RequestUpdateCategory request);
+
+    ResponseCreatePortfolio createPortfolio
+        (MultipartFile file, String portfolioMemo, String fileName, long userPk, int portfolioCategoryPk);
 }

@@ -9,9 +9,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "tbl_portfolio")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Portfolio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +34,9 @@ public class Portfolio {
 
     @Column(name = "create_time")
     private String createTime;
+
+    @Column(name = "origin_file_name")
+    private String originFileName;
 
     @Column(name = "file_name")
     private String fileName;

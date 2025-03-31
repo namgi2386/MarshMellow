@@ -3,16 +3,19 @@ package com.gbh.gbh_mm.portfolio.service;
 import com.gbh.gbh_mm.common.exception.CustomException;
 import com.gbh.gbh_mm.common.exception.ErrorCode;
 import com.gbh.gbh_mm.portfolio.model.dto.PortfolioCategoryDto;
+import com.gbh.gbh_mm.portfolio.model.dto.PortfolioDto;
 import com.gbh.gbh_mm.portfolio.model.entity.Portfolio;
 import com.gbh.gbh_mm.portfolio.model.entity.PortfolioCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
+import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioCategoryRepository;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioRepository;
@@ -22,6 +25,7 @@ import com.gbh.gbh_mm.user.repo.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -153,6 +157,29 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         ResponseCreatePortfolio response = mapper.map(savedPortfolio, ResponseCreatePortfolio.class);
         response.setPortfolioCategory(portfolioCategoryDto);
+
+        return response;
+    }
+
+    @Override
+    public ResponseFindPortfolioList findPortfolioList(RequestFindPortfolioList request) {
+        List<Portfolio> portfolioList = portfolioRepository.findAllByUser_UserPk(request.getUserPk());
+
+        List<PortfolioDto> portfolioDtoList = new ArrayList<>();
+
+        for (Portfolio portfolio : portfolioList) {
+            PortfolioCategoryDto portfolioCategoryDto =
+                mapper.map(portfolio.getPortfolioCategory(), PortfolioCategoryDto.class);
+
+            PortfolioDto portfolioDto = mapper.map(portfolio, PortfolioDto.class);
+            portfolioDto.setPortfolioCategory(portfolioCategoryDto);
+
+            portfolioDtoList.add(portfolioDto);
+        }
+
+        ResponseFindPortfolioList response = ResponseFindPortfolioList.builder()
+            .portfolioList(portfolioDtoList)
+            .build();
 
         return response;
     }

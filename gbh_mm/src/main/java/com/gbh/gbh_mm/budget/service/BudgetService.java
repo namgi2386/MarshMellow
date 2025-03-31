@@ -15,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sound.midi.Soundbank;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
@@ -230,4 +233,25 @@ public class BudgetService {
 
     }
 
+    // 오늘의 예산 조회
+    public ResponseFindDailyBudget getDailyBudget(Long userPk) {
+        Budget budget = budgetRepository.findAllByUser_UserPkOrderByBudgetPkDesc(userPk).get(0);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        long remainDay = ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(budget.getEndDate(), formatter)) + 1;
+
+        System.out.println(remainDay);
+        List<BudgetCategory> budgetCategories = budgetCategoryRepository.findAllByBudget_BudgetPk(budget.getBudgetPk());
+
+        long budgetAmount = budget.getBudgetAmount();
+        // 전체 지출량
+        long totalExpendAmount = budgetCategories.stream().mapToLong(BudgetCategory::getBudgetExpendAmount).sum();
+        return ResponseFindDailyBudget.builder()
+                .message("오늘의 예산 조회")
+                .budgetPk(budget.getBudgetPk())
+                .budgetAmount(budgetAmount)
+                .remainBudgetAmount(budgetAmount - totalExpendAmount)
+                .dailyBudgetAmount((budgetAmount - totalExpendAmount) / remainDay)
+                .build();
+    }
 }

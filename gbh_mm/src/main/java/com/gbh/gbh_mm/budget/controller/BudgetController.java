@@ -49,4 +49,10 @@ public class BudgetController {
     public ResponseUpdateBudgetCategory updateBudgetCategory(@PathVariable Long budgetCategoryPk, @RequestBody RequestUpdateBudgetCategory requestUpdateBudgetCategory) {
             return budgetService.updateBudgetCategory(budgetCategoryPk, requestUpdateBudgetCategory);
     }
+
+    // 오늘의 예산 조회
+    @GetMapping("/daily")
+    public ResponseFindDailyBudget getDailyBudget(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return budgetService.getDailyBudget(userDetails.getUserPk());
+    }
 }

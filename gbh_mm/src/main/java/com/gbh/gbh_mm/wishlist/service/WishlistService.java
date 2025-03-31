@@ -134,4 +134,17 @@ public class WishlistService {
                 .deleteWishlistPk(wishlistPk)
                 .build();
     }
+
+    // 현재 위시 조회
+    public ResponseFindDetailWishlist getCurrentWish(Long userPk) {
+        List<Wishlist> wishlist =  wishlistRepository.findById(userPk).stream().collect(Collectors.toList());
+
+
+        System.out.println(wishlist.size());
+        for (Wishlist wish : wishlist) {
+            System.out.println(wish.getProductNickname());
+            System.out.println(wish.getProductName());
+        }
+        return ResponseFindDetailWishlist.builder().build();
+    }
 }

@@ -1,14 +1,17 @@
 package com.gbh.gbh_mm.user.model.request;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
-public class SignUpRequestDto {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CIRequestDto {
 
     private String userName;
     private String phoneNumber;
     private String userCode;
-    private String pin;
 }

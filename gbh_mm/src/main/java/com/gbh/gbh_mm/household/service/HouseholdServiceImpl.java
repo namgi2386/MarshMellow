@@ -296,26 +296,28 @@ public class HouseholdServiceImpl implements HouseholdService {
 
 
                 /* 해당 카드 거래내역 매핑 */
-                for (Map<String, Object> cardTransactionRecDatum : cardTransactionList) {
-                    /* 해당 카드 거래내역 Response에 추가 */
-                    Household household = Household.builder()
-                        .tradeName((String) cardTransactionRecDatum.get("merchantName"))
-                        .tradeDate((String) cardTransactionRecDatum.get("transactionDate"))
-                        .tradeTime((String) cardTransactionRecDatum.get("transactionTime"))
-                        .householdAmount(
-                            Integer.parseInt(
-                                (String) cardTransactionRecDatum.get("transactionBalance")))
-                        .paymentMethod(card.getCardName())
-                        .exceptedBudgetYn("N")
-                        .householdClassificationCategory(HouseholdClassificationEnum.WITHDRAWAL)
-                        .user(user.get())
-                        .build();
-                    if (cardTransactionRecDatum.get("cardStatus").equals("승인")) {
-                        household.setPaymentCancelYn("N");
-                    } else {
-                        household.setPaymentCancelYn("Y");
+                if (cardTransactionList != null) {
+                    for (Map<String, Object> cardTransactionRecDatum : cardTransactionList) {
+                        /* 해당 카드 거래내역 Response에 추가 */
+                        Household household = Household.builder()
+                            .tradeName((String) cardTransactionRecDatum.get("merchantName"))
+                            .tradeDate((String) cardTransactionRecDatum.get("transactionDate"))
+                            .tradeTime((String) cardTransactionRecDatum.get("transactionTime"))
+                            .householdAmount(
+                                Integer.parseInt(
+                                    (String) cardTransactionRecDatum.get("transactionBalance")))
+                            .paymentMethod(card.getCardName())
+                            .exceptedBudgetYn("N")
+                            .householdClassificationCategory(HouseholdClassificationEnum.WITHDRAWAL)
+                            .user(user.get())
+                            .build();
+                        if (cardTransactionRecDatum.get("cardStatus").equals("승인")) {
+                            household.setPaymentCancelYn("N");
+                        } else {
+                            household.setPaymentCancelYn("Y");
+                        }
+                        houseHolds.add(household);
                     }
-                    houseHolds.add(household);
                 }
             }
 
@@ -346,30 +348,32 @@ public class HouseholdServiceImpl implements HouseholdService {
                 List<Map<String, Object>> demandDepositTransactionList =
                     (List<Map<String, Object>>) demandDepositTransactionRecData.get("list");
 
-                for (Map<String, Object> demandDepositTransaction : demandDepositTransactionList) {
-                    Household household = Household.builder()
-                        .tradeName((String) demandDepositTransaction.get("transactionSummary"))
-                        .tradeDate((String) demandDepositTransaction.get("transactionDate"))
-                        .tradeTime((String) demandDepositTransaction.get("transactionTime"))
-                        .householdAmount(
-                            Integer.parseInt(
-                                (String) demandDepositTransaction.get("transactionBalance")))
-                        .paymentMethod(demandDepositDto.getAccountName())
-                        .exceptedBudgetYn("N")
-                        .paymentCancelYn("N")
-                        .user(user.get())
-                        .build();
+                if (demandDepositTransactionList != null) {
 
-                    if (demandDepositTransaction.get("transactionType").equals("1")) {
-                        household.setHouseholdClassificationCategory(
-                            HouseholdClassificationEnum.DEPOSIT);
-                    } else {
-                        household.setHouseholdClassificationCategory(
-                            HouseholdClassificationEnum.TRANSFER);
+                    for (Map<String, Object> demandDepositTransaction : demandDepositTransactionList) {
+                        Household household = Household.builder()
+                            .tradeName((String) demandDepositTransaction.get("transactionSummary"))
+                            .tradeDate((String) demandDepositTransaction.get("transactionDate"))
+                            .tradeTime((String) demandDepositTransaction.get("transactionTime"))
+                            .householdAmount(
+                                Integer.parseInt(
+                                    (String) demandDepositTransaction.get("transactionBalance")))
+                            .paymentMethod(demandDepositDto.getAccountName())
+                            .exceptedBudgetYn("N")
+                            .paymentCancelYn("N")
+                            .user(user.get())
+                            .build();
+
+                        if (demandDepositTransaction.get("transactionType").equals("1")) {
+                            household.setHouseholdClassificationCategory(
+                                HouseholdClassificationEnum.DEPOSIT);
+                        } else {
+                            household.setHouseholdClassificationCategory(
+                                HouseholdClassificationEnum.TRANSFER);
+                        }
+                        houseHolds.add(household);
                     }
-                    houseHolds.add(household);
                 }
-
             }
             ResponseFindTransactionDataList responseHousehold = new ResponseFindTransactionDataList();
             responseHousehold.setHouseholdList(houseHolds);
@@ -542,7 +546,6 @@ public class HouseholdServiceImpl implements HouseholdService {
                 .equals(request.getClassification()))
             .mapToLong(Household::getHouseholdAmount)
             .sum();
-
 
         Map<String, List<HouseholdDetailDto>> grouped = householdList.stream()
             .collect(Collectors.groupingBy(Household::getTradeDate,

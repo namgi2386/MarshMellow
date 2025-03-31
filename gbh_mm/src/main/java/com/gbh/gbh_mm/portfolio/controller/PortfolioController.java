@@ -16,6 +16,7 @@ import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdatePortfolio;
 import com.gbh.gbh_mm.portfolio.service.PortfolioService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -99,6 +100,15 @@ public class PortfolioController {
     }
 
     @PatchMapping
-    public void updatePortfolio() {}
+    public ResponseUpdatePortfolio updatePortfolio(
+        @RequestParam MultipartFile file,
+        @RequestParam String portfolioMemo,
+        @RequestParam String fileName,
+        @RequestParam int portfolioPk,
+        @RequestParam int portfolioCategoryPk
+    ) {
+        return portfolioService.updatePortfolio
+            (file, portfolioMemo, fileName, portfolioPk, portfolioCategoryPk);
+    }
 
 }

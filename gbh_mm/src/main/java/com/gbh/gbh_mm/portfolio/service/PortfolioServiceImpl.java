@@ -21,6 +21,7 @@ import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdatePortfolio;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioCategoryRepository;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioRepository;
 import com.gbh.gbh_mm.s3.S3Component;
@@ -229,6 +230,43 @@ public class PortfolioServiceImpl implements PortfolioService {
 
             return response;
         }
+    }
 
+    @Override
+    public ResponseUpdatePortfolio updatePortfolio(MultipartFile file, String portfolioMemo,
+        String fileName, int portfolioPk, int portfolioCategoryPk) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioPk)
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 포폴"));
+        PortfolioCategory portfolioCategory = portfolioCategoryRepository
+            .findById(portfolioCategoryPk)
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 카테고리"));
+
+        portfolio.setPortfolioCategory(portfolioCategory);
+
+        if (file != null && !file.isEmpty()) {
+            try {
+                s3Component.deleteFileByUrl(portfolio.getFileUrl());
+                String fileUrl = s3Component.uploadFile(file);
+                portfolio.setFileUrl(fileUrl);
+                portfolio.setOriginFileName(file.getOriginalFilename());
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (portfolioMemo != null && !portfolioMemo.isEmpty()) {
+            portfolio.setPortfolioMemo(portfolioMemo);
+        }
+        if (fileName != null && !fileName.isEmpty()) {
+            portfolio.setFileName(fileName);
+        }
+
+        portfolioRepository.save(portfolio);
+
+        ResponseUpdatePortfolio response = mapper.map(portfolio, ResponseUpdatePortfolio.class);
+        PortfolioCategoryDto portfolioCategoryDto =
+            mapper.map(portfolio.getPortfolioCategory(), PortfolioCategoryDto.class);
+        response.setPortfolioCategory(portfolioCategoryDto);
+
+        return response;
     }
 }

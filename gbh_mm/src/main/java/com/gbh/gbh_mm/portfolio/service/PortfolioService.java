@@ -15,6 +15,7 @@ import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdatePortfolio;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface PortfolioService {
@@ -35,4 +36,6 @@ public interface PortfolioService {
     ResponseFindPortfolio findPortfolio(RequestFindPortfolio request);
 
     ResponseDeletePortfolio deletePortfolio(RequestDeletePortfolio request);
+
+    ResponseUpdatePortfolio updatePortfolio(MultipartFile file, String portfolioMemo, String fileName, int portfolioPk, int portfolioCategoryPk);
 }

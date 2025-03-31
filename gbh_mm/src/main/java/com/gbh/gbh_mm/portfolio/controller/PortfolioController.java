@@ -2,7 +2,11 @@ package com.gbh.gbh_mm.portfolio.controller;
 
 import com.gbh.gbh_mm.portfolio.model.entity.Portfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
+import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
+import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.service.PortfolioService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,10 +33,19 @@ public class PortfolioController {
     }
 
     @GetMapping("/category-list")
-    public void findPortfolioCategoryList() {}
+    public ResponseFindCategoryList findPortfolioCategoryList(
+        @RequestBody RequestFindCategoryList request
+    ) {
+        return portfolioService.findCategoryList(request);
+    }
 
     @DeleteMapping("/category")
-    public void deletePortfolioCategory() {}
+    public ResponseDeleteCategory deletePortfolioCategory(
+        @RequestBody RequestDeleteCategory request
+    ) {
+
+        return portfolioService.deleteCategory(request);
+    }
 
     @PatchMapping("/category")
     public void updatePortfolioCategory() {}

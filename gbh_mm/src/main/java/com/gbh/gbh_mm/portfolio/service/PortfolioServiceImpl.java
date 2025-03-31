@@ -6,7 +6,11 @@ import com.gbh.gbh_mm.portfolio.model.dto.PortfolioCategoryDto;
 import com.gbh.gbh_mm.portfolio.model.entity.Portfolio;
 import com.gbh.gbh_mm.portfolio.model.entity.PortfolioCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
+import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
+import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioCategoryRepository;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioRepository;
 import com.gbh.gbh_mm.user.model.entity.User;
@@ -48,5 +52,40 @@ public class PortfolioServiceImpl implements PortfolioService {
             .build();
 
         return response;
+    }
+
+    @Override
+    public ResponseFindCategoryList findCategoryList(RequestFindCategoryList request) {
+        List<PortfolioCategory> portfolioCategoryList = portfolioCategoryRepository.findAll();
+
+        List<PortfolioCategoryDto> portfolioCategoryDtoList = portfolioCategoryList.stream()
+            .map(p -> mapper.map(p, PortfolioCategoryDto.class))
+            .collect(Collectors.toList());
+
+        ResponseFindCategoryList response = ResponseFindCategoryList.builder()
+            .portfolioCategoryList(portfolioCategoryDtoList)
+            .build();
+
+        return response;
+    }
+
+    @Override
+    public ResponseDeleteCategory deleteCategory(RequestDeleteCategory request) {
+        try {
+            portfolioRepository.deleteById(request.getCategoryPk());
+
+            ResponseDeleteCategory response = ResponseDeleteCategory.builder()
+                .message("SUCCESS")
+                .build();
+
+            return response;
+
+        } catch (Exception e) {
+            ResponseDeleteCategory response = ResponseDeleteCategory.builder()
+                .message("FAIL")
+                .build();
+
+            return response;
+        }
     }
 }

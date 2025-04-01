@@ -1,4 +1,3 @@
-// lib/core/services/certificate_service.dart
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -13,6 +12,10 @@ import 'package:pointycastle/random/fortuna_random.dart';
 import 'package:pointycastle/signers/rsa_signer.dart';
 import 'package:pointycastle/digests/sha256.dart';
 
+/*
+ TEE/SE 하드웨어 접근 불가능시 사용할
+ 공개키 / 개인키
+*/
 class CertificateService {
   final FlutterSecureStorage _secureStorage;
   static const String _privateKeyKey = 'private_key'; // 개인키를 열기 위한 키

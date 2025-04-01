@@ -44,7 +44,7 @@ class WithdrawalCategory {
       type: WithdrawalCategoryType.baby,
       name: '자녀/육아',
       iconPath: IconPath.expenseBaby,
-    ),  
+    ),
     WithdrawalCategory(
       type: WithdrawalCategoryType.bank,
       name: '금융',
@@ -127,7 +127,7 @@ class WithdrawalCategory {
     ),
     WithdrawalCategory(
       type: WithdrawalCategoryType.nonCategory,
-      name: '미분류',
+      name: '기타',
       iconPath: IconPath.nonCategory,
     ),
   ];
@@ -136,7 +136,7 @@ class WithdrawalCategory {
   static WithdrawalCategory getById(WithdrawalCategoryType id) {
     return allCategories.firstWhere(
       (category) => category.type == id,
-      orElse: () => allCategories.last, // 기본값은 '미분류'
+      orElse: () => allCategories.last, // 기본값은 '기타'
     );
   }
 
@@ -144,7 +144,7 @@ class WithdrawalCategory {
   static WithdrawalCategory getByName(String name) {
     return allCategories.firstWhere(
       (category) => category.name == name,
-      orElse: () => allCategories.last, // 기본값은 '미분류'
+      orElse: () => allCategories.last, // 기본값은 '기타'
     );
   }
 }

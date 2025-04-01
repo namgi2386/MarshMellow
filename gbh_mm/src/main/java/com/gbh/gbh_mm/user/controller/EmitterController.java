@@ -13,7 +13,7 @@ public class EmitterController {
     private final EmitterService emitterService;
 
     @GetMapping(value ="/api/mm/auth/subscribe/{phoneNumber}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe(@RequestParam String phoneNumber,
+    public SseEmitter subscribe(@PathVariable String phoneNumber,
                                 @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId){
         return emitterService.subscribe(phoneNumber, lastEventId);
     }

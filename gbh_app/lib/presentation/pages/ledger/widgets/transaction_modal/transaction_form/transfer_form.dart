@@ -6,11 +6,24 @@ import 'package:marshmellow/data/models/ledger/category/transfer_category.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/picker/transfer_direction_picker.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/data/models/ledger/category/category_mapping.dart';
 
 class TransferForm extends ConsumerStatefulWidget {
   final Transaction? initialData; // 초기 데이터 추가
   final DateTime? initialDate; // 초기 날짜
-  const TransferForm({super.key, this.initialData, this.initialDate});
+  final Function(int? amount, String? memo, int? categoryPk)?
+      onDataChanged; // 콜백 함수 수정
+  final bool readOnly; // 읽기 전용 모드
+
+  const TransferForm({
+    super.key,
+    this.initialData,
+    this.initialDate,
+    this.onDataChanged,
+    this.readOnly = false,
+  });
 
   @override
   ConsumerState<TransferForm> createState() => _TransferFormState();
@@ -23,6 +36,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
   TransferCategory? _selectedTransferCategory;
   TransferDirection? _transferDirection;
   String? _account;
+  int? _amount;
 
   @override
   void initState() {
@@ -37,6 +51,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       _merchant = transaction.tradeName;
       _memo = transaction.householdMemo;
       _account = transaction.paymentMethod;
+      _amount = transaction.householdAmount;
 
       // 카테고리 설정
       _selectedTransferCategory = categoryRepository
@@ -62,6 +77,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     setState(() {
       _memo = value;
     });
+    _notifyDataChanged();
   }
 
   // 상호명 업데이트 함수
@@ -78,6 +94,11 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       _transferDirection = direction;
       _selectedTransferCategory = category;
     });
+
+    // 카테고리 PK 가져오기
+    final pk = CategoryPkMapping.getPkFromCategory(
+        transferCategory: category, transferDirection: direction);
+    _notifyDataChanged(categoryPk: pk);
   }
 
   // 계좌 업데이트 함수
@@ -92,6 +113,23 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     final result = await showTransferDirectionPickerModal(context);
     if (result != null) {
       _updateTransferInfo(result['direction'], result['category']);
+    }
+  }
+
+  // 데이터 변경을 알리는 함수 수정
+  void _notifyDataChanged({int? categoryPk}) {
+    if (widget.onDataChanged != null) {
+      int? pkToUse = categoryPk;
+      // categoryPk가 없으면 현재 선택된 카테고리와 방향의 PK 사용
+      if (pkToUse == null &&
+          _selectedTransferCategory != null &&
+          _transferDirection != null) {
+        pkToUse = CategoryPkMapping.getPkFromCategory(
+            transferCategory: _selectedTransferCategory,
+            transferDirection: _transferDirection);
+      }
+
+      widget.onDataChanged!(_amount, _memo, pkToUse);
     }
   }
 
@@ -113,35 +151,45 @@ class _TransferFormState extends ConsumerState<TransferForm> {
           label: '카테고리',
           value: categoryDisplayText,
           onTap: _showCategorySelectionModal,
+          valueStyle: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textPrimary,
+          ),
         ),
 
         // 상호명 필드
         TransactionFields.editableMerchantField(
           merchantName: _merchant,
           onMerchantChanged: _updateMerchant,
+          enabled: !widget.readOnly,
         ),
 
         // 계좌 필드
         TransactionField(
           label: '계좌',
           value: _account,
-          onTap: () {
-            // 계좌 선택 로직 구현
-          },
+          onTap: widget.readOnly
+              ? null
+              : () {
+                  // 계좌 선택 로직 구현
+                },
+          valueStyle: widget.readOnly
+              ? AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)
+              : null,
         ),
-
         // 날짜 필드
         TransactionFields.dateField(
           context: context,
           ref: ref,
           selectedDate: _selectedDate,
           onDateChanged: _updateDate,
+          enabled: !widget.readOnly,
         ),
 
         // 메모 필드
         TransactionFields.editableMemoField(
           memo: _memo,
           onMemoChanged: _updateMemo,
+          enabled: true, // 메모는 항상 수정 가능
         ),
       ],
     );

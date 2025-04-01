@@ -18,6 +18,7 @@ public enum ErrorCode {
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "E402", "토큰이 만료되었습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "E403", "유효하지 않은 토큰입니다."),
     USER_INVALID_PIN(HttpStatus.UNAUTHORIZED, "E406", "유효하지 않은 PIN 입니다."),
+    CERTFICATE_NOT_EQUALS(HttpStatus.BAD_REQUEST, "E411", "인증서가 서버에 등록된 것과 일치하지 않습니다"),
     // 🔹 404/409: 리소스 관련 에러
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "E404", "해당 유저를 찾을 수 없습니다."),
     CHILD_NOT_FOUND(HttpStatus.NOT_FOUND, "E404", "해당 ID를 가진 아이를 찾을 수 없습니다."),

@@ -4,11 +4,22 @@ import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/
 import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
+import 'package:marshmellow/data/models/ledger/category/category_mapping.dart';
 
 class IncomeForm extends ConsumerStatefulWidget {
   final Transaction? initialData; // 초기 데이터 추가
   final DateTime? initialDate; // 초기 날짜
-  const IncomeForm({super.key, this.initialData, this.initialDate});
+  final Function(int? amount, String? memo, int? categoryPk)?
+      onDataChanged; // 콜백 함수 수정
+  final bool readOnly; // 읽기 전용 모드
+
+  const IncomeForm({
+    super.key,
+    this.initialData,
+    this.initialDate,
+    this.onDataChanged,
+    this.readOnly = false,
+  });
 
   @override
   ConsumerState<IncomeForm> createState() => _IncomeFormState();
@@ -20,6 +31,7 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
   String? _memo;
   DepositCategory? _selectedIncomeCategory;
   String? _depositAccount;
+  int? _amount;
 
   @override
   void initState() {
@@ -35,6 +47,7 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
       _depositAccount =
           transaction.paymentMethod; // paymentMethod를 depositAccount로 사용
       _memo = transaction.householdMemo;
+      _amount = transaction.householdAmount;
 
       // 카테고리 설정
       _selectedIncomeCategory = categoryRepository.getDepositCategoryByName(
@@ -57,6 +70,7 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
     setState(() {
       _memo = value;
     });
+    _notifyDataChanged();
   }
 
   // 상호명 업데이트 함수
@@ -71,6 +85,10 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
     setState(() {
       _selectedIncomeCategory = category;
     });
+
+    // 카테고리 PK 가져오기
+    final pk = CategoryPkMapping.getPkFromCategory(incomeCategory: category);
+    _notifyDataChanged(categoryPk: pk);
   }
 
   // 입금 계좌 업데이트 함수
@@ -78,6 +96,20 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
     setState(() {
       _depositAccount = value;
     });
+  }
+
+  // 데이터 변경을 알리는 함수 수정
+  void _notifyDataChanged({int? categoryPk}) {
+    if (widget.onDataChanged != null) {
+      int? pkToUse = categoryPk;
+      // categoryPk가 없으면 현재 선택된 카테고리의 PK 사용
+      if (pkToUse == null && _selectedIncomeCategory != null) {
+        pkToUse = CategoryPkMapping.getPkFromCategory(
+            incomeCategory: _selectedIncomeCategory);
+      }
+
+      widget.onDataChanged!(_amount, _memo, pkToUse);
+    }
   }
 
   @override
@@ -90,11 +122,13 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
             context: context,
             selectedCategory: _selectedIncomeCategory?.name,
             onCategorySelected: _updateIncomeCategory,
+            enabled: true,
           ),
           // 상호명 필드
           TransactionFields.editableMerchantField(
             merchantName: _merchant,
             onMerchantChanged: _updateMerchant,
+            enabled: !widget.readOnly,
           ),
           // 입금 계좌 필드
           TransactionFields.depositAccountField(
@@ -102,6 +136,7 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
             onTap: () {
               // 입금 계좌 선택 로직 구현
             },
+            enabled: !widget.readOnly,
           ),
           // 날짜 필드
           TransactionFields.dateField(
@@ -109,11 +144,13 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
             ref: ref,
             selectedDate: _selectedDate,
             onDateChanged: _updateDate,
+            enabled: !widget.readOnly,
           ),
           // 메모 필드
           TransactionFields.editableMemoField(
             memo: _memo,
             onMemoChanged: _updateMemo,
+            enabled: true, // 메모는 항상 수정 가능
           ),
         ],
       ),

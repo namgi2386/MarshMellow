@@ -74,13 +74,13 @@ class TransferDirectionPicker extends StatelessWidget {
                 _buildDirectionButton(
                   context: context,
                   label: '입금',
-                  iconPath: IconPath.received,
+                  iconPath: IconPath.paid,
                   direction: TransferDirection.deposit,
                 ),
                 _buildDirectionButton(
                   context: context,
                   label: '출금',
-                  iconPath: IconPath.paid,
+                  iconPath: IconPath.received,
                   direction: TransferDirection.withdrawal,
                 ),
               ],

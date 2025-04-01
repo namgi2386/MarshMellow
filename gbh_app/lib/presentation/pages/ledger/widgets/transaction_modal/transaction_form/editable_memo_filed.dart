@@ -10,6 +10,7 @@ class EditableMemoField extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
   final double labelWidth; // 라벨 영역의 너비 설정
   final MainAxisAlignment rowAlignment; // 행 정렬 속성
+  final bool enabled;
 
   const EditableMemoField({
     Key? key,
@@ -20,6 +21,7 @@ class EditableMemoField extends StatefulWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 17),
     this.labelWidth = 100, // 기본 라벨 너비
     this.rowAlignment = MainAxisAlignment.spaceBetween, // 기본 행 정렬
+    this.enabled = true,
   }) : super(key: key);
 
   @override
@@ -56,6 +58,7 @@ class _EditableMemoFieldState extends State<EditableMemoField> {
   }
 
   void _startEditing() {
+    if (!widget.enabled) return;
     setState(() {
       _isEditing = true;
     });
@@ -116,7 +119,7 @@ class _EditableMemoFieldState extends State<EditableMemoField> {
         else
           // 일반 모드 (TransactionField와 동일한 스타일)
           InkWell(
-            onTap: _startEditing,
+            onTap: widget.enabled ? _startEditing : null,
             child: Padding(
               padding: widget.padding!,
               child: Row(
@@ -139,7 +142,9 @@ class _EditableMemoFieldState extends State<EditableMemoField> {
                       child: Text(
                         _controller.text.isEmpty ? '' : _controller.text,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textPrimary,
+                          color: widget.enabled
+                              ? AppColors.textPrimary
+                              : AppColors.textSecondary,
                         ),
                         textAlign: TextAlign.right,
                       ),

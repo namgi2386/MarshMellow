@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_signature_request")
@@ -39,15 +41,10 @@ public class SignatureRequest {
     @Column(name = "original_text", columnDefinition = "TEXT")
     private String originalText;
 
-    @Column(name = "request_text", columnDefinition = "TEXT")
-    private String requestText;
-
     @Column(name = "requested_at")
     private LocalDateTime requestedAt;
 
     @Column(name = "signature_data", columnDefinition = "TEXT")
     private String signatureData;
 
-    @Column(name = "req_info_data", columnDefinition = "TEXT")
-    private String reqInfoData;
 }

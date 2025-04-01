@@ -54,6 +54,7 @@ class TransactionFields {
     required WidgetRef ref,
     required Function(DateTime) onDateChanged,
     bool includeTime = true, // 시간 포함 여부 옵션
+    bool enabled = true,
   }) {
     // 날짜 포맷
     String formattedDate =
@@ -70,20 +71,22 @@ class TransactionFields {
       trailing: Text(
         formattedDate,
         style: AppTextStyles.bodySmall.copyWith(
-          color: AppColors.textPrimary,
+          color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
         ),
       ),
-      onTap: () {
-        showDateTimePickerBottomSheet(
-          context: context,
-          ref: ref,
-          initialDateTime: selectedDate,
-          onDateTimeChanged: onDateChanged,
-          initialMode: CupertinoDatePickerMode.date,
-          confirmButtonText: includeTime ? '확인' : '선택',
-          nextButtonText: '다음',
-        );
-      },
+      onTap: enabled
+          ? () {
+              showDateTimePickerBottomSheet(
+                context: context,
+                ref: ref,
+                initialDateTime: selectedDate,
+                onDateTimeChanged: onDateChanged,
+                initialMode: CupertinoDatePickerMode.date,
+                confirmButtonText: includeTime ? '확인' : '선택',
+                nextButtonText: '다음',
+              );
+            }
+          : null,
     );
   }
 
@@ -91,17 +94,26 @@ class TransactionFields {
   static TransactionField expenseCategoryField({
     required BuildContext context,
     String? selectedCategory,
-    required Function(WithdrawalCategory) onCategorySelected,
+    Function(WithdrawalCategory)? onCategorySelected,
+    bool enabled = true, // 활성화 여부 파라미터 추가
   }) {
     return TransactionField(
       label: '카테고리',
       value: selectedCategory,
-      onTap: () {
-        showExpenseCategoryPickerModal(
-          context,
-          onCategorySelected: onCategorySelected,
-        );
-      },
+      onTap: enabled
+          ? () {
+              if (onCategorySelected != null) {
+                showExpenseCategoryPickerModal(
+                  context,
+                  onCategorySelected: onCategorySelected,
+                );
+              }
+            }
+          : null, // enabled가 false면 onTap이 null이므로 터치 불가
+      // 항상 일관된 스타일 적용
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -110,16 +122,22 @@ class TransactionFields {
     required BuildContext context,
     String? selectedCategory,
     required Function(DepositCategory) onCategorySelected,
+    bool enabled = true,
   }) {
     return TransactionField(
       label: '카테고리',
       value: selectedCategory,
-      onTap: () {
-        showIncomeCategoryPickerModal(
-          context,
-          onCategorySelected: onCategorySelected,
-        );
-      },
+      onTap: enabled
+          ? () {
+              showIncomeCategoryPickerModal(
+                context,
+                onCategorySelected: onCategorySelected,
+              );
+            }
+          : null,
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -129,21 +147,27 @@ class TransactionFields {
     String? selectedCategory,
     required Function(TransferCategory) onCategorySelected,
     required TransferDirection direction,
+    bool enabled = true,
   }) {
     return TransactionField(
       label: '카테고리',
       value: selectedCategory,
-      onTap: () async {
-        final selectedCategory = await showTransferCategoryPickerModal(
-          context,
-          direction: direction,
-        );
+      onTap: enabled
+          ? () async {
+              final selectedCategory = await showTransferCategoryPickerModal(
+                context,
+                direction: direction,
+              );
 
-        // 선택된 카테고리가 있으면 콜백 호출
-        if (selectedCategory != null) {
-          onCategorySelected(selectedCategory);
-        }
-      },
+              // 선택된 카테고리가 있으면 콜백 호출
+              if (selectedCategory != null) {
+                onCategorySelected(selectedCategory);
+              }
+            }
+          : null,
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -151,11 +175,15 @@ class TransactionFields {
   static TransactionField merchantField({
     String? merchantName,
     VoidCallback? onTap,
+    bool enabled = true,
   }) {
     return TransactionField(
       label: '상호명',
       value: merchantName,
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -163,11 +191,13 @@ class TransactionFields {
   static Widget editableMerchantField({
     String? merchantName,
     required Function(String) onMerchantChanged,
+    bool enabled = true,
   }) {
     return EditableMemoField(
       label: '상호명',
       initialValue: merchantName,
       onChanged: onMerchantChanged,
+      enabled: enabled,
     );
   }
 
@@ -175,11 +205,13 @@ class TransactionFields {
   static Widget editableMemoField({
     String? memo,
     required Function(String) onMemoChanged,
+    bool enabled = true,
   }) {
     return EditableMemoField(
       label: '메모/키워드',
       initialValue: memo,
       onChanged: onMemoChanged,
+      enabled: enabled,
     );
   }
 
@@ -187,11 +219,15 @@ class TransactionFields {
   static TransactionField paymentMethodField({
     String? method,
     VoidCallback? onTap,
+    bool enabled = true,
   }) {
     return TransactionField(
       label: '결제수단',
       value: method,
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -199,11 +235,15 @@ class TransactionFields {
   static TransactionField depositAccountField({
     String? account,
     VoidCallback? onTap,
+    bool enabled = true,
   }) {
     return TransactionField(
       label: '입금계좌',
       value: account,
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -211,11 +251,15 @@ class TransactionFields {
   static TransactionField withdrawalAccountField({
     String? account,
     VoidCallback? onTap,
+    bool enabled = true,
   }) {
     return TransactionField(
       label: '계좌',
       value: account,
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -223,6 +267,7 @@ class TransactionFields {
   static TransactionField excludeFromBudgetField({
     required bool value,
     required Function(bool) onChanged,
+    bool enabled = true,
   }) {
     return TransactionField(
       label: '예산에서 제외',
@@ -231,9 +276,10 @@ class TransactionFields {
         scale: 0.8,
         child: CupertinoSwitch(
           value: value,
-          onChanged: onChanged,
+          onChanged: enabled ? onChanged : null,
           thumbColor: AppColors.whiteLight,
-          activeColor: AppColors.textPrimary,
+          activeColor:
+              enabled ? AppColors.textPrimary : AppColors.textSecondary,
         ),
       ),
     );
@@ -242,6 +288,7 @@ class TransactionFields {
   // 분류 선택기 필드
   static TransactionField typeSelectorField({
     required Widget selector,
+    bool enabled = true,
   }) {
     return TransactionField(
       label: '분류',
@@ -249,6 +296,7 @@ class TransactionFields {
         width: 200,
         child: selector,
       ),
+      onTap: enabled ? () {} : null,
     );
   }
 }

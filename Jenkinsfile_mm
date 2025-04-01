@@ -1,11 +1,12 @@
 pipeline {
     agent any
-    
+
     environment {
         JAVA_HOME = '/usr/lib/jvm/temurin-21-jdk-amd64'
         IMAGE_NAME = "yunjaeeun12/gbh-mm"
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id'
         GITLAB_CREDENTIALS = 'git_lab'
+        EC2_IP_ADDRESS = 'j12c108.p.ssafy.io'  // 실제 EC2 인스턴스의 공인 IP 주소 또는 도메인
     }
     stages {
         stage('Checkout') {
@@ -19,7 +20,6 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'mm_config_file', variable: 'APP_CONFIG_FILE')]) {
                     sh 'mkdir -p gbh_mm/src/main/resources'
-                    // 권한 부여: 디렉토리에 쓰기 권한을 모두에게 부여 (필요에 따라 적절한 권한으로 변경)
                     sh 'chmod -R 777 gbh_mm/src/main/resources'
                     sh 'cp $APP_CONFIG_FILE gbh_mm/src/main/resources/application.yml'
                 }
@@ -45,35 +45,46 @@ pipeline {
             steps {
                 dir('gbh_mm') {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                        sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                        // 태그를 latest로 고정
+                        sh "docker build -t ${IMAGE_NAME}:latest ."
                     }
                 }
             }
         }
         stage('Push Docker Image') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: env.DOCKERHUB_CREDENTIALS,
-                        passwordVariable: 'DOCKERHUB_PASS',
-                        usernameVariable: 'DOCKERHUB_USER'
-                    )
-                ]) {
+                withCredentials([usernamePassword(
+                    credentialsId: env.DOCKERHUB_CREDENTIALS,
+                    passwordVariable: 'DOCKERHUB_PASS',
+                    usernameVariable: 'DOCKERHUB_USER'
+                )]) {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                        sh """
-                            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
-                            docker push ${IMAGE_NAME}:${env.BUILD_NUMBER}
-                        """
+                        sh '''
+                        #!/bin/bash
+                        echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                        docker push ${IMAGE_NAME}:latest
+                        '''
                     }
                 }
             }
         }
-        stage('Deploy') {
+        stage('Deploy Application') {
             steps {
                 withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                    sh "docker pull ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    // 최신 이미지를 pull, 기존 컨테이너 제거 후 run
+                    sh "docker pull ${IMAGE_NAME}:latest"
                     sh "docker stop gbh_mm || true && docker rm gbh_mm || true"
-                    sh "docker run -d --name gbh_mm -p 9000:9000 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    sh "docker run -d --name gbh_mm -p 9000:9000 ${IMAGE_NAME}:latest"
+                }
+            }
+        }
+        stage('Deploy Infrastructure') {
+            steps {
+                sshagent(['EC2_SSH_PEM']) {
+                    sh '''
+                    #!/bin/bash
+                    ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP_ADDRESS "docker rm -f gbh_mm || true && cd ~/gbh_mm_deploy && docker-compose down && docker-compose pull && docker-compose up -d && sleep 60 && docker-compose run --rm certbot renew && docker-compose exec -T nginx nginx -s reload"
+                    '''
                 }
             }
         }

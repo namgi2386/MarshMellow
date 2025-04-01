@@ -55,7 +55,10 @@ public class User {
     private LocalDateTime budgetAlarmTime;
 
     @Column(name = "salary_date")
-    private int salaryDate;
+    private Integer salaryDate;
+
+    @Column(name = "salary_amount")
+    private Long salaryAmount;
 
     @Column(name = "fcm_token")
     private String fcmToken;
@@ -68,4 +71,7 @@ public class User {
         this.createdAt = (this.createdAt == null) ? LocalDate.now() : this.createdAt;
     }
 
+    public void saveUserKey(String userKey) {
+        this.userKey = userKey;
+    }
 }

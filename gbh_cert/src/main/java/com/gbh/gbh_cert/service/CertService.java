@@ -1,13 +1,17 @@
 package com.gbh.gbh_cert.service;
 
+import com.gbh.gbh_cert.exception.CustomException;
+import com.gbh.gbh_cert.exception.ErrorCode;
 import com.gbh.gbh_cert.model.dto.request.CIRequestDto;
 import com.gbh.gbh_cert.model.dto.request.CertExistRequestDto;
 import com.gbh.gbh_cert.model.dto.request.CertIssueRequestDto;
+import com.gbh.gbh_cert.model.dto.request.DigitalSignatureIssueRequestDto;
 import com.gbh.gbh_cert.model.dto.response.CIResponseDto;
 import com.gbh.gbh_cert.model.dto.response.CertExistResponseDto;
 import com.gbh.gbh_cert.model.dto.response.CertResponseDto;
+import com.gbh.gbh_cert.model.dto.response.DigitalSignatureIssueResponseDto;
+import com.gbh.gbh_cert.model.entity.*;
 import com.gbh.gbh_cert.model.entity.Certificate;
-import com.gbh.gbh_cert.model.entity.User;
 import com.gbh.gbh_cert.model.repository.CertficateRepository;
 import com.gbh.gbh_cert.util.CIGenerator;
 import lombok.RequiredArgsConstructor;
@@ -27,19 +31,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.Security;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +47,9 @@ public class CertService {
     private final CIGenerator ciGenerator;
     private final UserService userService;
     private final CertficateRepository certficateRepository;
-
+    private final SignatureRequestService signatureRequestService;
+    private final OrganizationService organizationService;
+    private final SignatureVerificationService signatureVerificationService;
     @Value("${cert.ca-private-key}")
     private Resource caPrivateKeyResource;
 
@@ -92,7 +93,7 @@ public class CertService {
                 issuer, serial, notBefore, notAfter, csr.getSubject(), csr.getSubjectPublicKeyInfo());
 
         ContentSigner signer = new JcaContentSignerBuilder("SHA512withRSA")
-                .build(loadCaPrivateKey()); // 너의 CA 개인키를 불러오는 메서드 필요
+                .build(loadCaPrivateKey());
 
         X509Certificate x509Certificateertificate = new JcaX509CertificateConverter()
                 .setProvider("BC").getCertificate(certBuilder.build(signer));
@@ -195,5 +196,70 @@ public class CertService {
                 .orElseGet(() -> CertExistResponseDto.builder()
                         .exist(false)
                         .build());
+    }
+
+    public DigitalSignatureIssueResponseDto createDigitalSignature(DigitalSignatureIssueRequestDto request) {
+
+        User user = userService.lookUpUserByCI(request.getConnectionInformation());
+
+        Certificate certificate = certficateRepository.findByUserAndCertStatus(user, Certificate.CertStatus.VALID)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHILD_NOT_FOUND));
+        if(!certificate.getCertData().trim().equals(request.getCertificatePem().trim())){
+            throw new CustomException(ErrorCode.CERTFICATE_NOT_EQUALS);
+        }
+
+        // 3. 서명 검증
+        boolean verified = verifySignature(request.getOriginalText(), request.getSignedData(), request.getCertificatePem());
+        if (!verified) {
+            return DigitalSignatureIssueResponseDto.builder()
+                    .verified(false)
+                    .message("전자서명 검증 실패")
+                    .build();
+        }
+
+        // 4. 기관 리스트 가져오기
+        List<Organization> organizations = organizationService.getValidOrganizations(request.getOrgList());
+
+        // 5. SignatureRequest 17건 저장
+        List<SignatureRequest> requestList = signatureRequestService.storeSignatureRequest(user, certificate, request, organizations);
+
+        // 6. 각 요청마다 Verification 저장
+        for (SignatureRequest req : requestList) {
+            signatureVerificationService.issueRequest(req);
+        }
+
+        // 7. 응답 반환
+        return DigitalSignatureIssueResponseDto.builder()
+                .verified(true)
+                .userKey(request.getHalfUserKey()+user.getHalfUserKey())
+                .message("전자서명 검증 성공 및 트랜잭션 저장 완료")
+                .build();
+    }
+
+    private boolean verifySignature(String originalText, String signedData, String certificatePem) {
+        try {
+            // 1. PEM 형식 인증서를 X.509 인증서 객체로 파싱
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            ByteArrayInputStream certStream = new ByteArrayInputStream(certificatePem.getBytes(StandardCharsets.UTF_8));
+            X509Certificate cert = (X509Certificate) certFactory.generateCertificate(certStream);
+
+            // 2. 인증서에서 공개키 추출
+            PublicKey publicKey = cert.getPublicKey();
+
+            // 3. 서명 객체 초기화
+            Signature signature = Signature.getInstance("SHA512withRSA");
+            signature.initVerify(publicKey);
+
+            // 4. 원본 데이터를 입력
+            signature.update(originalText.getBytes(StandardCharsets.UTF_8));
+
+            // 5. 서명을 Base64 디코딩 후 검증
+            byte[] signedBytes = Base64.getDecoder().decode(signedData);
+            return signature.verify(signedBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

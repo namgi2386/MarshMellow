@@ -17,6 +17,7 @@ public class ResponseFindHousehold {
     private String paymentCancelYn;
     private String exceptedBudgetYn;
     private String householdCategory;
+    private int householdDetailCategoryPk;
     private String householdDetailCategory;
     private HouseholdClassificationEnum householdClassificationCategory;
 }

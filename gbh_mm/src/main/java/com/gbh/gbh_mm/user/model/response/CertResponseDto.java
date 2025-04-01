@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class CertResponseDto {
 
     String certificatePem;
-
+    String halfUserKey;
 }

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_organization")
@@ -32,4 +33,5 @@ public class Organization {
     public enum OrgType {
         BANK, CARD
     }
+
 }

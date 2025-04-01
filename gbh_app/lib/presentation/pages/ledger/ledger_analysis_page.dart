@@ -1,17 +1,83 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/core/constants/icon_path.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
+// 위젯
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-import 'package:marshmellow/presentation/pages/ledger/widgets/chart/doughnut_chart.dart'
-    as doughnut;
+import 'package:marshmellow/presentation/pages/ledger/widgets/main/date_range_selector.dart';
+import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+
+// 차트
+import 'package:marshmellow/presentation/pages/ledger/widgets/chart/doughnut_chart_with_legend.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/chart/column_chart.dart'
     as column;
 
-class LedgerAnalysisPage extends StatelessWidget {
+// 뷰모델
+import 'package:marshmellow/presentation/viewmodels/ledger/analysis_viewmodel.dart';
+import 'package:marshmellow/di/providers/date_picker_provider.dart';
+
+class LedgerAnalysisPage extends ConsumerStatefulWidget {
   const LedgerAnalysisPage({super.key});
+
+  @override
+  ConsumerState<LedgerAnalysisPage> createState() => _LedgerAnalysisPageState();
+}
+
+class _LedgerAnalysisPageState extends ConsumerState<LedgerAnalysisPage> {
+  final _numberFormat = NumberFormat('#,###', 'ko_KR');
+  bool _localLoading = false; // 로컬 로딩 상태
+
+  @override
+  void initState() {
+    super.initState();
+    // 페이지 로드 시 데이터 로드
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadAnalysisData();
+    });
+  }
+
+  // 분석 데이터 로드
+  Future<void> _loadAnalysisData() async {
+    // 로컬 로딩 상태 활성화
+    setState(() {
+      _localLoading = true;
+    });
+
+    // DatePicker 상태 가져오기
+    final datePickerState = ref.read(datePickerProvider);
+
+    DateTime startDate;
+    DateTime endDate;
+
+    // DatePicker에서 선택된 날짜 범위가 있으면 사용
+    if (datePickerState.selectedRange != null &&
+        datePickerState.selectedRange!.startDate != null) {
+      startDate = datePickerState.selectedRange!.startDate!;
+      endDate = datePickerState.selectedRange!.endDate ?? startDate;
+    } else {
+      // 선택된 범위가 없으면 현재 월의 1일부터 오늘까지 사용
+      final now = DateTime.now();
+      startDate = DateTime(now.year, now.month, 1);
+      endDate = now;
+    }
+
+    try {
+      // 뷰모델에서 데이터 로드
+      await ref.read(analysisViewModelProvider.notifier).loadAnalysisData(
+            startDate: startDate,
+            endDate: endDate,
+          );
+    } finally {
+      // 로딩이 끝나면 로컬 로딩 상태 비활성화
+      if (mounted) {
+        setState(() {
+          _localLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,137 +85,156 @@ class LedgerAnalysisPage extends StatelessWidget {
     final contentWidth = screenWidth * 0.9;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // 도넛 차트 데이터
-    final chartData = [
-      doughnut.ChartData(
-          title: '식비', value: 35, color: AppColors.yellowPrimary),
-      doughnut.ChartData(title: '교통비', value: 25, color: AppColors.pinkPrimary),
-      doughnut.ChartData(title: '쇼핑', value: 20, color: AppColors.bluePrimary),
-      doughnut.ChartData(title: '문화', value: 10, color: AppColors.greenPrimary),
-      doughnut.ChartData(title: '의료', value: 7, color: AppColors.whiteLight),
-      doughnut.ChartData(title: '기타', value: 3, color: AppColors.blackPrimary),
-    ];
+    // 분석 상태 구독
+    final analysisState = ref.watch(analysisViewModelProvider);
 
-    // 컬럼 차트 데이터
-    final columnChartData = [
-      column.ChartData(
-          label: '3월 1주', value: 400000, color: AppColors.pinkPrimary),
-      column.ChartData(
-          label: '3월 2주', value: 500000, color: AppColors.pinkPrimary),
-      column.ChartData(
-          label: '3월 3주', value: 200000, color: AppColors.pinkPrimary),
-      column.ChartData(
-          label: '3월 4주', value: 400000, color: AppColors.pinkPrimary),
-    ];
+    // 로딩 중 상태: 뷰모델의 isLoading 또는 로컬 로딩 상태
+    final isLoading = analysisState.isLoading || _localLoading;
+
+    // 날짜 범위 표시 문자열
+    final dateFormatter = DateFormat('yy.MM.dd');
+    final dateRangeText =
+        '${dateFormatter.format(analysisState.startDate)} - ${dateFormatter.format(analysisState.endDate)}';
 
     return Scaffold(
       appBar: CustomAppbar(title: '지출 분석'),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Center(
-            child: SizedBox(
-              width: contentWidth,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 날짜 선택 컨테이너
-                  SizedBox(
-                    height: 50,
-                    width: screenWidth * 0.52,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SvgPicture.asset(IconPath.caretLeft),
-                        Text(
-                          '25.03.15 - 25.12.14',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SvgPicture.asset(IconPath.caretRight),
-                      ],
-                    ),
-                  ),
-
-                  // 섹션 제목
-                  Padding(
-                    padding: const EdgeInsets.only(top: 24.0, bottom: 16.0),
-                    child: Text(
-                      '카테고리별 지출',
-                      style: AppTextStyles.bodyMedium,
-                    ),
-                  ),
-
-                  // 도넛 차트 컨테이너
-                  SizedBox(
-                    height: screenHeight * 0.35, // 화면 높이에 맞게 조정
-                    child: doughnut.DoughnutChart(data: chartData),
-                  ),
-
-                  // 카테고리별 범례 (ListView.builder() 사용)
-                  SizedBox(
-                    height: chartData.length * 40, // 항목 개수에 따라 동적 높이 설정
-                    child: ListView.builder(
-                      shrinkWrap: true, // 부모 위젯의 크기를 초과하지 않도록 설정
-                      physics: const NeverScrollableScrollPhysics(), // 스크롤 방지
-                      itemCount: chartData.length,
-                      itemBuilder: (context, index) {
-                        final item = chartData[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
+      body: Stack(
+        children: [
+          // 메인 콘텐츠
+          SafeArea(
+            child: analysisState.errorMessage != null
+                ? Center(
+                    child: Text('오류가 발생했습니다: ${analysisState.errorMessage}'))
+                : RefreshIndicator(
+                    onRefresh: _loadAnalysisData,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Center(
+                        child: Container(
+                          width: contentWidth,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: item.color,
-                                  shape: BoxShape.circle,
+                              // 날짜 선택 컴포넌트
+                              DateRangeSelector(
+                                dateRange: dateRangeText,
+                                onPreviousPressed: () async {
+                                  setState(() {
+                                    _localLoading =
+                                        true; // 이전 버튼 클릭 시 로딩 상태 활성화
+                                  });
+
+                                  try {
+                                    ref
+                                        .read(
+                                            analysisViewModelProvider.notifier)
+                                        .moveToPreviousPeriod();
+                                    await _loadAnalysisData();
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() {
+                                        _localLoading =
+                                            false; // 로딩 완료 후 상태 비활성화
+                                      });
+                                    }
+                                  }
+                                },
+                                onNextPressed: () async {
+                                  setState(() {
+                                    _localLoading =
+                                        true; // 다음 버튼 클릭 시 로딩 상태 활성화
+                                  });
+
+                                  try {
+                                    ref
+                                        .read(
+                                            analysisViewModelProvider.notifier)
+                                        .moveToNextPeriod();
+                                    await _loadAnalysisData();
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() {
+                                        _localLoading =
+                                            false; // 로딩 완료 후 상태 비활성화
+                                      });
+                                    }
+                                  }
+                                },
+                                onTap: () {
+                                  // DatePicker가 닫힌 후 분석 데이터 새로고침
+                                  ref.listen(datePickerProvider,
+                                      (previous, next) {
+                                    if (previous?.isConfirmed == false &&
+                                        next.isConfirmed == true) {
+                                      _loadAnalysisData();
+                                    }
+                                  });
+                                },
+                              ),
+
+                              // 섹션 제목
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 10.0, bottom: 20.0),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      '카테고리별 총 지출:',
+                                      style: AppTextStyles.bodyMedium,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      '${_numberFormat.format(analysisState.totalExpenses.toInt())}원',
+                                      style: AppTextStyles.bodyLarge,
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                item.title,
-                                style: AppTextStyles.moneyGraphMedium,
+
+                              // 도넛 차트와 범례 (통합 컴포넌트 사용)
+                              DoughnutChartWithLegend(
+                                data: analysisState.categoryChartData,
+                                height: screenHeight * 0.35,
                               ),
-                              const SizedBox(width: 10),
-                              Text(
-                                '${item.value.toInt()}%',
-                                style: AppTextStyles.moneyGraphMedium.copyWith(
-                                  color: AppColors.greyPrimary,
+
+                              const SizedBox(height: 24),
+
+                              // 주차별 지출 섹션 (데이터가 있을 경우에만)
+                              if (analysisState.weeklyChartData.isNotEmpty) ...[
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 8.0, bottom: 16.0),
+                                  child: Text(
+                                    '주차별 지출',
+                                    style: AppTextStyles.bodyMedium,
+                                  ),
                                 ),
-                              ),
+                                SizedBox(
+                                  height: screenHeight * 0.3,
+                                  child: column.ColumnChart(
+                                      data: analysisState.weeklyChartData),
+                                ),
+                              ],
+
+                              // 여백을 위한 공간
+                              const SizedBox(height: 24),
                             ],
                           ),
-                        );
-                      },
+                        ),
+                      ),
                     ),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // 주차별 지출 섹션 제목
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
-                    child: Text(
-                      '주차별 지출',
-                      style: AppTextStyles.bodyMedium,
-                    ),
-                  ),
-
-                  // 컬럼 차트 컨테이너
-                  SizedBox(
-                    height: screenHeight * 0.3,
-                    child: column.ColumnChart(data: columnChartData),
-                  ),
-
-                  // 여백을 위한 공간
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
           ),
-        ),
+
+          // 커스텀 로딩 인디케이터 (로딩 중일 때만 표시)
+          if (isLoading)
+            // 전체화면을 덮는 로딩 인디케이터
+            const CustomLoadingIndicator(
+              text: "데이터를 분석 중입니다...",
+              opacity: 0.7,
+              backgroundColor: Colors.black,
+            ),
+        ],
       ),
     );
   }

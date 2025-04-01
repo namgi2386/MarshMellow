@@ -3,6 +3,7 @@ import 'package:intl/date_symbols.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/di/providers/auth/identity_verification_provider.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart'; 
@@ -110,6 +111,10 @@ class NameInputSection extends ConsumerWidget {
     if (!isVisible) return const SizedBox.shrink();
     
     final name = ref.watch(nameProvider);
+
+    if (_nameController.text != name) {
+      _nameController.text = name;
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,6 +438,9 @@ class _TermsAgreementModalState extends ConsumerState<TermsAgreementModal> {
   
   @override
   Widget build(BuildContext context) {
+    // 인증 상태 관찰
+    final verificationState = ref.watch(identityVerificationProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -509,21 +517,25 @@ class _TermsAgreementModalState extends ConsumerState<TermsAgreementModal> {
         ),
         
         const SizedBox(height: 10),
+
+        // 인증 요청 상태(본인확인및SSE연결까지)에 따른 표시
+        if (verificationState.status == VerificationStatus.loading)
+          const Center(child: CircularProgressIndicator())
+        else if (verificationState.status == VerificationStatus.failed)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              verificationState.errorMessage ?? '인증에 실패했습니다.',
+              style: AppTextStyles.bodySmall.copyWith(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+          ),
         
         // 본인인증하기 버튼
         CustomButton(
           text: '동의하고 본인 인증하기',
           onPressed: (agreeTerms && agreePrivacy) 
-              ? () {
-                  Navigator.pop(context);
-                  // 인증 메시지 보내러 가기
-                  context.go(SignupRoutes.getAuthMessagePath(), extra: {
-                    'name': ref.read(nameProvider),
-                    'idNum': ref.read(idNumProvider),
-                    'phone': ref.read(phoneProvider),
-                    'carrier': ref.read(carrierProvider),
-                  });
-                } 
+              ? () => _processVerification(context)
               : null,
           isEnabled: agreeTerms && agreePrivacy,
         ),
@@ -544,6 +556,32 @@ class _TermsAgreementModalState extends ConsumerState<TermsAgreementModal> {
         ),
       ],
     );
+  }
+
+  // 본인확인 처리 메서드
+  void _processVerification(BuildContext context) async {
+    final phone = ref.read(phoneProvider);
+
+    // 본인확인 요청
+    await ref.read(identityVerificationProvider.notifier).verifyIdentity(phone);
+
+    // 확인 상태 확인
+    final state = ref.read(identityVerificationProvider);
+
+    if (state.status == VerificationStatus.emailSent) {
+      // 인증코드 발송 성공 - 모달 닫기 및 메시지 페이지로 이동
+      Navigator.pop(context);
+      // 인증 메시지 페이지로 이동
+      context.go(SignupRoutes.getAuthMessagePath(), extra: {
+        'name': ref.read(nameProvider),
+        'idNum': ref.read(idNumProvider),
+        'phone': ref.read(phoneProvider),
+        'carrier': ref.read(carrierProvider),
+        'serverEmail': state.serverEmail,
+        'verificationCode': state.verificationCode,
+        'expiresIn': state.expiresIn,
+      });
+    }
   }
   
   Widget _buildAgreementCheckbox({

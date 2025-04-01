@@ -1,0 +1,29 @@
+version: '3'
+services:
+  gbh_mm:
+    image: yunjaeeun12/gbh-mm:${BUILD_NUMBER:-latest}
+    container_name: gbh_mm
+    ports:
+      - "9000:9000"
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/letsencrypt
+      - ./nginx/html:/var/www/html
+    depends_on:
+      - gbh_mm
+    restart: always
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./nginx/certs:/etc/letsencrypt
+      - ./nginx/html:/var/www/html

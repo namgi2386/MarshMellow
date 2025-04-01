@@ -4,6 +4,8 @@ import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marshmellow/presentation/widgets/finance/card_image_util.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // 추가
+import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
 
 // 은행별 카드 색상 매핑
 class BankColors {
@@ -102,7 +104,7 @@ int max(int a, int b) {
 }
 
 // 월렛 위젯 구현
-class DefaultWalletWidget extends StatelessWidget {
+class DefaultWalletWidget extends ConsumerWidget {
   final List<CardInfo> cards;
   final String accountType;
   final int balance;
@@ -201,7 +203,8 @@ class DefaultWalletWidget extends StatelessWidget {
       super(key: key);
   
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isHidden = ref.watch(isFinanceHideProvider);
     return Container(
       width: MediaQuery.of(context).size.width * 0.4,
       height: MediaQuery.of(context).size.width * 0.4,
@@ -235,9 +238,10 @@ class DefaultWalletWidget extends StatelessWidget {
                     style: AppTextStyles.bodyMedium.copyWith(color: AppColors.whiteLight)
                   ),
                   if (balance != -1)
-                  Text(
+                  Text(isHidden ? '금액보기' :
                     '${_formatCurrency(balance)}원',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.whiteLight)
+                    style: isHidden ?  AppTextStyles.bodyMediumLight.copyWith(color: AppColors.divider , fontWeight: FontWeight.w400) :
+                        AppTextStyles.bodyMedium.copyWith(color: AppColors.whiteLight)
                   ),
                 ],
               ),

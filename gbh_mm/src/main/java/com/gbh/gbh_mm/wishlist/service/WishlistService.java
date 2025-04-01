@@ -137,14 +137,32 @@ public class WishlistService {
 
     // 현재 위시 조회
     public ResponseFindDetailWishlist getCurrentWish(Long userPk) {
-        List<Wishlist> wishlist =  wishlistRepository.findById(userPk).stream().collect(Collectors.toList());
+        List<Wishlist> wishlist =  wishlistRepository.findAllByUser_UserPk(userPk)
+                .stream()
+                .filter(wish ->
+                    wish.getIsSelected().equals("Y") && wish.getIsCompleted().equals("N")
+                )
+                .collect(Collectors.toList());
 
-
-        System.out.println(wishlist.size());
-        for (Wishlist wish : wishlist) {
-            System.out.println(wish.getProductNickname());
-            System.out.println(wish.getProductName());
+        if (wishlist.isEmpty()) {
+            throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
         }
-        return ResponseFindDetailWishlist.builder().build();
+
+        if (wishlist.size() > 1) {
+            throw new CustomException(ErrorCode.DATABASE_ERROR);
+        }
+
+        Wishlist wish = wishlist.get(0);
+        return ResponseFindDetailWishlist.builder()
+                .wishlistPk(wish.getWishlistPk())
+                .productNickname(wish.getProductNickname())
+                .productName(wish.getProductName())
+                .productPrice(wish.getProductPrice())
+                .achievePrice(wish.getAchievePrice())
+                .productImageUrl(wish.getProductImageUrl())
+                .productUrl(wish.getProductUrl())
+                .isSelected(wish.getIsSelected())
+                .isCompleted(wish.getIsCompleted())
+                .build();
     }
 }

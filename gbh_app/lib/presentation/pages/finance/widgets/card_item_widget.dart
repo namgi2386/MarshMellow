@@ -7,9 +7,10 @@ import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/card_model.dart';
 import 'package:marshmellow/presentation/widgets/finance/card_image_util.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // 추가
+import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
 
-
-class CardItemWidget extends StatelessWidget {
+class CardItemWidget extends ConsumerWidget {
   final CardItem card;
 
   const CardItemWidget({
@@ -44,7 +45,8 @@ class CardItemWidget extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isHidden = ref.watch(isFinanceHideProvider);
     return InkWell(
       onTap: () => _onCardItemTap(context),
       borderRadius: BorderRadius.circular(8),
@@ -81,8 +83,9 @@ class CardItemWidget extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('${formatAmount(card.cardBalance)}원', style: AppTextStyles.subTitle),
-                      Text(' 결제 예정', style: AppTextStyles.bodySmall.copyWith(color: AppColors.divider)),
+                      Text(isHidden ? '금액보기' :'${formatAmount(card.cardBalance)}원', 
+                      style:  isHidden ? AppTextStyles.bodyMediumLight : AppTextStyles.subTitle),
+                      Text(isHidden ? '' :' 결제 예정', style: AppTextStyles.bodySmall.copyWith(color: AppColors.divider)),
                     ],
                   ),
                 ],

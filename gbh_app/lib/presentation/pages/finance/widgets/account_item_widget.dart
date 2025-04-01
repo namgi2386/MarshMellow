@@ -8,6 +8,8 @@ import 'package:marshmellow/presentation/pages/finance/services/transfer_service
 import 'package:marshmellow/presentation/widgets/finance/bank_icon.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
+
 
 class AccountItemWidget extends ConsumerWidget {
   final String bankName; // 은행명
@@ -103,6 +105,7 @@ class AccountItemWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+  final isHidden = ref.watch(isFinanceHideProvider);
   return Container(
     margin: const EdgeInsets.only(bottom: 8),
     decoration: BoxDecoration(
@@ -143,8 +146,10 @@ class AccountItemWidget extends ConsumerWidget {
                     // if (bankName != '-') Text('은행: $bankName'),
                     // Text('계좌번호: ${_maskAccountNumber(accountNo)}'),
                     Text(
-                      isLoan ? '대출금액 ${formatAmount(balance)}원' : '${formatAmount(balance)}원',
-                      style: AppTextStyles.subTitle
+                      isLoan 
+                        ? isHidden ? '대출금액 보기' : '대출금액 ${formatAmount(balance)}원' 
+                        : isHidden ? '잔액보기' : '${formatAmount(balance)}원',
+                      style: isHidden ? AppTextStyles.bodyMediumLight : AppTextStyles.subTitle
                     ),
                   ],
                 ),

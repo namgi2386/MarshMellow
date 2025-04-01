@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart'; // 추가
 import 'package:marshmellow/core/theme/app_colors.dart'; // 추가
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // 추가
+import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
 
 
-class FinancialSectionWidget extends StatelessWidget {
+class FinancialSectionWidget extends ConsumerWidget {
+  
   final String title;
   final int totalAmount;
   final List<Widget> itemList;
@@ -28,7 +31,8 @@ class FinancialSectionWidget extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isHidden = ref.watch(isFinanceHideProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -51,7 +55,7 @@ class FinancialSectionWidget extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Text(
-                '${formatAmount(totalAmount)}원',
+                isHidden ? '금액보기' : '${formatAmount(totalAmount)}원',
                 style: AppTextStyles.bodySmall.copyWith(color: AppColors.blackLight),
               ),
             ),

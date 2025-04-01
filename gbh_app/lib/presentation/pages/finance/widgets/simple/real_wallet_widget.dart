@@ -318,11 +318,11 @@ class DefaultWalletWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    icon: CardImageUtil.getCardImageWidget(card.cardName, size: 64),
-                    onPressed: () {
-                      // _onAccountItemTap(context);
-                    },
+                  SizedBox(
+                    width: 40,
+                    child: Center(
+                      child: CardImageUtil.getCardImageWidget(card.cardName, size: 30),
+                    ),
                   ),
                   Expanded(  // 여기가 중요한 변경점입니다
                     child: Container(

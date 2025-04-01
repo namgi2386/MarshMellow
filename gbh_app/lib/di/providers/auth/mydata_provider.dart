@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/data/repositories/auth/digital_signature_repository.dart';
 import 'package:marshmellow/di/providers/auth/certificate_process_provider.dart';
 import 'package:marshmellow/presentation/viewmodels/auth/certificate_notifier.dart';
 
@@ -67,6 +68,69 @@ class MydataLoginState {
       currentDigit: currentDigit ?? this.currentDigit,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+    );
+  }
+}
+
+/*
+  전자서명 동의 상태
+*/
+class AgreementState {
+  final bool firstAgreement;
+  final bool secondAgreement;
+  final bool isAtBottom;
+
+  AgreementState({
+    this.firstAgreement = false,
+    this.secondAgreement = false,
+    this.isAtBottom = false,   
+  });
+  bool get isButtonEnabled => firstAgreement && secondAgreement && isAtBottom;
+
+  AgreementState copyWith({
+    bool? firstAgreement,
+    bool? secondAgreement,
+    bool? isAtBottom,
+  }) {
+    return AgreementState(
+      firstAgreement: firstAgreement ?? this.firstAgreement,
+      secondAgreement: secondAgreement ?? this.secondAgreement,
+      isAtBottom: isAtBottom ?? this.isAtBottom,
+    );
+  }
+}
+
+/*
+  마이데이터 동의 상태
+*/
+class MydataAgreementState {
+  final bool isLoading;
+  final bool isCompleted;
+  final String? error;
+  final String? userKey; // 마이데이터 통합 키 (서버에서 반환)
+  final bool isVerified; // 전자서명 검증 여부
+
+  MydataAgreementState({
+    this.isLoading = false,
+    this.isCompleted = false,
+    this.error,
+    this.userKey,
+    this.isVerified = false,
+  });
+
+  MydataAgreementState copyWith({
+    bool? isLoading,
+    bool? isCompleted,
+    String? error,
+    String? userKey,
+    bool? isVerified,
+  }) {
+    return MydataAgreementState(
+      isLoading: isLoading ?? this.isLoading,
+      isCompleted: isCompleted ?? this.isCompleted,
+      error: error,
+      userKey: userKey ?? this.userKey,
+      isVerified: isVerified ?? this.isVerified,
     );
   }
 }
@@ -191,6 +255,60 @@ class MydataLoginNotifier extends StateNotifier<MydataLoginState> {
   }
 }
 
+/*
+  전자서명 동의 상태 감지
+*/
+class AgreementStateNotifier extends StateNotifier<AgreementState> {
+  AgreementStateNotifier() : super(AgreementState());
+
+  void toggleFirstAgreement() {
+    state = state.copyWith(firstAgreement: !state.firstAgreement);
+  }
+
+  void toggleSecondAgreement() {
+    state = state.copyWith(secondAgreement: !state.secondAgreement);
+  }
+
+  void setAtBottom(bool value) {
+    state = state.copyWith(isAtBottom: value);
+  }  
+}
+
+/*
+  마이데이터 동의 상태 감지
+*/
+class MydataAgreementNotifier extends StateNotifier<MydataAgreementState> {
+  final DigitalSignatureRepository _repository;
+
+  MydataAgreementNotifier(this._repository) : super(MydataAgreementState());
+
+  // 전자서명 검증 요청
+  Future<bool> verifyDigitalSignature(String originalText) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final response = await _repository.verifyDigitalSignature(originalText);
+      
+      final isVerified = response['data']['verified'] == true;
+      final userKey = response['data']['userKey'] as String?;
+
+      state = state.copyWith(
+        isLoading: false,
+        isCompleted: isVerified,
+        isVerified: isVerified,
+        userKey: userKey,
+      );
+
+      return isVerified;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: '전자서명 검증에 실패했습니다: $e',
+      );
+      return false;
+    }
+  }
+}
 
 /*
   mm 인증서 비밀번호 상태 프로바이더
@@ -204,4 +322,19 @@ final MydataPasswordProvider = StateNotifierProvider<MydataPasswordNotifier, Myd
 */
 final MydataLoginProvider = StateNotifierProvider<MydataLoginNotifier, MydataLoginState>((ref) {
   return MydataLoginNotifier(ref);
+});
+
+/*
+  전자서명 동의 상태 프로바이더
+*/
+final agreementStateProvider = StateNotifierProvider<AgreementStateNotifier, AgreementState>((ref) {
+  return AgreementStateNotifier();
+});
+
+/*
+  마이데이터 동의 상태 프로바이더
+*/
+final mydataAgreementProvider = StateNotifierProvider<MydataAgreementNotifier, MydataAgreementState>((ref) {
+  final repository = ref.watch(digitalSignatureRepositoryProvider);
+  return MydataAgreementNotifier(repository);
 });

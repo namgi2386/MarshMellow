@@ -79,18 +79,8 @@ public class S3Component {
 
     public void deleteFileByUrl(String fileUrl) throws URISyntaxException {
         URI uri = new URI(fileUrl);
-        String host = uri.getHost(); // 예: gbh-file-server.s3.ap-northeast-2.amazonaws.com
-
-        // 객체 키는 URL의 경로 부분이며, 선행 "/" 제거
         String key = uri.getPath().substring(1);
-
-        // S3 클라이언트 생성 (리전 설정에 주의)
-        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-            .withRegion(region)
-            .build();
-
-        // 객체 삭제
-        s3Client.deleteObject(new DeleteObjectRequest(bucketName, key));
+        amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
         System.out.println("파일 삭제 완료: " + key);
     }
 }

@@ -192,6 +192,8 @@ public class HouseholdServiceImpl implements HouseholdService {
             .exceptedBudgetYn(household.getExceptedBudgetYn())
             .householdCategory(household.getHouseholdDetailCategory()
                 .getHouseholdCategory().getHouseholdCategoryName())
+            .householdDetailCategoryPk
+                (household.getHouseholdDetailCategory().getHouseholdDetailCategoryPk())
             .householdDetailCategory
                 (household.getHouseholdDetailCategory().getHouseholdDetailCategory())
             .householdClassificationCategory

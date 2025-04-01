@@ -24,7 +24,7 @@ class CookiePage extends StatelessWidget {
 
     return Scaffold(
       appBar: const CustomAppbar(
-        title: '내가 만든 쿠키🍪',
+        title: '내가 만든 쿠키 🍪',
       ),
       body: SingleChildScrollView(
         child: Center(

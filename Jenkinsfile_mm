@@ -96,8 +96,9 @@ pipeline {
         EOF
                     '''
                 }
-            }
+            }   
         }
+    }
     post {
         failure {
             echo 'CI/CD 파이프라인 실행 중 문제가 발생했습니다.'

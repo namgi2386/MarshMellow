@@ -59,9 +59,11 @@ pipeline {
                     usernameVariable: 'DOCKERHUB_USER'
                 )]) {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
+                        // 스크립트 맨 위에 #!/bin/bash 추가하여 bash로 실행하도록 함
                         sh '''
+                        #!/bin/bash
                         echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
-                        docker push ${IMAGE_NAME}:${env.BUILD_NUMBER}
+                        docker push gbh_mm:latest
                         '''
                     }
                 }

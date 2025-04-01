@@ -60,7 +60,8 @@ public class PortfolioServiceImpl implements PortfolioService {
             .build();
 
         portfolioCategoryRepository.save(portfolioCategory);
-        List<PortfolioCategory> portfolioCategoryList = portfolioCategoryRepository.findAll();
+        List<PortfolioCategory> portfolioCategoryList = portfolioCategoryRepository
+            .findAllByUser_UserPk(request.getUserPk());
 
         List<PortfolioCategoryDto> portfolioCategoryDtoList = portfolioCategoryList.stream()
             .map(p -> mapper.map(p, PortfolioCategoryDto.class))
@@ -75,7 +76,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     @Override
     public ResponseFindCategoryList findCategoryList(RequestFindCategoryList request) {
-        List<PortfolioCategory> portfolioCategoryList = portfolioCategoryRepository.findAll();
+        List<PortfolioCategory> portfolioCategoryList = portfolioCategoryRepository
+            .findAllByUser_UserPk(request.getUserPk());
 
         List<PortfolioCategoryDto> portfolioCategoryDtoList = portfolioCategoryList.stream()
             .map(p -> mapper.map(p, PortfolioCategoryDto.class))

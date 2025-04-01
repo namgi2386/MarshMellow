@@ -134,4 +134,35 @@ public class WishlistService {
                 .deleteWishlistPk(wishlistPk)
                 .build();
     }
+
+    // 현재 위시 조회
+    public ResponseFindDetailWishlist getCurrentWish(Long userPk) {
+        List<Wishlist> wishlist =  wishlistRepository.findAllByUser_UserPk(userPk)
+                .stream()
+                .filter(wish ->
+                    wish.getIsSelected().equals("Y") && wish.getIsCompleted().equals("N")
+                )
+                .collect(Collectors.toList());
+
+        if (wishlist.isEmpty()) {
+            throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
+
+        if (wishlist.size() > 1) {
+            throw new CustomException(ErrorCode.DATABASE_ERROR);
+        }
+
+        Wishlist wish = wishlist.get(0);
+        return ResponseFindDetailWishlist.builder()
+                .wishlistPk(wish.getWishlistPk())
+                .productNickname(wish.getProductNickname())
+                .productName(wish.getProductName())
+                .productPrice(wish.getProductPrice())
+                .achievePrice(wish.getAchievePrice())
+                .productImageUrl(wish.getProductImageUrl())
+                .productUrl(wish.getProductUrl())
+                .isSelected(wish.getIsSelected())
+                .isCompleted(wish.getIsCompleted())
+                .build();
+    }
 }

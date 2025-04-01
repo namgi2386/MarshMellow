@@ -8,4 +8,5 @@ public class RequestUpdateHousehold {
     private String householdMemo;
     private Integer householdAmount;
     private String exceptedBudgetYn;
+    private int householdDetailCategoryPk;
 }

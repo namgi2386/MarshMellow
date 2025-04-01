@@ -5,6 +5,7 @@ import 'package:asn1lib/asn1lib.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/asymmetric/api.dart';
+import 'package:pointycastle/export.dart';
 import 'package:pointycastle/key_generators/api.dart';
 import 'package:pointycastle/key_generators/rsa_key_generator.dart';
 import 'package:pointycastle/random/fortuna_random.dart';
@@ -333,5 +334,36 @@ class CertificateService {
     };
     
     return oidMap[name] ?? [85, 4, 3]; // 기본값은 CN
+  }
+
+  // 전자서명(SHA-512 + RSA)
+  Future<String?> signData(String data) async {
+    try {
+      // 개인키 가져오기
+      final privateKey = await getPrivateKey();
+      if (privateKey == null) {
+        throw Exception('개인키를 찾을 수 없습니다');
+      }
+
+      // UTF-8로 인코딩
+      final dataBytes = Uint8List.fromList(utf8.encode(data));
+
+      // SHA-512 해시 생성
+      final digest = SHA512Digest();
+      final hashedData = digest.process(dataBytes);
+      
+      // RSA 서명 생성
+      final signer = RSASigner(SHA512Digest(), '0609608648016503040205');
+      final params = PrivateKeyParameter<RSAPrivateKey>(privateKey);
+      signer.init(true, params);
+      
+      final signature = signer.generateSignature(hashedData) as RSASignature;
+      
+      // Base64로 인코딩하여 반환
+      return base64.encode(signature.bytes);
+    } catch (e) {
+      print('서명 생성 실패: $e');
+      return null;
+    }
   }
 }

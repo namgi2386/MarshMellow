@@ -18,10 +18,11 @@ class StorageKeys {
   static const String phoneNumber = 'phone_number';
   static const String userCode = 'user_code';
   static const String carrier = 'user_carrier';
+  static const String userKey = 'user_key';
 
   // mm 인증서 관련 키
   static const String certificatePassword = 'certificate_password';
-  static const String certificatePem = 'certificate_pem';
+  static const String certificatePem = 'certificate_pem'; // MM인증서
   static const String certificateStatus = 'certificate_status';
   static const String certificateEmail = 'certificate_email';
   

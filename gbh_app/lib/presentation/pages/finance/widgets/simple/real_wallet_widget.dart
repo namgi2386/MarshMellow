@@ -3,42 +3,13 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/presentation/widgets/finance/bank_icon.dart';
+import 'package:marshmellow/presentation/widgets/finance/card_image_util.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // 추가
+import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
+import 'package:marshmellow/core/theme/bank_colors.dart'; // 새로 추가한 import
 
-// 은행별 카드 색상 매핑
-class BankColors {
-  static final Map<String, Color> colors = {
-    '신한은행': const Color(0xFF1478FF),
-    '국민은행': const Color(0xFF29AB87),
-    '우리은행': const Color(0xFF005BAC),
-    '하나은행': const Color(0xFF008485),
-    '농협은행': const Color(0xFF0091D0),
-    '기업은행': const Color(0xFF0061A5),
-    '국민은행': const Color(0xFF29AB87),
-    '카카오뱅크': const Color(0xFFFFDE00),
-    '토스뱅크': const Color(0xFF0064FF),
-    '케이뱅크': const Color(0xFFEC0000),
-    '한국은행': const Color.fromARGB(255, 131, 171, 217),     // 한국은행 파란색
-    '산업은행': const Color(0xFF00A0E2),     // 산업은행 청색
-    '농협은행': const Color(0xFF0091D0),     // 농협은행 청색
-    'sc제일은행': const Color(0xFF00A650),   // SC제일은행 녹색
-    '시티은행': const Color(0xFF0066B3),     // 시티은행 파란색
-    '대구은행': const Color(0xFF0072BC),     // 대구은행 파란색
-    '광주은행': const Color(0xFF0066B3),     // 광주은행 파란색
-    '제주은행': const Color(0xFF00A651),     // 제주은행 녹색
-    '전북은행': const Color(0xFF00338D),     // 전북은행 진청색
-    '경남은행': const Color(0xFF005E35),     // 경남은행 녹색
-    '새마을금고': const Color(0xFF019E4A),   // 새마을금고 녹색
-    '싸피뱅크': const Color(0xFF1EC800),     // 임의 색상
-    // 기본값
-    'default': AppColors.pinkPrimary,
-  };
-  
-  static Color getColorByBankName(String bankName) {
-    return colors[bankName] ?? colors['default']!;
-  }
-}
-
-// 계좌 정보 모델 (클래스 이름을 DemandDepositItem으로 변경)
+// 계좌 정보 모델 (여기서만 써서  )
 // 클래스 이름만 변경하고 내부 필드는 그대로 유지
 class DemandDepositItem {
   final String bankName;
@@ -101,95 +72,11 @@ int max(int a, int b) {
 }
 
 // 월렛 위젯 구현
-class DefaultWalletWidget extends StatelessWidget {
+class DefaultWalletWidget extends ConsumerWidget {
   final List<CardInfo> cards;
   final String accountType;
   final int balance;
 
-  bool _isPngPath(String path) {
-    return path.endsWith('.png');
-  }
-  // 은행 이름에 따라 아이콘 경로를 반환하는 메서드
-  String _getBankIconPath(String bankName) {
-    switch (bankName.toLowerCase()) {
-      case "한국은행":
-      case "korea bank":
-        return IconPath.koreaBank2;
-      case "산업은행":
-      case "kdb bank":
-        return IconPath.kdbBank;
-      case "기업은행":
-      case "ibk bank":
-        return IconPath.ibkBank;
-      case "국민은행":
-      case "kb bank":
-        return IconPath.kbBank;
-      case "농협은행":
-      case "nh bank":
-        return IconPath.nhBank;
-      case "우리은행":
-      case "woori bank":
-        return IconPath.wooriBank;
-      case "sc제일은행":
-      case "standard chartered bank":
-      case "sc bank":
-        return IconPath.scBank;
-      case "시티은행":
-      case "citi bank":
-        return IconPath.citiBank;
-      case "대구은행":
-      case "daegu bank":
-        return IconPath.dgBank;
-      case "광주은행":
-      case "gwangju bank":
-        return IconPath.gjBank;
-      case "제주은행":
-      case "jeju bank":
-        return IconPath.jejuBank;
-      case "전북은행":
-      case "jeonbuk bank":
-        return IconPath.jbBank;
-      case "경남은행":
-      case "gyeongnam bank":
-        return IconPath.gnBank;
-      case "새마을금고":
-      case "mg":
-        return IconPath.mgBank;
-      case "하나은행":
-      case "hana bank":
-        return IconPath.hanaBank;
-      case "신한은행":
-      case "shinhan bank":
-        return IconPath.shinhanBank;
-      case "카카오뱅크":
-      case "kakao bank":
-        return IconPath.kakaoBank;
-      case "싸피뱅크":
-      case "ssafy bank":
-      case "toss bank":
-        return IconPath.ssafyBank2;
-      default:
-        // return IconPath.plus; // 기본값으로 IBK 아이콘 사용
-        return IconPath.testCard;
-    }
-  }
-  Widget _buildBankIcon(String bankName) {
-    final String iconPath = _getBankIconPath(bankName);
-
-    if (_isPngPath(iconPath)) {
-      return Image.asset(
-        iconPath,
-        width: 40, // 원하는 크기로 조정
-        height: 40,
-      );
-    } else {
-      return SvgPicture.asset(
-        iconPath,
-        width: 40, // 원하는 크기로 조정
-        height: 40,
-      );
-    }
-  }
   
   const DefaultWalletWidget({
     Key? key,
@@ -200,7 +87,8 @@ class DefaultWalletWidget extends StatelessWidget {
       super(key: key);
   
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isHidden = ref.watch(isFinanceHideProvider);
     return Container(
       width: MediaQuery.of(context).size.width * 0.4,
       height: MediaQuery.of(context).size.width * 0.4,
@@ -234,9 +122,10 @@ class DefaultWalletWidget extends StatelessWidget {
                     style: AppTextStyles.bodyMedium.copyWith(color: AppColors.whiteLight)
                   ),
                   if (balance != -1)
-                  Text(
+                  Text(isHidden ? '금액보기' :
                     '${_formatCurrency(balance)}원',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.whiteLight)
+                    style: isHidden ?  AppTextStyles.bodyMediumLight.copyWith(color: AppColors.divider , fontWeight: FontWeight.w400) :
+                        AppTextStyles.bodyMedium.copyWith(color: AppColors.whiteLight)
                   ),
                 ],
               ),
@@ -313,12 +202,35 @@ class DefaultWalletWidget extends StatelessWidget {
                   maxLines: 1,
                 ),
               )
-            : Row(
+            : accountType == "카드" ? Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 40,
+                    child: Center(
+                      child: CardImageUtil.getCardImageWidget(card.cardName, size: 30),
+                    ),
+                  ),
+                  Expanded(  // 여기가 중요한 변경점입니다
+                    child: Container(
+                      alignment: Alignment.topCenter,
+                      padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0),
+                      child: Text(
+                        card.cardName,
+                        style: AppTextStyles.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ),
+                ],
+              ) : Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: _buildBankIcon(card.cardName),
+                    icon: BankIcon(bankName: card.cardName, size: 40),
                     onPressed: () {
                       // _onAccountItemTap(context);
                     },
@@ -336,7 +248,7 @@ class DefaultWalletWidget extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
+              )
     );
   }
   

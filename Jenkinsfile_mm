@@ -6,10 +6,8 @@ pipeline {
         IMAGE_NAME = "yunjaeeun12/gbh-mm"
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id'
         GITLAB_CREDENTIALS = 'git_lab'
-        // 빌드 번호는 Jenkins에서 자동으로 할당되거나, 환경변수로 지정할 수 있음.
     }
     stages {
-        // 기존 Checkout, Build, Docker Image Build, Push, Deploy 단계 등
         stage('Checkout') {
             steps {
                 git branch: 'master',
@@ -46,7 +44,8 @@ pipeline {
             steps {
                 dir('gbh_mm') {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                        sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                        // 태그를 latest로 고정
+                        sh "docker build -t ${IMAGE_NAME}:latest ."
                     }
                 }
             }
@@ -59,11 +58,11 @@ pipeline {
                     usernameVariable: 'DOCKERHUB_USER'
                 )]) {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                        // 스크립트 맨 위에 #!/bin/bash 추가하여 bash로 실행하도록 함
+                        // 스크립트 시작에 #!/bin/bash를 추가하여 bash에서 실행하도록 함
                         sh '''
                         #!/bin/bash
                         echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
-                        docker push gbh_mm:latest
+                        docker push ${IMAGE_NAME}:latest
                         '''
                     }
                 }
@@ -72,24 +71,22 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                    sh "docker pull ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    // 최신 이미지를 사용하도록 latest 태그로 pull, run
+                    sh "docker pull ${IMAGE_NAME}:latest"
                     sh "docker stop gbh_mm || true && docker rm gbh_mm || true"
-                    sh "docker run -d --name gbh_mm -p 9000:9000 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    sh "docker run -d --name gbh_mm -p 9000:9000 ${IMAGE_NAME}:latest"
                 }
             }
         }
         stage('Deploy Infrastructure') {
             steps {
-                // EC2에 배포용 파일이 있는 ~/gbh_mm_deploy 디렉토리에서 docker-compose를 실행
-                sshagent(['EC2_SSH_CREDENTIALS_ID']) {
+                // EC2 배포용 파일이 있는 ~/gbh_mm_deploy 디렉토리에서 docker-compose 명령어 실행
+                sshagent(['EC2_SSH_PEM']) {
                     sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@<EC2_IP_ADDRESS> << 'EOF'
+                    ssh -o StrictHostKeyChecking=no ubuntu@j12c108.p.ssafy.io << 'EOF'
                     cd ~/gbh_mm_deploy
-                    # 최신 이미지를 가져오거나(이미지가 push 되었으므로)
                     docker-compose pull
-                    # 컨테이너들을 백그라운드로 실행(또는 재시작)
                     docker-compose up -d
-                    # 필요하다면 인증서 갱신 및 nginx reload (자동화된 스크립트가 있다면 추가)
                     docker-compose run --rm certbot renew && docker-compose exec nginx nginx -s reload
                     exit
 EOF

@@ -105,14 +105,13 @@ class IconPath {
   //기타
   static const String incomeEtc = 'assets/icons/income/non_category.svg';
 
-  // 이체 
+  // 이체
   //기타
   static const String transferEtc = 'assets/icons/transfer/non_category.svg';
   // 입금
   static const String paid = 'assets/icons/transfer/paid.svg';
   // 출금
   static const String received = 'assets/icons/transfer/received.svg';
-
 
   // nav
   static const String budgetBk = 'assets/icons/nav/budget_bk.svg';
@@ -140,6 +139,9 @@ class IconPath {
   static const String searchOutlined = 'assets/icons/body/search_outlined.svg';
   static const String caretDown = 'assets/icons/body/CaretDown.svg';
   static const String pencilSimple = 'assets/icons/body/PencilSimple.svg';
+  static const String quoteLeft = 'assets/icons/body/Quotes_L.svg';
+  static const String quoteRight = 'assets/icons/body/Quotes_R.svg';
+  static const String refesh = 'assets/icons/body/ArrowCounterClockwise.svg';
 
   // 카드 이미지
   static const String testCard = 'assets/icons/card/testCard.svg';

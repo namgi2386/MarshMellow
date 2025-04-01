@@ -130,6 +130,7 @@ class LedgerRepository {
     int? householdAmount,
     String? householdMemo,
     String? exceptedBudgetYn,
+    int? householdDetailCategoryPk,
   }) async {
     try {
       return await _ledgerApi.updateHousehold(
@@ -137,6 +138,7 @@ class LedgerRepository {
         householdAmount: householdAmount,
         householdMemo: householdMemo,
         exceptedBudgetYn: exceptedBudgetYn,
+        householdDetailCategoryPk: householdDetailCategoryPk,
       );
     } catch (e) {
       throw Exception('거래내역 수정 실패: $e');

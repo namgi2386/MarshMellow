@@ -175,6 +175,7 @@ class LedgerViewModel extends StateNotifier<LedgerState> {
     int? amount,
     String? memo,
     String? exceptedBudgetYn,
+    int? detailCategoryPk,
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
@@ -185,6 +186,7 @@ class LedgerViewModel extends StateNotifier<LedgerState> {
         householdAmount: amount,
         householdMemo: memo,
         exceptedBudgetYn: exceptedBudgetYn,
+        householdDetailCategoryPk: detailCategoryPk,
       );
 
       // 수정된 거래로 상태 업데이트

@@ -3,8 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/detail/card_detail_model.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/card_detail_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/widgets/finance/card_image_util.dart';
 
 class CardDetailPage extends ConsumerStatefulWidget {
   final String cardNo;
@@ -60,13 +64,29 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
     final transactionsAsync = ref.watch(cardTransactionsProvider(params));
     
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.bankName} - ${widget.cardName}'),
+      appBar: CustomAppbar(
+        title: 'my little 자산',
       ),
       body: Column(
         children: [
           _buildCardHeader(),
-          _buildDateSelector(),
+          Row(
+            children: [
+              Expanded(child: _buildDateSelector()),
+              Container(
+                // color: Colors.amber,
+                child: transactionsAsync.when(
+                  data: (response) => _buildEstimatedBalance(response.data.estimatedBalance),
+                  loading: () => const SizedBox(
+                    height: 80, // _buildDateSelector와 비슷한 높이로 설정
+                  ),
+                  error: (_, __) => const SizedBox(
+                    height: 80, // _buildDateSelector와 비슷한 높이로 설정
+                  ),
+                ),
+              ),
+            ],
+          ),
           Expanded(
             child: transactionsAsync.when(
               data: (response) => _buildTransactionList(response.data.transactionList),
@@ -81,31 +101,41 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
 
   Widget _buildCardHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin : const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(20),
+      // color: Colors.white,
+      decoration: BoxDecoration(
+        border: Border.all(width: 2.0 , color: AppColors.divider),
+        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            widget.cardName,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '카드번호: ${_formatCardNumber(widget.cardNo)}',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('이번달 예상 청구금액', style: TextStyle(fontSize: 14)),
               Text(
-                '${NumberFormat('#,###').format(widget.balance)}원',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                widget.cardName,
+                style: AppTextStyles.bodyLarge
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '신용 | ${_formatCardNumber(widget.cardNo)}', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)
+              ),
+              const SizedBox(height: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('결제 예정 금액', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider) ),
+                  Text(
+                    '${NumberFormat('#,###').format(widget.balance)}원',
+                    style: AppTextStyles.bodyExtraLarge
+                  ),
+                ],
               ),
             ],
           ),
+          
+          CardImageUtil.getCardImageWidget(widget.cardName, size: 128),
         ],
       ),
     );
@@ -114,47 +144,49 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
   // 카드번호 형식화 (1234-5678-9012-3456)
   String _formatCardNumber(String cardNo) {
     if (cardNo.length != 16) return cardNo;
-    return '${cardNo.substring(0, 4)}-${cardNo.substring(4, 8)}-${cardNo.substring(8, 12)}-${cardNo.substring(12, 16)}';
+    // return '${cardNo.substring(0, 4)}-${cardNo.substring(4, 8)}-${cardNo.substring(8, 12)}-${cardNo.substring(12, 16)}';
+    return cardNo.substring(12, 16);
   }
 
   Widget _buildDateSelector() {
     return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(  
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _selectDate(context, true),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  _formatDateForDisplay(startDate),
-                  textAlign: TextAlign.center,
-                ),
+          Text('조회 기간', style: AppTextStyles.bodyMedium),
+          const SizedBox(height: 4),
+          GestureDetector(
+            onTap: () => _selectDate(context, true),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.calendar_today, size: 16, color: AppColors.divider),
+                  const SizedBox(width: 4),
+                  Text(
+                    '시작: ${_formatDateForDisplay(startDate)}',
+                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Text('~'),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _selectDate(context, false),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  _formatDateForDisplay(endDate),
-                  textAlign: TextAlign.center,
-                ),
+          GestureDetector(  
+            onTap: () => _selectDate(context, false),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.calendar_today, size: 16, color: AppColors.divider),
+                  const SizedBox(width: 4),
+                  Text(
+                    '종료: ${_formatDateForDisplay(endDate)}',
+                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
               ),
             ),
           ),
@@ -199,6 +231,29 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
     return '$year.$month.$day';
   }
 
+  Widget _buildEstimatedBalance(int estimatedBalance) {
+    return Container(
+      height: 80, // _buildDateSelector와 비슷한 높이로 맞춤
+      padding: const EdgeInsets.fromLTRB(0, 4.0, 16.0, 0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start, // 세로 중앙 정렬 추가
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text('총 사용금액', style: AppTextStyles.bodyMedium),
+          const SizedBox(height: 16), // 간격 약간 늘림
+          Text(
+            '${NumberFormat('#,###').format(estimatedBalance)}원',
+            style: AppTextStyles.bodyLarge.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.blueDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   Widget _buildTransactionList(List<CardTransactionItem> transactions) {
     if (transactions.isEmpty) {
       return const Center(
@@ -206,99 +261,160 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
       );
     }
     
-    return ListView.separated(
+    // 날짜별로 거래 내역 그룹화
+    final Map<String, List<CardTransactionItem>> groupedTransactions = {};
+    
+    for (var item in transactions) {
+      final date = item.transactionDate;
+      if (!groupedTransactions.containsKey(date)) {
+        groupedTransactions[date] = [];
+      }
+      groupedTransactions[date]!.add(item);
+    }
+    
+    // 날짜 기준으로 정렬 (최신순)
+    final sortedDates = groupedTransactions.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+    
+    return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: transactions.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        final item = transactions[index];
-        final isApproved = item.cardStatus == '승인';
+      itemCount: sortedDates.length,
+      itemBuilder: (context, dateIndex) {
+        final date = sortedDates[dateIndex];
+        final dateItems = groupedTransactions[date]!;
         
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    _formatTransactionDate(item.transactionDate),
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(_formatTransactionTime(item.transactionTime)),
-                ],
+        // 같은 날짜의 항목들을 시간순으로 정렬
+        dateItems.sort((a, b) => b.transactionTime.compareTo(a.transactionTime));
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 날짜 헤더
+            Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 16),
+              child: Text(
+                _formatTransactionDate(date),
+                style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
               ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            
+            // 해당 날짜의 거래 항목들
+            ...dateItems.map((item) {
+              final isApproved = item.cardStatus == '승인';
+              
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    
+                    // 거래 내용
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.merchantName,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textPrimary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          // SizedBox(height: 4,),
+                          Row(
+                            children: [
+                              SizedBox(
+                                // width: 50,
+                                child: Text(
+                                  _formatTransactionTime(item.transactionTime),
+                                  style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                                ),
+                              ),
+                              Text(' | ',style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),),
+                              Text(
+                                item.categoryName,
+                                style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // 금액 및 상태
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          item.merchantName,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
+                          '${NumberFormat('#,###').format(int.parse(item.transactionBalance))}원',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: isApproved ? AppColors.warnningLight : AppColors.blueDark,
+                          ),
                         ),
-                        Text(
-                          item.categoryName,
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        Row(
+                          children: [
+                            Text(
+                              item.billStatementsStatus,
+                              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                            ),
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: isApproved 
+                                  ? AppColors.warnningLight.withOpacity(0.1) 
+                                  : AppColors.blueDark.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                item.cardStatus,
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: isApproved ? AppColors.warnningLight : AppColors.blueDark,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '${NumberFormat('#,###').format(int.parse(item.transactionBalance))}원',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isApproved ? Colors.red : Colors.blue,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: isApproved ? Colors.red.withOpacity(0.1) : Colors.blue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          item.cardStatus,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isApproved ? Colors.red : Colors.blue,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    '${item.billStatementsStatus}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                  ],
+                ),
+              );
+            }).toList(),
+            
+            // 날짜 그룹 사이 여백
+            SizedBox(height: dateIndex < sortedDates.length - 1 ? 8 : 0),
+          ],
         );
       },
     );
   }
 
   String _formatTransactionDate(String dateStr) {
-    final year = dateStr.substring(0, 4);
-    final month = dateStr.substring(4, 6);
-    final day = dateStr.substring(6, 8);
-    return '$year.$month.$day';
+    final year = int.parse(dateStr.substring(0, 4));
+    final month = int.parse(dateStr.substring(4, 6));
+    final day = int.parse(dateStr.substring(6, 8));
+    
+    final date = DateTime(year, month, day);
+    final weekdayName = _getWeekdayName(date.weekday);
+    
+    return '$month월 $day일 $weekdayName';
+  }
+
+  String _getWeekdayName(int weekday) {
+    switch (weekday) {
+      case 1: return '월요일';
+      case 2: return '화요일';
+      case 3: return '수요일';
+      case 4: return '목요일';
+      case 5: return '금요일';
+      case 6: return '토요일';
+      case 7: return '일요일';
+      default: return '';
+    }
   }
 
   String _formatTransactionTime(String timeStr) {

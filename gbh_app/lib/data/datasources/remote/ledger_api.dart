@@ -167,12 +167,13 @@ class LedgerApi {
     }
   }
 
-// 가계부 수정
+  // 가계부 수정
   Future<Transaction> updateHousehold({
     required int householdPk,
     int? householdAmount,
     String? householdMemo,
     String? exceptedBudgetYn,
+    int? householdDetailCategoryPk, 
   }) async {
     try {
       // API 요청 데이터 준비
@@ -186,6 +187,8 @@ class LedgerApi {
       if (householdMemo != null) requestData['householdMemo'] = householdMemo;
       if (exceptedBudgetYn != null)
         requestData['exceptedBudgetYn'] = exceptedBudgetYn;
+      if (householdDetailCategoryPk != null)
+        requestData['householdDetailCategoryPk'] = householdDetailCategoryPk;
 
       final response = await _apiClient.patch(
         '/household',

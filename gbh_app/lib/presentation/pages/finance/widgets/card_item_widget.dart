@@ -5,11 +5,12 @@ import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/card_model.dart';
-import 'package:marshmellow/core/constants/icon_path.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marshmellow/presentation/widgets/finance/card_image_util.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // 추가
+import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
 
-class CardItemWidget extends StatelessWidget {
+class CardItemWidget extends ConsumerWidget {
   final CardItem card;
 
   const CardItemWidget({
@@ -44,53 +45,61 @@ class CardItemWidget extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            iconSize: 64, // 아이콘 버튼 크기 설정
-            icon: SvgPicture.asset(IconPath.testCard,
-              width: 64, // SVG 너비
-              height: 64, // SVG 높이
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isHidden = ref.watch(isFinanceHideProvider);
+    return InkWell(
+      onTap: () => _onCardItemTap(context),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // 주 축에서 공간을 균등하게 분배
+          children: [
+            // 이미지 영역
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.2, // 화면 너비의 20%
+              child: Center(
+                child: CardImageUtil.getCardImageWidget(card.cardName, size: 64),
+              ),
             ),
-            onPressed: () {
-              _onCardItemTap(context);
-            },
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  card.cardName,
-                  style: AppTextStyles.subTitle
-                ),
-                // Text(
-                //   card.cardName,
-                //   style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600,
-                //   color: AppColors.blackLight),
-                // ),
-                Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall ),
-                // Text('발급사: ${card.cardIssuerName}'),
-                Text('${formatAmount(card.cardBalance)}원 지출', style: AppTextStyles.subTitle),
-              ],
+            // 텍스트 영역
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.55, // 화면 너비의 55% (패딩 고려)
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    card.cardName,
+                    style: AppTextStyles.subTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(isHidden ? '금액보기' :'${formatAmount(card.cardBalance)}원', 
+                      style:  isHidden ? AppTextStyles.bodyMediumLight : AppTextStyles.subTitle),
+                      Text(isHidden ? '' :' 결제 예정', style: AppTextStyles.bodySmall.copyWith(color: AppColors.divider)),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.arrow_forward_ios, size: 16),
-            onPressed: () {
-              _onCardItemTap(context);
-            },
-          ),
-        ],
+            // 아이콘 영역
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.05, // 화면 너비의 5%
+              child: Center(
+                child: Icon(Icons.arrow_forward_ios, size: 16),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

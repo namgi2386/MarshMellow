@@ -3,8 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/finance/detail/loan_detail_model.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/loan_detail_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/widgets/finance/bank_icon.dart';
 
 class LoanDetailPage extends ConsumerWidget {
   final String accountNo;
@@ -25,8 +29,8 @@ class LoanDetailPage extends ConsumerWidget {
     final loanDetailsAsync = ref.watch(loanPaymentDetailsProvider(accountNo));
     
     return Scaffold(
-      appBar: AppBar(
-        title: Text('$bankName - $accountName'),
+      appBar: CustomAppbar(
+        title: 'my little 자산',
       ),
       body: loanDetailsAsync.when(
         data: (response) => _buildContent(context, response.data),
@@ -42,6 +46,20 @@ class LoanDetailPage extends ConsumerWidget {
     return Column(
       children: [
         _buildLoanHeader(data),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Text(
+                '상환 내역',
+                style: TextStyle(
+                  fontSize: 16, 
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+            ],
+          ),
+        ),
         Expanded(
           child: _buildRepaymentList(data.repaymentRecords),
         ),
@@ -51,37 +69,48 @@ class LoanDetailPage extends ConsumerWidget {
 
   Widget _buildLoanHeader(LoanDetailData data) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        border: Border.all(width: 2.0, color: AppColors.divider),
+        borderRadius: const BorderRadius.all(Radius.circular(10.0))
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             accountName,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: AppTextStyles.bodyLarge
           ),
           const SizedBox(height: 4),
-          Text(
-            accountNo,
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+          Row(
+            children: [
+              BankIcon(bankName: bankName, size: 20),
+              const SizedBox(width: 4),
+              Text(
+                accountNo,
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('대출 상태', style: TextStyle(fontSize: 14)),
+              Text('대출 상태', style: AppTextStyles.bodyMedium),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: data.status == '연체' ? Colors.red.shade100 : Colors.green.shade100,
+                  color: data.status == '연체' 
+                    ? AppColors.warnningLight.withOpacity(0.1) 
+                    : AppColors.blueDark.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   data.status,
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: AppTextStyles.bodySmall.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: data.status == '연체' ? Colors.red.shade900 : Colors.green.shade900,
+                    color: data.status == '연체' ? AppColors.warnningLight : AppColors.blueDark,
                   ),
                 ),
               ),
@@ -91,10 +120,10 @@ class LoanDetailPage extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('대출금', style: TextStyle(fontSize: 14)),
+              Text('대출금', style: AppTextStyles.bodyMedium),
               Text(
                 '${NumberFormat('#,###').format(data.loanBalance)}원',
-                style: const TextStyle(fontSize: 14),
+                style: AppTextStyles.bodyMedium,
               ),
             ],
           ),
@@ -102,19 +131,12 @@ class LoanDetailPage extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('남은 상환금액', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              Text('남은 상환금액', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)),
               Text(
                 '${NumberFormat('#,###').format(data.remainingLoanBalance)}원',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: AppTextStyles.bodyExtraLarge,
               ),
             ],
-          ),
-          const SizedBox(height: 16),
-          const Divider(height: 1),
-          const SizedBox(height: 8),
-          const Text(
-            '상환 내역',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -128,82 +150,135 @@ class LoanDetailPage extends ConsumerWidget {
       );
     }
     
-    return ListView.separated(
+    // 납부 예정일 기준으로 그룹화
+    final Map<String, List<RepaymentRecord>> groupedRecords = {};
+    
+    for (var record in records) {
+      final date = record.repaymentAttemptDate.substring(0, 6); // 년월 기준으로 그룹화
+      if (!groupedRecords.containsKey(date)) {
+        groupedRecords[date] = [];
+      }
+      groupedRecords[date]!.add(record);
+    }
+    
+    // 날짜 기준으로 정렬 (최신순)
+    final sortedDates = groupedRecords.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+    
+    return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: records.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        final record = records[index];
-        final isSuccess = record.status == 'SUCCESS';
+      itemCount: sortedDates.length,
+      itemBuilder: (context, dateIndex) {
+        final date = sortedDates[dateIndex];
+        final dateRecords = groupedRecords[date]!;
         
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${record.installmentNumber}회차',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: isSuccess ? Colors.green.shade100 : Colors.red.shade100,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      isSuccess ? '상환 완료' : '상환 실패',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isSuccess ? Colors.green.shade900 : Colors.red.shade900,
+        // 같은 월의 항목들을 납부 예정일순으로 정렬
+        dateRecords.sort((a, b) => b.repaymentAttemptDate.compareTo(a.repaymentAttemptDate));
+        
+        final month = date.substring(4, 6);
+        final year = date.substring(0, 4);
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 월 헤더
+            Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 16),
+              child: Text(
+                '$year년 $month월',
+                style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+              ),
+            ),
+            
+            // 해당 월의 상환 항목들
+            ...dateRecords.map((record) {
+              final isSuccess = record.status == 'SUCCESS';
+              
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 회차 및 납부 정보
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${record.installmentNumber}회차',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textPrimary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                '납부 예정일: ${_formatDayDate(record.repaymentAttemptDate)}',
+                                style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          if (isSuccess && record.repaymentActualDate != null)
+                            Text(
+                              '납부일: ${_formatDayDate(record.repaymentActualDate!)}',
+                              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                            ),
+                          if (!isSuccess && record.failureReason.isNotEmpty)
+                            Text(
+                              '실패 사유: ${record.failureReason}',
+                              style: AppTextStyles.bodySmall.copyWith(color: AppColors.warnningLight),
+                            ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '납부 예정일: ${_formatDate(record.repaymentAttemptDate)}',
-                style: TextStyle(color: Colors.grey.shade600),
-              ),
-              if (isSuccess) ...[
-                Text(
-                  '납부일: ${_formatDate(record.repaymentActualDate!)}',
-                  style: TextStyle(color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const Text('납부금액: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(
-                      '${NumberFormat('#,###').format(int.parse(record.paymentBalance))}원',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    
+                    // 금액 및 상태
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${NumberFormat('#,###').format(int.parse(record.paymentBalance))}원',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: isSuccess ? AppColors.blueDark : AppColors.warnningLight,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isSuccess 
+                              ? AppColors.blueDark.withOpacity(0.1) 
+                              : AppColors.warnningLight.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            isSuccess ? '상환 완료' : '상환 실패',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: isSuccess ? AppColors.blueDark : AppColors.warnningLight,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ] else if (record.failureReason.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  '실패 사유: ${record.failureReason}',
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ],
-            ],
-          ),
+              );
+            }).toList(),
+            
+            // 월 그룹 사이 여백
+            SizedBox(height: dateIndex < sortedDates.length - 1 ? 8 : 0),
+          ],
         );
       },
     );
   }
 
-  String _formatDate(String dateStr) {
-    final year = dateStr.substring(0, 4);
+  String _formatDayDate(String dateStr) {
     final month = dateStr.substring(4, 6);
     final day = dateStr.substring(6, 8);
-    return '$year.$month.$day';
+    return '$month.$day';
   }
 }

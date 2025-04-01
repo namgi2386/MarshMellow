@@ -31,10 +31,10 @@ class CardDetailData {
 
   factory CardDetailData.fromJson(Map<String, dynamic> json) {
     return CardDetailData(
-      estimatedBalance: json['estimatedBalance'],
-      transactionList: (json['transactionList'] as List)
-          .map((item) => CardTransactionItem.fromJson(item))
-          .toList(),
+    estimatedBalance: json['estimatedBalance'],
+    transactionList: (json['transactionList'] as List?)
+        ?.map((item) => CardTransactionItem.fromJson(item))
+        .toList() ?? [], // null이면 빈 리스트 반환
     );
   }
 }

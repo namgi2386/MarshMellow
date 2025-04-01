@@ -80,7 +80,7 @@ pipeline {
         }
         stage('Deploy Infrastructure') {
             steps {
-                sshagent(['EC2_SSH_CREDENTIALS_ID']) {
+                sshagent(['EC2_SSH_PEM']) {
                     sh '''
                     #!/bin/bash
                     ssh -o StrictHostKeyChecking=no ubuntu@<EC2_IP_ADDRESS> << 'EOF'

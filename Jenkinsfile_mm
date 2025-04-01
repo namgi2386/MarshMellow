@@ -81,19 +81,10 @@ pipeline {
         stage('Deploy Infrastructure') {
             steps {
                 sshagent(['EC2_SSH_PEM']) {
+                    // 모든 명령어를 한 줄의 인라인 명령어로 실행합니다.
                     sh '''
                     #!/bin/bash
-                    ssh -o StrictHostKeyChecking=no ubuntu@<EC2_IP_ADDRESS> << 'EOF'
-                    cd ~/gbh_mm_deploy
-                    # 기존의 컨테이너들을 내려서 충돌을 방지합니다.
-                    docker-compose down
-                    # 최신 이미지로 업데이트합니다.
-                    docker-compose pull
-                    docker-compose up -d
-                    # 인증서 갱신 후 nginx 설정 재적용
-                    docker-compose run --rm certbot renew && docker-compose exec nginx nginx -s reload
-                    exit
-        EOF
+                    ssh -o StrictHostKeyChecking=no ubuntu@<EC2_IP_ADDRESS> "cd ~/gbh_mm_deploy && docker-compose down && docker-compose pull && docker-compose up -d && docker-compose run --rm certbot renew && docker-compose exec nginx nginx -s reload"
                     '''
                 }
             }   

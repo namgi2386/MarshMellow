@@ -14,6 +14,7 @@ import com.gbh.gbh_mm.household.model.dto.DateGroupDto;
 import com.gbh.gbh_mm.household.model.dto.DemandDepositDto;
 import com.gbh.gbh_mm.household.model.dto.HouseHoldDto;
 import com.gbh.gbh_mm.household.model.dto.HouseholdDetailDto;
+import com.gbh.gbh_mm.household.model.entity.AiCategory;
 import com.gbh.gbh_mm.household.model.entity.Household;
 import com.gbh.gbh_mm.household.model.entity.HouseholdCategory;
 import com.gbh.gbh_mm.household.model.entity.HouseholdDetailCategory;
@@ -122,14 +123,24 @@ public class HouseholdServiceImpl implements HouseholdService {
 
     @Override
     public ResponseCreateHousehold createHousehold(RequestCreateHousehold request) {
+        AiCategory aiCategory = aiCategoryRepository.findById(9)
+            .orElseThrow(() -> new EntityNotFoundException("미분류 찾을 수 없음"));
+        HouseholdCategory householdCategory = householdCategoryRepository
+            .findById(19)
+            .orElseThrow(() -> new EntityNotFoundException("미분류 찾을 수 없음"));
+
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Household household = mapper.map(request, Household.class);
         User user = userRepository.findById(request.getUserPk())
             .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원"));
         HouseholdDetailCategory householdDetailCategory =
             householdDetailCategoryRepository
-                .findByHouseholdDetailCategory(
-                    request.getHouseholdDetailCategoryName().replaceAll("\\s+", ""));
+                .findById(request.getHouseholdDetailCategoryPk())
+                .orElse(HouseholdDetailCategory.builder()
+                    .householdDetailCategoryPk(118)
+                    .aiCategory(aiCategory)
+                    .householdCategory(householdCategory)
+                    .build());
 
         if (householdDetailCategory == null) {
             householdDetailCategory = householdDetailCategoryRepository
@@ -206,6 +217,12 @@ public class HouseholdServiceImpl implements HouseholdService {
         if (request.getHouseholdMemo() != null) {
             household.setHouseholdMemo(request.getHouseholdMemo());
         }
+
+        HouseholdDetailCategory householdDetailCategory = householdDetailCategoryRepository
+            .findById(request.getHouseholdDetailCategoryPk())
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 분류"));
+        household.setHouseholdDetailCategory(householdDetailCategory);
+
 
         householdRepository.save(household);
 

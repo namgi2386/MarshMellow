@@ -1,0 +1,66 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:marshmellow/core/constants/storage_keys.dart';
+
+/*
+  mm 인증서 api
+*/
+class CertificateApi {
+  final Dio _dio;
+  final FlutterSecureStorage _secureStorage;
+
+  CertificateApi(this._dio, this._secureStorage);
+  
+  // 통합인증 여부 조회
+  Future<Map<String, dynamic>> checkIntegratedStatus() async {
+    // accessToken 가져오기
+    final accessToken = await _secureStorage.read(key: StorageKeys.accessToken);
+
+    final response = await _dio.get(
+      '/api/mm/auth/integrated-status',
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $accessToken'
+        }
+      )
+    );
+    return response.data;
+  }
+
+  // 인증서 존재 여부 조회
+  Future<Map<String, dynamic>> checkCertificateExist() async {
+    final accessToken = await _secureStorage.read(key: StorageKeys.accessToken);
+
+    final response = await _dio.get(
+      '/api/mm/auth/cert/exist',
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $accessToken'
+        }
+      )
+    );
+    return response.data;
+  }
+
+  // 인증서 발급
+  Future<Map<String, dynamic>> issueCertificate({
+    required String csrPem,
+    required String userEmail,
+  }) async {
+    final accessToken = await _secureStorage.read(key: StorageKeys.accessToken);
+
+    final response = await _dio.post(
+      '/api/mm/auth/cert/issue',
+      data:{
+        'csrPem' : csrPem,
+        'userEmail' : userEmail,
+      },
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $accessToken'
+        }
+      )
+    );
+    return response.data;
+  }
+}

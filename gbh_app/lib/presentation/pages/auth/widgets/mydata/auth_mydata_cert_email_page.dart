@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/di/providers/auth/certificate_process_provider.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/custom_button.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/text_input/text_input.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
   mm인증서 회원가입시 이메일 provider
@@ -55,8 +58,11 @@ class AuthMydataEmailInputPage extends ConsumerWidget {
                 width: screenWidth * 0.9,
                 height: 60,
                 onPressed: isValidEmail ? () {
+                  // 이메일을 certificateprocessprovider 에 저장
+                  ref.read(certificateProcessProvider.notifier).setEmail(email);
+                  
                   Navigator.of(context).pop();
-                  // context.go(SignupRoutes.getMyDataLoginPath());
+                  context.go(SignupRoutes.getMyDataLoginPath());
                   
                 } : null,
               ),

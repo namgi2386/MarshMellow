@@ -57,34 +57,39 @@ class AdvancedCertificateService {
     String organization = 'GBH',
     String country = 'KR'
   }) async {
-    if (_isHardwareSecurityAvailable) {
-      try {
-        final result = await _channel.invokeMethod<Map<dynamic, dynamic>>(
-          'generateCSR',
-          {
-            'commonName': commonName,
-            'organization': organization,
-            'country': country
-          }
-        );
-        return result?['csr'];
-      } on PlatformException catch (e) {
-        print('하드웨어 CSR 생성 실패, 소프트웨어 방식으로 전환: ${e.message}');
-        // 하드웨어 방식 실패 시 Flutter 구현으로 폴백
-        return _flutterService.generateCSR(
+    return _flutterService.generateCSR(
           commonName: commonName,
           organization: organization,
           country: country
         );
-      }
-    } else {
-      // 하드웨어 지원이 없으면 Flutter 구현 사용
-      return _flutterService.generateCSR(
-        commonName: commonName,
-        organization: organization,
-        country: country
-      );
-    }
+    // if (_isHardwareSecurityAvailable) {
+    //   try {
+    //     final result = await _channel.invokeMethod<Map<dynamic, dynamic>>(
+    //       'generateCSR',
+    //       {
+    //         'commonName': commonName,
+    //         'organization': organization,
+    //         'country': country
+    //       }
+    //     );
+    //     return result?['csr'];
+    //   } on PlatformException catch (e) {
+    //     print('하드웨어 CSR 생성 실패, 소프트웨어 방식으로 전환: ${e.message}');
+    //     // 하드웨어 방식 실패 시 Flutter 구현으로 폴백
+    //     return _flutterService.generateCSR(
+    //       commonName: commonName,
+    //       organization: organization,
+    //       country: country
+    //     );
+    //   }
+    // } else {
+    //   // 하드웨어 지원이 없으면 Flutter 구현 사용
+    //   return _flutterService.generateCSR(
+    //     commonName: commonName,
+    //     organization: organization,
+    //     country: country
+    //   );
+    // }
   }
   
   // 키 쌍 존재 여부 확인 

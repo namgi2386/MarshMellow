@@ -37,17 +37,23 @@ class AuthMydataCertPwPage extends ConsumerWidget {
           if (!passwordState.isConfirmingPassword) {
             // 첫 입력 후 확인 모드로 전환
             final tempPassword = value;
-            Future.delayed(const Duration(microseconds: 300), () {
-              ref.read(previousPasswordProvider.notifier).state = tempPassword;
+            print("첫 비밀번호 입력: $tempPassword");
+
+            Future.delayed(const Duration(milliseconds: 300), () {
+              ref.read(previousPasswordProvider.notifier).state = tempPassword; 
               notifier.setConfirmMode(true);
+              print("확인 모드 전환 후: ${ref.read(MydataPasswordProvider).isConfirmingPassword}");
             });
           } else {
             // 확인 모드에서 비밀번호 저장 시도
             final previousPassword = ref.read(previousPasswordProvider);
+            print("이전 비밀번호: $previousPassword, 현재 입력: $value");
+            final newInput = passwordState.password;
+            print('$newInput');
             Future.delayed(const Duration(milliseconds: 1000), () async {
-              if (passwordState.password == previousPassword) {
+              if (value == previousPassword) {
                 // 인증서 프로세스에 비밀번호 저장
-                ref.read(certificateProcessProvider.notifier).setPassword(passwordState.password);
+                ref.read(certificateProcessProvider.notifier).setPassword(value);
                 // 인증서 발급 요청
                 final success = await ref.read(certificateProcessProvider.notifier).issueCertificate();
                 if (success) {

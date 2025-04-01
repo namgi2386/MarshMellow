@@ -62,7 +62,7 @@ class AuthMydataEmailInputPage extends ConsumerWidget {
                   ref.read(certificateProcessProvider.notifier).setEmail(email);
                   
                   Navigator.of(context).pop();
-                  context.go(SignupRoutes.getMyDataLoginPath());
+                  context.go(SignupRoutes.getMyDataPasswordPath());
                   
                 } : null,
               ),

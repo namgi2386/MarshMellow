@@ -80,21 +80,24 @@ pipeline {
         }
         stage('Deploy Infrastructure') {
             steps {
-                // EC2 배포용 파일이 있는 ~/gbh_mm_deploy 디렉토리에서 docker-compose 명령어 실행
-                sshagent(['EC2_SSH_PEM']) {
+                sshagent(['EC2_SSH_CREDENTIALS_ID']) {
                     sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@j12c108.p.ssafy.io << 'EOF'
+                    #!/bin/bash
+                    ssh -o StrictHostKeyChecking=no ubuntu@<EC2_IP_ADDRESS> << 'EOF'
                     cd ~/gbh_mm_deploy
+                    # 기존의 컨테이너들을 내려서 충돌을 방지합니다.
+                    docker-compose down
+                    # 최신 이미지로 업데이트합니다.
                     docker-compose pull
                     docker-compose up -d
+                    # 인증서 갱신 후 nginx 설정 재적용
                     docker-compose run --rm certbot renew && docker-compose exec nginx nginx -s reload
                     exit
-EOF
+        EOF
                     '''
                 }
             }
         }
-    }
     post {
         failure {
             echo 'CI/CD 파이프라인 실행 중 문제가 발생했습니다.'

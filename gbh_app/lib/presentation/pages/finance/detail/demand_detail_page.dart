@@ -313,80 +313,150 @@ Widget _buildFilterButtons() {
     return '$year.$month.$day';
   }
 
-  Widget _buildTransactionList(List<TransactionItem> transactions) {
-    if (transactions.isEmpty) {
-      return const Center(
-        child: Text('거래 내역이 없습니다.'),
-      );
-    }
-    
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: transactions.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        final item = transactions[index];
-        final isDeposit = item.transactionType == '1';
-        
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    _formatTransactionDate(item.transactionDate),
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(_formatTransactionTime(item.transactionTime)),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      item.transactionSummary,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Text(
-                    '${isDeposit ? '+' : '-'}${NumberFormat('#,###').format(int.parse(item.transactionBalance))}원',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isDeposit ? Colors.blue : Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const Text('잔액: ', style: TextStyle(color: Colors.grey)),
-                  Text(
-                    '${NumberFormat('#,###').format(int.parse(item.transactionAfterBalance))}원',
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
+Widget _buildTransactionList(List<TransactionItem> transactions) {
+  if (transactions.isEmpty) {
+    return const Center(
+      child: Text('거래 내역이 없습니다.'),
     );
   }
-
-  String _formatTransactionDate(String dateStr) {
-    final year = dateStr.substring(0, 4);
-    final month = dateStr.substring(4, 6);
-    final day = dateStr.substring(6, 8);
-    return '$year.$month.$day';
+  
+  // 날짜별로 거래 내역 그룹화
+  final Map<String, List<TransactionItem>> groupedTransactions = {};
+  
+  for (var item in transactions) {
+    final date = item.transactionDate;
+    if (!groupedTransactions.containsKey(date)) {
+      groupedTransactions[date] = [];
+    }
+    groupedTransactions[date]!.add(item);
   }
+  
+  // 날짜 기준으로 정렬 (최신순)
+  final sortedDates = groupedTransactions.keys.toList()
+    ..sort((a, b) => b.compareTo(a));
+  
+  return ListView.builder(
+    padding: const EdgeInsets.all(16),
+    itemCount: sortedDates.length,
+    itemBuilder: (context, dateIndex) {
+      final date = sortedDates[dateIndex];
+      final dateItems = groupedTransactions[date]!;
+      
+      // 같은 날짜의 항목들을 시간순으로 정렬
+      dateItems.sort((a, b) => b.transactionTime.compareTo(a.transactionTime));
+      
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 날짜 헤더
+          Padding(
+            padding: const EdgeInsets.only(top: 16, bottom: 16),
+            child: Text(
+              _formatTransactionDate(date),
+              style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+            ),
+          ),
+          
+          // 해당 날짜의 거래 항목들
+          ...dateItems.map((item) {
+            final isDeposit = item.transactionType == '1';
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 거래 내용
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.transactionSummary,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textPrimary,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              _formatTransactionTime(item.transactionTime),
+                              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                            ),
+                            Text(' | ', style: AppTextStyles.bodySmall.copyWith(color: Colors.grey)),
+                            Text(
+                              isDeposit ? '입금' : '출금',
+                              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // 금액 및 잔액
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${isDeposit ? '+' : '-'}${NumberFormat('#,###').format(int.parse(item.transactionBalance))}원',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isDeposit ? AppColors.blueDark : AppColors.warnningLight,
+                        ),
+                      ),
+                      Text(
+                        '잔액: ${NumberFormat('#,###').format(int.parse(item.transactionAfterBalance))}원',
+                        style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          
+          // 날짜 그룹 사이 여백
+          SizedBox(height: dateIndex < sortedDates.length - 1 ? 8 : 0),
+        ],
+      );
+    },
+  );
+}
+
+String _formatTransactionDate(String dateStr) {
+  final year = int.parse(dateStr.substring(0, 4));
+  final month = int.parse(dateStr.substring(4, 6));
+  final day = int.parse(dateStr.substring(6, 8));
+  
+  final date = DateTime(year, month, day);
+  final weekdayName = _getWeekdayName(date.weekday);
+  
+  return '$month월 $day일 $weekdayName';
+}
+
+String _getWeekdayName(int weekday) {
+  switch (weekday) {
+    case 1: return '월요일';
+    case 2: return '화요일';
+    case 3: return '수요일';
+    case 4: return '목요일';
+    case 5: return '금요일';
+    case 6: return '토요일';
+    case 7: return '일요일';
+    default: return '';
+  }
+}
+  // String _formatTransactionDate(String dateStr) {
+  //   final year = dateStr.substring(0, 4);
+  //   final month = dateStr.substring(4, 6);
+  //   final day = dateStr.substring(6, 8);
+  //   return '$year.$month.$day';
+  // }
 
   String _formatTransactionTime(String timeStr) {
     final hour = timeStr.substring(0, 2);

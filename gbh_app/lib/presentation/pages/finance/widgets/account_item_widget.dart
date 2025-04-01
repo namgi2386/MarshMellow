@@ -127,6 +127,7 @@ class AccountItemWidget extends ConsumerWidget {
                 padding: const EdgeInsets.all(8),
                 child: BankIcon(bankName: bankName, size: 40),
               ),
+              // Text(bankName,style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600)),
 
               const SizedBox(width: 2),
               Expanded(

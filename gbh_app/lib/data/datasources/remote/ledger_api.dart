@@ -146,24 +146,88 @@ class LedgerApi {
   }
 
   // 가계부 삭제
-Future<Map<String, dynamic>> deleteHousehold({
-  required int householdPk,
-}) async {
-  try {
-    final response = await _apiClient.delete(
-      '/household',
-      data: {
-        'householdPk': householdPk,
-      },
-    );
+  Future<Map<String, dynamic>> deleteHousehold({
+    required int householdPk,
+  }) async {
+    try {
+      final response = await _apiClient.delete(
+        '/household',
+        data: {
+          'householdPk': householdPk,
+        },
+      );
 
-    if (response['code'] == 200) {
-      return response['data'];
+      if (response['code'] == 200) {
+        return response['data'];
+      }
+
+      throw Exception('API 응답 에러: ${response['message']}');
+    } catch (e) {
+      throw Exception('가계부 삭제에 실패했습니다: $e');
     }
-
-    throw Exception('API 응답 에러: ${response['message']}');
-  } catch (e) {
-    throw Exception('가계부 삭제에 실패했습니다: $e');
   }
-}
+
+// 가계부 수정
+  Future<Transaction> updateHousehold({
+    required int householdPk,
+    int? householdAmount,
+    String? householdMemo,
+    String? exceptedBudgetYn,
+  }) async {
+    try {
+      // API 요청 데이터 준비
+      final Map<String, dynamic> requestData = {
+        'householdPk': householdPk,
+      };
+
+      // 선택적 매개변수 추가
+      if (householdAmount != null)
+        requestData['householdAmount'] = householdAmount;
+      if (householdMemo != null) requestData['householdMemo'] = householdMemo;
+      if (exceptedBudgetYn != null)
+        requestData['exceptedBudgetYn'] = exceptedBudgetYn;
+
+      final response = await _apiClient.patch(
+        '/household',
+        data: requestData,
+      );
+
+      if (response['code'] == 200 && response['data'] != null) {
+        final data = response['data'];
+        return Transaction.fromJson(data);
+      }
+
+      throw Exception('API 응답 에러: ${response['message']}');
+    } catch (e) {
+      throw Exception('가계부 수정에 실패했습니다: $e');
+    }
+  }
+
+  // 가계부 분류별 조회 API 호출
+  Future<Map<String, dynamic>> getHouseholdFilter({
+    required int userPk,
+    required String startDate,
+    required String endDate,
+    required String classification, // 'DEPOSIT', 'WITHDRAWAL', 'TRANSFER'
+  }) async {
+    try {
+      final response = await _apiClient.getWithBody(
+        '/household/filter',
+        data: {
+          'userPk': userPk,
+          'startDate': startDate,
+          'endDate': endDate,
+          'classification': classification,
+        },
+      );
+
+      if (response['code'] == 200 && response['data'] != null) {
+        return response['data'];
+      }
+
+      throw Exception('API 응답 에러: ${response['message']}');
+    } catch (e) {
+      throw Exception('분류별 가계부 목록을 가져오는데 실패했습니다: $e');
+    }
+  }
 }

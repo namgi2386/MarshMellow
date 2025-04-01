@@ -11,6 +11,7 @@ class TransactionField extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final MainAxisAlignment rowAlignment; // 새로운 속성 추가
   final double labelWidth; // 라벨 영역의 너비 설정
+  final TextStyle? valueStyle;
 
   const TransactionField({
     super.key,
@@ -22,6 +23,7 @@ class TransactionField extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 17),
     this.rowAlignment = MainAxisAlignment.spaceBetween, // 기본값으로 spaceBetween 사용
     this.labelWidth = 100, // 기본 라벨 너비
+    this.valueStyle,
   });
 
   @override
@@ -65,7 +67,8 @@ class TransactionField extends StatelessWidget {
   Widget _buildDefaultTrailing() {
     return Text(
       value ?? '',
-      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary),
+      style: valueStyle ??
+          AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary),
     );
   }
 }

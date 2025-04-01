@@ -65,6 +65,7 @@ public class UserController {
         return userService.issueCertificate(clientCertIssueRequestDto, userDetails.getUserPk());
     }
 
+    // 통합인증 진행했는지 여부 검증(userKey가 있거나 없거나로 가야하나?)
     @GetMapping("/integrated-status")
     public Boolean checkIntegratedStatus(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return userService.isIntegratedAuthenticated(userDetails.getUserPk());
@@ -75,4 +76,28 @@ public class UserController {
                                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
         return userService.issueDigitalSignature(digitalSignatureIssueRequestDto, userDetails.getUserPk());
     }
+    @GetMapping("/account-list")
+    public ResponseFindAccountList findAccountList(
+        @RequestBody RequestFindAccountList request) {
+        return userService.findAccountList(request);
+    }
+
+    @GetMapping("/deposit-list")
+    public ResponseDepositList findDepositList(
+        @RequestBody RequestDepositList request
+    ) {
+        return userService.findDepositList(request);
+    }
+
+    @PostMapping("/salary")
+    public ResponseCreateSalary createSalary(@RequestBody RequestCreateSalary request) {
+        return userService.createSalary(request);
+    }
+
+    @PatchMapping("/salary")
+    public ResponseUpdateSalary updateSalary(@RequestBody RequestUpdateSalary request) {
+        return userService.updateSalary(request);
+    }
+
+
 }

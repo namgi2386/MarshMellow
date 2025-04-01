@@ -12,7 +12,7 @@ class LedgerRepository {
 
   LedgerRepository(this._ledgerApi);
 
-  // 가계부 조회 (API 명세에 맞게 수정)
+  // 가계부 조회
   Future<Map<String, dynamic>> getHouseholdList({
     required int userPk,
     required String startDate,
@@ -50,7 +50,7 @@ class LedgerRepository {
     }
   }
 
-  // 트랜잭션을 날짜별로 그룹화하는 메서드
+  // 거래를 날짜별로 그룹화하는 메서드
   Map<DateTime, List<Transaction>> groupTransactionsByDate(
       List<Transaction> transactions) {
     final result = <DateTime, List<Transaction>>{};
@@ -69,7 +69,7 @@ class LedgerRepository {
     return result;
   }
 
-  // 특정 날짜 범위의 트랜잭션 가져오기
+  // 특정 날짜 범위의 거래 가져오기
   Future<List<Transaction>> getTransactions({
     required DateTime startDate,
     required DateTime endDate,
@@ -85,7 +85,7 @@ class LedgerRepository {
       endDate: formattedEndDate,
     );
 
-    // 모든 트랜잭션 반환
+    // 모든 거래래 반환
     return result['allTransactions'] as List<Transaction>;
   }
 
@@ -115,14 +115,74 @@ class LedgerRepository {
     }
   }
 
-  // 트랜잭션 삭제 메서드 추가
+  // 가계부 삭제
   Future<void> deleteTransaction(int householdPk) async {
     try {
       await _ledgerApi.deleteHousehold(householdPk: householdPk);
-      // 성공적으로 삭제됨
     } catch (e) {
-      // 예외 처리
       throw Exception('거래 내역 삭제 실패: $e');
+    }
+  }
+
+  // 가계부 수정
+  Future<Transaction> updateTransaction({
+    required int householdPk,
+    int? householdAmount,
+    String? householdMemo,
+    String? exceptedBudgetYn,
+  }) async {
+    try {
+      return await _ledgerApi.updateHousehold(
+        householdPk: householdPk,
+        householdAmount: householdAmount,
+        householdMemo: householdMemo,
+        exceptedBudgetYn: exceptedBudgetYn,
+      );
+    } catch (e) {
+      throw Exception('거래내역 수정 실패: $e');
+    }
+  }
+
+  // 특정 분류(수입/지출/이체)에 따른 가계부 내역 조회
+  Future<Map<String, dynamic>> getHouseholdByClassification({
+    required int userPk,
+    required String startDate,
+    required String endDate,
+    required String classification, // 'DEPOSIT', 'WITHDRAWAL', 'TRANSFER'
+  }) async {
+    try {
+      final result = await _ledgerApi.getHouseholdFilter(
+        userPk: userPk,
+        startDate: startDate,
+        endDate: endDate,
+        classification: classification,
+      );
+
+      // 총 금액
+      final total = result['total'] ?? 0;
+
+      // 트랜잭션 목록
+      final List<Transaction> transactions = [];
+
+      // 날짜별 가계부 목록 처리
+      final householdList = result['householdList'] ?? [];
+
+      for (var dateGroup in householdList) {
+        final date = dateGroup['date'] as String;
+        final list = dateGroup['list'] as List;
+
+        for (var item in list) {
+          final transaction = Transaction.fromJson(item);
+          transactions.add(transaction);
+        }
+      }
+
+      return {
+        'total': total,
+        'transactions': transactions,
+      };
+    } catch (e) {
+      throw Exception('분류별 가계부 목록을 가져오는데 실패했습니다: $e');
     }
   }
 }

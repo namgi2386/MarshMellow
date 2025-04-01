@@ -24,12 +24,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/identity-verify")
-    public IdentityVerificationResponseDto requestVerification(@RequestBody IdentityVerificationRequestDto identityVerificationRequestDto){
+    public IdentityVerificationResponseDto requestVerification(@RequestBody IdentityVerificationRequestDto identityVerificationRequestDto) {
         return userService.verify(identityVerificationRequestDto);
     }
 
     @PostMapping("/sign-up")
-    public SignUpResponseDto signUp(@RequestBody SignUpRequestDto signUpRequestDto){
+    public SignUpResponseDto signUp(@RequestBody SignUpRequestDto signUpRequestDto) {
         return userService.register(signUpRequestDto);
     }
 
@@ -42,6 +42,7 @@ public class UserController {
     public LoginResponseDto loginByBio(@RequestBody LoginByBioRequestDto loginByBioRequestDto) {
         return userService.loginByBio(loginByBioRequestDto);
     }
+
     @PostMapping("/reissue")
     public LoginResponseDto reissueToken(@RequestBody ReissueTokenRequestDto reissueTokenRequestDto) {
         return userService.reissueTokens(reissueTokenRequestDto.getRefreshToken());
@@ -54,7 +55,7 @@ public class UserController {
     }
 
     @GetMapping("/cert/exist")
-    public CertExistResponseDto isExistCertificate(@AuthenticationPrincipal CustomUserDetails userDetails){
+    public CertExistResponseDto isExistCertificate(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return userService.checkCertificateExistence(userDetails.getUserPk());
     }
 
@@ -64,11 +65,14 @@ public class UserController {
         return userService.issueCertificate(clientCertIssueRequestDto, userDetails.getUserPk());
     }
 
-    // 통합인증 진행했는지 여부 검증(userKey가 있거나 없거나로 가야하나?)
     @GetMapping("/integrated-status")
-    public Boolean checkIntegratedStatus(@AuthenticationPrincipal CustomUserDetails userDetails){
+    public Boolean checkIntegratedStatus(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return userService.isIntegratedAuthenticated(userDetails.getUserPk());
     }
 
-
+    @PostMapping("/digital-signature")
+    public DigitalSignatureIssueResponseDto issueDigitalSignature(@RequestBody ClientDigitalSignatureRequestDto digitalSignatureIssueRequestDto,
+                                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return userService.issueDigitalSignature(digitalSignatureIssueRequestDto, userDetails.getUserPk());
+    }
 }

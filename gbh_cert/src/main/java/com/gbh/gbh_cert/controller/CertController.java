@@ -3,9 +3,11 @@ package com.gbh.gbh_cert.controller;
 import com.gbh.gbh_cert.model.dto.request.CIRequestDto;
 import com.gbh.gbh_cert.model.dto.request.CertExistRequestDto;
 import com.gbh.gbh_cert.model.dto.request.CertIssueRequestDto;
+import com.gbh.gbh_cert.model.dto.request.DigitalSignatureIssueRequestDto;
 import com.gbh.gbh_cert.model.dto.response.CIResponseDto;
 import com.gbh.gbh_cert.model.dto.response.CertExistResponseDto;
 import com.gbh.gbh_cert.model.dto.response.CertResponseDto;
+import com.gbh.gbh_cert.model.dto.response.DigitalSignatureIssueResponseDto;
 import com.gbh.gbh_cert.service.CertService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,11 @@ public class CertController {
     @PostMapping("/issue")
     public CertResponseDto issueCertificate(@RequestBody CertIssueRequestDto certIssueRequestDto) throws Exception {
         return certService.createCertificate(certIssueRequestDto);
+    }
+
+    @PostMapping("/digital-signature")
+    public DigitalSignatureIssueResponseDto issueDigitalSignature(@RequestBody DigitalSignatureIssueRequestDto digitalSignatureIssueRequestDto){
+        return certService.createDigitalSignature(digitalSignatureIssueRequestDto);
     }
 
 }

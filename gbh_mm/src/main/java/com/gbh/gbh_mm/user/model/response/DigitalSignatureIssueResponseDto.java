@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Getter
-public class CertResponseDto {
+public class DigitalSignatureIssueResponseDto {
 
-    String certificatePem;
-    String halfUserKey;
+    private boolean verified;
+    private String userKey;
+    private String message;
+
 }

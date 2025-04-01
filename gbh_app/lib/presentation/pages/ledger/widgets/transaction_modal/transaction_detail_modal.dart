@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
@@ -13,6 +14,8 @@ import 'package:marshmellow/presentation/widgets/completion_message/completion_m
 import 'package:marshmellow/di/providers/calendar_providers.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
+import 'package:marshmellow/core/constants/icon_path.dart';
+import 'package:marshmellow/presentation/widgets/keyboard/keyboard_modal.dart';
 
 // 기존 폼들 import
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/expense_form.dart';
@@ -42,6 +45,10 @@ class TransactionDetailModal extends ConsumerStatefulWidget {
 class _TransactionDetailModalState
     extends ConsumerState<TransactionDetailModal> {
   String _selectedType = '지출';
+  // 수정할 데이터를 저장할 변수들
+  int? _updatedAmount;
+  String? _updatedMemo;
+  String? _updatedExceptedBudgetYn;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +94,7 @@ class _TransactionDetailModalState
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            '${numberFormat.format(transaction.amount)}',
+                            '${numberFormat.format(_updatedAmount ?? transaction.amount)}',
                             style: AppTextStyles.modalMoneyTitle.copyWith(
                               color: AppColors.textPrimary,
                             ),
@@ -95,6 +102,24 @@ class _TransactionDetailModalState
                           Text(
                             ' 원',
                             style: AppTextStyles.bodyMedium,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              // 계산기 키보드 열기
+                              KeyboardModal.showCalculatorKeyboard(
+                                context: context,
+                                initialValue:
+                                    (_updatedAmount ?? transaction.amount)
+                                        .toString(),
+                                onValueChanged: (value) {
+                                  setState(() {
+                                    _updatedAmount = int.tryParse(value) ??
+                                        transaction.amount.toInt();
+                                  });
+                                },
+                              );
+                            },
+                            icon: SvgPicture.asset(IconPath.pencilSimple),
                           ),
                           const SizedBox(width: 10),
                         ],
@@ -113,6 +138,7 @@ class _TransactionDetailModalState
                               _selectedType = type;
                             });
                           },
+                          enabled: false,
                         ),
                       ),
                     ),
@@ -133,16 +159,6 @@ class _TransactionDetailModalState
                   child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Button(
-                    text: '수정',
-                    width:
-                        MediaQuery.of(context).size.width * 0.43, // 화면 너비의 43%
-
-                    onPressed: () {
-                      print('네 선택됨');
-                    },
-                  ),
-                  const SizedBox(width: 10), // 버튼 사이 간격
                   Button(
                     text: '삭제',
                     width: MediaQuery.of(context).size.width * 0.43,
@@ -180,6 +196,79 @@ class _TransactionDetailModalState
                       }
                     },
                   ),
+                  const SizedBox(width: 10), // 버튼 사이 간격
+                  Button(
+                    text: '수정',
+                    width: MediaQuery.of(context).size.width * 0.43,
+                    onPressed: () async {
+                      // 변경된 값만 업데이트하기 위한 매개변수 준비
+                      Map<String, dynamic> updateParams = {};
+                      updateParams['transactionId'] = transaction.householdPk;
+
+                      if (_updatedAmount != null) {
+                        updateParams['amount'] = _updatedAmount;
+                      }
+
+                      if (_updatedMemo != null) {
+                        updateParams['memo'] = _updatedMemo;
+                      }
+
+                      if (_updatedExceptedBudgetYn != null) {
+                        updateParams['exceptedBudgetYn'] =
+                            _updatedExceptedBudgetYn;
+                      }
+
+                      // 최소 하나의 업데이트가 있는 경우에만 API 호출
+                      if (updateParams.length > 1) {
+                        // transactionId는 항상 있으므로 1보다 커야 함
+                        // 모달 닫기
+                        Navigator.of(context).pop();
+
+                        final success = await ref
+                            .read(ledgerViewModelProvider.notifier)
+                            .updateTransaction(
+                              transactionId: updateParams['transactionId'],
+                              amount: updateParams['amount'],
+                              memo: updateParams['memo'],
+                              exceptedBudgetYn:
+                                  updateParams['exceptedBudgetYn'],
+                            );
+
+                        if (context.mounted) {
+                          if (success) {
+                            // 성공 메시지 표시
+                            CompletionMessage.show(context, message: '수정 완료');
+
+                            // 트랜잭션 상세 정보 새로 고침
+                            ref.refresh(transactionDetailProvider(
+                                transaction.householdPk));
+
+                            // 트랜잭션 목록 새로고침
+                            ref.refresh(transactionsProvider);
+
+                            // 캘린더 데이터 새로고침
+                            ref.refresh(calendarTransactionsProvider);
+
+                            // ledgerViewModel 새로고침 (수입/지출 카드 업데이트)
+                            final datePickerState =
+                                ref.read(datePickerProvider);
+                            if (datePickerState.selectedRange != null) {
+                              ref
+                                  .read(ledgerViewModelProvider.notifier)
+                                  .loadHouseholdData(
+                                      datePickerState.selectedRange!);
+                            }
+                          } else {
+                            // 실패 메시지 표시
+                            CompletionMessage.show(context, message: '수정 실패');
+                          }
+                        }
+                      } else {
+                        // 변경된 내용이 없음을 알림
+                        CompletionMessage.show(context, message: '변경 없음');
+                      }
+                    },
+                  ),
                 ],
               )),
             ),
@@ -198,13 +287,43 @@ class _TransactionDetailModalState
   Widget _getFormByType(Transaction transaction) {
     switch (_selectedType) {
       case '수입':
-        return IncomeForm(initialData: transaction);
+        return IncomeForm(
+          initialData: transaction,
+          onDataChanged: (amount, memo) {
+            _updatedAmount = amount;
+            _updatedMemo = memo;
+          },
+          readOnly: true,
+        );
       case '지출':
-        return ExpenseForm(initialData: transaction);
+        return ExpenseForm(
+          initialData: transaction,
+          onDataChanged: (amount, memo, exceptedBudgetYn) {
+            _updatedAmount = amount;
+            _updatedMemo = memo;
+            _updatedExceptedBudgetYn = exceptedBudgetYn;
+          },
+          readOnly: true,
+        );
       case '이체':
-        return TransferForm(initialData: transaction);
+        return TransferForm(
+          initialData: transaction,
+          onDataChanged: (amount, memo) {
+            _updatedAmount = amount;
+            _updatedMemo = memo;
+          },
+          readOnly: true,
+        );
       default:
-        return ExpenseForm(initialData: transaction);
+        return ExpenseForm(
+          initialData: transaction,
+          onDataChanged: (amount, memo, exceptedBudgetYn) {
+            _updatedAmount = amount;
+            _updatedMemo = memo;
+            _updatedExceptedBudgetYn = exceptedBudgetYn;
+          },
+          readOnly: true,
+        );
     }
   }
 }

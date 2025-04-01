@@ -83,10 +83,10 @@ pipeline {
                 sshagent(['EC2_SSH_PEM']) {
                     sh '''
                     #!/bin/bash
-                    ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP_ADDRESS "docker rm -f gbh_mm || true && cd ~/gbh_mm_deploy && docker-compose down && docker-compose pull && docker-compose up -d && docker-compose run --rm certbot renew && docker-compose exec -T nginx nginx -s reload"
+                    ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP_ADDRESS "docker rm -f gbh_mm || true && cd ~/gbh_mm_deploy && docker-compose down && docker-compose pull && docker-compose up -d && sleep 60 && docker-compose run --rm certbot renew && docker-compose exec -T nginx nginx -s reload"
                     '''
                 }
-            }   
+            }
         }
     }
     post {

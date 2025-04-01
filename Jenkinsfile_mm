@@ -84,7 +84,7 @@ pipeline {
                     // 모든 명령어를 한 줄의 인라인 명령어로 실행합니다.
                     sh '''
                     #!/bin/bash
-                    ssh -o StrictHostKeyChecking=no ubuntu@j12c108.p.ssafy.io "cd ~/gbh_mm_deploy && docker-compose down && docker-compose pull && docker-compose up -d && docker-compose run --rm certbot renew && docker-compose exec nginx nginx -s reload"
+                    ssh -o StrictHostKeyChecking=no ubuntu@j12c108.p.ssafy.io "docker rm -f gbh_mm || true && cd ~/gbh_mm_deploy && docker-compose down && docker-compose pull && docker-compose up -d && docker-compose run --rm certbot renew && docker-compose exec nginx nginx -s reload"
                     '''
                 }
             }   

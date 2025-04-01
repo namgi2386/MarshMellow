@@ -6,6 +6,7 @@ pipeline {
         IMAGE_NAME = "yunjaeeun12/gbh-mm"
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id'
         GITLAB_CREDENTIALS = 'git_lab'
+        EC2_IP_ADDRESS = 'j12c108.p.ssafy.io'  // 실제 EC2 인스턴스의 공인 IP 주소 또는 도메인
     }
     stages {
         stage('Checkout') {
@@ -58,7 +59,6 @@ pipeline {
                     usernameVariable: 'DOCKERHUB_USER'
                 )]) {
                     withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                        // 스크립트 시작에 #!/bin/bash를 추가하여 bash에서 실행하도록 함
                         sh '''
                         #!/bin/bash
                         echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
@@ -71,7 +71,7 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 withEnv(["PATH=/usr/local/bin:$PATH"]) {
-                    // 최신 이미지를 사용하도록 latest 태그로 pull, run
+                    // 최신 이미지를 pull, 기존 컨테이너 제거 후 run
                     sh "docker pull ${IMAGE_NAME}:latest"
                     sh "docker stop gbh_mm || true && docker rm gbh_mm || true"
                     sh "docker run -d --name gbh_mm -p 9000:9000 ${IMAGE_NAME}:latest"
@@ -81,10 +81,9 @@ pipeline {
         stage('Deploy Infrastructure') {
             steps {
                 sshagent(['EC2_SSH_PEM']) {
-                    // 모든 명령어를 한 줄의 인라인 명령어로 실행합니다.
                     sh '''
                     #!/bin/bash
-                    ssh -o StrictHostKeyChecking=no ubuntu@j12c108.p.ssafy.io "docker rm -f gbh_mm || true && cd ~/gbh_mm_deploy && docker-compose down && docker-compose pull && docker-compose up -d && docker-compose run --rm certbot renew && docker-compose exec nginx nginx -s reload"
+                    ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP_ADDRESS "docker rm -f gbh_mm || true && cd ~/gbh_mm_deploy && docker-compose down && docker-compose pull && docker-compose up -d && docker-compose run --rm certbot renew && docker-compose exec -T nginx nginx -s reload"
                     '''
                 }
             }   

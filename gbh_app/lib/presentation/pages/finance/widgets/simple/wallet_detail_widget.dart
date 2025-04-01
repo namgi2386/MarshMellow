@@ -62,20 +62,7 @@ class WalletDetailWidget extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add_circle_outline, size: 64, color: Colors.blue.shade300),
-                  const SizedBox(height: 16),
                   Text('새로운 자산을 추가해보세요', style: TextStyle(fontSize: 18)),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () {
-                      // 여기에 자산 추가 로직 구현
-                      print('자산 추가 버튼 클릭됨');
-                    },
-                    child: Text('자산 추가하기'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(200, 48),
-                    ),
-                  ),
                 ],
               ),
             )
@@ -131,7 +118,7 @@ class WalletDetailWidget extends StatelessWidget {
             break;
           case '대출':
             title = item.accountName;
-            subtitle = "대출 상품";  // 대출에는 bankName이 없다고 가정
+            subtitle = "대출 상품";  // 대출에는 bankName이 없음
             amount = '${item.loanBalance}원';
             break;
           default:
@@ -156,5 +143,61 @@ class WalletDetailWidget extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+class CustomShapeBox extends StatelessWidget {
+  final double width;
+  final double height;
+  final Color color;
+  const CustomShapeBox({
+    Key? key,
+    required this.width,
+    required this.height,
+    required this.color,
+  }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: BoxClipper(),
+      child: Container(
+        width: width,
+        height: height,
+        color: color,
+      ),
+    );
+  }
+}
+class BoxClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    
+    // 곡선 깊이 조절 (값을 조절하여 곡선의 정도를 바꿀 수 있습니다)
+    final curveHeight = size.height * 0.35;
+    
+    // 시작점 (왼쪽 하단)
+    path.moveTo(0, size.height);
+    
+    // 왼쪽 상단 곡선
+    path.quadraticBezierTo(0, curveHeight, curveHeight, curveHeight);
+    
+    // 상단 직선
+    path.lineTo(size.width - curveHeight, curveHeight);
+    
+    // 오른쪽 상단 곡선
+    path.quadraticBezierTo(size.width, curveHeight, size.width, size.height);
+    
+    // 완성
+    path.close();
+    
+    return path;
+  }
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return false;
   }
 }

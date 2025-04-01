@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/di/providers/auth/certificate_process_provider.dart';
 import 'package:marshmellow/di/providers/auth/mydata_provider.dart';
 import 'package:marshmellow/presentation/widgets/dots_input/dots_input.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
+import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
@@ -43,9 +45,18 @@ class AuthMydataCertPwPage extends ConsumerWidget {
             // 확인 모드에서 비밀번호 저장 시도
             final previousPassword = ref.read(previousPasswordProvider);
             Future.delayed(const Duration(milliseconds: 1000), () async {
-              final success = await notifier.savePassword(previousPassword);
-              if (success) {
-                context.go(SignupRoutes.getMyDataCompletePath());
+              if (passwordState.password == previousPassword) {
+                // 인증서 프로세스에 비밀번호 저장
+                ref.read(certificateProcessProvider.notifier).setPassword(passwordState.password);
+                // 인증서 발급 요청
+                final success = await ref.read(certificateProcessProvider.notifier).issueCertificate();
+                if (success) {
+                  context.go(SignupRoutes.getAuthCompletePath());
+                }
+              } else {
+                // 비밀번호 불일치
+                notifier.resetPassword();
+                // 오류메시지 출력할거라면 여기에!
               }
             });
           }
@@ -76,6 +87,10 @@ class AuthMydataCertPwPage extends ConsumerWidget {
               onTap: showKeyboard,
             ),
             const Spacer(),
+
+            // 로딩 표시
+            if (passwordState.isLoading || ref.watch(certificateProcessProvider).isLoading)
+              const Center(child: CustomLoadingIndicator(),)
           ],
         ),
       )

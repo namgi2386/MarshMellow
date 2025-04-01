@@ -12,7 +12,11 @@ final sharedPreferencesProvider = Provider<SharedPreferences?>((ref) {
 
 // SecureStorage 프로바이더
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
-  return const FlutterSecureStorage();
+  return FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true
+    )
+  );
 });
 
 // Dio 프로바이더

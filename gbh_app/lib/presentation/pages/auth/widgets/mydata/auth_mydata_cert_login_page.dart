@@ -4,7 +4,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/di/providers/auth/certificate_process_provider.dart';
 import 'package:marshmellow/di/providers/auth/mydata_provider.dart';
 import 'package:marshmellow/presentation/widgets/dots_input/dots_input.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
@@ -16,6 +18,7 @@ class AuthMydataCertLoginPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loginState = ref.watch(MydataLoginProvider);
+    final certProcessState = ref.watch(certificateProcessProvider);
 
     void showKeyboard() {
       KeyboardModal.showSecureNumericKeyboard(
@@ -31,7 +34,11 @@ class AuthMydataCertLoginPage extends ConsumerWidget {
           // 비밀번호 6자리 되면 자동으로 로그인 시도
           if (value.length == 6) {
             Future.delayed(const Duration(milliseconds: 300), () async {
-              final success = await notifier.login(value);
+              // 프로세스 프로바이더에 비밀번호 설정
+              ref.read(certificateProcessProvider.notifier).setPassword(value);
+
+              // 로그인 시도
+              final success = await notifier.loginWithCertificate(value);
               if (success) {
                 // 로그인 성공시
                 context.go(SignupRoutes.getMyDataAgreementPath());
@@ -72,9 +79,20 @@ class AuthMydataCertLoginPage extends ConsumerWidget {
                 onTap: showKeyboard,
               ),
               const Spacer(),
-              if (loginState.isLoading)
+              if (loginState.isLoading || certProcessState.isLoading)
                 const Center(
                   child: CircularProgressIndicator(),
+                ),
+
+              // 에러메시지 표시
+              if (loginState.error != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: Text(
+                    loginState.error!,
+                    style: TextStyle(color: AppColors.buttonDelete),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
             ],
           )

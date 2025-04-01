@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
-import 'package:marshmellow/data/models/auth/mydata_state.dart';
 import 'package:marshmellow/di/providers/modal_provider.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_card.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';

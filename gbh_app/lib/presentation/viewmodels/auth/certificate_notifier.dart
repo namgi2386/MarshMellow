@@ -10,6 +10,7 @@ class CertificateState {
   final bool hasCertificate;
   final String? certificateStatus;
   final String? certificatePem;
+  final String? certificateEmail;
   final String? error;
 
   CertificateState({
@@ -18,6 +19,7 @@ class CertificateState {
     this.hasCertificate = false,
     this.certificateStatus,
     this.certificatePem,
+    this.certificateEmail,
     this.error,
   });
 
@@ -27,6 +29,7 @@ class CertificateState {
     bool? hasCertificate,
     String? certificateStatus,
     String? certificatePem,
+    String? certificateEmail,
     String? error,
   }) {
     return CertificateState(
@@ -35,6 +38,7 @@ class CertificateState {
       hasCertificate: hasCertificate ?? this.hasCertificate,
       certificateStatus: certificateStatus ?? this.certificateStatus,
       certificatePem: certificatePem ?? this.certificatePem,
+      certificateEmail: certificateEmail ?? this.certificateEmail,
       error: error,
     );
   }
@@ -43,7 +47,24 @@ class CertificateState {
 class CertificateNotifier extends StateNotifier<CertificateState> {
   final CertificateRepository _repository;
 
-  CertificateNotifier(this._repository) : super(CertificateState());
+  CertificateNotifier(this._repository) : super(CertificateState()) {
+    // 인증서 정보 로드
+    _loadCertificateInfo();
+  }
+
+  // 저장된 인증서 정보 로드
+  Future<void> _loadCertificateInfo() async {
+    final certInfo = await _repository.getSavedCertificateInfo();
+
+    if (certInfo['certificatePem'] != null) {
+      state = state.copyWith(
+        hasCertificate: true,
+        certificateStatus: certInfo['certificateStatus'],
+        certificatePem: certInfo['certificatePem'],
+        certificateEmail: certInfo['certificateEmail']
+      );
+    }
+  }
 
   // 통합인증 여부 확인
   Future<void> checkIntegratedAuthStatus() async {
@@ -96,6 +117,7 @@ class CertificateNotifier extends StateNotifier<CertificateState> {
           hasCertificate: true,
           certificatePem: certificatePem,
           certificateStatus: 'VALID',
+          certificateEmail: userEmail,
         );
         return true;
       } else {
@@ -112,6 +134,16 @@ class CertificateNotifier extends StateNotifier<CertificateState> {
       );
       return false;
     }
+  }
+
+  // 인증서 비밀번호 저장
+  Future<void> saveCertificatePassword(String password) async {
+    await _repository.saveCertificatePassword(password);
+  }
+
+  // 인증서 비밀번호 가져오기
+  Future<String?> getCertificatePassword() async {
+    return await _repository.getCertificatePassword();
   }
 }
 

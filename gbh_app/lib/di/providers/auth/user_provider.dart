@@ -21,7 +21,7 @@ class UserStateNotifier extends StateNotifier<UserState> {
   }) async {
     // 상태 업데이트
     state = state.copyWith(
-            userName: userName,
+      userName: userName,
       phoneNumber: phoneNumber,
       userCode: userCode,
       carrier: carrier,

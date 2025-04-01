@@ -134,6 +134,11 @@ class PinStateNotifier extends StateNotifier<PinState> {
   Future<Map<String, String>> _getUserInfo() async {
     final userState = _ref.read(userStateProvider);
 
+    print('사용자 정보 확인');
+    print('userName: ${userState.userName}');
+    print('phoneNumber: ${userState.phoneNumber}');
+    print('userCode: ${userState.userCode}');
+
     if (userState.userName != null && userState.phoneNumber != null && userState.userCode != null) {
       return {
       'userName': userState.userName!,
@@ -141,7 +146,7 @@ class PinStateNotifier extends StateNotifier<PinState> {
       'userCode': userState.userCode!,
       };
     }
-
+    print('사용자 정보 없음');
     // 정보 없으면 빈 맵 반환
     return {};
   }

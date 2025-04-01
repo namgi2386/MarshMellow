@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/di/providers/auth/certificate_process_provider.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_card.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
@@ -16,6 +17,7 @@ class AuthMydataCertCompletePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final certProcessState = ref.watch(certificateProcessProvider);
 
     return Scaffold(
       body: SafeArea(

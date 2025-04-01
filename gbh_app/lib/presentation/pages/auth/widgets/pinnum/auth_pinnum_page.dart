@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/di/providers/auth/user_provider.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/di/providers/auth/pin_provider.dart';
@@ -20,6 +21,7 @@ class AuthPinnumPage extends ConsumerWidget {
     @override
     Widget build(BuildContext context, WidgetRef ref) {
         final pinState = ref.watch(pinStateProvider);
+        final userState = ref.watch(userStateProvider);
 
         // PIN 입력 처리
         void handlePinInput() {

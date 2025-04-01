@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:marshmellow/core/constants/storage_keys.dart';
 import 'package:marshmellow/data/datasources/remote/auth_api.dart';
+import 'package:marshmellow/data/models/auth/user_state.dart';
 
 /*
   핀번호를 사용한 회원가입 repository
@@ -18,6 +19,12 @@ class AuthRepository {
     required String userCode,
     required String pin
   }) async {
+    print('회원가입 시도');
+    print('userName: $userName');
+    print('phoneNumber: $phoneNumber');
+    print('userCode: $userCode');
+    print('pin: $pin');
+
     try {
       final response = await _authApi.signUp(
         userName: userName, 
@@ -26,14 +33,18 @@ class AuthRepository {
         pin: pin
       );
 
+      print('API 응답: $response');
+
       if (response['code'] == 200) {
         // 토큰 저장
         await _saveTokens(
           response['data']['accessToken'],
           response['data']['refreshToken'],
         );
+        print('토큰 저장 성공');
         return true;
       }
+      print('회원가입 실패: 응답 코드 불일치');
       return false;
     } catch (e) {
       print('회원가입 오류: $e');

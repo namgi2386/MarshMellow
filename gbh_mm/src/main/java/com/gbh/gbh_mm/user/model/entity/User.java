@@ -71,4 +71,7 @@ public class User {
         this.createdAt = (this.createdAt == null) ? LocalDate.now() : this.createdAt;
     }
 
+    public void saveUserKey(String userKey) {
+        this.userKey = userKey;
+    }
 }

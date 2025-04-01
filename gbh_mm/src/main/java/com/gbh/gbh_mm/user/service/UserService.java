@@ -237,6 +237,25 @@ public class UserService {
         );
     }
 
+    public DigitalSignatureIssueResponseDto issueDigitalSignature(ClientDigitalSignatureRequestDto clientDigitalSignatureRequestDto, Long userPk) {
+
+        User user = userRepository.findByUserPk(userPk)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        DigitalSignatureIssueResponseDto dto =  certService.issueDigitalSignature(DigitalSignatureIssueRequestDto.builder()
+                .signedData(clientDigitalSignatureRequestDto.getSignedData())
+                .originalText(clientDigitalSignatureRequestDto.getOriginalText())
+                .halfUserKey(clientDigitalSignatureRequestDto.getHalfUserKey())
+                .certificatePem(clientDigitalSignatureRequestDto.getCertificatePem())
+                .connectionInformation(user.getConnectionInformation())
+                .orgList(clientDigitalSignatureRequestDto.getOrgList())
+                .build()
+        );
+        user.saveUserKey(dto.getUserKey());
+        userRepository.save(user);
+        return dto;
+    }
+
     public ResponseFindAccountList findAccountList(RequestFindAccountList request) {
         try {
             User user = userRepository.findById(request.getUserPk())

@@ -142,4 +142,47 @@ class LedgerRepository {
       throw Exception('거래내역 수정 실패: $e');
     }
   }
+
+  // 특정 분류(수입/지출/이체)에 따른 가계부 내역 조회
+  Future<Map<String, dynamic>> getHouseholdByClassification({
+    required int userPk,
+    required String startDate,
+    required String endDate,
+    required String classification, // 'DEPOSIT', 'WITHDRAWAL', 'TRANSFER'
+  }) async {
+    try {
+      final result = await _ledgerApi.getHouseholdFilter(
+        userPk: userPk,
+        startDate: startDate,
+        endDate: endDate,
+        classification: classification,
+      );
+
+      // 총 금액
+      final total = result['total'] ?? 0;
+
+      // 트랜잭션 목록
+      final List<Transaction> transactions = [];
+
+      // 날짜별 가계부 목록 처리
+      final householdList = result['householdList'] ?? [];
+
+      for (var dateGroup in householdList) {
+        final date = dateGroup['date'] as String;
+        final list = dateGroup['list'] as List;
+
+        for (var item in list) {
+          final transaction = Transaction.fromJson(item);
+          transactions.add(transaction);
+        }
+      }
+
+      return {
+        'total': total,
+        'transactions': transactions,
+      };
+    } catch (e) {
+      throw Exception('분류별 가계부 목록을 가져오는데 실패했습니다: $e');
+    }
+  }
 }

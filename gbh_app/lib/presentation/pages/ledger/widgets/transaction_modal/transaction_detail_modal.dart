@@ -16,6 +16,7 @@ import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/keyboard_modal.dart';
+import 'package:marshmellow/data/models/ledger/category/category_mapping.dart';
 
 // 기존 폼들 import
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/expense_form.dart';
@@ -49,6 +50,7 @@ class _TransactionDetailModalState
   int? _updatedAmount;
   String? _updatedMemo;
   String? _updatedExceptedBudgetYn;
+  int? _updatedDetailCategoryPk;
 
   @override
   Widget build(BuildContext context) {
@@ -217,13 +219,14 @@ class _TransactionDetailModalState
                         updateParams['exceptedBudgetYn'] =
                             _updatedExceptedBudgetYn;
                       }
+                      if (_updatedDetailCategoryPk != null) {
+                        updateParams['detailCategoryPk'] =
+                            _updatedDetailCategoryPk;
+                      }
 
                       // 최소 하나의 업데이트가 있는 경우에만 API 호출
                       if (updateParams.length > 1) {
-                        // transactionId는 항상 있으므로 1보다 커야 함
-                        // 모달 닫기
-                        Navigator.of(context).pop();
-
+                        // API 호출 먼저 하고
                         final success = await ref
                             .read(ledgerViewModelProvider.notifier)
                             .updateTransaction(
@@ -232,24 +235,19 @@ class _TransactionDetailModalState
                               memo: updateParams['memo'],
                               exceptedBudgetYn:
                                   updateParams['exceptedBudgetYn'],
+                              detailCategoryPk:
+                                  updateParams['detailCategoryPk'],
                             );
 
                         if (context.mounted) {
                           if (success) {
-                            // 성공 메시지 표시
-                            CompletionMessage.show(context, message: '수정 완료');
-
-                            // 트랜잭션 상세 정보 새로 고침
-                            ref.refresh(transactionDetailProvider(
+                            // 성공하면 먼저 캐시 갱신
+                            ref.invalidate(transactionDetailProvider(
                                 transaction.householdPk));
+                            ref.invalidate(transactionsProvider);
+                            ref.invalidate(calendarTransactionsProvider);
 
-                            // 트랜잭션 목록 새로고침
-                            ref.refresh(transactionsProvider);
-
-                            // 캘린더 데이터 새로고침
-                            ref.refresh(calendarTransactionsProvider);
-
-                            // ledgerViewModel 새로고침 (수입/지출 카드 업데이트)
+                            // datePickerState와 관련된 데이터도 갱신
                             final datePickerState =
                                 ref.read(datePickerProvider);
                             if (datePickerState.selectedRange != null) {
@@ -258,8 +256,14 @@ class _TransactionDetailModalState
                                   .loadHouseholdData(
                                       datePickerState.selectedRange!);
                             }
+
+                            // 그 다음 화면 닫기
+                            Navigator.of(context).pop();
+
+                            // 마지막으로 성공 메시지 표시
+                            CompletionMessage.show(context, message: '수정 완료');
                           } else {
-                            // 실패 메시지 표시
+                            // 실패 메시지 표시 (여기서는 화면을 닫지 않음)
                             CompletionMessage.show(context, message: '수정 실패');
                           }
                         }
@@ -289,38 +293,42 @@ class _TransactionDetailModalState
       case '수입':
         return IncomeForm(
           initialData: transaction,
-          onDataChanged: (amount, memo) {
+          onDataChanged: (amount, memo, categoryPk) {
             _updatedAmount = amount;
             _updatedMemo = memo;
+            _updatedDetailCategoryPk = categoryPk;
           },
           readOnly: true,
         );
       case '지출':
         return ExpenseForm(
           initialData: transaction,
-          onDataChanged: (amount, memo, exceptedBudgetYn) {
+          onDataChanged: (amount, memo, exceptedBudgetYn, categoryPk) {
             _updatedAmount = amount;
             _updatedMemo = memo;
             _updatedExceptedBudgetYn = exceptedBudgetYn;
+            _updatedDetailCategoryPk = categoryPk;
           },
           readOnly: true,
         );
       case '이체':
         return TransferForm(
           initialData: transaction,
-          onDataChanged: (amount, memo) {
+          onDataChanged: (amount, memo, categoryPk) {
             _updatedAmount = amount;
             _updatedMemo = memo;
+            _updatedDetailCategoryPk = categoryPk;
           },
           readOnly: true,
         );
       default:
         return ExpenseForm(
           initialData: transaction,
-          onDataChanged: (amount, memo, exceptedBudgetYn) {
+          onDataChanged: (amount, memo, exceptedBudgetYn, categoryPk) {
             _updatedAmount = amount;
             _updatedMemo = memo;
             _updatedExceptedBudgetYn = exceptedBudgetYn;
+            _updatedDetailCategoryPk = categoryPk;
           },
           readOnly: true,
         );

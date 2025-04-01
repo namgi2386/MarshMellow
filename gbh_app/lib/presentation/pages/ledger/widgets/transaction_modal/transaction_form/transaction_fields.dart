@@ -110,10 +110,10 @@ class TransactionFields {
               }
             }
           : null, // enabled가 false면 onTap이 null이므로 터치 불가
-      // 비활성화 상태 스타일 적용
-      valueStyle: enabled
-          ? null
-          : AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+      // 항상 일관된 스타일 적용
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -135,9 +135,9 @@ class TransactionFields {
               );
             }
           : null,
-      valueStyle: enabled
-          ? null
-          : AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -165,9 +165,9 @@ class TransactionFields {
               }
             }
           : null,
-      valueStyle: enabled
-          ? null
-          : AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -181,9 +181,9 @@ class TransactionFields {
       label: '상호명',
       value: merchantName,
       onTap: enabled ? onTap : null,
-      valueStyle: enabled
-          ? null
-          : AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -225,9 +225,9 @@ class TransactionFields {
       label: '결제수단',
       value: method,
       onTap: enabled ? onTap : null,
-      valueStyle: enabled
-          ? null
-          : AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -241,9 +241,9 @@ class TransactionFields {
       label: '입금계좌',
       value: account,
       onTap: enabled ? onTap : null,
-      valueStyle: enabled
-          ? null
-          : AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 
@@ -257,9 +257,9 @@ class TransactionFields {
       label: '계좌',
       value: account,
       onTap: enabled ? onTap : null,
-      valueStyle: enabled
-          ? null
-          : AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+      valueStyle: AppTextStyles.bodySmall.copyWith(
+        color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+      ),
     );
   }
 

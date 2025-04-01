@@ -1,4 +1,4 @@
-package com.gbh.gbh_mm.household.component;
+package com.gbh.gbh_mm.autoTransaction.component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gbh.gbh_mm.api.DemandDepositAPI;

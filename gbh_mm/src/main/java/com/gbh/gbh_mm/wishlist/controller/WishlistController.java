@@ -46,4 +46,10 @@ public class WishlistController {
     public ResponseDeleteWishlist deleteWishlist(@PathVariable Long wishlistPk) {
         return wishlistService.deleteWishlist(wishlistPk);
     }
+
+    // 현재 위시 조회
+    @GetMapping("/detail")
+    public ResponseFindDetailWishlist getCurrentWish(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return wishlistService.getCurrentWish(userDetails.getUserPk());
+    }
 }

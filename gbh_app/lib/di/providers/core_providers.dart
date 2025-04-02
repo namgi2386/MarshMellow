@@ -19,6 +19,11 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   );
 });
 
+// <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
+// const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzU5NTk2NiwiZXhwIjoxNzQzNjEzOTY2fQ.5vJz_KIkkz4THY8Z5_d4yoBExeKtAiiqV2O6Vcrlirg01FavWK4krJ6arSJ3QE5yygCRf2AdKVfXKCVvbgzFKQ';
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
 // Dio 프로바이더
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(
@@ -29,6 +34,9 @@ final dioProvider = Provider<Dio>((ref) {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
+      // 'Authorization': TEST_TOKEN, 
+      // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     },
     validateStatus: (status) {
       return status! < 500; // 서버 에러만 예외 처리

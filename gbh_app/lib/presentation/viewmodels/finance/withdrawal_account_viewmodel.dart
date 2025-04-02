@@ -187,7 +187,6 @@ class WithdrawalAccountViewModel extends StateNotifier<WithdrawalAccountState> {
       
       final financeApi = _ref.read(financeApiProvider);
       final response = await financeApi.sendAccountAuth(
-        userKey: "2c2fd595-4118-4b6c-9fd7-fc811910bb75", // 임시 하드코딩
         accountNo: state.accountNo,
       );
       
@@ -259,7 +258,6 @@ class WithdrawalAccountViewModel extends StateNotifier<WithdrawalAccountState> {
       
       final financeApi = _ref.read(financeApiProvider);
       final response = await financeApi.verifyAccountAuth(
-        userKey: "2c2fd595-4118-4b6c-9fd7-fc811910bb75", // 임시 하드코딩
         accountNo: state.accountNo,
         authCode: state.enteredAuthCode,
       );
@@ -296,7 +294,7 @@ class WithdrawalAccountViewModel extends StateNotifier<WithdrawalAccountState> {
       state = state.copyWith(isLoading: true, error: null);
       
       final financeApi = _ref.read(financeApiProvider);
-      final response = await financeApi.getWithdrawalAccounts(3); // userPk 3로 고정
+      final response = await financeApi.getWithdrawalAccounts(); // userPk 3로 고정
       
       // 목록에서 해당 계좌번호 검색
       int? withdrawalAccountId;

@@ -70,7 +70,6 @@ class CardDetailViewModel {
   }) async {
     final financeApi = _ref.read(financeApiProvider);
     return await financeApi.getCardTransactions(
-      userKey: "2c2fd595-4118-4b6c-9fd7-fc811910bb75",  // 테스트용 고정 userKey
       cardNo: cardNo,
       cvc: cvc,
       startDate: startDate,

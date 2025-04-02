@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/pages/cookie/cookie_page.dart';
 import 'package:marshmellow/presentation/pages/cookie/lunch_page/lunch_page.dart';
+import 'package:marshmellow/presentation/pages/cookie/lunch_page/lunch_run_page.dart';
+import 'package:marshmellow/presentation/pages/cookie/lunch_page/lunch_tutorial_page.dart';
 import 'package:marshmellow/presentation/pages/cookie/quit_page/quit_page.dart';
 import 'package:marshmellow/presentation/pages/cookie/portfolio_page/portfolio_page.dart';
 import 'package:marshmellow/presentation/pages/cookie/quit_page/quit_info_page.dart';
@@ -14,11 +16,16 @@ class CookieRoutes {
   static const String quit = 'quit';
   static const String portfolio = 'portfolio';
   static const String info = 'info';
+  static const String tutorial = 'tutorial';
+  static const String run = 'run';
 
   static String getLunchPath() => '$root/$lunch';
   static String getQuitPath() => '$root/$quit';
   static String getPortfolioPath() => '$root/$portfolio';
   static String getQuitInfoPath() => '$root/$quit/$info';
+
+  static String getLunchTutorialPath() => '$root/$lunch/$tutorial';
+  static String getLunchRunPath() => '$root/$lunch/$run';
 }
 
 List<RouteBase> cookieRoutes = [
@@ -29,6 +36,16 @@ List<RouteBase> cookieRoutes = [
       GoRoute(
         path: 'lunch',
         builder: (context, state) => const LunchPage(),
+        routes: [
+          GoRoute(
+            path: CookieRoutes.tutorial,
+            builder: (context, state) => const LunchTutorialPage(),
+          ),
+          GoRoute(
+            path: CookieRoutes.run,
+            builder: (context, state) => const LunchRunPage(),
+          ),
+        ],
       ),
       GoRoute(
         path: 'quit',

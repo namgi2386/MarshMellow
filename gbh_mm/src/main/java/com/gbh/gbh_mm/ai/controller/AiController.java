@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gbh.gbh_mm.common.exception.CustomException;
 import com.gbh.gbh_mm.common.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +33,17 @@ public class AiController {
 
 //        String pythonPath = "/usr/bin/python3.9";
         String pythonPath = "python3";
-        String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
-        System.out.println("scriptPath: " + scriptPath);
+//        String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
+//        System.out.println("scriptPath: " + scriptPath);
+        String scriptPath;
+        try {
+            scriptPath = new ClassPathResource("ai/model/categoryClf/clfModel.py").getFile().getAbsolutePath();
+        } catch (IOException e) {
+            throw new RuntimeException("Python script not found in resources.", e);
+        }
+
+        System.out.println("실제 scriptPath: " + scriptPath);
+        System.out.println("현재 작업 디렉토리: " + System.getProperty("user.dir"));
         Map<String, Object> responseMap = new HashMap<>();
 
         try {

@@ -5,5 +5,4 @@ import lombok.Getter;
 @Getter
 public class RequestDepositList {
     private String accountNo;
-    private long userPk;
 }

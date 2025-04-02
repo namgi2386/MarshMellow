@@ -78,25 +78,32 @@ public class UserController {
     }
     @GetMapping("/account-list")
     public ResponseFindAccountList findAccountList(
-        @RequestBody RequestFindAccountList request) {
-        return userService.findAccountList(request);
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return userService.findAccountList(userDetails);
     }
 
     @GetMapping("/deposit-list")
     public ResponseDepositList findDepositList(
-        @RequestBody RequestDepositList request
+        @RequestBody RequestDepositList request,
+        @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return userService.findDepositList(request);
+        return userService.findDepositList(request, userDetails);
     }
 
     @PostMapping("/salary")
-    public ResponseCreateSalary createSalary(@RequestBody RequestCreateSalary request) {
-        return userService.createSalary(request);
+    public ResponseCreateSalary createSalary(
+        @RequestBody RequestCreateSalary request,
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return userService.createSalary(request, userDetails);
     }
 
     @PatchMapping("/salary")
-    public ResponseUpdateSalary updateSalary(@RequestBody RequestUpdateSalary request) {
-        return userService.updateSalary(request);
+    public ResponseUpdateSalary updateSalary(
+        @RequestBody RequestUpdateSalary request,
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return userService.updateSalary(request, userDetails);
     }
 
 

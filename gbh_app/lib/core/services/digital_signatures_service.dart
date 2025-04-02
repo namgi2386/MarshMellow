@@ -29,18 +29,23 @@ class DigitalSignatureService {
     try {
       // 1. 반쪽 키 생성
       final halfUserKey = await generateHalfUserKey();
+      print('$halfUserKey');
       
       // 2. 원문 서명
       final signedData = await _certificateService.signData(originalText);
       if (signedData == null) {
         throw Exception('전자서명 생성에 실패했습니다.');
       }
+      print('$signedData');
+
       
       // 3. 인증서 가져오기
       final certificatePem = await _secureStorage.read(key: StorageKeys.certificatePem);
       if (certificatePem == null) {
         throw Exception('인증서를 찾을 수 없습니다.');
       }
+      print('$certificatePem');
+
       
       // 4. 은행 및 카드사 코드 리스트
       final orgList = [

@@ -21,10 +21,10 @@ class DigitalSignatureRepository {
     try {
       // 전자서명 생성
       final signatureData = await _signatureService.generateDigitalSignature(originalText);
-      
+      final accessToken = await _secureStorage.read(key: StorageKeys.accessToken);
       // API 요청
       final response = await _dio.post(
-        '/api/mm/auth/cert/digital-signature',
+        '/api/mm/auth/digital-signature',
         data: {
           'signedData': signatureData['signedData'],
           'originalText': signatureData['originalText'],
@@ -32,6 +32,11 @@ class DigitalSignatureRepository {
           'certificatePem': signatureData['certificatePem'],
           'orgList': signatureData['orgList'],
         },
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken'
+          }
+        )
       );
       
       // 검증 성공 시 전체 userKey 저장

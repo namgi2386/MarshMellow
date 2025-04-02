@@ -88,7 +88,6 @@ public class CertService {
         // 3. 인증서 생성
         // X.509 v3 인증서를 생성합니다.
         //CA의 개인키로 인증서에 서명합니다.
-        //SHA256withRSA 서명 알고리즘을 사용합니다.
         JcaX509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(
                 issuer, serial, notBefore, notAfter, csr.getSubject(), csr.getSubjectPublicKeyInfo());
 
@@ -239,7 +238,9 @@ public class CertService {
     private boolean verifySignature(String originalText, String signedData, String certificatePem) {
         try {
             // 1. PEM 형식 인증서를 X.509 인증서 객체로 파싱
-            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            Security.addProvider(new BouncyCastleProvider());
+
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509", "BC");
             ByteArrayInputStream certStream = new ByteArrayInputStream(certificatePem.getBytes(StandardCharsets.UTF_8));
             X509Certificate cert = (X509Certificate) certFactory.generateCertificate(certStream);
 

@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class RequestCreateSalary {
-    private long userPk;
     private long salary;
     private int date;
 }

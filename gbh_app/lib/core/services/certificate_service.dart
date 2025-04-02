@@ -236,8 +236,8 @@ class CertificateService {
     final csrInfoSeq = ASN1Sequence()
       ..add(ASN1Integer(BigInt.from(0))) // 버전
       ..add(subjectSequence) // Subject
-      ..add(publicKeyInfo) // 공개키 정보
-      ..add(ASN1Null()); // 속성은 비워둠
+      ..add(publicKeyInfo); // 공개키 정보
+      // ..add(ASN1Null()); // 속성은 비워둠
 
     print('CSR 정보 시퀀스 생성 완료');
     print('CSR 정보 시퀀스 요소 수: ${csrInfoSeq.elements.length}');

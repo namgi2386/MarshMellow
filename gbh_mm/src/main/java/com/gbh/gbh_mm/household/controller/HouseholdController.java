@@ -3,7 +3,9 @@ package com.gbh.gbh_mm.household.controller;
 import com.gbh.gbh_mm.household.model.vo.request.*;
 import com.gbh.gbh_mm.household.model.vo.response.*;
 import com.gbh.gbh_mm.household.service.HouseholdService;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,22 +19,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/household")
 @AllArgsConstructor
 public class HouseholdController {
+
     private final HouseholdService householdService;
 
     @GetMapping("/list")
     public ResponseFindHouseholdList findHouseholdList(
-        @RequestBody RequestFindHouseholdList request
+        @RequestBody RequestFindHouseholdList request,
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        ResponseFindHouseholdList response = householdService.findHouseholdList(request);
+        ResponseFindHouseholdList response = householdService
+            .findHouseholdList(request, customUserDetails);
 
         return response;
     }
 
     @PostMapping
     public ResponseCreateHousehold createHousehold(
-        @RequestBody RequestCreateHousehold request
+        @RequestBody RequestCreateHousehold request,
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        ResponseCreateHousehold response = householdService.createHousehold(request);
+        ResponseCreateHousehold response = householdService
+            .createHousehold(request, customUserDetails);
 
         return response;
     }
@@ -66,9 +73,10 @@ public class HouseholdController {
 
     @GetMapping("/transaction-data")
     public ResponseFindTransactionDataList findTransactionDataList(
-        @RequestBody RequestFindTransactionDataList request
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        ResponseFindTransactionDataList response = householdService.findTransactionDataList(request);
+        ResponseFindTransactionDataList response = householdService
+            .findTransactionDataList(customUserDetails);
 
         return response;
     }
@@ -84,19 +92,31 @@ public class HouseholdController {
 
     @GetMapping("/search")
     public ResponseSearchHousehold searchHousehold(
-            @RequestBody RequestSearchHousehold request
+        @RequestBody RequestSearchHousehold request,
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        ResponseSearchHousehold response = householdService.searchHousehold(request);
+        ResponseSearchHousehold response = householdService
+            .searchHousehold(request, customUserDetails);
 
         return response;
     }
 
     @GetMapping("/filter")
     public ResponseFilterHousehold filterHousehold(
-        @RequestBody RequestFilterHousehold request
+        @RequestBody RequestFilterHousehold request,
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        ResponseFilterHousehold response = householdService.filterHousehold(request);
+        ResponseFilterHousehold response = householdService
+            .filterHousehold(request, customUserDetails);
 
         return response;
+    }
+
+
+    @GetMapping("/payment-method")
+    public ResponsePaymentMethodList findPaymentMethodList(
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return householdService.findPaymentMethodList(customUserDetails);
     }
 }

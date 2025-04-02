@@ -4,6 +4,7 @@ import com.gbh.gbh_mm.autoTransaction.model.entity.AutoTransaction;
 import com.gbh.gbh_mm.autoTransaction.model.vo.request.RequestCreateAutoTransaction;
 import com.gbh.gbh_mm.autoTransaction.model.vo.response.ResponseCreateAutoTransaction;
 import com.gbh.gbh_mm.autoTransaction.repo.AutoTransactionRepository;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
@@ -20,11 +21,13 @@ public class AutoTransactionServiceImpl implements AutoTransactionService {
 
     @Override
     public ResponseCreateAutoTransaction createAutoTransaction(
-        RequestCreateAutoTransaction request) {
+        RequestCreateAutoTransaction request,
+        CustomUserDetails customUserDetails
+    ) {
         User user;
         Wishlist wishlist;
         try {
-            user = userRepository.findById(request.getUserPk())
+            user = userRepository.findById(customUserDetails.getUserPk())
                 .orElseThrow(() -> new Exception());
         } catch (Exception e) {
             ResponseCreateAutoTransaction response = ResponseCreateAutoTransaction.builder()

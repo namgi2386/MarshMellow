@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class RequestUpdateSalary {
-    private long userPk;
     private long salary;
     private int date;
 }

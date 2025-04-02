@@ -23,9 +23,9 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(
     baseUrl: AppConfig.apiBaseUrl,
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-    sendTimeout: const Duration(seconds: 15),
+    connectTimeout: const Duration(seconds: 30),
+    receiveTimeout: const Duration(seconds: 30),
+    sendTimeout: const Duration(seconds: 30),
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -34,9 +34,24 @@ final dioProvider = Provider<Dio>((ref) {
       return status! < 500; // 서버 에러만 예외 처리
     },
   ));
-  
-  // 응답 인터셉터 추가 - 백엔드 커스텀 상태 코드 처리
+
   dio.interceptors.add(InterceptorsWrapper(
+    // 요청 인터셉터 추가 - accessToken 처리  
+    onRequest: (options, handler) async {
+      // options.extra에서 requiresAuth 값 확인(default: true입니다)
+      final requiresAuth = options.extra['requiresAuth'] ?? true;
+
+      if (requiresAuth && !options.headers.containsKey('Authorization')) {
+        final secureStorage = ref.read(secureStorageProvider);
+        final token = await secureStorage.read(key: 'access_token');
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+      }
+      return handler.next(options);
+    },
+
+    // 응답 인터셉터 추가 - 백엔드 커스텀 상태 코드 처리
     onResponse: (response, handler) {
       // 응답에서 실제 상태 코드 확인 (response.data.status)
       if (response.data is Map && response.data['status'] != null) {

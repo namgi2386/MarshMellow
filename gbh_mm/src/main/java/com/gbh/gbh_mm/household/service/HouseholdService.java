@@ -2,12 +2,15 @@ package com.gbh.gbh_mm.household.service;
 
 import com.gbh.gbh_mm.household.model.vo.request.*;
 import com.gbh.gbh_mm.household.model.vo.response.*;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 
 public interface HouseholdService {
 
-    ResponseFindHouseholdList findHouseholdList(RequestFindHouseholdList request);
+    ResponseFindHouseholdList findHouseholdList(RequestFindHouseholdList request,
+        CustomUserDetails customUserDetails);
 
-    ResponseCreateHousehold createHousehold(RequestCreateHousehold request);
+    ResponseCreateHousehold createHousehold(RequestCreateHousehold request,
+        CustomUserDetails customUserDetails);
 
     ResponseFindHousehold findHousehold(RequestFindHousehold request);
 
@@ -15,11 +18,15 @@ public interface HouseholdService {
 
     ResponseDeleteHousehold deleteHousehold(RequestDeleteHousehold request);
 
-    ResponseFindTransactionDataList findTransactionDataList(RequestFindTransactionDataList request);
+    ResponseFindTransactionDataList findTransactionDataList(CustomUserDetails customUserDetails);
 
     ResponseCreateHouseholdList createHouseholdList(RequestCreateHouseholdList request);
 
-    ResponseSearchHousehold searchHousehold(RequestSearchHousehold request);
+    ResponseSearchHousehold searchHousehold(RequestSearchHousehold request,
+        CustomUserDetails customUserDetails);
 
-    ResponseFilterHousehold filterHousehold(RequestFilterHousehold request);
+    ResponseFilterHousehold filterHousehold(RequestFilterHousehold request,
+        CustomUserDetails customUserDetails);
+
+    ResponsePaymentMethodList findPaymentMethodList(CustomUserDetails customUserDetails);
 }

@@ -171,6 +171,7 @@ flutter:
     - assets/icons/card/
     - assets/icons/etc/
     - assets/agreements/
+    - assets/images/celebration/
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

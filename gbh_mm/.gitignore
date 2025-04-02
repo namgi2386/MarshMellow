@@ -36,3 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 /src/main/resources/gbh-mm-firebase.json
+
+### Python ###
+.venv
+.env

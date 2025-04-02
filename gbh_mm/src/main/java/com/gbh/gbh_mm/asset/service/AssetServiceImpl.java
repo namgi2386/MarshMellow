@@ -9,17 +9,22 @@ import com.gbh.gbh_mm.asset.model.dto.LoanListDto;
 import com.gbh.gbh_mm.asset.model.dto.SavingsListDto;
 import com.gbh.gbh_mm.asset.model.dto.WithdrawalAccountDto;
 import com.gbh.gbh_mm.asset.model.entity.*;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestCheckAccountAuth;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindCardTransactionList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindDepositDemandTransactionList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindDepositPayment;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindLoanPaymentList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindSavingsPaymentList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestOpenAccountAuth;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestWithdrawalAccountTransfer;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestDeleteWithdrawalAccount;
-import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
-import com.gbh.gbh_mm.asset.model.vo.request.RequestFindWithdrawalAccountList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
 import com.gbh.gbh_mm.asset.repo.WithdrawalAccountRepository;
-import com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth;
 import com.gbh.gbh_mm.finance.auth.vo.request.RequestCreateAccountAuth;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindBilling;
 
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestAccountTransfer;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -29,7 +34,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
 import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
@@ -60,23 +64,25 @@ public class AssetServiceImpl implements AssetService {
     private final WithdrawalAccountRepository withdrawalAccountRepository;
 
     @Override
-    public ResponseFindAssetList findAssetList(RequestFindAssetList request) {
+    public ResponseFindAssetList findAssetList(CustomUserDetails customUserDetails) {
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         ResponseFindAssetList response = new ResponseFindAssetList();
 
+        String userKey = customUserDetails.getUserKey();
+
         try {
             /* 목록 조회 API 호출 */
             Map<String, Object> responseCardData =
-                    cardAPI.findUserCardList(request.getUserKey());
+                    cardAPI.findUserCardList(userKey);
             Map<String, Object> responseDepositDemandData =
-                    demandDepositAPI.findDemandDepositAccountList(request.getUserKey());
+                    demandDepositAPI.findDemandDepositAccountList(userKey);
             Map<String, Object> responseLoanData =
-                    loanAPI.findAccountList(request.getUserKey());
+                    loanAPI.findAccountList(userKey);
             Map<String, Object> responseSavingsData =
-                    savingsAPI.findAccountList(request.getUserKey());
+                    savingsAPI.findAccountList(userKey);
             Map<String, Object> responseDepositData =
-                    depositAPI.findAccountList(request.getUserKey());
+                    depositAPI.findAccountList(userKey);
 
             Map<String, Object> cardApiData =
                     (Map<String, Object>) responseCardData.get("apiResponse");
@@ -122,7 +128,7 @@ public class AssetServiceImpl implements AssetService {
                         .cardNo(cardList.get(i).getCardNo())
                         .startMonth(lastMonthString)
                         .endMonth(currentString)
-                        .userKey(request.getUserKey())
+                        .userKey(userKey)
                         .build();
                 Map<String, Object> cardBillApi = cardAPI.findBilling(requestFindBilling);
                 Map<String, Object> cardBillData =
@@ -216,13 +222,27 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseFindDepositDemandTransactionList findDepositDemandTransactionList(RequestFindTransactionList request) {
-        ResponseFindDepositDemandTransactionList response = new ResponseFindDepositDemandTransactionList();
+    public ResponseFindDepositDemandTransactionList findDepositDemandTransactionList(
+        RequestFindDepositDemandTransactionList request,
+        CustomUserDetails customUserDetails
+    ) {
+        ResponseFindDepositDemandTransactionList response =
+            new ResponseFindDepositDemandTransactionList();
         try {
-            Map<String, Object> apiData = demandDepositAPI.findTransactionList(request);
+            RequestFindTransactionList requestApi = RequestFindTransactionList.builder()
+                .accountNo(request.getAccountNo())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .transactionType(request.getTransactionType())
+                .orderByType(request.getOrderByType())
+                .userKey(customUserDetails.getUserKey())
+                .build();
+
+            Map<String, Object> apiData = demandDepositAPI.findTransactionList(requestApi);
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             Map<String, Object> transactionData = (Map<String, Object>) responseData.get("REC");
-            List<Map<String, Object>> transactionList = (List<Map<String, Object>>) transactionData.get("list");
+            List<Map<String, Object>> transactionList =
+                (List<Map<String, Object>>) transactionData.get("list");
             response.setTransactionList(transactionList);
 
         } catch (JsonProcessingException e) {
@@ -232,11 +252,18 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseFindDepositPayment findDepositPayment(RequestFindPayment request) {
+    public ResponseFindDepositPayment findDepositPayment(
+        RequestFindDepositPayment request,
+        CustomUserDetails customUserDetails
+    ) {
         ResponseFindDepositPayment response = new ResponseFindDepositPayment();
 
         try {
-            Map<String, Object> apiData = depositAPI.findPayment(request);
+            RequestFindPayment requestApi = RequestFindPayment.builder()
+                .accountNo(request.getAccountNo())
+                .userKey(customUserDetails.getUserKey())
+                .build();
+            Map<String, Object> apiData = depositAPI.findPayment(requestApi);
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             Map<String, Object> paymentData = (Map<String, Object>) responseData.get("REC");
 
@@ -249,11 +276,18 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseFindSavingsPaymentList findSavingsPaymentList(RequestFindSavingsPayment request) {
+    public ResponseFindSavingsPaymentList findSavingsPaymentList(
+        RequestFindSavingsPaymentList request,
+        CustomUserDetails customUserDetails
+    ) {
         ResponseFindSavingsPaymentList response = new ResponseFindSavingsPaymentList();
 
         try {
-            Map<String, Object> apiData = savingsAPI.findPayment(request);
+            RequestFindSavingsPayment requestApi = RequestFindSavingsPayment.builder()
+                .accountNo(request.getAccountNo())
+                .userKey(customUserDetails.getUserKey())
+                .build();
+            Map<String, Object> apiData = savingsAPI.findPayment(requestApi);
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             List<Map<String, Object>> paymentList = (List<Map<String, Object>>) responseData.get("REC");
             response.setPaymentList(paymentList);
@@ -267,11 +301,18 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseFindLoanPaymentList findLoanPaymentList(RequestFindRepaymentList request) {
+    public ResponseFindLoanPaymentList findLoanPaymentList(
+        RequestFindLoanPaymentList request,
+        CustomUserDetails customUserDetails
+    ) {
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         try {
-            Map<String, Object> apiData = loanAPI.findRepaymentList(request);
+            RequestFindRepaymentList requestApi = RequestFindRepaymentList.builder()
+                .accountNo(request.getAccountNo())
+                .userKey(customUserDetails.getUserKey())
+                .build();
+            Map<String, Object> apiData = loanAPI.findRepaymentList(requestApi);
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             Map<String, Object> recData = (Map<String, Object>) responseData.get("REC");
             ResponseFindLoanPaymentList response = mapper.map(recData, ResponseFindLoanPaymentList.class);
@@ -283,10 +324,22 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseFindCardTransactionList findCardTransactionList(RequestFindCardTransactionList request) {
+    public ResponseFindCardTransactionList findCardTransactionList(
+        RequestFindCardTransactionList request,
+        CustomUserDetails customUserDetails
+    ) {
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         try {
-            Map<String, Object> apiData = cardAPI.findTransactionList(request);
+            com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList requestApi =
+                com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList.builder()
+                    .cardNo(request.getCardNo())
+                    .cvc(request.getCvc())
+                    .startDate(request.getStartDate())
+                    .endDate(request.getEndDate())
+                    .userKey(customUserDetails.getUserKey())
+                    .build();
+
+            Map<String, Object> apiData = cardAPI.findTransactionList(requestApi);
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             Map<String, Object> recData = (Map<String, Object>) responseData.get("REC");
 
@@ -299,9 +352,15 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseOpenAccountAuth openAccountAuth(RequestCreateAccountAuth request) {
+    public ResponseOpenAccountAuth openAccountAuth(
+        RequestOpenAccountAuth request,
+        CustomUserDetails customUserDetails) {
         try {
-            authAPI.createAccountAuth(request);
+            RequestCreateAccountAuth requestApi = RequestCreateAccountAuth.builder()
+                .accountNo(request.getAccountNo())
+                .userKey(customUserDetails.getUserKey())
+                .build();
+            authAPI.createAccountAuth(requestApi);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -314,7 +373,7 @@ public class AssetServiceImpl implements AssetService {
 
             RequestFindTransactionList requestTransaction = new RequestFindTransactionList();
             requestTransaction.setAccountNo(request.getAccountNo());
-            requestTransaction.setUserKey(request.getUserKey());
+            requestTransaction.setUserKey(customUserDetails.getUserKey());
             requestTransaction.setOrderByType("DESC");
             requestTransaction.setTransactionType("M");
             requestTransaction.setEndDate(currentString);
@@ -338,14 +397,23 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseCheckAccountAuth checkAccountAuth(RequestCheckAccountAuth request) {
+    public ResponseCheckAccountAuth checkAccountAuth(
+        RequestCheckAccountAuth request,
+        CustomUserDetails customUserDetails) {
         try {
-            Map<String, Object> apiData = authAPI.checkAccountAuth(request);
+            com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth requestApi =
+                com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth.builder()
+                    .accountNo(request.getAccountNo())
+                    .authCode(request.getAuthCode())
+                    .userKey(customUserDetails.getUserKey())
+                    .build();
+
+            Map<String, Object> apiData = authAPI.checkAccountAuth(requestApi);
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             Map<String, Object> recData = (Map<String, Object>) responseData.get("REC");
             String checkStatus = (String) recData.get("status");
             if (checkStatus.equals("SUCCESS")) {
-                User user = userRepository.findByUserKey(request.getUserKey());
+                User user = userRepository.findByUserKey(customUserDetails.getUserKey());
 
                 if (user.getUserKey() != null) {
                     WithdrawalAccount withdrawalAccount = WithdrawalAccount.builder()
@@ -377,8 +445,10 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseFindWithdrawalAccountList findWithdrawalAccountList(RequestFindWithdrawalAccountList request) {
-        List<WithdrawalAccount> withdrawalAccountList = withdrawalAccountRepository.findByUser_UserPk(request.getUserPk());
+    public ResponseFindWithdrawalAccountList findWithdrawalAccountList
+        (CustomUserDetails customUserDetails) {
+        List<WithdrawalAccount> withdrawalAccountList = withdrawalAccountRepository
+            .findByUser_UserPk(customUserDetails.getUserPk());
         Type listType = new TypeToken<List<WithdrawalAccountDto>>() {}.getType();
         List<WithdrawalAccountDto> withdrawalAccountDtos = mapper.map(withdrawalAccountList, listType);
 

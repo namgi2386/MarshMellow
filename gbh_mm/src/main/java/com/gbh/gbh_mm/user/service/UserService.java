@@ -7,6 +7,7 @@ import com.gbh.gbh_mm.common.exception.ErrorCode;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.user.model.dto.AccountDto;
 import com.gbh.gbh_mm.user.model.dto.DepositDto;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.model.request.*;
 import com.gbh.gbh_mm.user.model.response.*;
@@ -256,13 +257,10 @@ public class UserService {
         return dto;
     }
 
-    public ResponseFindAccountList findAccountList(RequestFindAccountList request) {
+    public ResponseFindAccountList findAccountList(CustomUserDetails userDetails) {
         try {
-            User user = userRepository.findById(request.getUserPk())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
             Map<String, Object> responseData = demandDepositAPI
-                .findDemandDepositAccountList(user.getUserKey());
+                .findDemandDepositAccountList(userDetails.getUserKey());
             Map<String, Object> apiData = (Map<String, Object>) responseData.get("apiResponse");
             List<Map<String, Object>> recData = (List<Map<String, Object>>) apiData.get("REC");
 
@@ -287,7 +285,8 @@ public class UserService {
         return null;
     }
 
-    public ResponseDepositList findDepositList(RequestDepositList request) {
+    public ResponseDepositList findDepositList(RequestDepositList request,
+        CustomUserDetails userDetails) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
         // 현재 날짜를 구하고 포맷팅
@@ -299,13 +298,10 @@ public class UserService {
         String threeMonthsAgoStr = threeMonthsAgo.format(formatter);
 
         try {
-            User user = userRepository.findById(request.getUserPk())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
             RequestFindTransactionList apiRequest = RequestFindTransactionList.builder()
                 .startDate(threeMonthsAgoStr)
                 .endDate(currentDateStr)
-                .userKey(user.getUserKey())
+                .userKey(userDetails.getUserKey())
                 .accountNo(request.getAccountNo())
                 .transactionType("M")
                 .orderByType("DESC")
@@ -350,9 +346,10 @@ public class UserService {
         return null;
     }
 
-    public ResponseCreateSalary createSalary(RequestCreateSalary request) {
+    public ResponseCreateSalary createSalary(RequestCreateSalary request,
+        CustomUserDetails userDetails) {
         try {
-            User user = userRepository.findById(request.getUserPk())
+            User user = userRepository.findById(userDetails.getUserPk())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
             user.setSalaryAmount(request.getSalary());
@@ -376,9 +373,10 @@ public class UserService {
         return response;
     }
 
-    public ResponseUpdateSalary updateSalary(RequestUpdateSalary request) {
+    public ResponseUpdateSalary updateSalary(RequestUpdateSalary request,
+        CustomUserDetails userDetails) {
         try {
-            User user = userRepository.findById(request.getUserPk())
+            User user = userRepository.findById(userDetails.getUserPk())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
             user.setSalaryAmount(request.getSalary());

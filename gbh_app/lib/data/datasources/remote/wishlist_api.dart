@@ -28,7 +28,7 @@ class WishlistApi {
     return response;
   }
 
-  // 위시 리스트 조회
+  // 위시 리스트 전체 조회
   Future<Map<String, dynamic>> getWishlists() async {
     final response = await _apiClient.get('/api/mm/wishlist');
     return response;
@@ -67,6 +67,24 @@ class WishlistApi {
   // 위시리스트 삭제
   Future<Map<String, dynamic>> deleteWishlist(int wishlistPk) async {
     final response = await _apiClient.delete('/api/mm/wishlist/detail/$wishlistPk');
+    return response;
+  }
+}
+
+class WishApi {
+  final ApiClient _apiClient;
+
+  WishApi(this._apiClient);
+
+  // 현재 진행중인 wish 조회
+  Future<Map<String, dynamic>> getCurrentWish() async {
+    final response = await _apiClient.get('/api/mm/wishlist/detail');
+    return response;
+  }
+
+  // 특정 wish 상세 조회
+  Future<Map<String, dynamic>> getWishDetail(int wishPk) async {
+    final response = await _apiClient.get('/api/mm/wish/detail/$wishPk');
     return response;
   }
 }

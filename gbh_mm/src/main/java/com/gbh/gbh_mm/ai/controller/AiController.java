@@ -29,17 +29,18 @@ public class AiController {
             throw new CustomException(ErrorCode.BAD_REQUEST);
         }
 
-        String pythonPath = "/usr/bin/python3";
+        String pythonPath = "usr/bin/python3";
         String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
-
+        System.out.println("scriptPath: " + scriptPath);
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
+            System.out.println("파이썬 실행 전");
             ProcessBuilder processBuilder = new ProcessBuilder(pythonPath, scriptPath);
             processBuilder.environment().put("PYTHONIOENCODING", "UTF-8");
             processBuilder.redirectErrorStream(false); // ✅ stderr 따로 읽기
             Process process = processBuilder.start();
-
+            System.out.println("파이썬 실행 후");
             // ✅ Python으로 JSON 데이터 전송 (stdin 사용)
             try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8))) {
                 ObjectMapper objectMapper = new ObjectMapper();

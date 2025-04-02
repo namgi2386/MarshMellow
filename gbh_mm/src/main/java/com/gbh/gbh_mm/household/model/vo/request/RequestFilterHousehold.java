@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class RequestFilterHousehold {
-    private long userPk;
     private String startDate;
     private String endDate;
     private HouseholdClassificationEnum classification;

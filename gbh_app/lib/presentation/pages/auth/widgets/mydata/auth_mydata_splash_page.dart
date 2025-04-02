@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
+import 'package:marshmellow/core/constants/storage_keys.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/di/providers/core_providers.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_cert_select_modal.dart';
 import 'package:marshmellow/presentation/viewmodels/auth/certificate_notifier.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
@@ -59,6 +61,8 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
     // IconPath.jbBank,
   ];
 
+  String _userName = '사용자'; // 기본값
+
   @override
   void initState() {
     super.initState();
@@ -103,6 +107,9 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
       parent: _thirdRowController, 
       curve: Curves.linear,
     ));
+
+    // 사용자 이름 불러오기
+    _loadUserName();
   }
 
   @override
@@ -111,6 +118,17 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
     _secondRowController.dispose();
     _thirdRowController.dispose();
     super.dispose();
+  }
+
+  // 사용자 이름 불러오는 함수
+  Future<void> _loadUserName() async {
+    final secureStorage = ref.read(secureStorageProvider);
+    final name = await secureStorage.read(key: StorageKeys.userName);
+    if (name != null && mounted) {
+      setState(() {
+        _userName = name;
+      });
+    }
   }
 
   // 인증서 상태 확인 및 처리
@@ -136,7 +154,7 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
       // 인증서 상태에 따른 분기 처리
       if (certState.hasCertificate) {
         // 인증서 존재 - 인증서 선택 모달 표시
-        context.showAuthMydataCertSelect('손효자');
+        context.showAuthMydataCertSelect(_userName);
       } else {
         // 인증서 존재X - 이메일 입력 페이지(인증서생성시작) 이동
         context.go(SignupRoutes.getMyDataEmailPath());
@@ -183,7 +201,7 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
               children: [
                 const SizedBox(height: 50),
                 const SizedBox(height: 50),
-                const Text('손효자 님의', style: AppTextStyles.mainTitle),
+                Text('$_userName 님의', style: AppTextStyles.mainTitle),
                 const Text('자산을 한 번에 찾아보세요', style: AppTextStyles.mainTitle),
                 const SizedBox(height: 10),
                 Text('단 30초면 모든 기관을 찾고 연결할 수 있어요', 
@@ -250,12 +268,7 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
           
           // 로딩 인디케이터
           if (_isLoading)
-            Container(
-              color: AppColors.whiteLight,
-              child: const Center(
-                child: CustomLoadingIndicator(text: '인증서 정보를 확인중입니다', backgroundColor: AppColors.whiteLight,)
-              ),
-            ),
+            CustomLoadingIndicator(text: '인증서 정보를 확인중입니다', backgroundColor: AppColors.whiteLight, opacity: 0.9,)
         ],
       ),
     );

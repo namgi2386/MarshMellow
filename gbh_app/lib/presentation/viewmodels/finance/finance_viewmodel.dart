@@ -59,14 +59,15 @@
       // API 호출하여 데이터 가져오기
       final financeApi = _ref.read(financeApiProvider);
       // 테스트용 고정 userKey 사용 (실제 환경에서는 사용자 키 동적 처리 필요)
-      final assetData = await financeApi.getAssetInfo("2c2fd595-4118-4b6c-9fd7-fc811910bb75");
-      
+      final assetData = await financeApi.getAssetInfo();
+      print('@@@@@기본@@@@@ : ${assetData}');
       // 가져온 데이터로 상태 업데이트
       state = state.copyWith(
         assetData: assetData,
         isLoading: false,
       );
     } catch (e) {
+      print('@@@@@에러 1번 @@@@@ : ${e.toString()}');
       // 에러 발생 시 에러 메시지 저장
       state = state.copyWith(
         isLoading: false,
@@ -100,7 +101,8 @@
       
       // API 호출하여 데이터 새로 가져오기
       final financeApi = _ref.read(financeApiProvider);
-      final assetData = await financeApi.getAssetInfo("2c2fd595-4118-4b6c-9fd7-fc811910bb75");
+      final assetData = await financeApi.getAssetInfo();
+      print('@@@@@리셋@@@@@ : ${assetData}');
       
       // 새로 가져온 데이터로 상태 업데이트
       state = state.copyWith(
@@ -108,6 +110,7 @@
         isLoading: false,
       );
     } catch (e) {
+      print('@@@@@에러 2번 @@@@@ :${e.toString()}');
       // 에러 발생 시 에러 메시지 저장
       state = state.copyWith(
         isLoading: false,

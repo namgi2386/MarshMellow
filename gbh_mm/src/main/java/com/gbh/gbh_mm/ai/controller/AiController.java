@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,23 +36,13 @@ public class AiController {
 //        String pythonPath = "/usr/bin/python3.9";
         String pythonPath = "python3";
 //        String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
+        String scriptPath = getPythonScriptPath();
 //        System.out.println("scriptPath: " + scriptPath);
-//        InputStream convertPath = getClass().getClassLoader().getResourceAsStream(aiFilePath);
+//        InputStream convertPath = getClass().getClassLoader().getResourceAsStream(aiFilePath + "/clfModel.py");
 //        if (convertPath == null) {
 //            throw new CustomException(ErrorCode.DATABASE_ERROR);
 //        }
-//        System.out.println("convertPath: " + convertPath);
-        String scriptPath;
-        try {
-            URL resource = getClass().getClassLoader().getResource("clfModel.py");
-            if (resource == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR);
-            }
-            scriptPath = new File(resource.toURI()).getAbsolutePath();
-            System.out.println("scriptPath: " + scriptPath);
-        } catch (Exception e) {
-            throw new RuntimeException("not in resources" + e);
-        }
+        System.out.println("scriptPath: " + scriptPath);
 
         Map<String, Object> responseMap = new HashMap<>();
 
@@ -107,5 +99,27 @@ public class AiController {
         }
 
         return responseMap;
+    }
+    public static String getPythonScriptPath() {
+        try {
+            // 1️⃣ JAR 내부의 파일을 InputStream으로 가져옴
+            InputStream inputStream = AiController.class.getClassLoader().getResourceAsStream("clfModel.py");
+            if (inputStream == null) {
+                System.out.println("No inputStream");
+                throw new CustomException(ErrorCode.BAD_REQUEST);
+            }
+
+            // 2️⃣ 임시 파일 생성
+            File tempFile = File.createTempFile("clfModel", ".py");
+            tempFile.deleteOnExit(); // 프로그램 종료 시 자동 삭제
+
+            // 3️⃣ InputStream 데이터를 임시 파일로 저장
+            Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            inputStream.close();
+
+            return tempFile.getAbsolutePath(); // 🏆 Python 실행 가능한 파일 경로 반환
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
     }
 }

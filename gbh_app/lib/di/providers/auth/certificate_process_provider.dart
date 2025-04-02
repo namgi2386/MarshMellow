@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:marshmellow/core/constants/storage_keys.dart';
 import 'package:marshmellow/core/services/advanced_certificate_service.dart';
+import 'package:marshmellow/core/services/certificate_service.dart';
 import 'package:marshmellow/data/repositories/auth/certificate_repository.dart';
 import 'package:marshmellow/di/providers/core_providers.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_cert_email_page.dart';
@@ -48,7 +49,7 @@ class CertificateProcessState {
 */
 class CertificateProcessNotifier extends StateNotifier<CertificateProcessState> {
   final CertificateRepository _repository;
-  final AdvancedCertificateService _certificateService;
+  final CertificateService _certificateService;
   final FlutterSecureStorage _secureStorage; // 인증서 비밀번호를 암호화하여 저장합니다
 
   // 비밀번호는 상태에 저장하지 않고 메모리에만 잠시 저장
@@ -84,39 +85,45 @@ class CertificateProcessNotifier extends StateNotifier<CertificateProcessState> 
 
    // 인증서 발급 요청
   Future<bool> issueCertificate() async {
+    print("======== 인증서 발급 프로세스 시작 ========");
     if (state.email.isEmpty) {
+      print("오류: 이메일이 비어있음");
       state = state.copyWith(error: '이메일을 입력해주세요.', isLoading: false);
       return false;
     }
 
     if (_password.isEmpty) {
+      print("오류: 비밀번호가 비어있음");
       state = state.copyWith(error: '비밀번호를 설정해주세요.', isLoading: false);
       return false;
     }
-    
+    print("상태: 로딩 시작");
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      print("1. CSR 생성 시작");
+      if (!(await _certificateService.hasKeyPair())) {
+        print('1. 키페어 없으면 그거 먼저 만들고 있겠습니다');
+        final keyPair = await _certificateService.generateRSAKeyPair();
+        print('혹시 여기가?');
+        await _certificateService.storeKeyPair(keyPair);
+      }
+
       // 1. CSR 생성
       final csrPem = await _certificateService.generateCSR(
         commonName: state.email,
         organization: 'GBH',
         country: 'KR'
       );
-
-      if (csrPem == null) {
-        state = state.copyWith(
-          isLoading: false,
-          error: 'CSR 생성에 실패했습니다.'
-        );
-        return false;
-      }
+      print("1. CSR 생성 결과: ${csrPem.substring(0, 30)}...");
 
       // 2. mm인증서 발급 API 호출
+      print("2. 인증서 발급 API 호출 시작: ${state.email}");
       final certificatePem = await _repository.issueCertificate(
         csrPem: csrPem,
         userEmail: state.email,
       );
+      print("2. 인증서 발급 API 응답: ${certificatePem != null}");
 
       if (certificatePem != null) {
         // 인증서 발급 성공시 비밀번호 저장
@@ -162,12 +169,12 @@ class CertificateProcessNotifier extends StateNotifier<CertificateProcessState> 
 final certificateProcessProvider = StateNotifierProvider<CertificateProcessNotifier, CertificateProcessState>((ref) {
   final repository = ref.watch(CertificateRepositoryProvider);
   final secureStorage = ref.watch(secureStorageProvider);
-  final advancedCertificateService = AdvancedCertificateService(secureStorage);
+  final certificateService = CertificateService(secureStorage);
 
   // 이메일 값 가져와서 초기 상태 설정
   final email = ref.watch(emailProvider);
   
-  final notifier = CertificateProcessNotifier(repository, advancedCertificateService, secureStorage);
+  final notifier = CertificateProcessNotifier(repository, certificateService, secureStorage);
   notifier.setEmail(email);
 
   return notifier;

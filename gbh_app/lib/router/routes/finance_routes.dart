@@ -7,6 +7,7 @@ import 'package:marshmellow/presentation/pages/finance/detail/demand_detail_page
 import 'package:marshmellow/presentation/pages/finance/detail/deposit_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/loan_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/detail/saving_detail_page.dart';
+import 'package:marshmellow/presentation/pages/finance/finance_agreement_detail_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_analysis_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_test_page.dart';
@@ -29,7 +30,9 @@ class FinanceRoutes {
   static const String loanDetail = 'account/loan/:accountNo'; // 대출계좌 상세 경로
   static const String cardDetail = 'card/:cardNo'; // 카드계좌 상세 경로
   static const String withdrawalAccountRegistration = 'account/withdrawal-registration/:accountNo'; // 출금계좌 등록
-  static const String auth = 'auth'; // 송금전 인증페이지 
+  static const String auth = 'auth'; // 송금전 인증페이지
+  static const String agreement = 'agreement/:agreementNo'; // 약관동의 상세
+  
   
   // 전체 경로 생성 헬퍼 메서드
   static String getTestPath() => '$root/$test'; // 테스트페이지
@@ -44,6 +47,7 @@ class FinanceRoutes {
   static String getCardDetailPath(String cardNo) => '$root/card/$cardNo'; // 카드계좌 상세 경로
   static String getWithdrawalAccountRegistrationPath(String accountNo) => '$root/account/withdrawal-registration/$accountNo'; // 출금계좌 등록
   static String getAuthPath() => '$root/$auth'; // 송금전 인증페이지 
+  static String getAgreementPath(String agreementNo) => '$root/agreement/$agreementNo'; // 약관동의 상세
 }
 
 List<RouteBase> financeRoutes = [
@@ -180,6 +184,15 @@ List<RouteBase> financeRoutes = [
             withdrawalAccountId: withdrawalAccountId,
           );
         },
+      ),
+      GoRoute(
+        path: FinanceRoutes.agreement,
+        builder: (context, state) {
+          final agreementNo = state.pathParameters['agreementNo'] ?? '';
+          return FinanceAgreementDetailPage(
+            agreementNo : agreementNo,
+          );
+        }
       ),
     ],
   ),

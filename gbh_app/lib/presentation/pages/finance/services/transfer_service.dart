@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_select_content.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/withdrawal_account_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/finance/certificate_login_modal.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
@@ -25,14 +26,32 @@ class TransferService {
       LoadingManager.hide();
       
       if (isRegistered && withdrawalAccountId != null) {
-        // 이미 등록된 출금계좌라면 인증서 로그인 모달 표시
-        if (context.mounted) {
-          showCertificateLoginModal(
-            context, 
-            accountNo: accountNo,
-            withdrawalAccountId: withdrawalAccountId,
-          );
-        }
+        // 이미 등록된 출금계좌라면 2초 후 인증서 로그인 모달 표시
+        Future.delayed(const Duration(seconds: 1), () {
+          if (context.mounted) {
+            // showCertificateLoginModal(
+            //   context, 
+            //   accountNo: accountNo,
+            //   withdrawalAccountId: withdrawalAccountId,
+            // );
+            showCertificateModal(
+              context: context, 
+              ref: ref, 
+              userName: '손효자', 
+              expiryDate: '2028.03.14.', 
+              onConfirm: () {
+                // TODO: 여기서 인증서 확인 작업 필요
+                // 서버에 개인키해싱값 전달 응답 받기
+                // 모달 닫고 인증 페이지로 이동
+                // Navigator.pop(context);
+                context.push(
+                  FinanceRoutes.getAuthPath(), 
+                  extra: {'accountNo': accountNo, 'withdrawalAccountId': withdrawalAccountId,}
+                );
+              }
+            );
+          }
+        });
       } else {
         // 등록되지 않은 계좌라면 출금계좌 등록 페이지로 이동
         if (context.mounted) {

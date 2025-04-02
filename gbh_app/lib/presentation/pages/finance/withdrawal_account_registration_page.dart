@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_select_content.dart';
+import 'package:marshmellow/presentation/pages/finance/widgets/withdrawl/finance_terms_agreement_widget.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/withdrawal_account_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/finance/certificate_login_modal.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
@@ -72,10 +75,26 @@ class _WithdrawalAccountRegistrationPageState extends ConsumerState<WithdrawalAc
             
             // 인증서 로그인 모달 표시 (withdrawalAccountId 전달)
             if (state.withdrawalAccountId != null) {
-              showCertificateLoginModal(
-                context, 
-                accountNo: state.accountNo,
-                withdrawalAccountId: state.withdrawalAccountId!,
+              // showCertificateLoginModal(
+              //   context, 
+              //   accountNo: state.accountNo,
+              //   withdrawalAccountId: state.withdrawalAccountId!,
+              // );
+              showCertificateModal(
+                context: context, 
+                ref: ref, 
+                userName: '손효자', 
+                expiryDate: '2028.03.14.', 
+                onConfirm: () {
+                  // TODO: 여기서 인증서 확인 작업 필요
+                  // 서버에 개인키해싱값 전달 응답 받기
+                  // 모달 닫고 인증 페이지로 이동
+                  // Navigator.pop(context);
+                  context.push(
+                    FinanceRoutes.getAuthPath(), 
+                    extra: {'accountNo': state.accountNo, 'withdrawalAccountId': state.withdrawalAccountId!,}
+                  );
+                }
               );
             }
           }
@@ -90,15 +109,9 @@ class _WithdrawalAccountRegistrationPageState extends ConsumerState<WithdrawalAc
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('출금계좌 등록'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              viewModel.reset();
-              context.pop();
-            },
-          ),
+        appBar: CustomAppbar(
+          title: 'my little 자산',
+          backgroundColor: AppColors.background,
         ),
         body: _buildBody(context, state, viewModel),
       ),
@@ -126,58 +139,9 @@ class _WithdrawalAccountRegistrationPageState extends ConsumerState<WithdrawalAc
 
   // 약관 동의 위젯
   Widget _buildTermsAgreementWidget(BuildContext context, WithdrawalAccountState state, WithdrawalAccountViewModel viewModel) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            '출금계좌 등록 약관 동의',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-          
-          // 전체 동의 체크박스
-          CheckboxListTile(
-            title: const Text('전체 동의하기', style: TextStyle(fontWeight: FontWeight.bold)),
-            value: state.isAllTermsAgreed,
-            onChanged: (_) => viewModel.toggleAllTermsAgreement(),
-            controlAffinity: ListTileControlAffinity.leading,
-          ),
-          
-          const Divider(),
-          
-          // 개별 약관 체크박스
-          CheckboxListTile(
-            title: const Text('출금이체 약관 동의 (필수)'),
-            value: state.isFirstTermAgreed,
-            onChanged: (_) => viewModel.toggleFirstTermAgreement(),
-            controlAffinity: ListTileControlAffinity.leading,
-          ),
-          CheckboxListTile(
-            title: const Text('개인정보 제3자 제공 동의 (필수)'),
-            value: state.isSecondTermAgreed,
-            onChanged: (_) => viewModel.toggleSecondTermAgreement(),
-            controlAffinity: ListTileControlAffinity.leading,
-          ),
-          CheckboxListTile(
-            title: const Text('개인정보 수집 및 이용 동의 (필수)'),
-            value: state.isThirdTermAgreed,
-            onChanged: (_) => viewModel.toggleThirdTermAgreement(),
-            controlAffinity: ListTileControlAffinity.leading,
-          ),
-          
-          const Spacer(),
-          
-          // 확인 버튼
-          ElevatedButton(
-            onPressed: state.isAllTermsAgreed
-                ? () => viewModel.sendVerificationCode()
-                : null,
-            child: const Text('확인'),
-          ),
-        ],
-      ),
+    return FinanceTermsAgreementWidget(
+      state: state,
+      viewModel: viewModel,
     );
   }
 

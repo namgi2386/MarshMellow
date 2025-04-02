@@ -5,7 +5,7 @@ import 'package:asn1lib/asn1lib.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/asymmetric/api.dart';
-import 'package:pointycastle/asymmetric/rsa.dart';
+import 'package:pointycastle/export.dart';
 import 'package:pointycastle/key_generators/api.dart';
 import 'package:pointycastle/key_generators/rsa_key_generator.dart';
 import 'package:pointycastle/random/fortuna_random.dart';
@@ -25,32 +25,60 @@ class CertificateService {
 
   // RSA 키 페어 생성 (pointycastle 패키지 사용)
   Future<AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>> generateRSAKeyPair() async {
-    // 보안 랜덤 생성기
-    final secureRandom = FortunaRandom();
-    final random = Random.secure();
-    final seeds = List<int>.generate(32, (_) => random.nextInt(256));
-    secureRandom.seed(KeyParameter(Uint8List.fromList(seeds)));
+    try {
+        // 보안 랜덤 생성기
+        final secureRandom = FortunaRandom();
+        final random = Random.secure();
+        final seeds = List<int>.generate(32, (_) => random.nextInt(256));
+        secureRandom.seed(KeyParameter(Uint8List.fromList(seeds)));
 
-    // RSA 키 생성기
-    final keyGen = RSAKeyGenerator();
-    final keyParams = RSAKeyGeneratorParameters(
-        BigInt.from(65537), 2048, 64);
-    
-    keyGen.init(ParametersWithRandom(keyParams, secureRandom));
+        // RSA 키 생성기
+        final keyGen = RSAKeyGenerator();
+        
+        // 키 생성 파라미터 
+        final keyParams = RSAKeyGeneratorParameters(
+            BigInt.from(65537),  // publicExponent
+            2048,                // keySize
+            64                   // certainty
+        );
+        
+        // 랜덤 파라미터와 함께 초기화
+        keyGen.init(ParametersWithRandom(keyParams, secureRandom));
 
-    // 키 페어 생성
-    return keyGen.generateKeyPair() as AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>;
-  }
+        // 키 페어 생성
+        final keyPair = keyGen.generateKeyPair();
+        print('어디까지 가능?');
+        // 명시적 타입 체크 및 변환
+        final publicKey = keyPair.publicKey as RSAPublicKey;
+        final privateKey = keyPair.privateKey as RSAPrivateKey;
+        print('여기 안되지?');
+        return AsymmetricKeyPair(publicKey, privateKey);
+    } catch (e, stackTrace) {
+        print('키 페어 생성 중 오류 발생: $e');
+        print('스택 트레이스: $stackTrace');
+        rethrow;
+    }
+}
 
   // 키 페어 저장
   Future<void> storeKeyPair(AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> keyPair) async {
-    // 개인키를 PEM 형식으로 인코딩하여 TEE/SE에 저장
-    final privateKeyPem = _encodeRSAPrivateKeyToPem(keyPair.privateKey);
-    await _secureStorage.write(key: _privateKeyKey, value: privateKeyPem);
+    try {
+      print("storeKeyPair 실행됨!");
+      // 개인키를 PEM 형식으로 인코딩하여 TEE/SE에 저장
+      final privateKeyPem = _encodeRSAPrivateKeyToPem(keyPair.privateKey);
+      print("privateKey 변환 성공!");
+      await _secureStorage.write(key: _privateKeyKey, value: privateKeyPem);
+      print("privateKey 저장 성공!");
 
-    // 공개키도 저장 (선택사항인데 이거 저장할까요?)
-    final publicKeyPem = _encodeRSAPublicKeyToPem(keyPair.publicKey);
-    await _secureStorage.write(key: _publicKeyKey, value: publicKeyPem);
+      // 공개키도 저장
+      final publicKeyPem = _encodeRSAPublicKeyToPem(keyPair.publicKey);
+      print("publicKey 변환 성공!");
+      await _secureStorage.write(key: _publicKeyKey, value: publicKeyPem);
+      print("publicKey 저장 성공!");
+    } catch (e, stacktrace) {
+      print("storeKeyPair 실패: $e");
+      print(stacktrace);
+    }
   }
 
   // 개인키를 PEM 형식으로 인코딩
@@ -159,13 +187,19 @@ class CertificateService {
     String country = 'KR', 
     String organization = 'GBH'
   }) async {
+    print('파라미터: commonName=$commonName, country=$country, organization=$organization');
     // 저장된 키 페어 불러오기
     final privateKey = await getPrivateKey();
     final publicKey = await getPublicKey();
+
+    print('키 상태: privateKey=${privateKey != null}, publicKey=${publicKey != null}');
     
     if (privateKey == null || publicKey == null) {
       throw Exception('키 페어가 존재하지 않습니다. 먼저 키 페어를 생성하세요.');
     }
+
+    print('privateKey 타입: ${privateKey.runtimeType}');
+    print('publicKey 타입: ${publicKey.runtimeType}');
 
     // CSR을 위한 Subject 정보 구성
     final subject = {
@@ -174,9 +208,12 @@ class CertificateService {
       'C': ASN1PrintableString(country),
     };
 
+    print('Subject 정보 구성 완료');
+
     // CSR 생성 로직 (ASN.1 형식으로 인코딩)
     final subjectSequence = ASN1Sequence();
     subject.forEach((key, value) {
+      print('현재 처리 중인 키: $key, 값: $value');
       final rdnSet = ASN1Set();
       // OID를 Uint8List로 변환
       final attributeType = ASN1ObjectIdentifier(Uint8List.fromList(_getOIDForName(key)));
@@ -187,8 +224,13 @@ class CertificateService {
       subjectSequence.add(rdnSet);
     });
 
+    print('Subject 시퀀스 생성 완료');
+    print('Subject 시퀀스 요소 수: ${subjectSequence.elements.length}');
+
     // 공개키 정보 (SubjectPublicKeyInfo)
     final publicKeyInfo = _encodePublicKey(publicKey);
+
+    print('공개키 정보 인코딩 완료');
 
     // CSR 메인 시퀀스
     final csrInfoSeq = ASN1Sequence()
@@ -197,17 +239,43 @@ class CertificateService {
       ..add(publicKeyInfo) // 공개키 정보
       ..add(ASN1Null()); // 속성은 비워둠
 
+    print('CSR 정보 시퀀스 생성 완료');
+    print('CSR 정보 시퀀스 요소 수: ${csrInfoSeq.elements.length}');
+
     // CSR 정보 인코딩
     final csrInfoBytes = csrInfoSeq.encodedBytes;
-
+    print('CSR 정보 바이트 길이: ${csrInfoBytes.length}');
+    
     // 서명 알고리즘
-    final signer = RSASigner(SHA256Digest(), '1.2.840.113549.1.1.11');
+    print('RSA 서명자 생성 시작');
+    final signer = RSASigner(SHA256Digest(), '0609608648016503040201');
+    print('다이제스트 및 알고리즘 설정 완료');
+
+    print('개인키 파라미터 생성');
     final params = PrivateKeyParameter<RSAPrivateKey>(privateKey);
-    signer.init(true, params);
+    print('개인키 파라미터 생성 완료');
+
+    try {
+      print('서명자 초기화 시작');
+      signer.init(true, params);
+      print('서명자 초기화 완료');
+    } catch (e) {
+      print('서명자 초기화 중 오류 발생: $e');
+      rethrow;
+    }
+
+    print('서명자 초기화 완료');
 
     // CSR 정보에 서명
+    print('서명 생성 시작');
+    print('서명 대상 바이트 길이: ${csrInfoBytes.length}');
     final signature = signer.generateSignature(Uint8List.fromList(csrInfoBytes));
+    print('서명 생성 완료');
     final signatureBytes = (signature as RSASignature).bytes;
+    print('서명 바이트 길이: ${signatureBytes.length}');
+
+    print('개인키 modulus 길이: ${privateKey.modulus?.bitLength}');
+    print('서명 알고리즘: ${signer.algorithmName}');
 
     // 최종 CSR 구성
     final csrSequence = ASN1Sequence()
@@ -217,6 +285,8 @@ class CertificateService {
         ..add(ASN1Null()))
       ..add(ASN1BitString(signatureBytes));
 
+    print('CSR 시퀀스 생성 완료');
+
     // PEM 형식으로 인코딩하여 반환
     final csrBytes = csrSequence.encodedBytes;
     final csrBase64 = base64.encode(csrBytes);
@@ -224,6 +294,9 @@ class CertificateService {
         csrBase64.replaceAllMapped(RegExp('.{64}'), (match) => '${match.group(0)}\n') +
         (csrBase64.length % 64 == 0 ? '' : '\n') +
         '-----END CERTIFICATE REQUEST-----';
+
+    print('CSR PEM 생성 완료');
+
 
     return csrPem;
   }
@@ -261,5 +334,36 @@ class CertificateService {
     };
     
     return oidMap[name] ?? [85, 4, 3]; // 기본값은 CN
+  }
+
+  // 전자서명(SHA-512 + RSA)
+  Future<String?> signData(String data) async {
+    try {
+      // 개인키 가져오기
+      final privateKey = await getPrivateKey();
+      if (privateKey == null) {
+        throw Exception('개인키를 찾을 수 없습니다');
+      }
+
+      // UTF-8로 인코딩
+      final dataBytes = Uint8List.fromList(utf8.encode(data));
+
+      // SHA-512 해시 생성
+      final digest = SHA512Digest();
+      final hashedData = digest.process(dataBytes);
+      
+      // RSA 서명 생성
+      final signer = RSASigner(SHA512Digest(), '0609608648016503040205');
+      final params = PrivateKeyParameter<RSAPrivateKey>(privateKey);
+      signer.init(true, params);
+      
+      final signature = signer.generateSignature(hashedData) as RSASignature;
+      
+      // Base64로 인코딩하여 반환
+      return base64.encode(signature.bytes);
+    } catch (e) {
+      print('서명 생성 실패: $e');
+      return null;
+    }
   }
 }

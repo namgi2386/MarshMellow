@@ -16,22 +16,26 @@ import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdatePortfolio;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface PortfolioService {
 
-    ResponseCreateCategory createCategory(RequestCreateCategory request);
+    ResponseCreateCategory createCategory(RequestCreateCategory request,
+        CustomUserDetails customUserDetails);
 
-    ResponseFindCategoryList findCategoryList(RequestFindCategoryList request);
+    ResponseFindCategoryList findCategoryList(CustomUserDetails customUserDetails);
 
     ResponseDeleteCategory deleteCategory(RequestDeleteCategory request);
 
     ResponseUpdateCategory updateCategory(RequestUpdateCategory request);
 
     ResponseCreatePortfolio createPortfolio
-        (MultipartFile file, String portfolioMemo, String fileName, long userPk, int portfolioCategoryPk);
+        (MultipartFile file, String portfolioMemo, String fileName,
+            CustomUserDetails customUserDetails, int portfolioCategoryPk);
 
-    ResponseFindPortfolioList findPortfolioList(RequestFindPortfolioList request);
+    ResponseFindPortfolioList findPortfolioList(CustomUserDetails customUserDetails);
 
     ResponseFindPortfolio findPortfolio(RequestFindPortfolio request);
 

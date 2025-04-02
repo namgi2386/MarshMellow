@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class RequestCreateCategory {
-    private long userPk;
     private String categoryName;
     private String categoryMemo;
 }

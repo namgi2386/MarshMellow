@@ -33,6 +33,14 @@ pipeline {
                 }
             }
         }
+        stage('Prepare AI Config') {
+            steps {
+                withCredentials([file(credentialsId: 'MM_AI_ENV', variable: 'MM_ENV_FILE')]) {
+                    sh 'chmod -R 777 gbh_mm/src/main/resources'
+                    sh 'cp $MM_ENV_FILE gbh_mm/src/main/resources/.env'
+                }
+            }
+        }
         stage('Build Spring Boot App') {
             steps {
                 dir('gbh_mm') {

@@ -1,38 +1,48 @@
 package com.gbh.gbh_mm.asset.service;
 
+import com.gbh.gbh_mm.asset.model.vo.request.RequestCheckAccountAuth;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindCardTransactionList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindDepositDemandTransactionList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindDepositPayment;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindLoanPaymentList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestFindSavingsPaymentList;
+import com.gbh.gbh_mm.asset.model.vo.request.RequestOpenAccountAuth;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestWithdrawalAccountTransfer;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestDeleteWithdrawalAccount;
-import com.gbh.gbh_mm.asset.model.vo.request.RequestFindAssetList;
-import com.gbh.gbh_mm.asset.model.vo.request.RequestFindWithdrawalAccountList;
 import com.gbh.gbh_mm.asset.model.vo.response.*;
-import com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth;
 import com.gbh.gbh_mm.finance.auth.vo.request.RequestCreateAccountAuth;
-import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
-import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
-import com.gbh.gbh_mm.finance.deposit.vo.request.RequestFindPayment;
-import com.gbh.gbh_mm.finance.loan.vo.request.RequestFindRepaymentList;
-import com.gbh.gbh_mm.finance.savings.vo.request.RequestFindSavingsPayment;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 
 public interface AssetService {
 
-    ResponseFindAssetList findAssetList(RequestFindAssetList request);
+    ResponseFindAssetList findAssetList(CustomUserDetails customUserDetails);
 
 
-    ResponseFindDepositDemandTransactionList findDepositDemandTransactionList(RequestFindTransactionList request);
+    ResponseFindDepositDemandTransactionList findDepositDemandTransactionList
+        (RequestFindDepositDemandTransactionList request,
+        CustomUserDetails customUserDetails);
 
-    ResponseFindDepositPayment findDepositPayment(RequestFindPayment request);
+    ResponseFindDepositPayment findDepositPayment
+        (RequestFindDepositPayment request, CustomUserDetails customUserDetails);
 
-    ResponseFindSavingsPaymentList findSavingsPaymentList(RequestFindSavingsPayment request);
+    ResponseFindSavingsPaymentList findSavingsPaymentList(
+        RequestFindSavingsPaymentList request, CustomUserDetails customUserDetails);
 
-    ResponseFindLoanPaymentList findLoanPaymentList(RequestFindRepaymentList request);
+    ResponseFindLoanPaymentList findLoanPaymentList(
+        RequestFindLoanPaymentList request,
+        CustomUserDetails customUserDetails);
 
-    ResponseFindCardTransactionList findCardTransactionList(RequestFindCardTransactionList request);
+    ResponseFindCardTransactionList findCardTransactionList
+        (RequestFindCardTransactionList request, CustomUserDetails customUserDetails);
 
-    ResponseOpenAccountAuth openAccountAuth(RequestCreateAccountAuth request);
+    ResponseOpenAccountAuth openAccountAuth
+        (RequestOpenAccountAuth request, CustomUserDetails customUserDetails);
 
-    ResponseCheckAccountAuth checkAccountAuth(RequestCheckAccountAuth request);
+    ResponseCheckAccountAuth checkAccountAuth
+        (RequestCheckAccountAuth request, CustomUserDetails customUserDetails);
 
-    ResponseFindWithdrawalAccountList findWithdrawalAccountList(RequestFindWithdrawalAccountList request);
+    ResponseFindWithdrawalAccountList findWithdrawalAccountList
+        (CustomUserDetails customUserDetails);
 
     ResponseDeleteWithdrawalAccount deleteWithdrawalAccount(RequestDeleteWithdrawalAccount request);
 

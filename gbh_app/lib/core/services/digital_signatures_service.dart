@@ -25,7 +25,7 @@ class DigitalSignatureService {
   // 전자서명 생성
   Future<Map<String, dynamic>> generateDigitalSignature(String originalText) async {
     try {
-      // 1. 반쪽 키 생성
+      // 1. 반쪽 키 가져오기
       final halfUserKey = await getHalfUserKey();
       print('$halfUserKey');
       

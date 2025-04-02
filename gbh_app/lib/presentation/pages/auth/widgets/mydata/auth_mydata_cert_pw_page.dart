@@ -57,7 +57,7 @@ class AuthMydataCertPwPage extends ConsumerWidget {
                 // 인증서 발급 요청
                 final success = await ref.read(certificateProcessProvider.notifier).issueCertificate();
                 if (success) {
-                  context.go(SignupRoutes.getAuthCompletePath());
+                  context.go(SignupRoutes.getMyDataCompletePath());
                 }
               } else {
                 // 비밀번호 불일치

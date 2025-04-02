@@ -268,12 +268,7 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
           
           // 로딩 인디케이터
           if (_isLoading)
-            Container(
-              color: AppColors.whiteLight,
-              child: const Center(
-                child: CustomLoadingIndicator(text: '인증서 정보를 확인중입니다', backgroundColor: AppColors.whiteLight,)
-              ),
-            ),
+            CustomLoadingIndicator(text: '인증서 정보를 확인중입니다', backgroundColor: AppColors.whiteLight, opacity: 0.9,)
         ],
       ),
     );

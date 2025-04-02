@@ -63,7 +63,7 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const CustomLoadingIndicator(text: "전자서명 검증 중..."),
+      builder: (context) => CustomLoadingIndicator(text: "전자서명 검증 중", backgroundColor: AppColors.whiteLight, opacity: 0.9,),
     );
 
     try {

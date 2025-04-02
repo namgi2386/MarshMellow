@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/di/providers/auth/certificate_process_provider.dart';
 import 'package:marshmellow/di/providers/auth/mydata_provider.dart';
@@ -96,7 +97,7 @@ class AuthMydataCertPwPage extends ConsumerWidget {
 
             // 로딩 표시
             if (passwordState.isLoading || ref.watch(certificateProcessProvider).isLoading)
-              const Center(child: CustomLoadingIndicator(),)
+              CustomLoadingIndicator(text:'인증서 생성중',backgroundColor: AppColors.whiteLight, opacity: 0.9,),
           ],
         ),
       )

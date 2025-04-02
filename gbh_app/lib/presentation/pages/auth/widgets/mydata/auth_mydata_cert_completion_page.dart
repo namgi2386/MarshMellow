@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/constants/storage_keys.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/di/providers/auth/certificate_process_provider.dart';
 import 'package:marshmellow/di/providers/core_providers.dart';
@@ -31,6 +32,7 @@ class AuthMydataCertCompletePage extends ConsumerWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CustomLoadingIndicator(
             text: '정보를 불러오고 있습니다',
+            backgroundColor: AppColors.whiteLight, opacity: 0.9,
           );
         }
 

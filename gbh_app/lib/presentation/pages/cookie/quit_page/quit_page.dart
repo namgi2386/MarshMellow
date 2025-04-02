@@ -8,9 +8,25 @@ import 'package:marshmellow/router/routes/cookie_routes.dart';
 
 // 위젯
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/widgets/celebration/celebration.dart';
 
-class QuitPage extends StatelessWidget {
+class QuitPage extends StatefulWidget {
   const QuitPage({super.key});
+
+  @override
+  State<QuitPage> createState() => _QuitPageState();
+}
+
+class _QuitPageState extends State<QuitPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    // 화면이 완전히 빌드된 후 컨페티 효과 표시 (빌드 직후 팝업을 표시하기 위한 방법)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showRetirementCelebration(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

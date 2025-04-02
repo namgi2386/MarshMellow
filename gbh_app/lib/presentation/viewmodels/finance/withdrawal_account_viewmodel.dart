@@ -23,6 +23,11 @@ class WithdrawalAccountState {
   final bool isFirstTermAgreed;
   final bool isSecondTermAgreed;
   final bool isThirdTermAgreed;
+
+  // 약관 동의 하위 상태
+  final bool isFirstTermExpanded;
+  final bool isSecondTermExpanded;
+  final bool isThirdTermExpanded;
   
   // 계좌 및 인증 정보
   final String accountNo;
@@ -45,6 +50,9 @@ class WithdrawalAccountState {
     this.isFirstTermAgreed = false,
     this.isSecondTermAgreed = false,
     this.isThirdTermAgreed = false,
+    this.isFirstTermExpanded = false,   // 하위 약관
+    this.isSecondTermExpanded = false,  // 하위 약관
+    this.isThirdTermExpanded = false,   // 하위 약관
     this.accountNo = '',
     this.authCode,
     this.enteredAuthCode = '',
@@ -62,6 +70,10 @@ class WithdrawalAccountState {
     bool? isFirstTermAgreed,
     bool? isSecondTermAgreed,
     bool? isThirdTermAgreed,
+    bool? isFirstTermExpanded,   // 하위
+    bool? isSecondTermExpanded,  // 하위
+    bool? isThirdTermExpanded,   // 하위
+
     String? accountNo,
     String? authCode,
     String? enteredAuthCode,
@@ -77,6 +89,9 @@ class WithdrawalAccountState {
       isFirstTermAgreed: isFirstTermAgreed ?? this.isFirstTermAgreed,
       isSecondTermAgreed: isSecondTermAgreed ?? this.isSecondTermAgreed,
       isThirdTermAgreed: isThirdTermAgreed ?? this.isThirdTermAgreed,
+      isFirstTermExpanded: isFirstTermExpanded ?? this.isFirstTermExpanded,   // 추가
+      isSecondTermExpanded: isSecondTermExpanded ?? this.isSecondTermExpanded, // 추가
+      isThirdTermExpanded: isThirdTermExpanded ?? this.isThirdTermExpanded,   // 추가
       accountNo: accountNo ?? this.accountNo,
       authCode: authCode ?? this.authCode,
       enteredAuthCode: enteredAuthCode ?? this.enteredAuthCode,
@@ -150,6 +165,20 @@ class WithdrawalAccountViewModel extends StateNotifier<WithdrawalAccountState> {
       isThirdTermAgreed: newValue,
     );
   }
+
+  // 약관 펼치기/접기 토글 메서드 추가
+  void toggleFirstTermExpanded() {
+    state = state.copyWith(isFirstTermExpanded: !state.isFirstTermExpanded);
+  }
+
+  void toggleSecondTermExpanded() {
+    state = state.copyWith(isSecondTermExpanded: !state.isSecondTermExpanded);
+  }
+
+  void toggleThirdTermExpanded() {
+    state = state.copyWith(isThirdTermExpanded: !state.isThirdTermExpanded);
+  }
+
 
   // 인증번호 발송 요청
   Future<void> sendVerificationCode() async {

@@ -6,6 +6,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/utils/format_utils.dart';
 import 'package:marshmellow/data/models/finance/transfer_model.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/transfer_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
@@ -117,15 +118,9 @@ class _TransferPageState extends ConsumerState<TransferPage> {
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('송금하기'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              viewModel.reset();
-              Navigator.pop(context);
-            },
-          ),
+        appBar: CustomAppbar(
+          title: 'my little 자산',
+          backgroundColor: AppColors.background,
         ),
         body: _buildBody(context, state, viewModel),
       ),

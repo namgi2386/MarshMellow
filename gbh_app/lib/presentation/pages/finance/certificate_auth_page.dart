@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
+import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
+import 'package:marshmellow/presentation/widgets/dots_input/dots_input.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
@@ -88,68 +92,71 @@ class _CertificateAuthPageState extends ConsumerState<CertificateAuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('인증서 비밀번호 입력'),
+      appBar: CustomAppbar(
+        title: 'my little 자산',
+        backgroundColor: AppColors.background,
       ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator())
         : Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  '인증서 비밀번호 6자리를 입력해주세요',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '송금 승인을 위해 인증서 비밀번호가 필요합니다.',
-                  style: TextStyle(fontSize: 14, color: AppColors.blackLight),
-                ),
-                const SizedBox(height: 40),
-                
-                // PIN 입력 필드
-                TextField(
-                  controller: _pinController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    hintText: '6자리 PIN 번호',
-                    errorText: _wrongAttempts > 0 ? '인증번호가 일치하지 않습니다. (${_wrongAttempts}/5)' : null,
-                  ),
-                  textAlign: TextAlign.center,
-                  onTap: () async {
-                    setState(() {
-                      _pinValue = '';
-                      _pinController.text = '';
-                    });
-                    
-                    await KeyboardModal.showSecureNumericKeyboard(
-                      context: context,
-                      onValueChanged: (value) {
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '인증서 비밀번호',
+                      style: AppTextStyles.appBar,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '비밀번호 6자리를 입력해주세요',
+                      style: TextStyle(fontSize: 14, color: AppColors.blackLight),
+                    ),
+                    const SizedBox(height: 40),
+                    PinDotsRow(
+                      // 현재 입력된 숫자 위치를 공유해야 색이 채워져요!
+                      currentDigit: _pinValue.length,
+                      // 탭했을 때 키보드 올라오는 함수를 공유하세요
+                                        onTap: () async {
                         setState(() {
-                          _pinValue = value;
-                          _pinController.text = '•' * value.length;
+                          _pinValue = '';
+                          _pinController.text = '';
                         });
+                        
+                        await KeyboardModal.showSecureNumericKeyboard(
+                          context: context,
+                          onValueChanged: (value) {
+                            setState(() {
+                              _pinValue = value;
+                              _pinController.text = '•' * value.length;
+                            });
+                          },
+                          initialValue: '',
+                          maxLength: 6, // 6자리 핀번호
+                          obscureText: true,
+                        );
+                        
+                        // PIN 입력 완료 후 자동 검증
+                        if (_pinValue.length == 6) {
+                          _verifyPin();
+                        }
                       },
-                      initialValue: '',
-                      maxLength: 6, // 6자리 핀번호
-                      obscureText: true,
-                    );
+                    ),
                     
-                    // PIN 입력 완료 후 자동 검증
-                    if (_pinValue.length == 6) {
-                      _verifyPin();
-                    }
-                  },
+                  ],
                 ),
-                
-                const SizedBox(height: 40),
-                
-                ElevatedButton(
-                  onPressed: _pinValue.length == 6 ? _verifyPin : null,
-                  child: const Text('확인'),
-                ),
+                Column(
+                  children: [
+                    Button(
+                      text: '인증서 로그인',
+                      onPressed: _pinValue.length == 6 ? _verifyPin : null,
+                    ),
+                    SizedBox(height: 30,)
+                  ],
+                )
               ],
             ),
           ),

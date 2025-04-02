@@ -12,7 +12,6 @@ public class RequestCreateHousehold {
     private String householdMemo;
     private String paymentMethod;
     private String exceptedBudgetYn;
-    private long userPk;
     private HouseholdClassificationEnum householdClassification;
     private int householdDetailCategoryPk;
 }

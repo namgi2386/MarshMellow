@@ -42,7 +42,6 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -65,10 +64,11 @@ public class HouseholdServiceImpl implements HouseholdService {
     private final ModelMapper mapper;
 
     @Override
-    public ResponseFindHouseholdList findHouseholdList(RequestFindHouseholdList request) {
+    public ResponseFindHouseholdList findHouseholdList(RequestFindHouseholdList request,
+        CustomUserDetails customUserDetails) {
         List<Household> householdList = householdRepository
             .findAllByTradeDateBetweenAndUser_UserPkOrderByTradeDateAsc
-                (request.getStartDate(), request.getEndDate(), request.getUserPk());
+                (request.getStartDate(), request.getEndDate(), customUserDetails.getUserPk());
 
         long totalIncome = householdList.stream()
             .filter(h -> h.getHouseholdClassificationCategory()
@@ -125,7 +125,8 @@ public class HouseholdServiceImpl implements HouseholdService {
     }
 
     @Override
-    public ResponseCreateHousehold createHousehold(RequestCreateHousehold request) {
+    public ResponseCreateHousehold createHousehold(RequestCreateHousehold request,
+        CustomUserDetails customUserDetails) {
         AiCategory aiCategory = aiCategoryRepository.findById(9)
             .orElseThrow(() -> new EntityNotFoundException("미분류 찾을 수 없음"));
         HouseholdCategory householdCategory = householdCategoryRepository
@@ -134,7 +135,7 @@ public class HouseholdServiceImpl implements HouseholdService {
 
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Household household = mapper.map(request, Household.class);
-        User user = userRepository.findById(request.getUserPk())
+        User user = userRepository.findById(customUserDetails.getUserPk())
             .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원"));
         HouseholdDetailCategory householdDetailCategory =
             householdDetailCategoryRepository
@@ -260,11 +261,11 @@ public class HouseholdServiceImpl implements HouseholdService {
 
     @Override
     public ResponseFindTransactionDataList findTransactionDataList(
-        RequestFindTransactionDataList request) {
+        CustomUserDetails customUserDetails) {
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         List<Household> householdList = householdRepository
-            .findTop2ByUser_UserPkOrderByTradeDateDesc(request.getUserPk());
+            .findTop2ByUser_UserPkOrderByTradeDateDesc(customUserDetails.getUserPk());
 
         LocalDate currentDate = LocalDate.now();
 
@@ -282,10 +283,10 @@ public class HouseholdServiceImpl implements HouseholdService {
         List<Household> houseHolds = new ArrayList<>();
 
         try {
-            Optional<User> user = userRepository.findById(request.getUserPk());
+            Optional<User> user = userRepository.findById(customUserDetails.getUserPk());
 
             Map<String, Object> cardApiData =
-                cardAPI.findUserCardList(request.getUserKey());
+                cardAPI.findUserCardList(customUserDetails.getUserKey());
             Map<String, Object> cardResponseData =
                 (Map<String, Object>) cardApiData.get("apiResponse");
             List<Map<String, Object>> cardRecData =
@@ -298,7 +299,7 @@ public class HouseholdServiceImpl implements HouseholdService {
             }
 
             Map<String, Object> demandDepositApiData =
-                demandDepositAPI.findDemandDepositAccountList(request.getUserKey());
+                demandDepositAPI.findDemandDepositAccountList(customUserDetails.getUserKey());
             Map<String, Object> demandDepositReponseData =
                 (Map<String, Object>) demandDepositApiData.get("apiResponse");
             List<Map<String, Object>> demandDepositRecData =
@@ -313,7 +314,7 @@ public class HouseholdServiceImpl implements HouseholdService {
                 requestCardTransaction.setCvc(card.getCvc());
                 requestCardTransaction.setEndDate(currentString);
                 requestCardTransaction.setStartDate(lastDate);
-                requestCardTransaction.setUserKey(request.getUserKey());
+                requestCardTransaction.setUserKey(customUserDetails.getUserKey());
 
                 /* 해당 카드 거래내역 조회 */
                 Map<String, Object> cardTransactionApiData =
@@ -368,7 +369,7 @@ public class HouseholdServiceImpl implements HouseholdService {
                         .endDate(currentString)
                         .transactionType("A")
                         .orderByType("ASC")
-                        .userKey(request.getUserKey())
+                        .userKey(customUserDetails.getUserKey())
                         .build();
 
                 Map<String, Object> demandDepositTransactionData =
@@ -557,9 +558,10 @@ public class HouseholdServiceImpl implements HouseholdService {
     }
 
     @Override
-    public ResponseSearchHousehold searchHousehold(RequestSearchHousehold request) {
+    public ResponseSearchHousehold searchHousehold(RequestSearchHousehold request,
+        CustomUserDetails customUserDetails) {
         List<Household> householdList = householdRepository.searchHousehold
-            (request.getStartDate(), request.getEndDate(), request.getUserPk(),
+            (request.getStartDate(), request.getEndDate(), customUserDetails.getUserPk(),
                 request.getKeyword());
 
         Map<String, List<HouseholdDetailDto>> grouped = householdList.stream()
@@ -603,10 +605,11 @@ public class HouseholdServiceImpl implements HouseholdService {
     }
 
     @Override
-    public ResponseFilterHousehold filterHousehold(RequestFilterHousehold request) {
+    public ResponseFilterHousehold filterHousehold(RequestFilterHousehold request,
+        CustomUserDetails customUserDetails) {
         List<Household> householdList = householdRepository
             .findAllByTradeDateBetweenAndUser_UserPkAndHouseholdClassificationCategory
-                (request.getStartDate(), request.getEndDate(), request.getUserPk(),
+                (request.getStartDate(), request.getEndDate(), customUserDetails.getUserPk(),
                     request.getClassification());
 
         long total = householdList.stream()
@@ -657,13 +660,13 @@ public class HouseholdServiceImpl implements HouseholdService {
     }
 
     @Override
-    public ResponsePaymentMethodList findPaymentMethodList(RequestPaymentMethodList request) {
-        User user =  userRepository.findByUserPk(request.getUserPk())
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    public ResponsePaymentMethodList findPaymentMethodList(CustomUserDetails customUserDetails) {
+
         try {
-            Map<String, Object> cardResponseData = cardAPI.findUserCardList(user.getUserKey());
+            Map<String, Object> cardResponseData = cardAPI
+                .findUserCardList(customUserDetails.getUserKey());
             Map<String, Object> accountResponseData = demandDepositAPI
-                .findDemandDepositAccountList(user.getUserKey());
+                .findDemandDepositAccountList(customUserDetails.getUserKey());
 
             Map<String, Object> cardApiData =
                 (Map<String, Object>) cardResponseData.get("apiResponse");

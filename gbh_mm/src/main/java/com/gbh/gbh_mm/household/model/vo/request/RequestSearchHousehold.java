@@ -6,6 +6,5 @@ import lombok.Getter;
 public class RequestSearchHousehold {
     private String startDate;
     private String endDate;
-    private long userPk;
     private String keyword;
 }

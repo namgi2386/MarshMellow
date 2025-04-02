@@ -6,5 +6,4 @@ import lombok.Data;
 public class RequestFindHouseholdList {
     private String startDate;
     private String endDate;
-    private long userPk;
 }

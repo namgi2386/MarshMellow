@@ -43,11 +43,6 @@ class LedgerState {
   }
 }
 
-// 사용자 정보 (임시, 실제로는 유저 인증 정보에서 가져와야 함)
-class UserInfo {
-  static const int userPk = 3; // 예시 유저 ID
-}
-
 // 가계부 뷰모델
 class LedgerViewModel extends StateNotifier<LedgerState> {
   final LedgerRepository _repository;
@@ -75,7 +70,6 @@ class LedgerViewModel extends StateNotifier<LedgerState> {
 
       // 가계부 목록 조회
       final result = await _repository.getHouseholdList(
-        userPk: UserInfo.userPk, // 실제 앱에서는 로그인한 사용자 ID를 사용해야 함
         startDate: formattedStartDate,
         endDate: formattedEndDate,
       );

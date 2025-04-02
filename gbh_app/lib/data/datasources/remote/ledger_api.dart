@@ -1,5 +1,6 @@
 import 'package:marshmellow/data/datasources/remote/api_client.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
+import 'package:marshmellow/data/models/ledger/payment_method.dart';
 
 class LedgerApi {
   final ApiClient _apiClient;
@@ -7,12 +8,9 @@ class LedgerApi {
   LedgerApi(this._apiClient);
 
   // 가계부 목록 조회 (기간별)
-  //
-  // [userPk] 회원 고유번호
   // [startDate] 조회 시작일 (yyyyMMdd 형식)
   // [endDate] 조회 종료일 (yyyyMMdd 형식)
   Future<Map<String, dynamic>> getHouseholdList({
-    required int userPk,
     required String startDate,
     required String endDate,
   }) async {
@@ -20,14 +18,13 @@ class LedgerApi {
       final response = await _apiClient.getWithBody(
         '/household/list',
         data: {
-          'userPk': userPk,
           'startDate': startDate,
           'endDate': endDate,
         },
       );
 
-      if (response['code'] == 200 && response['data'] != null) {
-        final data = response['data'];
+      if (response.data['code'] == 200 && response.data['data'] != null) {
+        final data = response.data['data'];
 
         // 총 수입/지출 데이터
         final totalIncome = data['totalIncome'] ?? 0;
@@ -81,12 +78,12 @@ class LedgerApi {
         },
       );
 
-      if (response['code'] == 200 && response['data'] != null) {
-        final data = response['data'];
+      if (response.data['code'] == 200 && response.data['data'] != null) {
+        final data = response.data['data'];
         return Transaction.fromJson(data);
       }
 
-      throw Exception('API 응답 에러: ${response['message']}');
+      throw Exception('API 응답 에러: ${response.data['message']}');
     } catch (e) {
       throw Exception('가계부 상세 정보를 가져오는데 실패했습니다: $e');
     }
@@ -95,7 +92,6 @@ class LedgerApi {
   // 검색 기능
   // LedgerApi에서 수정할 부분
   Future<Map<String, dynamic>> searchHousehold({
-    required int userPk,
     required String startDate,
     required String endDate,
     required String keyword,
@@ -104,15 +100,14 @@ class LedgerApi {
       final response = await _apiClient.getWithBody(
         '/household/search',
         data: {
-          'userPk': userPk,
           'startDate': startDate,
           'endDate': endDate,
           'keyword': keyword,
         },
       );
 
-      if (response['code'] == 200 && response['data'] != null) {
-        final data = response['data'];
+      if (response.data['code'] == 200 && response.data['data'] != null) {
+        final data = response.data['data'];
         final householdList = data['householdList'] ?? [];
 
         // 검색된 트랜잭션 목록
@@ -139,7 +134,7 @@ class LedgerApi {
         };
       }
 
-      throw Exception('API 응답 에러: ${response['message']}');
+      throw Exception('API 응답 에러: ${response.data['message']}');
     } catch (e) {
       throw Exception('가계부 검색에 실패했습니다: $e');
     }
@@ -157,8 +152,8 @@ class LedgerApi {
         },
       );
 
-      if (response['code'] == 200) {
-        return response['data'];
+      if (response.data['code'] == 200) {
+        return response.data['data'];
       }
 
       throw Exception('API 응답 에러: ${response['message']}');
@@ -173,7 +168,7 @@ class LedgerApi {
     int? householdAmount,
     String? householdMemo,
     String? exceptedBudgetYn,
-    int? householdDetailCategoryPk, 
+    int? householdDetailCategoryPk,
   }) async {
     try {
       // API 요청 데이터 준비
@@ -195,12 +190,12 @@ class LedgerApi {
         data: requestData,
       );
 
-      if (response['code'] == 200 && response['data'] != null) {
-        final data = response['data'];
+      if (response.data['code'] == 200 && response.data['data'] != null) {
+        final data = response.data['data'];
         return Transaction.fromJson(data);
       }
 
-      throw Exception('API 응답 에러: ${response['message']}');
+      throw Exception('API 응답 에러: ${response.data['message']}');
     } catch (e) {
       throw Exception('가계부 수정에 실패했습니다: $e');
     }
@@ -208,7 +203,6 @@ class LedgerApi {
 
   // 가계부 분류별 조회 API 호출
   Future<Map<String, dynamic>> getHouseholdFilter({
-    required int userPk,
     required String startDate,
     required String endDate,
     required String classification, // 'DEPOSIT', 'WITHDRAWAL', 'TRANSFER'
@@ -217,20 +211,72 @@ class LedgerApi {
       final response = await _apiClient.getWithBody(
         '/household/filter',
         data: {
-          'userPk': userPk,
           'startDate': startDate,
           'endDate': endDate,
           'classification': classification,
         },
       );
 
-      if (response['code'] == 200 && response['data'] != null) {
-        return response['data'];
+      if (response.data['code'] == 200 && response.data['data'] != null) {
+        return response.data['data'];
       }
 
-      throw Exception('API 응답 에러: ${response['message']}');
+      throw Exception('API 응답 에러: ${response.data['message']}');
     } catch (e) {
       throw Exception('분류별 가계부 목록을 가져오는데 실패했습니다: $e');
+    }
+  }
+
+  // 결제수단 목록 조회
+  Future<PaymentMethodResponse> getPaymentMethods() async {
+    try {
+      final response = await _apiClient.get('/household/payment-method');
+
+      if (response.data != null) {
+        return PaymentMethodResponse.fromJson(response.data);
+      }
+
+      throw Exception('API 응답 에러: ${response.data['message']}');
+    } catch (e) {
+      throw Exception('결제수단 목록을 가져오는데 실패했습니다: $e');
+    }
+  }
+
+  // 가계부 등록
+  Future<Map<String, dynamic>> createHousehold({
+    required String tradeName,
+    required String tradeDate,
+    required String tradeTime,
+    required int householdAmount,
+    String? householdMemo,
+    required String paymentMethod,
+    required String exceptedBudgetYn,
+    required String householdClassification,
+    required int householdDetailCategoryPk,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        '/household',
+        data: {
+          'tradeName': tradeName,
+          'tradeDate': tradeDate,
+          'tradeTime': tradeTime,
+          'householdAmount': householdAmount,
+          'householdMemo': householdMemo,
+          'paymentMethod': paymentMethod,
+          'exceptedBudgetYn': exceptedBudgetYn,
+          'householdClassification': householdClassification,
+          'householdDetailCategoryPk': householdDetailCategoryPk,
+        },
+      );
+
+      if (response.data['code'] == 200 && response.data['data'] != null) {
+        return response.data['data'];
+      }
+
+      throw Exception('API 응답 에러: ${response.data['message']}');
+    } catch (e) {
+      throw Exception('가계부 등록 API 호출 실패: $e');
     }
   }
 }

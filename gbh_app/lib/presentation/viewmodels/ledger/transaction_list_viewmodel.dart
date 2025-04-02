@@ -7,12 +7,7 @@ import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:marshmellow/data/datasources/remote/ledger_api.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
 
-// 사용자 정보 (실제로는 인증에서 가져와야 함)
-class UserInfo {
-  static const int userPk = 3; // 예시 유저 ID
-}
-
-// 가계부부 API 프로바이더
+// 가계부 API 프로바이더
 final ledgerApiProvider = Provider<LedgerApi>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return LedgerApi(apiClient);
@@ -55,7 +50,6 @@ final transactionsProvider = FutureProvider<List<Transaction>>((ref) async {
   final endDate = dateRange.endDate ?? startDate;
 
   final result = await repository.getHouseholdList(
-    userPk: UserInfo.userPk,
     startDate: _formatDate(startDate),
     endDate: _formatDate(endDate),
   );

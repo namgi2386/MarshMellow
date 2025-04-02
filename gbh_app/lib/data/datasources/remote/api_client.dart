@@ -7,10 +7,21 @@ class ApiClient {
   ApiClient(this._dio);
 
   // 기본 GET 요청
-  Future<dynamic> get(String path,
-      {Map<String, dynamic>? queryParameters}) async {
+  Future<dynamic> get(String path,{
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    bool requiresAuth = true,
+  }) async {
     try {
-      final response = await _dio.get(path, queryParameters: queryParameters);
+      final finalOptions = options ?? Options();
+      finalOptions.extra = finalOptions.extra ?? {};
+      finalOptions.extra!['requiresAuth'] = requiresAuth;
+
+      final response = await _dio.get(
+        path, 
+        queryParameters: queryParameters,
+        options: finalOptions
+      );
       return _processResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -35,9 +46,22 @@ class ApiClient {
   }
 
   // 기본 POST 요청
-  Future<dynamic> post(String path, {dynamic data}) async {
+  Future<dynamic> post(
+    String path, {
+    dynamic data,
+    Options? options,
+    bool requiresAuth = true,
+  }) async {
     try {
-      final response = await _dio.post(path, data: data);
+      final finalOptions = options ?? Options();
+      finalOptions.extra ??= {};
+      finalOptions.extra!['requiresAuth'] = requiresAuth;
+
+      final response = await _dio.post(
+        path, 
+        data: data,
+        options: finalOptions,
+      );
       return _processResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -45,9 +69,22 @@ class ApiClient {
   }
 
   // PUT 요청 추가
-  Future<dynamic> put(String path, {dynamic data}) async {
+  Future<dynamic> put(
+    String path, {
+    dynamic data,
+    Options? options,
+    bool requiresAuth = true,
+  }) async {
     try {
-      final response = await _dio.put(path, data: data);
+      final finalOptions = options ?? Options();
+      finalOptions.extra ??= {};
+      finalOptions.extra!['requiresAuth'] = requiresAuth;
+
+      final response = await _dio.put(
+        path, 
+        data: data,
+        options: finalOptions,
+      );
       return _processResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -55,9 +92,22 @@ class ApiClient {
   }
 
   // PATCH 요청 추가
-  Future<dynamic> patch(String path, {dynamic data}) async {
+  Future<dynamic> patch(
+    String path, {
+    dynamic data,
+    Options? options,
+    bool requiresAuth = true,
+  }) async {
     try {
-      final response = await _dio.patch(path, data: data);
+      final finalOptions = options ?? Options();
+      finalOptions.extra ??= {};
+      finalOptions.extra!['requiresAuth'] = requiresAuth;
+
+      final response = await _dio.patch(
+        path, 
+        data: data,
+        options: finalOptions,
+      );
       return _processResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -65,9 +115,22 @@ class ApiClient {
   }
 
   // DELETE 요청 추가
-  Future<dynamic> delete(String path, {dynamic data}) async {
+  Future<dynamic> delete(
+    String path, {
+    dynamic data,
+    Options? options,
+    bool requiresAuth = true,
+  }) async {
     try {
-      final response = await _dio.delete(path, data: data);
+      final finalOptions = options ?? Options();
+      finalOptions.extra ??= {};
+      finalOptions.extra!['requiresAuth'] = requiresAuth;
+
+      final response = await _dio.delete(
+        path, 
+        data: data,
+        options: finalOptions,
+      );
       return _processResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -76,7 +139,7 @@ class ApiClient {
 
   // 응답 처리 (백엔드의 status 코드 확인)
   dynamic _processResponse(Response response) {
-    return response.data;
+    return response;
   }
 
   // 에러 핸들링 (상세)

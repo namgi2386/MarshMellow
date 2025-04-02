@@ -30,14 +30,20 @@ class ApiClient {
 
   // GET 요청에 body를 지원하는 메소드
   Future<dynamic> getWithBody(String path,
-      {dynamic data, Map<String, dynamic>? queryParameters}) async {
+      {dynamic data, 
+      Map<String, dynamic>? queryParameters,
+      Options? options,
+      bool requiresAuth = true}) async {
     try {
-      final options = Options(method: 'GET');
+      final finalOptions = options ?? Options(method: 'GET');
+      finalOptions.extra = finalOptions.extra ?? {};
+      finalOptions.extra!['requiresAuth'] = requiresAuth;
+
       final response = await _dio.request(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: options,
+        options: finalOptions,
       );
       return _processResponse(response);
     } on DioException catch (e) {

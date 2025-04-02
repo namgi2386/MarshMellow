@@ -31,19 +31,28 @@ public class AiController {
             throw new CustomException(ErrorCode.BAD_REQUEST);
         }
 
-//        String pythonPath = "/usr/bin/python3.9";
         String pythonPath = "python3";
-//        String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
-//        System.out.println("scriptPath: " + scriptPath);
         String scriptPath;
-        try {
-            scriptPath = new ClassPathResource("ai/model/categoryClf/clfModel.py").getFile().getAbsolutePath();
-        } catch (IOException e) {
-            throw new RuntimeException("Python script not found in resources.", e);
-        }
 
-        System.out.println("실제 scriptPath: " + scriptPath);
-        System.out.println("현재 작업 디렉토리: " + System.getProperty("user.dir"));
+        try (InputStream scriptStream = getClass().getClassLoader().getResourceAsStream(aiFilePath + "/categoryClf/clfModel.py")) {
+            if (scriptStream == null) {
+                throw new IOException("Python script not found in resources: " + aiFilePath + "/categoryClf/clfModel.py");
+            }
+
+            // ✅ 파일을 일시적으로 저장하여 경로 획득
+            File tempFile = File.createTempFile("clfModel", ".py");
+            try (OutputStream outputStream = new FileOutputStream(tempFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = scriptStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+            scriptPath = tempFile.getAbsolutePath();
+            System.out.println("scriptPath: " + scriptPath);
+        } catch (IOException e) {
+            throw new RuntimeException("Python script loading failed.", e);
+        }
         Map<String, Object> responseMap = new HashMap<>();
 
         try {

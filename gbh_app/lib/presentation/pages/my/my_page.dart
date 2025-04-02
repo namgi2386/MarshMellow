@@ -86,6 +86,13 @@ class MyPage extends ConsumerWidget {
               },
               child: const Text('회원가입 테스트페이지'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(SignupRoutes.getMyDataSplashPath());
+              },
+              child: const Text('인증서 테스트페이지'),
+            ),
           ],
         ),
       ),

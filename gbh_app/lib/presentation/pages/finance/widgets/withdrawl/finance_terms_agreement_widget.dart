@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/withdrawal_account_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
-import 'package:go_router/go_router.dart'; // 나중에 실제 라우팅 구현 시 필요
+import 'package:go_router/go_router.dart';
+import 'package:marshmellow/router/routes/finance_routes.dart';
 
 class FinanceTermsAgreementWidget extends StatelessWidget {
   final WithdrawalAccountState state;
@@ -63,9 +64,7 @@ _buildExpandableTermsItem(
       isChecked: state.isFirstTermAgreed, // 상위 약관과 동일한 상태 사용
       onCheckChanged: (_) => viewModel.toggleFirstTermAgreement(),
       onNavigate: () {
-        print('오픈뱅킹 서비스 이용약관 상세보기'); // 임시 로그
-        // TODO: 라우팅 구현
-        // context.push('/terms/openbanking-service');
+        context.push(FinanceRoutes.getAgreementPath('A001'));
       },
     ),
     _buildSubTermsItem(
@@ -73,9 +72,7 @@ _buildExpandableTermsItem(
       isChecked: state.isFirstTermAgreed, // 상위 약관과 동일한 상태 사용
       onCheckChanged: (_) => viewModel.toggleFirstTermAgreement(),
       onNavigate: () {
-        print('고객본인확인 상세보기'); // 임시 로그
-        // TODO: 라우팅 구현
-        // context.push('/terms/customer-verification');
+        context.push(FinanceRoutes.getAgreementPath('A002'));
       },
     ),
   ],
@@ -98,8 +95,7 @@ _buildExpandableTermsItem(
       isChecked: state.isSecondTermAgreed,
       onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
       onNavigate: () {
-        print('오픈뱅킹용 개인정보 수집이용 상세보기');
-        // TODO: 라우팅 구현
+        context.push(FinanceRoutes.getAgreementPath('B001'));
       },
     ),
     _buildSubTermsItem(
@@ -107,8 +103,7 @@ _buildExpandableTermsItem(
       isChecked: state.isSecondTermAgreed,
       onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
       onNavigate: () {
-        print('오픈뱅킹용 개인정보 제공 상세보기');
-        // TODO: 라우팅 구현
+        context.push(FinanceRoutes.getAgreementPath('B002'));
       },
     ),
     _buildSubTermsItem(
@@ -116,8 +111,7 @@ _buildExpandableTermsItem(
       isChecked: state.isSecondTermAgreed,
       onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
       onNavigate: () {
-        print('오픈뱅킹용 금융거래정보 제공 상세보기');
-        // TODO: 라우팅 구현
+        context.push(FinanceRoutes.getAgreementPath('B003'));
       },
     ),
     _buildSubTermsItem(
@@ -125,8 +119,7 @@ _buildExpandableTermsItem(
       isChecked: state.isSecondTermAgreed,
       onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
       onNavigate: () {
-        print('오픈뱅킹용 기기정보 수집이용 상세보기');
-        // TODO: 라우팅 구현
+        context.push(FinanceRoutes.getAgreementPath('B004'));
       },
     ),
     _buildSubTermsItem(
@@ -134,8 +127,7 @@ _buildExpandableTermsItem(
       isChecked: state.isSecondTermAgreed,
       onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
       onNavigate: () {
-        print('오픈뱅킹용 기기정보 제공 상세보기');
-        // TODO: 라우팅 구현
+        context.push(FinanceRoutes.getAgreementPath('B005'));
       },
     ),
   ],
@@ -158,9 +150,7 @@ _buildExpandableTermsItem(
       isChecked: state.isThirdTermAgreed,
       onCheckChanged: (_) => viewModel.toggleThirdTermAgreement(),
       onNavigate: () {
-        print('회원의 신용도 평가 상세보기');
-        // TODO: 라우팅 구현
-        // context.push('/terms/credit-evaluation');
+        context.push(FinanceRoutes.getAgreementPath('C001'));
       },
     ),
   ],

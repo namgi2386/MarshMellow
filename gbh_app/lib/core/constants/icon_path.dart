@@ -142,8 +142,10 @@ class IconPath {
   static const String quoteLeft = 'assets/icons/body/Quotes_L.svg';
   static const String quoteRight = 'assets/icons/body/Quotes_R.svg';
   static const String refesh = 'assets/icons/body/ArrowCounterClockwise.svg';
+
   static const String caretcircleup = 'assets/icons/body/CaretCircleUp.svg';
   static const String caretdoubledown = 'assets/icons/body/CaretDoubleDown.svg';
+  static const String question = 'assets/icons/body/question.svg';
 
   // 카드 이미지
   static const String testCard = 'assets/icons/card/testCard.svg';

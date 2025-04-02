@@ -9,7 +9,9 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_cert_select_modal.dart';
+import 'package:marshmellow/presentation/viewmodels/auth/certificate_notifier.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
+import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
@@ -35,6 +37,7 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
 
   // 버튼 활성화 상태
   bool _isButtonEnabled = false;
+  bool _isLoading = false;
 
   // 은행 아이콘을 불러오자
   final List<String> bankIconPaths = [
@@ -100,7 +103,6 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
       parent: _thirdRowController, 
       curve: Curves.linear,
     ));
-
   }
 
   @override
@@ -111,23 +113,50 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
     super.dispose();
   }
 
-  void _handleCertificateGeneration(BuildContext context) {
-    final hasExistingCertificate = false;
+  // 인증서 상태 확인 및 처리
+  Future<void> _checkCertificateStatus() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (hasExistingCertificate) {
-      context.showAuthMydataCertSelect('손효자');
-    } else {
-      context.go(SignupRoutes.getMyDataEmailPath()); 
+    try {
+      // 인증서 상태 확인 API 호출
+      await ref.read(certificateProvider.notifier).checkCertificateStatus();
+
+      // 위젯 마운팅 확인
+      if (!mounted) return;
+
+      final certState = ref.read(certificateProvider);
+
+      // UI 업데이트
+      setState(() {
+        _isLoading = false;
+      });
+
+      // 인증서 상태에 따른 분기 처리
+      if (certState.hasCertificate) {
+        // 인증서 존재 - 인증서 선택 모달 표시
+        context.showAuthMydataCertSelect('손효자');
+      } else {
+        // 인증서 존재X - 이메일 입력 페이지(인증서생성시작) 이동
+        context.go(SignupRoutes.getMyDataEmailPath());
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      // 오류 처리
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('인증서 확인 중 오류가 발생했습니다: $e'))
+      );
     }
-    // 금융인증서 생성 로직을 여기다 추가하세요! 당장!
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('금융인증서 생성 중..'))
-    );
-
   }
 
   // 체크박스 상태 변경 처리
-  void _toggleBUttonEnabled() {
+  void _toggleButtonEnabled() {
     setState(() {
       _isButtonEnabled = !_isButtonEnabled;
     });
@@ -145,76 +174,89 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
     final List<Widget> thirdRowIcons = _createDuplicatedIconRow(bankIconPaths.sublist(10, 14), iconSize);
 
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 50),
-            const SizedBox(height: 50),
-            const Text('손효자 님의', style: AppTextStyles.mainTitle),
-            const Text('자산을 한 번에 찾아보세요', style: AppTextStyles.mainTitle),
-            const SizedBox(height: 10),
-            Text('단 30초면 모든 기관을 찾고 연결할 수 있어요', style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled)),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 50),
+                const SizedBox(height: 50),
+                const Text('손효자 님의', style: AppTextStyles.mainTitle),
+                const Text('자산을 한 번에 찾아보세요', style: AppTextStyles.mainTitle),
+                const SizedBox(height: 10),
+                Text('단 30초면 모든 기관을 찾고 연결할 수 있어요', 
+                     style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled)),
 
-            // 은행 아이콘 그리드
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildSlidingRow(firstRowIcons,_firstRowAnimation, screenWidth),
-                  const SizedBox(height: 1),
-                  _buildSlidingRow(secondRowIcons,_secondRowAnimation, screenWidth),
-                  const SizedBox(height: 1),
-                  _buildSlidingRow(thirdRowIcons,_thirdRowAnimation, screenWidth),
-
-                ],
-              )
-            ),
-
-            Center(
-              child: InkWell(
-                onTap: _toggleBUttonEnabled,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: _isButtonEnabled ? AppColors.backgroundBlack : Colors.transparent,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _isButtonEnabled ? AppColors.backgroundBlack : AppColors.disabled,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.check,
-                        color: _isButtonEnabled ? AppColors.whiteLight : Colors.transparent,
-                        size: 14,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('17개 금융사 선택', style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled), textAlign: TextAlign.center,)
-                  ],
+                // 은행 아이콘 그리드
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildSlidingRow(firstRowIcons, _firstRowAnimation, screenWidth),
+                      const SizedBox(height: 1),
+                      _buildSlidingRow(secondRowIcons, _secondRowAnimation, screenWidth),
+                      const SizedBox(height: 1),
+                      _buildSlidingRow(thirdRowIcons, _thirdRowAnimation, screenWidth),
+                    ],
+                  )
                 ),
+
+                Center(
+                  child: InkWell(
+                    onTap: _toggleButtonEnabled,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: _isButtonEnabled ? AppColors.backgroundBlack : Colors.transparent,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: _isButtonEnabled ? AppColors.backgroundBlack : AppColors.disabled,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.check,
+                            color: _isButtonEnabled ? AppColors.whiteLight : Colors.transparent,
+                            size: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text('17개 금융사 선택', 
+                             style: AppTextStyles.bodySmall.copyWith(color: AppColors.disabled), 
+                             textAlign: TextAlign.center,)
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                Button(
+                  text: '찾아보기',
+                  width: screenWidth * 0.9,
+                  height: 60,
+                  onPressed: _isButtonEnabled ? _checkCertificateStatus : null,
+                  isDisabled: !_isButtonEnabled,
+                ),
+
+                SizedBox(height: screenHeight * 0.05),
+              ],
+            ),
+          ),
+          
+          // 로딩 인디케이터
+          if (_isLoading)
+            Container(
+              color: AppColors.whiteLight,
+              child: const Center(
+                child: CustomLoadingIndicator(text: '인증서 정보를 확인중입니다', backgroundColor: AppColors.whiteLight,)
               ),
             ),
-
-            const SizedBox(height: 16),
-
-
-            Button(
-              text:'찾아보기',
-              width: screenWidth * 0.9,
-              height: 60,
-              onPressed: () => _handleCertificateGeneration(context),
-              isDisabled: !_isButtonEnabled,
-
-            ),
-
-            SizedBox(height: screenHeight * 0.05),
-          ],
-        ),
+        ],
       ),
     );
   }

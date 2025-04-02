@@ -10,7 +10,7 @@ import 'package:pointycastle/key_generators/api.dart';
 import 'package:pointycastle/key_generators/rsa_key_generator.dart';
 import 'package:pointycastle/random/fortuna_random.dart';
 import 'package:pointycastle/signers/rsa_signer.dart';
-import 'package:pointycastle/digests/sha256.dart';
+import 'package:pointycastle/digests/sha512.dart';
 
 /*
  TEE/SE 하드웨어 접근 불가능시 사용할
@@ -29,7 +29,7 @@ class CertificateService {
         // 보안 랜덤 생성기
         final secureRandom = FortunaRandom();
         final random = Random.secure();
-        final seeds = List<int>.generate(32, (_) => random.nextInt(256));
+        final seeds = List<int>.generate(32, (_) => random.nextInt(512));
         secureRandom.seed(KeyParameter(Uint8List.fromList(seeds)));
 
         // RSA 키 생성기
@@ -248,7 +248,7 @@ class CertificateService {
     
     // 서명 알고리즘
     print('RSA 서명자 생성 시작');
-    final signer = RSASigner(SHA256Digest(), '0609608648016503040201');
+    final signer = RSASigner(SHA512Digest(), '0609608648016503040205');
     print('다이제스트 및 알고리즘 설정 완료');
 
     print('개인키 파라미터 생성');
@@ -281,7 +281,7 @@ class CertificateService {
     final csrSequence = ASN1Sequence()
       ..add(csrInfoSeq)
       ..add(ASN1Sequence()
-        ..add(ASN1ObjectIdentifier(Uint8List.fromList([42, 134, 72, 134, 247, 13, 1, 1, 11]))) // SHA-256 with RSA 
+        ..add(ASN1ObjectIdentifier(Uint8List.fromList([42, 134, 72, 134, 247, 13, 1, 1, 13])))
         ..add(ASN1Null()))
       ..add(ASN1BitString(signatureBytes));
 
@@ -305,7 +305,7 @@ class CertificateService {
   ASN1Sequence _encodePublicKey(RSAPublicKey publicKey) {
     final algorithmSeq = ASN1Sequence();
     // OID를 Uint8List로 변환
-    final algorithmAsn1Obj = ASN1ObjectIdentifier(Uint8List.fromList([42, 134, 72, 134, 247, 13, 1, 1, 1])); // RSA
+    final algorithmAsn1Obj = ASN1ObjectIdentifier(Uint8List.fromList([42, 134, 72, 134, 247, 13, 1, 1, 13])); // RSA
     final paramsAsn1 = ASN1Null();
     algorithmSeq.add(algorithmAsn1Obj);
     algorithmSeq.add(paramsAsn1);

@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 class DigitalSignatureService {
   final CertificateService _certificateService;
   final FlutterSecureStorage _secureStorage;
+  // final certificatePem = _secureStorage.read(key: StorageKeys.certificatePem).replaceAll('\\n', '\n').replaceAll('\r\n', '\n').trim();
 
   DigitalSignatureService(this._certificateService, this._secureStorage);
 
@@ -23,6 +24,8 @@ class DigitalSignatureService {
     
     return halfUserKey;
   }
+
+
 
   // 전자서명 생성
   Future<Map<String, dynamic>> generateDigitalSignature(String originalText) async {
@@ -40,11 +43,18 @@ class DigitalSignatureService {
 
       
       // 3. 인증서 가져오기
-      final certificatePem = await _secureStorage.read(key: StorageKeys.certificatePem);
+      final certificatePemRaw = await _secureStorage.read(key: StorageKeys.certificatePem);
+      if (certificatePemRaw == null) {
+        throw Exception('인증서를 찾을 수 없습니다.');
+      }
+      final certificatePem = certificatePemRaw.replaceAll(r'\n', '\n').replaceAll('\\n', '\n').replaceAll('\r\n', '\n').trim();
       if (certificatePem == null) {
         throw Exception('인증서를 찾을 수 없습니다.');
       }
-      print('$certificatePem');
+      // print('서버에 이거 보냄 : $certificatePem');
+
+      print('원본 데이터: $certificatePemRaw');
+      print('처리된 데이터: $certificatePem');
 
       
       // 4. 은행 및 카드사 코드 리스트

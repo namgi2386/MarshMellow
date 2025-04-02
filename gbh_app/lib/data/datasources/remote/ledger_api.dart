@@ -90,7 +90,6 @@ class LedgerApi {
   }
 
   // 검색 기능
-  // LedgerApi에서 수정할 부분
   Future<Map<String, dynamic>> searchHousehold({
     required String startDate,
     required String endDate,
@@ -108,27 +107,26 @@ class LedgerApi {
 
       if (response.data['code'] == 200 && response.data['data'] != null) {
         final data = response.data['data'];
-        final householdList = data['householdList'] ?? [];
-
-        // 검색된 트랜잭션 목록
         final List<Transaction> transactions = [];
 
-        // householdList를 트랜잭션으로 변환
-        for (var item in householdList) {
-          try {
-            // 디버깅을 위해 로그 추가
-            print('Processing item: ${item['tradeName']}');
-
-            // API 응답에 필요한 필드가 모두 있는지 확인
-            final transaction = Transaction.fromJson(item);
-            transactions.add(transaction);
-          } catch (e) {
-            print('Error parsing transaction: $e');
-            // 파싱 오류가 발생해도 계속 진행
+        if (data['householdList'] != null) {
+          // 날짜별 그룹을 순회
+          for (var dateGroup in data['householdList']) {
+            // 각 날짜 그룹 내의 트랜잭션 리스트 처리
+            if (dateGroup['list'] != null && dateGroup['list'] is List) {
+              for (var item in dateGroup['list']) {
+                try {
+                  // 트랜잭션 객체 생성
+                  final transaction = Transaction.fromJson(item);
+                  transactions.add(transaction);
+                } catch (e) {
+                  print('Error parsing transaction: $e');
+                }
+              }
+            }
           }
         }
 
-        // 결과 반환
         return {
           'transactions': transactions,
         };

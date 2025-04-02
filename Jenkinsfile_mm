@@ -33,19 +33,32 @@ pipeline {
                 }
             }
         }
-        stage('Prepare AI Config') {
-            steps {
-                withCredentials([file(credentialsId: 'MM_AI_ENV', variable: 'MM_ENV_FILE')]) {
-                    sh 'chmod -R 777 gbh_mm/src/main/resources'
-                    sh 'cp $MM_ENV_FILE gbh_mm/src/main/resources/.env'
-                }
-            }
-        }
         stage('Build Spring Boot App') {
             steps {
                 dir('gbh_mm') {
                     sh 'chmod +x gradlew'
                     sh './gradlew clean build -x test'
+                }
+            }
+        }
+        stage('Build FastAPI AI Image') {
+            steps {
+                dir('gbh_ai') {
+                    sh 'docker build -t yunjaeeun12/gbh-fastapi:latest .'
+                }
+            }
+        }
+        stage('Push FastAPI AI Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: env.DOCKERHUB_CREDENTIALS,
+                    passwordVariable: 'DOCKERHUB_PASS',
+                    usernameVariable: 'DOCKERHUB_USER'
+                )]) {
+                    sh '''
+                    echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                    docker push yunjaeeun12/gbh-fastapi:latest
+                    '''
                 }
             }
         }

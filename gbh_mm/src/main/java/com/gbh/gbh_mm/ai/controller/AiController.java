@@ -30,7 +30,8 @@ public class AiController {
             throw new CustomException(ErrorCode.BAD_REQUEST);
         }
 
-        String pythonPath = "/usr/bin/python3.9";
+//        String pythonPath = "/usr/bin/python3.9";
+        String pythonPath = "python3";
         String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
         System.out.println("scriptPath: " + scriptPath);
         Map<String, Object> responseMap = new HashMap<>();

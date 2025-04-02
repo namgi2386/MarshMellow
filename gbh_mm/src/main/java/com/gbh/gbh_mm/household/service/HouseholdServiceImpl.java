@@ -7,6 +7,8 @@ import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
 import com.gbh.gbh_mm.budget.repo.BudgetRepository;
+import com.gbh.gbh_mm.common.exception.CustomException;
+import com.gbh.gbh_mm.common.exception.ErrorCode;
 import com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestFindTransactionList;
 import com.gbh.gbh_mm.household.model.dto.CardDto;
@@ -14,6 +16,7 @@ import com.gbh.gbh_mm.household.model.dto.DateGroupDto;
 import com.gbh.gbh_mm.household.model.dto.DemandDepositDto;
 import com.gbh.gbh_mm.household.model.dto.HouseHoldDto;
 import com.gbh.gbh_mm.household.model.dto.HouseholdDetailDto;
+import com.gbh.gbh_mm.household.model.dto.PaymentMethodDto;
 import com.gbh.gbh_mm.household.model.entity.AiCategory;
 import com.gbh.gbh_mm.household.model.entity.Household;
 import com.gbh.gbh_mm.household.model.entity.HouseholdCategory;
@@ -651,5 +654,57 @@ public class HouseholdServiceImpl implements HouseholdService {
             .build();
 
         return response;
+    }
+
+    @Override
+    public ResponsePaymentMethodList findPaymentMethodList(RequestPaymentMethodList request) {
+        User user =  userRepository.findByUserPk(request.getUserPk())
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        try {
+            Map<String, Object> cardResponseData = cardAPI.findUserCardList(user.getUserKey());
+            Map<String, Object> accountResponseData = demandDepositAPI
+                .findDemandDepositAccountList(user.getUserKey());
+
+            Map<String, Object> cardApiData =
+                (Map<String, Object>) cardResponseData.get("apiResponse");
+            Map<String, Object> accountApiData =
+                (Map<String, Object>) accountResponseData.get("apiResponse");
+            List<Map<String, Object>> cardRecData =
+                (List<Map<String, Object>>) cardApiData.get("REC");
+            List<Map<String, Object>> accountRecData =
+                (List<Map<String, Object>>) accountApiData.get("REC");
+
+            List<PaymentMethodDto> paymentMethodDtoList = new ArrayList<>();
+            for (Map<String, Object> cardRecDatum : cardRecData) {
+                PaymentMethodDto paymentMethodDto = PaymentMethodDto.builder()
+                    .bankCode((String) cardRecDatum.get("cardIssuerCode"))
+                    .bankName((String) cardRecDatum.get("cardIssuerName"))
+                    .paymentType("CARD")
+                    .paymentMethod((String) cardRecDatum.get("cardName"))
+                    .build();
+
+                paymentMethodDtoList.add(paymentMethodDto);
+            }
+
+            for (Map<String, Object> accountRecDatum : accountRecData) {
+                PaymentMethodDto paymentMethodDto = PaymentMethodDto.builder()
+                    .bankCode((String) accountRecDatum.get("bankCode"))
+                    .bankName((String) accountRecDatum.get("bankName"))
+                    .paymentType("ACCOUNT")
+                    .paymentMethod((String) accountRecDatum.get("accountName"))
+                    .build();
+
+                paymentMethodDtoList.add(paymentMethodDto);
+            }
+
+            ResponsePaymentMethodList response = new ResponsePaymentMethodList();
+
+            response.setPaymentMethodList(paymentMethodDtoList);
+
+            return response;
+
+        } catch (JsonProcessingException e) {
+            return null;
+        }
     }
 }

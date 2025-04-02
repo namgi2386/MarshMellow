@@ -6,6 +6,7 @@ import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/di/providers/auth/mydata_provider.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_select_content.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
+import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
 
 /*
   마이데이터 연동 동의서 페이지
@@ -49,15 +50,65 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
     );
   }
 
-  void _handleAgreementSubmit() {
-   showCertificateModal(
+  // 동의서 원문 추출
+  String _extractAgreementText() {
+    return '''내 자산 목록을 가져옵니다. 아래를 읽고 동의해 주세요. maintitle 개인신용정보 전송요구 및 수집, 이용 정보제공자 현대카드,NH농협카드, 카카오뱅크, 우리카드, 신한카드, 현대해상, 카카오뱅크, 국민은행, 신한은행, KB국민카드, 카카오페이, 우리은행, 하나은행, 농협은행, 토스, 삼성카드, 기업은행, 하나카드, 지역농협, 케이뱅크, 롯데카드, 페이코, 한국투자증권, 키움증권, 새마을금고, IBK기업은행, KB증권, 메리츠화재, 미래에셋증권, 토스증권, 카카오페이 증권, 토스뱅크, 삼성화재, NH투자증권, DB손해보험, 신한투자증권, 삼성증권, KB손해보험, 삼성생명, SC제일은행, 우체국, 한화손해보험, BC바로카드, 신한라이프, iM뱅크, 부산은행, 토스뱅크, 교보생명, 수협은행, 신협 정보수신자 MM(Money Management) 전송 정보 카드 : 카드 목록 및 선불 카드 목록 보험 : 보험증권 목록, 대출계좌 목록, 피보험자 보험 목록, 개인형 IRP 계좌 목록 및 DC 형 퇴직연금 목록 페이머니 : 선불전자지급수단 목록 및 계정 목록 증권 : 계좌 목록, 개인형 IRP 계좌 목록 및 DC형 퇴직연금 목록 전자서명, 접근토큰, 인증서, 전송요구서 수집, 이용 항목 상세 보기 > 전송 목적 상세정보 전송요구를 위한 가입상품목록 조회 정보 보유, 이용기간 및 전송 요구 종료 시점 상세 정보 전송 요구 시까지 또는 7일 중 짧은 기간 가입상품목록 조회의 경우 정기전송을 하지 않습니다. MM이 위 정보를 수집, 이용하는 것을 거부할 수 있으나, 그러한 경우 본인신용정보 통합조회, 데이터 분석 서비스 이용이 제한됩니다. 데이터 자동 업데이트 여부 아니요 개인신용정보 제공 제공 받는 자 한국신용정보원 위 정보제공자 제공 목적 마이데이터 서비스 가입현황 및 전송요구 내역 조회 본인 확인 및 개인신용정보 전송 보유 및 이용 기간 제공 목적 달성시까지 제공목적 달성시까지 제공 항목 회원가입여부, 서비스목록수, 서비스목록, 클라이언트ID, 전송요구내역수, 전송요구내역목록, 정보제공자, 기관코드, 권한범위, 전송요구일자, 전송요구 종료시점 전자서명, CI, 인증서, 전송요구서 위 개인신용정보 제공을 거부할 수 있으나, 그러한 경우 본인신용정보 통합조회, 데이터 분석 서비스, 마이데이터 서비스 가입현황 및 전송 요구 내역 조회 기능 이용이 제한됩니다. 위 개인신용정보 수집, 이용에 동의합니다. 위 개인신용정보 제공에 동의합니다.''';
+  }
+
+  // 전자서명 검증 요청
+  void _handleAgreementSubmit() async {
+    final originalText = _extractAgreementText();
+
+// 인증서 비밀번호 확인 모달 표시
+    showCertificateModal(
       context: context, 
       ref: ref, 
-      userName: '손효자', 
-      expiryDate: '2028.03.14.', 
-      onConfirm: () {
-        // TODO: 여기서 인증서 확인 작업 필요
-        // 서버에 개인키해싱값 전달 응답 받기
+      userName: '사용자', // 실제 사용자 이름으로 변경
+      expiryDate: '2028.03.14', // 실제 만료일로 변경
+      onConfirm: () async {
+        // 로딩 표시
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const CustomLoadingIndicator(text: "전자서명 검증 중..."),
+        );
+
+        try {
+          // 전자서명 검증 API 호출
+          final result = await ref.read(mydataAgreementProvider.notifier)
+              .verifyDigitalSignature(originalText);
+          
+          // 로딩 닫기
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
+
+          // 결과 처리
+          if (result && context.mounted) {
+            // 성공 시 다음 페이지로 이동
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('전자서명 검증 성공! 마이데이터 연동이 완료되었습니다.')),
+            );
+            
+            // 완료 페이지로 이동
+            context.go('/signup/mydatacomplete');
+          } else if (context.mounted) {
+            // 실패 시 에러 메시지 표시
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('전자서명 검증에 실패했습니다. 다시 시도해주세요.')),
+            );
+          }
+        } catch (e) {
+          // 오류 발생 시 로딩 닫기
+          if (context.mounted) {
+            Navigator.of(context).pop();
+            
+            // 에러 메시지 표시
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('오류가 발생했습니다: $e')),
+            );
+          }
+        }
       }
     );
   }
@@ -65,7 +116,17 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(agreementStateProvider);
+    final mydataState = ref.watch(mydataAgreementProvider);
     final screenWidth = MediaQuery.of(context).size.width;
+
+    // 에러 메시지 표시
+    if (mydataState.error != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(mydataState.error!)),
+        );
+      });
+    }
 
     return Scaffold(
       body: SafeArea(

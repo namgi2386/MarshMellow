@@ -99,4 +99,12 @@ public class HouseholdController {
 
         return response;
     }
+
+
+    @GetMapping("/payment-method")
+    public ResponsePaymentMethodList findPaymentMethodList(
+        @RequestBody RequestPaymentMethodList request
+    ) {
+        return householdService.findPaymentMethodList(request);
+    }
 }

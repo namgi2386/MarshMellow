@@ -95,7 +95,7 @@ List<RouteBase> signupRoutes = [
         builder: (context, state) => const AuthMydataSplashPage(),
       ),
 
-      // 마이데이터 비밀번호 설정 페이지
+      // 마이데이터 이메일 작성 페이지
       GoRoute(
         path: SignupRoutes.mydataemail,
         builder: (context, state) => const AuthMydataEmailInputPage(),
@@ -126,10 +126,10 @@ List<RouteBase> signupRoutes = [
       ),
 
       // 전자서명 원문 페이지
-      GoRoute(
-        path: SignupRoutes.mydataagreement,
-        builder: (context, state) => const AuthMydataAgreementPage(),
-      ),
+      // GoRoute(
+      //   path: SignupRoutes.mydataagreement,
+      //   builder: (context, state) => const AuthMydataAgreementPage(),
+      // ),
 
 
 

@@ -25,6 +25,7 @@ import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdatePortfolio;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioCategoryRepository;
 import com.gbh.gbh_mm.portfolio.repo.PortfolioRepository;
 import com.gbh.gbh_mm.s3.S3Component;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,8 +51,9 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final S3Component s3Component;
 
     @Override
-    public ResponseCreateCategory createCategory(RequestCreateCategory request) {
-        User user = userRepository.findByUserPk(request.getUserPk())
+    public ResponseCreateCategory createCategory(RequestCreateCategory request,
+        CustomUserDetails customUserDetails) {
+        User user = userRepository.findByUserPk(customUserDetails.getUserPk())
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         PortfolioCategory portfolioCategory = PortfolioCategory.builder()
@@ -61,7 +64,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         portfolioCategoryRepository.save(portfolioCategory);
         List<PortfolioCategory> portfolioCategoryList = portfolioCategoryRepository
-            .findAllByUser_UserPk(request.getUserPk());
+            .findAllByUser_UserPk(customUserDetails.getUserPk());
 
         List<PortfolioCategoryDto> portfolioCategoryDtoList = portfolioCategoryList.stream()
             .map(p -> mapper.map(p, PortfolioCategoryDto.class))
@@ -75,9 +78,9 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public ResponseFindCategoryList findCategoryList(RequestFindCategoryList request) {
+    public ResponseFindCategoryList findCategoryList(CustomUserDetails customUserDetails) {
         List<PortfolioCategory> portfolioCategoryList = portfolioCategoryRepository
-            .findAllByUser_UserPk(request.getUserPk());
+            .findAllByUser_UserPk(customUserDetails.getUserPk());
 
         List<PortfolioCategoryDto> portfolioCategoryDtoList = portfolioCategoryList.stream()
             .map(p -> mapper.map(p, PortfolioCategoryDto.class))
@@ -93,7 +96,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public ResponseDeleteCategory deleteCategory(RequestDeleteCategory request) {
         try {
-            portfolioRepository.deleteById(request.getCategoryPk());
+            portfolioCategoryRepository.deleteById(request.getCategoryPk());
 
             ResponseDeleteCategory response = ResponseDeleteCategory.builder()
                 .message("SUCCESS")
@@ -133,8 +136,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     @Override
     public ResponseCreatePortfolio createPortfolio(MultipartFile file, String portfolioMemo,
-        String fileName, long userPk, int portfolioCategoryPk) {
-        User user = userRepository.findByUserPk(userPk)
+        String fileName, CustomUserDetails customUserDetails, int portfolioCategoryPk) {
+        User user = userRepository.findByUserPk(customUserDetails.getUserPk())
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         PortfolioCategory portfolioCategory = portfolioCategoryRepository
             .findById(portfolioCategoryPk)
@@ -170,8 +173,9 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public ResponseFindPortfolioList findPortfolioList(RequestFindPortfolioList request) {
-        List<Portfolio> portfolioList = portfolioRepository.findAllByUser_UserPk(request.getUserPk());
+    public ResponseFindPortfolioList findPortfolioList(CustomUserDetails customUserDetails) {
+        List<Portfolio> portfolioList = portfolioRepository
+            .findAllByUser_UserPk(customUserDetails.getUserPk());
 
         List<PortfolioDto> portfolioDtoList = new ArrayList<>();
 

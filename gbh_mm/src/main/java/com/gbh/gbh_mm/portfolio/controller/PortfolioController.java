@@ -18,7 +18,9 @@ import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseUpdatePortfolio;
 import com.gbh.gbh_mm.portfolio.service.PortfolioService;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -38,18 +40,20 @@ public class PortfolioController {
 
     @PostMapping("/category")
     public ResponseCreateCategory createPortfolioCategory(
-        @RequestBody RequestCreateCategory request
+        @RequestBody RequestCreateCategory request,
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        ResponseCreateCategory response = portfolioService.createCategory(request);
+        ResponseCreateCategory response = portfolioService
+            .createCategory(request, customUserDetails);
 
         return response;
     }
 
     @GetMapping("/category-list")
     public ResponseFindCategoryList findPortfolioCategoryList(
-        @RequestBody RequestFindCategoryList request
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        return portfolioService.findCategoryList(request);
+        return portfolioService.findCategoryList(customUserDetails);
     }
 
     @DeleteMapping("/category")
@@ -68,21 +72,21 @@ public class PortfolioController {
 
     @PostMapping
     public ResponseCreatePortfolio createPortfolio(
+        @AuthenticationPrincipal CustomUserDetails customUserDetails,
         @RequestParam MultipartFile file,
         @RequestParam String portfolioMemo,
         @RequestParam String fileName,
-        @RequestParam long userPk,
         @RequestParam int portfolioCategoryPk
     ) {
         return portfolioService
-            .createPortfolio(file, portfolioMemo, fileName,userPk, portfolioCategoryPk);
+            .createPortfolio(file, portfolioMemo, fileName, customUserDetails, portfolioCategoryPk);
     }
 
     @GetMapping("/list")
     public ResponseFindPortfolioList findPortfolioList(
-        @RequestBody RequestFindPortfolioList request
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        return portfolioService.findPortfolioList(request);
+        return portfolioService.findPortfolioList(customUserDetails);
     }
 
     @GetMapping

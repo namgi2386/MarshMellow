@@ -8,6 +8,5 @@ public class RequestCreateAutoTransaction {
     private String depositAccountNo;
     private String dueDate;
     private long wishListPk;
-    private long userPk;
     private int transactionBalance;
 }

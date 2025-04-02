@@ -22,4 +22,6 @@ public interface HouseholdService {
     ResponseSearchHousehold searchHousehold(RequestSearchHousehold request);
 
     ResponseFilterHousehold filterHousehold(RequestFilterHousehold request);
+
+    ResponsePaymentMethodList findPaymentMethodList(RequestPaymentMethodList request);
 }

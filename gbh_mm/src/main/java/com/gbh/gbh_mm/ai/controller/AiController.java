@@ -34,6 +34,11 @@ public class AiController {
         String pythonPath = "python3";
         String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
         System.out.println("scriptPath: " + scriptPath);
+        InputStream convertPath = getClass().getClassLoader().getResourceAsStream(aiFilePath);
+        if (convertPath == null) {
+            throw new CustomException(ErrorCode.DATABASE_ERROR);
+        }
+        System.out.println("convertPath: " + convertPath);
         Map<String, Object> responseMap = new HashMap<>();
 
         try {

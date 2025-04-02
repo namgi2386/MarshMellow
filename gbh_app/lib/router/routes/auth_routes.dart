@@ -126,10 +126,10 @@ List<RouteBase> signupRoutes = [
       ),
 
       // 전자서명 원문 페이지
-      // GoRoute(
-      //   path: SignupRoutes.mydataagreement,
-      //   builder: (context, state) => const AuthMydataAgreementPage(),
-      // ),
+      GoRoute(
+        path: SignupRoutes.mydataagreement,
+        builder: (context, state) => const AuthMydataAgreementPage(),
+      ),
 
 
 

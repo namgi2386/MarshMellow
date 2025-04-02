@@ -42,7 +42,13 @@ class DigitalSignatureService {
       if (certificatePemRaw == null) {
         throw Exception('인증서를 찾을 수 없습니다.');
       }
-      final certificatePem = certificatePemRaw.replaceAll(r'\n', '\n').replaceAll('\\n', '\n').replaceAll('\r\n', '\n').trim();
+      // 인증서에 \r\n 줄바꿈 유지 (기존 줄바꿈 제거 로직 변경)
+      final certificatePem = certificatePemRaw
+                          .replaceAll('\\n', '\r\n')
+                          .replaceAll('\n', '\r\n');
+
+      print('원본 인증서 데이터: $certificatePemRaw');
+      print('처리된 인증서 데이터: $certificatePem');
       if (certificatePem == null) {
         throw Exception('인증서를 찾을 수 없습니다.');
       }

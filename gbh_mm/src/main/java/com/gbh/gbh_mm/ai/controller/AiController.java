@@ -25,11 +25,12 @@ public class AiController {
     @PostMapping("/category")
     public Map<String, Object> runCategory(@RequestBody Map<String, List<String>> payload) {
         List<String> tradeNames = payload.get("tradeNames");
+        System.out.println("입력받은 상호명들: " + tradeNames);
         if (tradeNames == null || tradeNames.isEmpty()) {
             throw new CustomException(ErrorCode.BAD_REQUEST);
         }
 
-        String pythonPath = "usr/bin/python3";
+        String pythonPath = "/usr/bin/python3.9";
         String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
         System.out.println("scriptPath: " + scriptPath);
         Map<String, Object> responseMap = new HashMap<>();

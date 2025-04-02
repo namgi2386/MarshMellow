@@ -149,4 +149,16 @@ class IconPath {
 
   // 카드 이미지
   static const String testCard = 'assets/icons/card/testCard.svg';
+
+  // 축하 컨페티
+  static const String confettiGreen =
+      'assets/images/celebration/confetti_green.png';
+  static const String confettiPink =
+      'assets/images/celebration/confetti_pink.png';
+  static const String confettiBlue =
+      'assets/images/celebration/confetti_blue.png';
+  static const String confettiYellow1 =
+      'assets/images/celebration/confetti_yellow1.png';
+  static const String confettiYellow2 =
+      'assets/images/celebration/confetti_yellow2.png';
 }

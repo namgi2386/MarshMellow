@@ -11,10 +11,12 @@ import 'package:marshmellow/router/routes/finance_routes.dart';
 
 class TotalAssetsWidget extends ConsumerStatefulWidget {
   final int totalAssets;
+  final ScrollController? scrollController; // 스크롤 컨트롤러 추가
   
   const TotalAssetsWidget({
     Key? key,
     required this.totalAssets,
+    this.scrollController, // 스크롤 컨트롤러 파라미터 추가
   }) : super(key: key);
   
   @override
@@ -101,6 +103,7 @@ class _TotalAssetsWidgetState extends ConsumerState<TotalAssetsWidget> {
                               _showBannerAdWidget = false;
                             });
                           },
+                          scrollController: widget.scrollController, // 스크롤 컨트롤러 전달
                         ),
                       ),
                     ),

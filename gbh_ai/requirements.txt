@@ -40,7 +40,6 @@ Pygments==2.19.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 pytz==2025.2
-pywin32==310
 pyzmq==26.3.0
 scikit-learn==1.6.1
 Scikit_learns==0.1.0

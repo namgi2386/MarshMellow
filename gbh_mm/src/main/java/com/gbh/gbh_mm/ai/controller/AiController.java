@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -32,13 +33,25 @@ public class AiController {
 
 //        String pythonPath = "/usr/bin/python3.9";
         String pythonPath = "python3";
-        String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
-        System.out.println("scriptPath: " + scriptPath);
-        InputStream convertPath = getClass().getClassLoader().getResourceAsStream(aiFilePath);
-        if (convertPath == null) {
-            throw new CustomException(ErrorCode.DATABASE_ERROR);
+//        String scriptPath = System.getProperty("user.dir") + aiFilePath + "/categoryClf/clfModel.py";
+//        System.out.println("scriptPath: " + scriptPath);
+//        InputStream convertPath = getClass().getClassLoader().getResourceAsStream(aiFilePath);
+//        if (convertPath == null) {
+//            throw new CustomException(ErrorCode.DATABASE_ERROR);
+//        }
+//        System.out.println("convertPath: " + convertPath);
+        String scriptPath;
+        try {
+            URL resource = getClass().getClassLoader().getResource("clfModel.py");
+            if (resource == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR);
+            }
+            scriptPath = new File(resource.toURI()).getAbsolutePath();
+            System.out.println("scriptPath: " + scriptPath);
+        } catch (Exception e) {
+            throw new RuntimeException("not in resources" + e);
         }
-        System.out.println("convertPath: " + convertPath);
+
         Map<String, Object> responseMap = new HashMap<>();
 
         try {

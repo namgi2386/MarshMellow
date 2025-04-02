@@ -105,6 +105,7 @@ class _FinanceAnalysisPageState extends ConsumerState<FinanceAnalysisPage> {
           child: FinanceLoadingAnimation(
             state: LoadingAnimationState.ready,
             onStartPressed: _startAnalysis,
+            resultTypeId: state.selectedType?.id, // 선택된 타입 ID 전달
           ),
         );
         
@@ -114,6 +115,7 @@ class _FinanceAnalysisPageState extends ConsumerState<FinanceAnalysisPage> {
           child: FinanceLoadingAnimation(
             state: LoadingAnimationState.analyzing,
             onStartPressed: _startAnalysis, // 여기서는 사용되지 않지만 필요한 매개변수
+            resultTypeId: state.selectedType?.id, // 선택된 타입 ID 전달
           ),
         );
 
@@ -165,7 +167,7 @@ class _FinanceAnalysisPageState extends ConsumerState<FinanceAnalysisPage> {
                 alignment: Alignment.topCenter, // 텍스트를 상단 중앙에 배치
                 padding: EdgeInsets.only(top: 20), // 텍스트 위치 조정
                 child: Text(
-                  '다시 분석하기',
+                  '다시 분석하기${state.selectedType!.id}',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,

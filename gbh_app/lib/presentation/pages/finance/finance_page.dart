@@ -152,7 +152,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
         children: [
           const SizedBox(height: 12),
           // 총 자산 정보
-          TotalAssetsWidget(totalAssets: totalAssets),
+          TotalAssetsWidget(totalAssets: totalAssets , scrollController: scrollController),
           const SizedBox(height: 12),
 
           // 입출금 계좌 정보

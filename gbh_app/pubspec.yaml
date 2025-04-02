@@ -116,6 +116,9 @@ dependencies:
   pointycastle: ^3.7.3
   asn1lib: ^1.4.0  # CSR 생성용
 
+  # 마크다운
+  flutter_markdown: ^0.7.6+2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -162,6 +165,7 @@ flutter:
     - assets/icons/body/
     - assets/icons/card/
     - assets/icons/etc/
+    - assets/agreements/
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

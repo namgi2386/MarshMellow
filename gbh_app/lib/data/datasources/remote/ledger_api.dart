@@ -1,6 +1,8 @@
 import 'package:marshmellow/data/datasources/remote/api_client.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/data/models/ledger/payment_method.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:convert';
 
 class LedgerApi {
   final ApiClient _apiClient;
@@ -275,6 +277,129 @@ class LedgerApi {
       throw Exception('API 응답 에러: ${response.data['message']}');
     } catch (e) {
       throw Exception('가계부 등록 API 호출 실패: $e');
+    }
+  }
+
+  // 미분류 거래 내역 조회
+  Future<Map<String, dynamic>> getUnsyncedTransactions() async {
+    try {
+      final response = await _apiClient.get('/household/transaction-data');
+
+      if (response.data['code'] == 200 && response.data['data'] != null) {
+        return response.data['data'];
+      }
+
+      throw Exception('API 응답 에러: ${response.data['message']}');
+    } catch (e) {
+      throw Exception('미동기화 거래 내역을 가져오는데 실패했습니다: $e');
+    }
+  }
+
+// 거래 내역 일괄 등록
+  // 거래 내역 일괄 등록
+  Future<Map<String, dynamic>> registerTransactions(
+      Map<String, dynamic> transactionData) async {
+    try {
+      if (kDebugMode) {
+        print('📤 거래 내역 등록 API 호출: /household/household-list');
+
+        // 데이터 구조 확인
+        if (transactionData.containsKey('transactionList') &&
+            transactionData['transactionList'] is List &&
+            (transactionData['transactionList'] as List).isNotEmpty) {
+          print(
+              '📦 거래 내역 수: ${(transactionData['transactionList'] as List).length}');
+          print(
+              '📦 첫 번째 항목 예시: ${(transactionData['transactionList'] as List).first}');
+        }
+      }
+
+      // 요청 데이터를 JSON 문자열로 직렬화
+      final jsonString = jsonEncode(transactionData);
+
+      if (kDebugMode) {
+        print('📦 JSON 요청 데이터: $jsonString');
+      }
+
+      // API 호출 시 직렬화된 JSON 문자열을 사용
+      final response = await _apiClient.post(
+        '/household/household-list',
+        data: jsonString,
+      );
+
+      if (kDebugMode) {
+        print('📥 거래 내역 등록 API 응답 코드: ${response.statusCode}');
+        print('📥 응답 데이터: ${response.data}');
+      }
+
+      if (response.data != null && response.data['code'] == 200) {
+        return response.data['data'] ?? {};
+      }
+
+      throw Exception(
+          'API 응답 에러: ${response.data?['message'] ?? '알 수 없는 오류'} (${response.data?['code'] ?? 'No code'})');
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ 거래 내역 등록 API 호출 중 오류: $e');
+      }
+      throw Exception('거래 내역 등록에 실패했습니다: $e');
+    }
+  }
+
+// AI 카테고리 분류
+  Future<Map<String, String>> classifyTransactionCategories(
+      List<String> tradeNames) async {
+    try {
+      // 디버그 로그
+      if (kDebugMode) {
+        print('카테고리 분류 API 호출: 경로=/mm/ai/category, 데이터=${{
+          "tradeNames": tradeNames
+        }}');
+      }
+
+      // API 호출
+      final response = await _apiClient
+          .post('/mm/ai/category', data: {'tradeNames': tradeNames});
+
+      // 디버그 로그
+      if (kDebugMode) {
+        print(
+            '카테고리 분류 API 응답: 상태코드=${response.statusCode}, 데이터=${response.data}');
+      }
+
+      // 응답 검증
+      if (response.data == null) {
+        throw Exception('API 응답이 없습니다.');
+      }
+
+      // 응답이 직접 Map 형태로 오는 경우 (로그에서 본 형태)
+      if (response.data is Map) {
+        final Map rawData = response.data;
+        final Map<String, String> result = {};
+
+        // 직접 Map 구조 처리
+        for (var tradeName in tradeNames) {
+          if (rawData.containsKey(tradeName)) {
+            result[tradeName] = rawData[tradeName].toString();
+          } else {
+            result[tradeName] = '기타';
+          }
+        }
+
+        if (kDebugMode) {
+          print('처리된 카테고리 결과: $result');
+        }
+
+        return result;
+      }
+
+      // 응답 구조 또는 데이터 누락 시 기본값 처리
+      return {for (var name in tradeNames) name: '미분류'};
+    } catch (e) {
+      if (kDebugMode) {
+        print('카테고리 분류 API 호출 중 오류: $e');
+      }
+      return {for (var name in tradeNames) name: '미분류'};
     }
   }
 }

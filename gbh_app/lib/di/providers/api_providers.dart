@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/datasources/remote/auth_api.dart';
 import 'package:marshmellow/data/datasources/remote/certificate_api.dart';
+import 'package:marshmellow/data/datasources/remote/my/salary_api.dart';
 import '../../data/datasources/remote/api_client.dart';
 import 'core_providers.dart';
 
@@ -21,4 +22,10 @@ final certificateApiProvider = Provider<CertificateApi>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   final secureStorage = ref.watch(secureStorageProvider);
   return CertificateApi(apiClient, secureStorage);
+});
+
+// 사용자 월급 API 프로바이더
+final mySalaryApiProvider = Provider<MySalaryApi>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return MySalaryApi(apiClient);
 });

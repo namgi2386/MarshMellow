@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/constants/icon_path.dart';
+import 'package:marshmellow/core/constants/lunch_menu_data.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/cookie/lunch_page/game/entities/food_ball.dart';
@@ -9,6 +12,7 @@ import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/router/routes/cookie_routes.dart';
 import 'game/lunch_game_widget.dart';
+import 'game/lunch_game.dart'; // BoundaryType을 가져오기 위해 추가
 
 class LunchRunPage extends ConsumerStatefulWidget {
   const LunchRunPage({super.key});
@@ -22,6 +26,8 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
   final GlobalKey<LunchGameWidgetState> _gameKey = GlobalKey<LunchGameWidgetState>();
   bool _gameStarted = false;
   List<String> _winners = [];
+  // 현재 선택된 경기장 타입
+  BoundaryType _currentBoundaryType = BoundaryType.DEFAULT;
   
   @override
   Widget build(BuildContext context) {
@@ -57,6 +63,71 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
             ),
           ),
         ),
+        
+        // 경기장 타입 선택 드롭다운 (왼쪽 상단)
+        // Positioned(
+        //   bottom: 60,
+        //   left: 10,
+        //   child: Container(
+        //     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+        //     decoration: BoxDecoration(
+        //       color: AppColors.backgroundBlack,
+        //       borderRadius: BorderRadius.circular(10),
+        //     ),
+        //     child: Row(
+        //       children: [
+        //         SvgPicture.asset(
+        //               IconPath.map,
+        //               width: 20,
+        //               height: 20,
+        //               color: AppColors.background,
+        //             ),
+        //         SizedBox(width: 8),
+        //         DropdownButton<BoundaryType>(
+        //           value: _currentBoundaryType,
+        //           dropdownColor: Colors.grey.shade800,
+        //           style: TextStyle(color: Colors.white),
+        //           underline: Container(),
+        //           onChanged: (newValue) {
+        //             if (newValue != null) {
+        //               setState(() {
+        //                 _currentBoundaryType = newValue;
+        //               });
+        //               _gameKey.currentState?.changeBoundaryType(newValue);
+        //             }
+        //           },
+        //           items: BoundaryType.values.map((type) {
+        //             String label = '';
+        //             switch (type) {
+        //               case BoundaryType.DEFAULT:
+        //                 label = 'Rocio';
+        //                 break;
+        //               case BoundaryType.ZIGZAG:
+        //                 label = 'Viento';
+        //                 break;
+        //               case BoundaryType.ANGLED:
+        //                 label = 'Libera';
+        //                 break;
+        //               case BoundaryType.CURVED:
+        //                 label = 'Somnium';
+        //                 break;
+        //               case BoundaryType.CIRCULAR:
+        //                 label = 'Seio';
+        //                 break;
+        //               case BoundaryType.CUSTOM:
+        //                 label = 'Insula';
+        //                 break;
+        //             }
+        //             return DropdownMenuItem<BoundaryType>(
+        //               value: type,
+        //               child: Text(label),
+        //             );
+        //           }).toList(),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
 
         // 메뉴 리스트 (오른쪽 상단)
         if (selectedMenus.isNotEmpty)
@@ -122,9 +193,30 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text(_gameStarted ? '다시하기' : '시작하기', 
-                    style: AppTextStyles.bodySmall.copyWith(color: Colors.grey[200]),
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,  // Row의 크기를 내용물에 맞게 설정
+                  mainAxisAlignment: MainAxisAlignment.center,  // 가운데 정렬
+                  children: [
+                    _gameStarted 
+                      ? SvgPicture.asset(
+                          IconPath.gas,  // tent 아이콘으로 변경 필요
+                          width: 20,
+                          height: 20,
+                          color: AppColors.background,
+                        )
+                      : SvgPicture.asset(
+                          IconPath.rocket,  // rocket 아이콘으로 변경 필요
+                          width: 20,
+                          height: 20,
+                          color: AppColors.background,
+                        ),
+                    const SizedBox(width: 8),  // 아이콘과 텍스트 사이 간격
+                    Text(
+                      _gameStarted ? '다시하기' : '시작하기',
+                      style: AppTextStyles.bodySmall.copyWith(color: Colors.grey[200]),
+                    ),
+                  ],
+                ),
                 ),
                 SizedBox(width: 12),
                 // 돌아가기 버튼
@@ -140,29 +232,23 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text('돌아가기', 
-                    style: AppTextStyles.bodySmall.copyWith(color: Colors.grey[200]),
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(
+                        IconPath.tent,  // tent 아이콘으로 변경 필요
+                        width: 20,
+                        height: 20,
+                        color: AppColors.background,
+                      ),
+                      const SizedBox(width: 8),
+                      Text('돌아가기', 
+                        style: AppTextStyles.bodySmall.copyWith(color: Colors.grey[200]),
+                      ),
+                    ],
                   ),
                 ),
                 
-                // 우승 메뉴 선택 버튼 (결과가 있을 때만)
-                if (_winners.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_winners.isNotEmpty) {
-                          final winnerName = _winners[0];
-                          final winner = selectedMenus.firstWhere(
-                            (menu) => menu.name == winnerName,
-                            orElse: () => selectedMenus[0],
-                          );
-                          lunchViewModel.selectFinalMenu(winner);
-                        }
-                      },
-                      child: const Text('이 메뉴로 결정'),
-                    ),
-                  ),
+
               ],
             ),
           ),
@@ -178,46 +264,142 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
   
   // 결과 오버레이 위젯
   Widget _buildResultOverlay() {
+    // 우승 메뉴 이름에 맞는 LunchMenu 객체 찾기
+    LunchMenu? winnerMenu = allLunchMenus.firstWhere(
+      (menu) => menu.name == _winners[0],
+      orElse: () => allLunchMenus[0], // 일치하는 메뉴가 없을 경우 기본값 설정
+    );
+
     return Container(
-      color: Colors.black.withOpacity(0.7),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              '🏆 우승 메뉴 🏆',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            
-            // 1~3등 표시
-            for (int i = 0; i < _winners.length && i < 3; i++)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  '${i+1}등: ${_winners[i]}',
+      color: Colors.black.withOpacity(0.9),
+      child: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  '오늘의',
                   style: TextStyle(
-                    color: i == 0 ? Colors.yellow : Colors.white,
-                    fontSize: i == 0 ? 20 : 16,
-                    fontWeight: i == 0 ? FontWeight.bold : FontWeight.normal,
+                    color: Colors.white,
+                    fontSize: 50,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
+                const Text(
+                  '점심은',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 50,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text('${_winners[0]}', 
+                  style: TextStyle(
+                    color: const Color.fromARGB(255, 255, 155, 155),
+                    fontSize: 50,
+                    fontWeight: FontWeight.w400,
+                  ),),
+                const SizedBox(height: 10),
+                Image.asset(
+                winnerMenu.imagePath,
+                width: 120,
+                height: 120,
+                fit: BoxFit.contain,
               ),
-            
-            const SizedBox(height: 40),
-            const Text(
-              '다시 하려면 "다시하기" 버튼을 누르세요',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
+                
+                const SizedBox(height: 40),
+                const Text(
+                  '다시 하려면 "다시하기" 버튼을 누르세요',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+                // 하단 버튼 영역
+                Positioned(
+                  bottom: 10,
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // 게임 시작/다시하기 버튼
+                        ElevatedButton(
+                          onPressed: _gameStarted ? _resetGame : _startGame,
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                            backgroundColor: AppColors.buttonBlack,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,  // Row의 크기를 내용물에 맞게 설정
+                          mainAxisAlignment: MainAxisAlignment.center,  // 가운데 정렬
+                          children: [
+                            _gameStarted 
+                              ? SvgPicture.asset(
+                                  IconPath.gas,  // tent 아이콘으로 변경 필요
+                                  width: 20,
+                                  height: 20,
+                                  color: AppColors.background,
+                                )
+                              : SvgPicture.asset(
+                                  IconPath.rocket,  // rocket 아이콘으로 변경 필요
+                                  width: 20,
+                                  height: 20,
+                                  color: AppColors.background,
+                                ),
+                            const SizedBox(width: 8),  // 아이콘과 텍스트 사이 간격
+                            Text(
+                              _gameStarted ? '다시하기' : '시작하기',
+                              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey[200]),
+                            ),
+                          ],
+                        ),
+                        ),
+                        SizedBox(width: 12),
+                        // 돌아가기 버튼
+                        ElevatedButton(
+                          onPressed: () {
+                            context.replace(CookieRoutes.getLunchPath());
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                            backgroundColor: AppColors.buttonBlack,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                IconPath.tent,  // tent 아이콘으로 변경 필요
+                                width: 20,
+                                height: 20,
+                                color: AppColors.background,
+                              ),
+                              const SizedBox(width: 8),
+                              Text('돌아가기', 
+                                style: AppTextStyles.bodySmall.copyWith(color: Colors.grey[200]),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+        ],
       ),
     );
   }
@@ -241,8 +423,9 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
   }
   
   // 게임 결과 처리 콜백
-  void _handleGameComplete(List<FoodBall> finishedBalls) {
-    final winners = finishedBalls.map((ball) => ball.name).toList();
+  void _handleGameComplete(List finishedBalls) {
+    // dynamic 대신 명시적 형변환 사용
+    final winners = finishedBalls.map((ball) => ball.name.toString()).toList();
     setState(() {
       _winners = winners;
     });

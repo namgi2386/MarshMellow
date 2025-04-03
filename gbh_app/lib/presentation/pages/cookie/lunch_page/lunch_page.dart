@@ -22,13 +22,13 @@ class LunchPage extends ConsumerWidget {
       appBar: CustomAppbar(
         title: '점심 메뉴 추천',
         actions: [
-          Button(
-            width: 50,
-            onPressed: (){
-              context.replace(CookieRoutes.getLunchTutorialPath());
-            },
-            text: 'test',
-          ),
+          // Button(
+          //   width: 50,
+          //   onPressed: (){
+          //     context.replace(CookieRoutes.getLunchTutorialPath());
+          //   },
+          //   text: 'test',
+          // ),
         ],
       ),
       body: Padding(

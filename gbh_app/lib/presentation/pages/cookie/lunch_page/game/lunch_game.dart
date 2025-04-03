@@ -6,9 +6,21 @@ import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'dart:math' as math;
+
 import 'entities/floor.dart';
 import 'entities/food_ball.dart';
 import 'entities/wall.dart';
+import 'boundary_manager.dart'; // 새로 추가한 BoundaryManager 임포트
+
+// 경기장 타입 설정을 위한 열거형 (클래스 외부로 이동)
+enum BoundaryType {
+  DEFAULT,
+  ZIGZAG,
+  ANGLED,
+  CURVED,
+  CIRCULAR,
+  CUSTOM
+}
 
 class LunchGame extends Forge2DGame {
   final List selectedMenus;
@@ -19,13 +31,21 @@ class LunchGame extends Forge2DGame {
 
   FoodBall? _trackedBall;
   late Vector2 worldSize;
+  late BoundaryManager boundaryManager; // BoundaryManager 추가
+
+  // 현재 선택된 경기장 타입
+  BoundaryType currentBoundaryType = BoundaryType.ZIGZAG;
 
   // 화면 스크롤링을 위한 변수들
   double _worldYOffset = 0;  // 월드의 y축 오프셋
   double _targetYOffset = 0; // 목표 y축 오프셋
   final double _scrollSpeed = 5.0; // 스크롤 속도 조절 (필요에 따라 조정)
 
-  LunchGame({required this.selectedMenus}) : super(gravity: Vector2(0, 40.0)) {
+  LunchGame({
+    required this.selectedMenus,
+    BoundaryType boundaryType = BoundaryType.ZIGZAG, // 기본값 설정
+  }) : super(gravity: Vector2(0, 40.0)) {
+    currentBoundaryType = boundaryType;
     print('World initialized: ${world != null}');
   }
 
@@ -33,41 +53,84 @@ class LunchGame extends Forge2DGame {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // 월드 크기 설정 (화면 높이의 2배)
-    worldSize = Vector2(size.x, size.y * 2);
+    // 월드 크기 설정 (화면 높이의 5배)
+    worldSize = Vector2(size.x, size.y * 5);
     
-    // 경계 추가 (벽과 바닥)
-    _addBoundaries(worldSize);
+    // BoundaryManager 초기화
+    boundaryManager = BoundaryManager(game: this, worldSize: worldSize);
+    
+    // 경계 추가
+    _addBoundaries();
 
     // 장애물 추가
-    _addObstacles(worldSize);
+    // _addObstacles(worldSize);
 
     // 공 추가
     _addFoodBalls(worldSize);
+  }
+
+  // 경계 추가 메서드 (BoundaryManager로 위임)
+  void _addBoundaries() {
+    switch (currentBoundaryType) {
+      // case BoundaryType.ZIGZAG:
+      //   boundaryManager.addZigZagBoundaries();
+      //   break;
+      // case BoundaryType.ANGLED:
+      //   boundaryManager.addAngledBoundaries();
+      //   break;
+      // case BoundaryType.CURVED:
+      //   boundaryManager.addCurvedBoundaries();
+      //   break;
+      // case BoundaryType.CIRCULAR:
+      //   boundaryManager.addCircularObstacleBoundaries();
+      //   break;
+      // case BoundaryType.CUSTOM:
+      //   boundaryManager.addCustomBoundaries();
+      //   break;
+      // case BoundaryType.DEFAULT:
+      default:
+        boundaryManager.addDefaultBoundaries();
+        break;
+    }
+  }
+
+  // 경기장 타입 변경 메서드 (게임 재시작 필요)
+  void changeBoundaryType(BoundaryType newType) {
+    currentBoundaryType = newType;
+    resetGame();
+    // 기존 벽과 바닥 제거 로직 필요 (복잡함)
+    // 현재 상태에서는 완전히 게임을 재시작해야 함
   }
 
   @override
   void update(double dt) {
     super.update(dt * 1.5);
     
-    if (gameStarted && _trackedBall != null) {
-      // 공의 위치 가져오기
-      final ballPosition = _trackedBall!.body.position;
+    if (gameStarted) {
+      // 가장 아래에 있는 공 찾기
+      if (foodBalls.isNotEmpty) {
+        FoodBall lowestBall = foodBalls.reduce((current, next) => 
+          current.body.position.y > next.body.position.y ? current : next);
+        _trackedBall = lowestBall;
+      }
       
-      // 목표 오프셋 계산: 공이 화면의 1/3 지점에 위치하도록
-      _targetYOffset = ballPosition.y - (size.y / 3);
-      
-      // 현재 오프셋을 목표 오프셋으로 부드럽게 이동
-      _worldYOffset += (_targetYOffset - _worldYOffset) * dt * _scrollSpeed;
-      
-      // 모든 객체의 렌더링 위치 조정 (이 부분은 renderOffset으로 처리)
-      
-      // 디버깅
-      print('공 위치: $ballPosition, 오프셋: $_worldYOffset');
-      
-      // 공이 바닥에 닿았는지 확인
-      if (ballPosition.y > worldSize.y - 60 && !finishedBalls.contains(_trackedBall)) {
-        onBallFinished(_trackedBall!);
+      if (_trackedBall != null) {
+        // 공의 위치 가져오기
+        final ballPosition = _trackedBall!.body.position;
+        
+        // 목표 오프셋 계산: 공이 화면의 1/3 지점에 위치하도록
+        _targetYOffset = ballPosition.y - (size.y / 3);
+        
+        // 현재 오프셋을 목표 오프셋으로 부드럽게 이동
+        _worldYOffset += (_targetYOffset - _worldYOffset) * dt * _scrollSpeed;
+        
+        // 디버깅
+        print('공 위치: $ballPosition, 오프셋: $_worldYOffset');
+        
+        // 공이 바닥에 닿았는지 확인
+        if (ballPosition.y > worldSize.y - 60 && !finishedBalls.contains(_trackedBall)) {
+          onBallFinished(_trackedBall!);
+        }
       }
     }
   }
@@ -89,34 +152,6 @@ class LunchGame extends Forge2DGame {
     
     // 캔버스 상태 복원
     canvas.restore();
-  }
-
-  // 경계 추가 메서드
-  void _addBoundaries(Vector2 worldSize) {
-    final wallThickness = worldSize.x * 0.01;
-    
-    // 바닥 추가
-    final floor = Floor(
-      position: Vector2(worldSize.x / 2, worldSize.y - 20),
-      size: Vector2(worldSize.x, 40),
-      color: Colors.white,
-    );
-    add(floor);
-    print('Floor added at ${worldSize.y - 20}');
-    
-    // 왼쪽 벽
-    add(Wall(
-      position: Vector2(wallThickness / 2, worldSize.y / 2),
-      size: Vector2(wallThickness, worldSize.y),
-      color: Colors.brown.shade600,
-    ));
-    
-    // 오른쪽 벽
-    add(Wall(
-      position: Vector2(worldSize.x - wallThickness / 2, worldSize.y / 2),
-      size: Vector2(wallThickness, worldSize.y),
-      color: Colors.brown.shade600,
-    ));
   }
 
   // 장애물 추가 메서드 (변경 없음)
@@ -149,38 +184,74 @@ class LunchGame extends Forge2DGame {
     ));
   }
 
-  // 음식 공 추가 메서드 (변경 없음)
-  void _addFoodBalls(Vector2 worldSize) {
-    if (selectedMenus.isEmpty) return;
+// 음식 공 추가 메서드
+void _addFoodBalls(Vector2 worldSize) {
+  if (selectedMenus.isEmpty) return;
+  
+  final ballRadius = worldSize.x * 0.04;
+  final startY = ballRadius *  13;
+  final menuCount = selectedMenus.length;
+  
+  // 두 줄로 나누기
+  final firstRowCount = (menuCount + 1) ~/ 2; // 첫 줄 공 개수 (올림 나눗셈)
+  final secondRowCount = menuCount - firstRowCount; // 둘째 줄 공 개수
+  
+  // 첫 줄 간격 계산
+  final firstRowSpacing = worldSize.x / (firstRowCount + 4);
+  
+  // 둘째 줄 간격 계산
+  final secondRowSpacing = secondRowCount > 0 ? worldSize.x / (secondRowCount + 4) : 0;
+  
+  // 첫 줄 공 추가
+  for (int i = 0; i < firstRowCount; i++) {
+    final menu = selectedMenus[i];
+    final xPos = firstRowSpacing * (i + 2);
     
-    final ballRadius = worldSize.x * 0.05;
-    final startY = ballRadius * 2;
-    final menuCount = selectedMenus.length;
-    final spacing = worldSize.x / (menuCount + 1);
+    final colors = [
+      Colors.red, Colors.blue, Colors.green,
+      Colors.yellow, Colors.purple, Colors.orange
+    ];
+    final color = colors[i % colors.length];
     
-    for (int i = 0; i < menuCount; i++) {
-      final menu = selectedMenus[i];
-      final xPos = spacing * (i + 1);
-      
-      final colors = [
-        Colors.red, Colors.blue, Colors.green,
-        Colors.yellow, Colors.purple, Colors.orange
-      ];
-      final color = colors[i % colors.length];
-      
-      final foodBall = FoodBall(
-        position: Vector2(xPos, startY),
-        radius: ballRadius,
-        name: menu.name,
-        imagePath: menu.imagePath,
-        game: this,
-        color: color,
-      );
-      
-      foodBalls.add(foodBall);
-      add(foodBall);
-    }
+    final foodBall = FoodBall(
+      position: Vector2(xPos, startY),
+      radius: ballRadius,
+      name: menu.name,
+      imagePath: menu.imagePath,
+      game: this,
+      color: color,
+    );
+    
+    foodBalls.add(foodBall);
+    add(foodBall);
   }
+  
+  // 둘째 줄 공 추가
+  for (int i = 0; i < secondRowCount; i++) {
+    final menu = selectedMenus[firstRowCount + i];
+    final xPos = secondRowSpacing * (i + 2);
+    
+    final colors = [
+      Colors.red, Colors.blue, Colors.green,
+      Colors.yellow, Colors.purple, Colors.orange
+    ];
+    final color = colors[(firstRowCount + i) % colors.length];
+    
+    final foodBall = FoodBall(
+      position: Vector2(xPos.toDouble(), startY + ballRadius * 2.5), // Y위치를 조금 아래로
+      radius: ballRadius,
+      name: menu.name,
+      imagePath: menu.imagePath,
+      game: this,
+      color: color,
+    );
+    
+    foodBalls.add(foodBall);
+    add(foodBall);
+  }
+}
+
+
 
   // 공이 바닥에 닿았을 때 호출
   void onBallFinished(FoodBall ball) {

@@ -1,11 +1,15 @@
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
+import 'package:marshmellow/presentation/pages/cookie/lunch_page/game/entities/floor.dart';
+import 'package:marshmellow/presentation/pages/cookie/lunch_page/game/entities/wall.dart';
+import 'package:marshmellow/presentation/pages/cookie/lunch_page/game/lunch_game.dart';
 import 'base_body.dart';
 
-class FoodBall extends BaseBody {
+class FoodBall extends BaseBody with ContactCallbacks {
   final double radius;
   final String name;
   final String imagePath;
+  final LunchGame game; // 추가
   bool _activated = false;
 
   FoodBall({
@@ -13,6 +17,7 @@ class FoodBall extends BaseBody {
     required this.radius,
     required this.name,
     required this.imagePath,
+    required this.game, // 추가
     Color color = Colors.red,
   }) : super(position: position, color: color);
   // 공 활성화 메서드
@@ -21,6 +26,7 @@ class FoodBall extends BaseBody {
       _activated = true;
       // 바디 타입을 동적으로 변경하여 중력 영향을 받도록 함
       body.setType(BodyType.dynamic);
+      print('Ball ${name} activated, type: ${body.bodyType}');
     }
   }
   @override
@@ -43,13 +49,22 @@ class FoodBall extends BaseBody {
       ..restitution = 0.4 // 높은 반발력
       ..density = 1.0     // 밀도
       ..friction = 0.2;    // 약간의 마찰력
-      // ..filter.categoryBits = 0x0002 // FoodBall 카테고리
-      // ..filter.maskBits = 0x0004 | 0x0001;    // FinishLine과 충돌 가능
 
     // 바디에 픽스처 추가
     body.createFixture(fixtureDef);
 
     return body;
+  }
+  @override
+  void beginContact(Object? other, Contact contact) {
+    print('FoodBall ${name} beginContact called');
+    if (other is Floor) {
+      print('FoodBall ${name} hit the floor!');
+      game.onBallFinished(this); // LunchGame에 알리기
+      // 여기서 직접 처리하거나 LunchGame에 알리기
+    } else if (other is Wall) {
+      print('FoodBall ${name} hit the wall!');
+    }
   }
 
   @override
@@ -62,14 +77,11 @@ class FoodBall extends BaseBody {
     );
     
     // 나중에 여기에 이미지 그리기 추가 가능
-    
-    // super.render(canvas);
   }
-  // FoodBall 클래스에 update 메서드 추가
   // @override
   // void update(double dt) {
   //   super.update(dt);
-  //   if (_activated) {
+  //   if (_activated && body.position.y > 500) {
   //     print('Ball ${name} position: ${body.position.y}');
   //   }
   // }

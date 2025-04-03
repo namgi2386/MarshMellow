@@ -6,17 +6,17 @@ import 'dart:math' as math;
 import 'entities/floor.dart';
 import 'entities/food_ball.dart';
 import 'entities/wall.dart';
-import 'entities/finish_line.dart';
+// import 'entities/finish_line.dart';
 
 // Forge2D 게임 확장하는 기본 게임 클래스
-class LunchGame extends Forge2DGame with ContactCallbacks {
+class LunchGame extends Forge2DGame  {
   final List selectedMenus;
   bool gameStarted = false;
   final List<FoodBall> foodBalls = [];
   final List<FoodBall> finishedBalls = [];
   Function(List<FoodBall>)? onGameComplete;
 
-  LunchGame({required this.selectedMenus}) : super(gravity: Vector2(0, 10.0)) {
+  LunchGame({required this.selectedMenus}) : super(gravity: Vector2(0, 40.0)) {
     print('World initialized: ${world != null}');
   }
 
@@ -33,7 +33,7 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
 
     // 카메라 위치와 줌 설정 (최신 API 사용)
     camera.viewfinder.position = worldSize / 2; // 화면 중앙으로 이동
-    camera.viewfinder.zoom = 1.0; // 기본 줌 (필요하면 조정)
+    camera.viewfinder.zoom = 10.0; // 기본 줌 (필요하면 조정)
 
     // 경계(벽과 바닥) 추가
     _addBoundaries(worldSize);
@@ -42,7 +42,7 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
     _addObstacles(worldSize);
     
     // 결승선 추가\
-    _addFinishLine(worldSize);
+    // _addFinishLine(worldSize);
     
     // 공 추가 (아직 떨어지지 않게 대기)
     _addFoodBalls(worldSize);
@@ -55,19 +55,21 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
     print('beginContact called'); // 최소한 호출 여부 확인
     final bodyA = contact.fixtureA.body;
     final bodyB = contact.fixtureB.body;
-
     final userDataA = bodyA.userData;
     final userDataB = bodyB.userData;
-    print('just text');
     print('Collision detected: A=$userDataA, B=$userDataB'); // 타입뿐만 아니라 객체 자체 출력
-    // print('BodyA type: ${bodyA.type}, BodyB type: ${bodyB.type}'); // 바디 타입 확인
-
-    if (userDataA is FinishLine && userDataB is FoodBall) {
-      print('FinishLine detected with FoodBall: ${userDataB.name}');
-      userDataA.beginContact(userDataB);
-    } else if (userDataA is FoodBall && userDataB is FinishLine) {
-      print('FoodBall detected with FinishLine: ${userDataA.name}');
-      userDataB.beginContact(userDataA);
+    // FoodBall이 Floor에 닿았는지 체크
+    if (userDataA is FoodBall && userDataB is Floor) {
+      print('FoodBall ${userDataA.name} hit the floor!');
+      onBallFinished(userDataA); // 첫 공 처리
+    } else if (userDataA is Floor && userDataB is FoodBall) {
+      print('FoodBall ${userDataB.name} hit the floor!');
+      onBallFinished(userDataB); // 첫 공 처리
+    }
+    if (userDataA is FoodBall && userDataB is Wall) {
+      print('FoodBall ${userDataA.name} hit the wall!');
+    } else if (userDataA is Wall && userDataB is FoodBall) {
+      print('FoodBall ${userDataB} hit the wall!');
     }
   }
 
@@ -80,10 +82,11 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
     
     // 바닥 추가
     add(Floor(
-      position: Vector2(worldSize.x / 2, worldSize.y - floorHeight / 2),
+      position: Vector2(worldSize.x / 2, worldSize.y * 0.8),
       size: Vector2(worldSize.x, floorHeight),
       color: Colors.blueGrey.shade700,
     ));
+    print('Floor added at ${worldSize.y * 0.8}');
     
     // 왼쪽 벽
     add(Wall(
@@ -138,21 +141,6 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
     ));
   }
   
-  // 결승선 추가 메서드
-  void _addFinishLine(Vector2 worldSize) {
-    final finishLineHeight = worldSize.y * 0.05; // 높이 5%로 증가
-    final finishLineY = worldSize.y * 0.9; // 바닥에 더 가까이 (90%)
-    print('Adding finish line at y: $finishLineY, height: $finishLineHeight');
-    final finishLine = FinishLine(
-      position: Vector2(worldSize.x / 2, finishLineY),
-      size: Vector2(worldSize.x * 0.8, finishLineHeight),
-      color: Colors.green.shade600,
-      onBallCrossed: _onBallFinished,
-    );
-    add(finishLine);
-    print('FinishLine added: ${finishLine.hashCode}');
-  }
-  
   // 음식 공 추가 메서드 (기존 코드 유지)
   void _addFoodBalls(Vector2 worldSize) {
     // 기존 코드 그대로 유지
@@ -182,6 +170,7 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
         radius: ballRadius,
         name: menu.name,
         imagePath: menu.imagePath,
+        game: this, // 추가
         color: color,
       );
       
@@ -191,23 +180,17 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
   }
   
   // 공이 결승선 통과 시 호출되는 콜백
-  void _onBallFinished(FoodBall ball) {
+  void onBallFinished(FoodBall ball) {
     print('Ball finished: ${ball.name}, Position: ${finishedBalls.length}'); // 로그 추가
-    if (!finishedBalls.contains(ball)) {
+    if (finishedBalls.isEmpty) { // 첫 번째 공만 추가
       finishedBalls.add(ball);
-      
-      // 모든 공이 도착했거나 처음 3개 공이 도착하면 게임 종료
-      if (finishedBalls.length >= foodBalls.length || 
-          finishedBalls.length >= 3) {
-        print('Game finishing with ${finishedBalls.length} balls'); // 로그 추가
-        _finishGame();
-      }
+      _finishGame();
     }
   }
   
   // 게임 종료 처리
   void _finishGame() {
-    print('Finish game called, onGameComplete is ${onGameComplete != null ? 'set' : 'null'}'); // 로그 추가
+    print('Game finished with winner: ${finishedBalls.first.name}');
     if (onGameComplete != null) {
       onGameComplete!(finishedBalls);
     }
@@ -229,6 +212,8 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
     for (final ball in foodBalls) {
       ball.activate();
     }
+    // world.stepDt(1 / 60); // 60fps 기준으로 한 번 강제 업데이트
+    // print('World stepped');
   }
   
   // 게임 리셋 메서드
@@ -242,7 +227,4 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
       // 별도로 구현 필요 (여기서는 생략)
     }
   }
-  
-
-
 }

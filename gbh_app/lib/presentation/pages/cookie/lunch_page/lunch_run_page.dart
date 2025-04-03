@@ -30,7 +30,7 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
     final selectedMenus = lunchViewModel.selectedMenus;
     
     return Scaffold(
-      appBar: CustomAppbar(title: 'LunchRunPage'),
+      appBar: CustomAppbar(title: 'LunchRunPage' ),
       body: Column(
         // crossAxisAlignment: CrossAxisAlignment.start,
         children: [

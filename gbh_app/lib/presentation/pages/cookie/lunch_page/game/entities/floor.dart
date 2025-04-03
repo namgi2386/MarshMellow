@@ -17,30 +17,21 @@ class Floor extends BaseBody {
     final bodyDef = BodyDef(
       position: position,
       type: BodyType.static,
+      userData: this, // Floor 객체 자신을 넣어
     );
-
-    // 바디 생성
-    final body = world.createBody(bodyDef);
-
-    // 사각형 모양의 픽스처 생성
-    final shape = PolygonShape()
+    final body = world.createBody(bodyDef); // 바디 생성
+    final shape = PolygonShape() // 사각형 모양의 픽스처 생성
       ..setAsBox(
         size.x / 2, // 너비의 절반
         size.y / 2, // 높이의 절반
         Vector2(0, 0), // 중심점 (0,0)
         0, // 회전각도 (라디안)
       );
-
-    // 픽스처 속성 설정
-    final fixtureDef = FixtureDef(shape)
-      ..restitution = 0.2 // 반발력 (탄성)
-      ..friction = 0.3;   // 마찰력
-      // ..filter.categoryBits = 0x0001 // 기본 카테고리
-      // ..filter.maskBits = 0x0002;    // FoodBall과 충돌
-
-    // 바디에 픽스처 추가
-    body.createFixture(fixtureDef);
-
+    final fixtureDef = FixtureDef(shape) // 픽스처 속성 설정
+      ..restitution = 0.0 // 반발력 (탄성)
+      ..friction = 0.5;   // 마찰력
+    body.createFixture(fixtureDef); // 바디에 픽스처 추가
+    print('Floor created at ${position.y}');
     return body;
   }
 
@@ -57,6 +48,5 @@ class Floor extends BaseBody {
       rect,
       Paint()..color = color,
     );
-    // super.render(canvas);
   }
 }

@@ -72,6 +72,7 @@ class CertificateRepository {
       );
 
       final certificatePem = response['data']?['certificatePem'];
+      final halfUserKey = response['data']?['halfUserKey'];
 
       // 발급 성공시 인증서 정보 저장
       if (certificatePem != null) {
@@ -88,6 +89,11 @@ class CertificateRepository {
         await _secureStorage.write(
           key: StorageKeys.certificateEmail, 
           value: userEmail
+        );
+
+        await _secureStorage.write(
+          key: StorageKeys.halfUserKey, 
+          value: halfUserKey
         );
       }
       return certificatePem;

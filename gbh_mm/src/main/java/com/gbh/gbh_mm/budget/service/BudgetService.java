@@ -237,6 +237,9 @@ public class BudgetService {
     // 오늘의 예산 조회
     public ResponseFindDailyBudget getDailyBudget(Long userPk) {
         Budget budget = budgetRepository.findAllByUser_UserPkOrderByBudgetPkDesc(userPk).get(0);
+        if (budget == null) {
+            throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         long remainDay = ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(budget.getEndDate(), formatter)) + 1;

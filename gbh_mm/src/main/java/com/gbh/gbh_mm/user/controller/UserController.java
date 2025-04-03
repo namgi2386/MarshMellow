@@ -112,5 +112,10 @@ public class UserController {
         return userService.findUserDetail(userDetails);
     }
 
+    @GetMapping("/salary")
+    public Integer findsalary(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return userService.findSalary(userDetails);
+    }
+
 
 }

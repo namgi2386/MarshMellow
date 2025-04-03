@@ -417,4 +417,11 @@ public class UserService {
         return response;
 
     }
+
+    public Integer findSalary(CustomUserDetails userDetails) {
+        User user = userRepository.findByUserPk(userDetails.getUserPk())
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return user.getSalaryDate();
+    }
 }

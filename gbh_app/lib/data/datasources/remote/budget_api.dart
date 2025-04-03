@@ -9,7 +9,7 @@ class BudgetApi {
   // 전체 예산 조회
   Future<List<BudgetModel>> getAllBudgets() async {
     try {
-      final response = await _apiClient.get('/api/mm/budget');
+      final response = await _apiClient.get('/mm/budget');
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -26,7 +26,7 @@ class BudgetApi {
   // 세부 예산 조회
   Future<List<BudgetCategoryModel>> getBudgetDetail(int budgetPk) async {
     try {
-      final response = await _apiClient.get('/api/mm/budget/detail/$budgetPk');
+      final response = await _apiClient.get('/mm/budget/detail/$budgetPk');
       
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -44,7 +44,7 @@ class BudgetApi {
   Future<Map<String, dynamic>> updateBudgetCategory(int budgetCategoryPk, int budgetAmount) async {
     try {
       final response = await _apiClient.put(
-        '/api/mm/budget/detail/$budgetCategoryPk',
+        '/mm/budget/detail/$budgetCategoryPk',
         data: {'budgetAmount': budgetAmount}
       );
       
@@ -61,7 +61,7 @@ class BudgetApi {
   // 오늘의 예산 조회
   Future<DailyBudgetModel> getDailyBudget() async {
     try {
-      final response = await _apiClient.get('/api/mm/budget/daily');
+      final response = await _apiClient.get('/mm/budget/daily');
       
       if (response.statusCode == 200) {
         final data = response.data['data'];

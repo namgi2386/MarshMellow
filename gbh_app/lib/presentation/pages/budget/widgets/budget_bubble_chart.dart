@@ -1,21 +1,26 @@
 import 'dart:math' as math;
+import 'package:marshmellow/router/routes/budget_routes.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/data/models/budget/budget_model.dart';
+import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
 
 class BudgetBubblechart extends ConsumerStatefulWidget {
   final List<BudgetCategoryModel> categories;
   final double maxRadius;
   final double padding;
+  final bool enableNavigation; // 내비게이션 활성화 여부
 
   const BudgetBubblechart({
     Key? key,
     required this.categories,
     this.maxRadius = 120.0,
     this.padding = 10.0,
+    this.enableNavigation = true, // 기본적으로 내비게이션 활성화
   }) : super(key: key);
 
   @override
@@ -29,6 +34,9 @@ class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
   
   // Maximum tilt angles (in radians)
   final double _maxTiltAngle = 0.5;
+  
+  // 탭 위치가 어떤 버블 내에 있는지 확인하기 위한 버블 정보 저장
+  final List<Bubble> _bubbles = [];
   
   @override
   void initState() {
@@ -45,6 +53,22 @@ class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
     });
   }
 
+  // 탭 위치가 특정 버블 내에 있는지 확인하는 함수
+  Bubble? getBubbleAtPosition(Offset position) {
+    for (final bubble in _bubbles) {
+      if ((bubble.position - position).distance <= bubble.radius) {
+        return bubble;
+      }
+    }
+    return null;
+  }
+
+  // 버블 정보 업데이트 함수
+  void updateBubbles(List<Bubble> bubbles) {
+    _bubbles.clear();
+    _bubbles.addAll(bubbles);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.categories.isEmpty) {
@@ -59,22 +83,58 @@ class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
     // 전체 예산 합계 계산
     int totalBudget = widget.categories.fold(
         0, (sum, category) => sum + category.budgetCategoryPrice);
+    
+    // budgetState에서 현재 선택된 예산 정보 가져오기
+    final budgetState = ref.watch(budgetProvider);
+    final selectedBudget = budgetState.selectedBudget;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-          child: RepaintBoundary(
-            child: CustomPaint(
-              painter: BubblesPainter(
-                budgetCategories: widget.categories,
-                totalBudget: totalBudget,
-                maxRadius: widget.maxRadius,
-                padding: widget.padding,
-                containerSize: math.min(constraints.maxWidth, constraints.maxHeight),
-                tiltX: _tiltX,
-                tiltY: _tiltY,
+        return GestureDetector(
+          onTapUp: widget.enableNavigation ? (TapUpDetails details) {
+            if (selectedBudget == null) return;
+            
+            // 탭 위치 계산
+            final tapPosition = details.localPosition;
+            
+            // 탭한 위치에 버블이 있는지 확인
+            final tappedBubble = getBubbleAtPosition(tapPosition);
+            
+            if (tappedBubble != null) {
+              // 특정 버블을 탭한 경우 해당 카테고리 상세 페이지로 이동
+              final path = BudgetRoutes.getBudgetCategoryExpensePath()
+                    .replaceFirst(':categoryPk', '${tappedBubble.category.budgetCategoryPk}');
+
+              context.go(
+                path,
+                extra: {
+                  'category': tappedBubble.category,
+                'budgetPk': selectedBudget.budgetPk,
+                }
+              );     
+            } else {
+              // 버블이 아닌 차트의 다른 부분을 탭한 경우 예산 상세 페이지로 이동
+              final path = BudgetRoutes.getBudgetDetailPath()
+                    .replaceFirst(':budgetPk', '${selectedBudget.budgetPk}');
+              
+              context.go(path);
+            }
+          } : null,
+          child: Container(
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
+            child: RepaintBoundary(
+              child: CustomPaint(
+                painter: BubblesPainter(
+                  budgetCategories: widget.categories,
+                  totalBudget: totalBudget,
+                  maxRadius: widget.maxRadius,
+                  padding: widget.padding,
+                  containerSize: math.min(constraints.maxWidth, constraints.maxHeight),
+                  tiltX: _tiltX,
+                  tiltY: _tiltY,
+                  onBubblesUpdated: updateBubbles, // 버블 정보 업데이트 콜백
+                ),
               ),
             ),
           ),
@@ -92,6 +152,7 @@ class BubblesPainter extends CustomPainter {
   final double containerSize;
   final double tiltX;
   final double tiltY;
+  final Function(List<Bubble>) onBubblesUpdated; // 버블 정보 콜백 추가
 
   BubblesPainter({
     required this.budgetCategories,
@@ -101,6 +162,7 @@ class BubblesPainter extends CustomPainter {
     required this.containerSize,
     required this.tiltX,
     required this.tiltY,
+    required this.onBubblesUpdated,
   });
 
   @override
@@ -150,6 +212,9 @@ class BubblesPainter extends CustomPainter {
     for (final bubble in bubbles) {
       drawBubble(canvas, bubble);
     }
+    
+    // 버블 정보 콜백 호출
+    onBubblesUpdated(bubbles);
   }
 
   // 버블 위치 최적화 

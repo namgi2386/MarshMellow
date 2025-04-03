@@ -162,7 +162,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '하루 예산 $formattedDailyBudget 원',
+                      '오늘의 예산 $formattedDailyBudget 원',
                       style: AppTextStyles.bodyExtraSmall,
                     )
                   ],
@@ -179,7 +179,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
               children: [
                 IconButton(
                   onPressed: () {
-                    ref.read(budgetProvider.notifier).navigateToPreviousBudget();
+                    ref.read(budgetProvider.notifier).navigateToNextBudget();
                   }, 
                   icon: const Icon(Icons.chevron_left),
                 ),
@@ -189,7 +189,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                 ),
                 IconButton(
                   onPressed: () {
-                    ref.read(budgetProvider.notifier).navigateToNextBudget();
+                    ref.read(budgetProvider.notifier).navigateToPreviousBudget();
                   }, 
                   icon: const Icon(Icons.chevron_right)
                 ),

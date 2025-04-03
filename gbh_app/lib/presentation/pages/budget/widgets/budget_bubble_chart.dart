@@ -154,25 +154,26 @@ class BubblesPainter extends CustomPainter {
 
   // 버블 위치 최적화 
   void optimizeBubblePositions(List<Bubble> bubbles, Size size) {
-    // 반복 횟수
-    int iterations = 12;
-    
-    // 버블 간 힘과 중앙 힘 조정
-    double repulsionForce = 5.8;
-    double centerForce = 0.00001;
-    
     final center = Offset(size.width / 2, size.height / 2);
     
-    // 초기 위치를 원형으로 배치
+    // 초기 위치를 고정된 패턴으로 배치 (무작위성 없이)
     if (bubbles.length > 1) {
+      // 완전한 원이 아닌 타원형으로 배치
       double angleStep = (math.pi * 2) / bubbles.length;
-      double radius = size.width * 0.3;
       
       for (int i = 0; i < bubbles.length; i++) {
         double angle = i * angleStep;
+        
+        // 타원형 배치 (가로:세로 = 1.2:1 비율)
+        double radiusX = size.width * 0.3;
+        double radiusY = size.width * 0.25;
+        
+        // 인덱스에 따라 약간 다른 거리 사용 (규칙적인 패턴)
+        double distanceFactor = 1.0 + (i % 3) * 0.05; // 0%, 5%, 10% 패턴으로 변화
+        
         bubbles[i].position = Offset(
-          center.dx + math.cos(angle) * radius,
-          center.dy + math.sin(angle) * radius
+          center.dx + math.cos(angle) * radiusX * distanceFactor,
+          center.dy + math.sin(angle) * radiusY * distanceFactor
         );
       }
     } else if (bubbles.length == 1) {
@@ -180,61 +181,37 @@ class BubblesPainter extends CustomPainter {
       bubbles[0].position = center;
     }
     
-    // 간단한 최적화 수행
-    for (int i = 0; i < iterations; i++) {
+    // 충돌 처리 및 경계 검사만 수행하여 안정적인 배치 확보
+    for (int i = 0; i < 5; i++) { // 반복 횟수 줄임
+      for (Bubble bubble in bubbles) {
+        // 화면 밖으로 나가지 않도록 경계 검사
+        bubble.position = Offset(
+          bubble.position.dx.clamp(bubble.radius, size.width - bubble.radius),
+          bubble.position.dy.clamp(bubble.radius, size.height - bubble.radius)
+        );
+      }
+      
+      // 충돌 해결 (단순화된 버전)
       for (int j = 0; j < bubbles.length; j++) {
-        Bubble bubble = bubbles[j];
-        Offset force = Offset.zero;
-        
-        // 다른 버블과 충돌 검사
-        for (int k = 0; k < bubbles.length; k++) {
-          if (j == k) continue;
+        for (int k = j + 1; k < bubbles.length; k++) {
+          Bubble b1 = bubbles[j];
+          Bubble b2 = bubbles[k];
           
-          Bubble other = bubbles[k];
-          Offset direction = bubble.position - other.position;
+          Offset direction = b1.position - b2.position;
           double distance = direction.distance;
+          double minDist = b1.radius + b2.radius + padding;
           
-          double minDist = bubble.radius + other.radius + padding;
-          
-          // 충돌시 밀어내기
-          if (distance < minDist) {
-            Offset norm = direction / (distance == 0 ? 1 : distance);
-            force += norm * repulsionForce;
+          // 충돌 감지 및 해결
+          if (distance < minDist && distance > 0) {
+            Offset norm = direction / distance;
+            double correction = (minDist - distance) / 2;
+            
+            // 두 버블을 서로 밀어내기
+            b1.position += norm * correction;
+            b2.position -= norm * correction;
           }
         }
-        
-        // 중앙으로 끌어당기기
-        Offset toCenter = center - bubble.position;
-        double centerDistance = toCenter.distance;
-        if (centerDistance > 0) {
-          force += toCenter / centerDistance * centerForce * centerDistance;
-        }
-        
-        // 화면 밖으로 나가지 않도록
-        if (bubble.position.dx - bubble.radius < 0) {
-          force += Offset(repulsionForce, 0);
-        }
-        if (bubble.position.dx + bubble.radius > size.width) {
-          force -= Offset(repulsionForce, 0);
-        }
-        if (bubble.position.dy - bubble.radius < 0) {
-          force += Offset(0, repulsionForce);
-        }
-        if (bubble.position.dy + bubble.radius > size.height) {
-          force -= Offset(0, repulsionForce);
-        }
-        
-        // 버블 위치 업데이트
-        bubble.position += force;
       }
-    }
-    
-    // 최종적으로 모든 버블이 화면 안에 있도록 보정
-    for (Bubble bubble in bubbles) {
-      bubble.position = Offset(
-        bubble.position.dx.clamp(bubble.radius, size.width - bubble.radius),
-        bubble.position.dy.clamp(bubble.radius, size.height - bubble.radius)
-      );
     }
   }
 
@@ -244,15 +221,18 @@ class BubblesPainter extends CustomPainter {
     final position = bubble.position;
     final radius = bubble.radius;
     
+    // 수정된 부분: 카테고리 색상 가져오기
+    final Color categoryColor = BudgetModel.getCategoryColor(category.budgetCategoryName);
+    
     // 카테고리 색상으로 원 그리기
     final categoryPaint = Paint()
-      ..color = category.color
+      ..color = categoryColor
       ..style = PaintingStyle.fill;
     
     // 전체 원 그리기 (베이스 색상)
     canvas.drawCircle(position, radius, categoryPaint);
     
-    // 사용 비율 및 초과 여부
+    // 사용 비율 및 초과 여부 (수정된 부분: budgetExpendPercent 접근)
     final spentPercent = category.budgetExpendPercent ?? 0.0;
     final isOverBudget = spentPercent > 1.0;
     
@@ -284,8 +264,8 @@ class BubblesPainter extends CustomPainter {
         canvas.clipPath(clipPath);
         
         // 액체 표면의 4개 꼭지점 계산
-        final leftOffset = surfaceTiltX * radius;
-        final rightOffset = -surfaceTiltX * radius;
+        final leftOffset = -surfaceTiltX * radius;
+        final rightOffset = surfaceTiltX * radius;
         
         // 기울어진 액체 표면의 경로
         final liquidPath = Path()

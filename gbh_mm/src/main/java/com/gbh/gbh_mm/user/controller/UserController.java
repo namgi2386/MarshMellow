@@ -106,5 +106,11 @@ public class UserController {
         return userService.updateSalary(request, userDetails);
     }
 
+    @GetMapping("/detail")
+    public ResponseUserDetail findUserDetail
+        (@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return userService.findUserDetail(userDetails);
+    }
+
 
 }

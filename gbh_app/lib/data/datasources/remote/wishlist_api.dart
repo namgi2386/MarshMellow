@@ -48,13 +48,17 @@ class WishlistApi {
     int? productPrice,
     String? productImageUrl,
     String? productUrl,
+    String? isSelected,     // 추가됨
+    String? isCompleted,    // 추가됨
   }) async {
     final data = {
       'productNickname': productNickname,
       'productName': productName,
       'productPrice': productPrice,
       'productImageUrl': productImageUrl,
-      'productUrl': productUrl,     
+      'productUrl': productUrl,
+      'isSelected': isSelected,         // 추가됨
+      'isCompleted': isCompleted,       // 추가됨됨
     };
 
     // null 값 가진 항목 제거 (업데이트하지 않을 필드)

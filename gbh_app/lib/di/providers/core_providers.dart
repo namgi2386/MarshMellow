@@ -20,7 +20,7 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 });
 
 // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzY0NDQ0MywiZXhwIjoxNzQzNjYyNDQzfQ.OCDJDLDIBqOEdGWcYuszpSwud-pMa3-2SOyCh76a5nDKjGIFiOZYnNFB1FUPYlOPAJa1HWWghRffk7CQLErwbg';
+const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzY4Nzk0OCwiZXhwIjoxNzQzNzA1OTQ4fQ.JoXyhwXQDAobhs9mKVykVlyYraTur8Ys1q5EI8JL5EdOjdUIgCtAmlCMBapr61UhdL7bNVZBcEnqzZes13yp4Q';
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 

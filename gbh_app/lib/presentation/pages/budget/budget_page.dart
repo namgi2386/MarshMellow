@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/data/models/wishlist/wish_model.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_bubble_chart.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/wish/wish_detail_modal.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/wish/wish_list_modal.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/wishlist/wish_provider.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 
 class BudgetPage extends ConsumerStatefulWidget {
   const BudgetPage({super.key});
@@ -35,11 +38,6 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     final state = ref.watch(budgetProvider);
     // 위시 상태 가져오기
     final wishState = ref.watch(wishProvider);
-
-    // 디버깅 출력 추가
-    print('WishState: isLoading=${wishState.isLoading}, '
-          'errorMessage=${wishState.errorMessage}, '
-          'currentWish=${wishState.currentWish}');
 
     if (state.isLoading) {
       return const Scaffold(
@@ -268,45 +266,52 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
       ],
     );
   }
-
-  // 위시리스트 항목 위젯
+  
+  /// 위시 없을 때 추가 버튼
   Widget _buildAddWishButton(BuildContext context) {
-     return Center(
-      child: InkWell(
-        onTap: () {
-          // 위시 추가 페이지로 이동
-          // context.push('/wish/add');
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.whiteDark,
-                shape: BoxShape.circle,
+    return InkWell(
+      onTap: () {
+        _showWishListModal(context, ref);
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.backgroundBlack),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.whiteDark,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.add_circle_outline, 
+                  color: AppColors.bluePrimary, 
+                  size: 30
+                ),
               ),
-              child: Icon(
-                Icons.add, 
-                color: AppColors.bluePrimary, 
-                size: 30
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '위시 추가하기',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.bluePrimary
-              ),
-            )
-          ],
+              const SizedBox(height: 8),
+              Text(
+                '위시 추가하기',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.bluePrimary
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // 위시 항목 위젯
+  /// 위시 아이템 위젯
   Widget _buildWishItem(BuildContext context, WishDetail wish) {
     // 가격 포맷팅
     String formattedPrice = wish.productPrice.toString().replaceAllMapped(
@@ -337,29 +342,20 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
 
     return InkWell(
       onTap: () {
-        // 위시 상세 페이지로 이동
-        // context.push('/wish/detail/${wish.wishPk}');
+        _showWishDetailModal(context, wish, ref);
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.backgroundBlack),
+          borderRadius: BorderRadius.circular(8),
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 1),
-            ),
-          ],
         ),
         child: Padding(
           padding: const EdgeInsets.only(left: 16.0),
           child: Row(
             children: [
-              // 이미지 부분 - 원형으로 클립핑
+              // 이미지 : 원형으로 클립핑
               ClipOval(
                 child: Container(
                   width: 70,
@@ -377,55 +373,77 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                       : const Icon(Icons.image_not_supported, color: Colors.grey),
                 ),
               ),
-              const SizedBox(width: 12), // 이미지와 텍스트 사이 간격
-            // 정보 부분
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.favorite, size: 18, color: AppColors.backgroundBlack),
-                        const SizedBox(width: 4),
-                        Text(
-                          wish.productNickname,
-                          style: AppTextStyles.bodyMedium,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      wish.productName,
-                      style: AppTextStyles.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '달성액: $formattedAchievePrice원  목표액: $formattedPrice원',
-                      style: AppTextStyles.bodyExtraSmall.copyWith(color: AppColors.disabled),
-                    ),
-                    const SizedBox(height: 8),
-                    // 진행바
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: LinearProgressIndicator(
-                        value: clampedProgress,
-                        backgroundColor: AppColors.whiteDark,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.bluePrimary),
-                        minHeight: 8,
+              const SizedBox(width: 12),
+              // 정보 부분
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.favorite, size: 18, color: AppColors.backgroundBlack),
+                          const SizedBox(width: 4),
+                          Text(
+                            wish.productNickname,
+                            style: AppTextStyles.bodyMedium,
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        wish.productName,
+                        style: AppTextStyles.bodySmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '달성액: $formattedAchievePrice원  목표액: $formattedPrice원',
+                        style: AppTextStyles.bodyExtraSmall.copyWith(color: AppColors.disabled),
+                      ),
+                      const SizedBox(height: 8),
+                      // 진행바
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: LinearProgressIndicator(
+                          value: clampedProgress,
+                          backgroundColor: AppColors.whiteDark,
+                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.bluePrimary),
+                          minHeight: 15,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      
-      )),
+      ),
+    );
+  }
+
+  /// 위시 목록 모달 표시
+  void _showWishListModal(BuildContext context, WidgetRef ref) {
+    showCustomModal(
+      context: context,
+      ref: ref,
+      backgroundColor: Colors.white,
+      title: '위시 선택',
+      child: const WishListModal(initialTab: WishListTab.pending),
+    );
+  }
+
+  /// 위시 상세 모달 표시
+  void _showWishDetailModal(BuildContext context, WishDetail wish, WidgetRef ref) {
+    showCustomModal(
+      context: context,
+      ref: ref,
+      backgroundColor: Colors.white,
+      showDivider: false,
+      child: WishDetailModal(currentWish: wish),
     );
   }
 }

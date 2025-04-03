@@ -8,11 +8,17 @@ import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
 import com.gbh.gbh_mm.wishlist.model.request.RequestUpdateWishlist;
 import com.gbh.gbh_mm.wishlist.model.response.*;
 import com.gbh.gbh_mm.wishlist.repo.WishlistRepository;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.RequiredArgsConstructor;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -165,4 +171,46 @@ public class WishlistService {
                 .isCompleted(wish.getIsCompleted())
                 .build();
     }
+
+    // 링크 Jsoup
+    public ResponseJsoupLink jsoupLink(String url) {
+
+        // ChromeDriver 자동 다운로드
+        WebDriverManager.chromedriver().setup();
+
+        // Chrome 브라우저 실행
+        WebDriver driver = new ChromeDriver();
+        driver.get(url);
+
+        // 로딩 대기 (봇 감지 우회를 위해 추가)
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+
+        // OG 태그 가져오기
+        String ogTitle = getMetaTagContent(driver, "og:title");
+        String ogImage = getMetaTagContent(driver, "og:image");
+
+        // 결과 출력
+        System.out.println("OG Title: " + ogTitle);
+        System.out.println("OG Image: " + ogImage);
+
+        // 브라우저 종료
+        driver.quit();
+
+        return ResponseJsoupLink.builder()
+                .message("크롤링 완료")
+                .productName(ogTitle)
+                .productImage(ogImage)
+                .build();
+    }
+    // OG 태그의 content 값 가져오는 함수
+    public static String getMetaTagContent(WebDriver driver, String property) {
+        List<WebElement> metaTags = driver.findElements(By.cssSelector("meta[property='" + property + "']"));
+
+        if (!metaTags.isEmpty()) {
+            return metaTags.get(0).getAttribute("content");
+        } else {
+            return "Meta 태그를 찾을 수 없습니다";
+        }
+    }
+
 }

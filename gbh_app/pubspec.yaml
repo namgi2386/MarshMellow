@@ -122,6 +122,8 @@ dependencies:
   # 점메추 : 2D 물리엔진
   flame: ^1.27.0
   flame_forge2d: ^0.18.3
+  # flame: ^1.8.0
+  # flame_forge2d: ^0.15.0
   # flame: ^1.8.2 # (실패)
   # flame_forge2d: ^0.15.2 # (실패)
   # flame: ^1.10.0 # (실패)

@@ -4,6 +4,7 @@ import 'package:marshmellow/presentation/pages/cookie/lunch_page/game/entities/f
 import 'package:marshmellow/presentation/pages/cookie/lunch_page/game/entities/wall.dart';
 import 'package:marshmellow/presentation/pages/cookie/lunch_page/game/lunch_game.dart';
 import 'base_body.dart';
+import 'package:flame/sprite.dart'; // Sprite 임포트 추가
 
 class FoodBall extends BaseBody with ContactCallbacks {
   final double radius;
@@ -11,6 +12,8 @@ class FoodBall extends BaseBody with ContactCallbacks {
   final String imagePath;
   final LunchGame game; // 추가
   bool _activated = false;
+  Sprite? _sprite; // 스프라이트 객체 추가
+  bool _imageLoaded = false; // 이미지 로드 상태 추적
 
   FoodBall({
     required Vector2 position,
@@ -19,7 +22,26 @@ class FoodBall extends BaseBody with ContactCallbacks {
     required this.imagePath,
     required this.game, // 추가
     Color color = Colors.red,
-  }) : super(position: position, color: color);
+  }) : super(position: position, color: color) {
+    _loadImage();
+  }
+    // 이미지 로드 메서드 추가
+  Future<void> _loadImage() async {
+    try {
+      print('원본 이미지 경로: $imagePath');
+      
+      // 실제 앱 번들 내 이미지 경로
+      final path = imagePath.replaceAll('assets/images/', '');
+      print('수정된 이미지 경로: $path');
+      
+      _sprite = await Sprite.load(path);
+      _imageLoaded = true;
+      print('이미지 로드 성공: $path');
+    } catch (e) {
+      print('이미지 로드 실패: $e');
+      _imageLoaded = false;
+    }
+  }
   // 공 활성화 메서드
   void activate() {
     if (!_activated) {
@@ -69,20 +91,27 @@ class FoodBall extends BaseBody with ContactCallbacks {
 
   @override
   void render(Canvas canvas) {
-    // 공 시각적으로 그리기
-    canvas.drawCircle(
-      Offset.zero, // 중심은 항상 (0,0)
-      radius,      // 반지름
-      Paint()..color = color,
-    );
-    
-    // 나중에 여기에 이미지 그리기 추가 가능
-  }
-  // @override
-  // void update(double dt) {
-  //   super.update(dt);
-  //   if (_activated && body.position.y > 500) {
-  //     print('Ball ${name} position: ${body.position.y}');
-  //   }
-  // }
+    if (_imageLoaded && _sprite != null) {
+      // 이미지가 로드됐으면 스프라이트 렌더링
+      final size = Vector2(radius * 2, radius * 2);
+      final position = Vector2(-radius, -radius); // 중앙에 맞추기 위해 오프셋 조정
+      
+      // 스프라이트 그리기
+      _sprite!.render(
+        canvas,
+        position: position,
+        size: size,
+      );
+    } else {
+      // 이미지 로드 실패 또는 로드 전이면 색상으로 표시
+      canvas.drawCircle(
+        Offset.zero,
+        radius,
+        Paint()..color = color,
+      );
+    }
+  }void reset() {
+  body.setTransform(position, 0); // 초기 위치로
+  body.setType(BodyType.static); // 정적 상태로
+}
 }

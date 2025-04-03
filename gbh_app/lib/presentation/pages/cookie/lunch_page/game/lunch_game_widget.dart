@@ -1,5 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
 import 'lunch_game.dart';
 import 'entities/food_ball.dart';
 
@@ -45,8 +46,11 @@ class LunchGameWidgetState extends State<LunchGameWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GameWidget(
-      game: _game,
+    return GameWidget.controlled(
+      gameFactory: () => _game,
+      overlayBuilderMap: {
+        'default': (_, game) => Container(),
+      },
       loadingBuilder: (context) => const Center(
         child: CircularProgressIndicator(),
       ),

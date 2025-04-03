@@ -8,7 +8,7 @@ class Floor extends BaseBody {
   Floor({
     required Vector2 position,
     required this.size,
-    Color color = Colors.grey,
+    Color color = Colors.red,
   }) : super(position: position, color: color);
 
   @override

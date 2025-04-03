@@ -36,4 +36,21 @@ public interface HouseholdRepository extends JpaRepository<Household, Long> {
 
     List<Household> findAllByTradeDateBetweenAndUser_UserPkAndHouseholdClassificationCategory
         (String startDate, String endDate, long userPk, HouseholdClassificationEnum classification);
+
+    @Query("SELECT h FROM Household h " +
+            "JOIN h.householdDetailCategory hdc " +
+            "JOIN hdc.aiCategory a " +
+            "WHERE h.user.userPk = :userPk " +
+            "AND h.householdClassificationCategory = 'WITHDRAWAL' " +
+            "AND h.tradeDate BETWEEN :startDate AND :endDate " +
+            "AND a.aiCategory = :aiCategory " +
+            "ORDER BY h.tradeDate DESC"
+    )
+    List<Household> findHouseholdsByBudget(
+            @Param("userPk") long userPk,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("aiCategory") String aiCategory
+    );
+
 }

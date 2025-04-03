@@ -5,6 +5,8 @@ import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 import 'package:marshmellow/data/models/ledger/category/category_mapping.dart';
+import 'package:marshmellow/data/models/ledger/payment_method.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/picker/payment_method_picker.dart';
 
 class IncomeForm extends ConsumerStatefulWidget {
   final Transaction? initialData; // 초기 데이터 추가
@@ -22,10 +24,10 @@ class IncomeForm extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<IncomeForm> createState() => _IncomeFormState();
+  ConsumerState<IncomeForm> createState() => IncomeFormState();
 }
 
-class _IncomeFormState extends ConsumerState<IncomeForm> {
+class IncomeFormState extends ConsumerState<IncomeForm> {
   DateTime _selectedDate = DateTime.now();
   String? _merchant;
   String? _memo;
@@ -92,9 +94,9 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
   }
 
   // 입금 계좌 업데이트 함수
-  void _updateDepositAccount(String value) {
+  void _updateDepositAccount(PaymentMethod method) {
     setState(() {
-      _depositAccount = value;
+      _depositAccount = method.paymentMethod;
     });
   }
 
@@ -110,6 +112,19 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
 
       widget.onDataChanged!(_amount, _memo, pkToUse);
     }
+  }
+
+  Map<String, dynamic> getFormData() {
+    return {
+      'date': _selectedDate,
+      'tradeName': _merchant,
+      'paymentMethod': _depositAccount,
+      'memo': _memo,
+      'categoryPk': _selectedIncomeCategory != null
+          ? CategoryPkMapping.getPkFromCategory(
+              incomeCategory: _selectedIncomeCategory)
+          : null,
+    };
   }
 
   @override
@@ -134,7 +149,12 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
           TransactionFields.depositAccountField(
             account: _depositAccount,
             onTap: () {
-              // 입금 계좌 선택 로직 구현
+              showPaymentMethodPickerModal(
+                context,
+                transactionType: 'income',
+                onPaymentMethodSelected: _updateDepositAccount,
+                title: '입금계좌 선택',
+              );
             },
             enabled: !widget.readOnly,
           ),

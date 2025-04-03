@@ -6,6 +6,7 @@ import 'package:marshmellow/data/models/ledger/category/deposit_category.dart';
 import 'package:marshmellow/data/models/ledger/category/transfer_category.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
+import 'package:marshmellow/data/models/ledger/payment_method.dart';
 
 class LedgerRepository {
   final LedgerApi _ledgerApi;
@@ -14,12 +15,10 @@ class LedgerRepository {
 
   // 가계부 조회
   Future<Map<String, dynamic>> getHouseholdList({
-    required int userPk,
     required String startDate,
     required String endDate,
   }) async {
     return await _ledgerApi.getHouseholdList(
-      userPk: userPk,
       startDate: startDate,
       endDate: endDate,
     );
@@ -80,7 +79,6 @@ class LedgerRepository {
 
     // API 호출 결과 가져오기
     final result = await getHouseholdList(
-      userPk: UserInfo.userPk,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
     );
@@ -96,14 +94,12 @@ class LedgerRepository {
 
   // 검색 기능
   Future<List<Transaction>> searchTransactions({
-    required int userPk,
     required String startDate,
     required String endDate,
     required String keyword,
   }) async {
     try {
       final result = await _ledgerApi.searchHousehold(
-        userPk: userPk,
         startDate: startDate,
         endDate: endDate,
         keyword: keyword,
@@ -147,14 +143,12 @@ class LedgerRepository {
 
   // 특정 분류(수입/지출/이체)에 따른 가계부 내역 조회
   Future<Map<String, dynamic>> getHouseholdByClassification({
-    required int userPk,
     required String startDate,
     required String endDate,
     required String classification, // 'DEPOSIT', 'WITHDRAWAL', 'TRANSFER'
   }) async {
     try {
       final result = await _ledgerApi.getHouseholdFilter(
-        userPk: userPk,
         startDate: startDate,
         endDate: endDate,
         classification: classification,
@@ -187,4 +181,43 @@ class LedgerRepository {
       throw Exception('분류별 가계부 목록을 가져오는데 실패했습니다: $e');
     }
   }
+
+  // 결제수단 목록 조회
+  Future<List<PaymentMethod>> getPaymentMethods() async {
+    try {
+      final response = await _ledgerApi.getPaymentMethods();
+      return response.data.paymentMethodList;
+    } catch (e) {
+      throw Exception('결제수단 목록을 가져오는데 실패했습니다: $e');
+    }
+  }
+
+  // 가계부 등록
+  Future<Map<String, dynamic>> createHousehold({
+  required String tradeName,
+  required String tradeDate,
+  required String tradeTime,
+  required int householdAmount,
+  String? householdMemo,
+  required String paymentMethod,
+  required String exceptedBudgetYn,
+  required String householdClassification,
+  required int householdDetailCategoryPk,
+}) async {
+  try {
+    return await _ledgerApi.createHousehold(
+      tradeName: tradeName,
+      tradeDate: tradeDate,
+      tradeTime: tradeTime,
+      householdAmount: householdAmount,
+      householdMemo: householdMemo,
+      paymentMethod: paymentMethod,
+      exceptedBudgetYn: exceptedBudgetYn,
+      householdClassification: householdClassification,
+      householdDetailCategoryPk: householdDetailCategoryPk,
+    );
+  } catch (e) {
+    throw Exception('가계부 등록에 실패했습니다: $e');
+  }
+}
 }

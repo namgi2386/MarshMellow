@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
@@ -14,9 +16,16 @@ import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/
 // 위젯
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/keyboard_modal.dart';
+import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
 
-class TransactionForm extends StatefulWidget {
-  final DateTime? initialDate; //초기 날짜 
+// 가계부 관련 ViewModel
+import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
+import 'package:marshmellow/di/providers/date_picker_provider.dart';
+
+// TransactionForm을 ConsumerStatefulWidget으로 변환
+class TransactionForm extends ConsumerStatefulWidget {
+  final DateTime? initialDate;
 
   const TransactionForm({
     super.key,
@@ -24,36 +33,42 @@ class TransactionForm extends StatefulWidget {
   });
 
   @override
-  State<TransactionForm> createState() => _TransactionFormState();
+  ConsumerState<TransactionForm> createState() => _TransactionFormState();
 }
 
-class _TransactionFormState extends State<TransactionForm> {
+class _TransactionFormState extends ConsumerState<TransactionForm> {
   String _selectedType = '지출'; // 기본값을 지출로 설정
   String _amount = '0'; // 금액 상태 추가
+  bool _isSaving = false; // 저장 중 상태
+
+  // 폼 레퍼런스 관리
+  final _incomeFormKey = GlobalKey<IncomeFormState>();
+  final _expenseFormKey = GlobalKey<ExpenseFormState>();
+  final _transferFormKey = GlobalKey<TransferFormState>();
 
   // 선택된 타입에 따라 다른 폼을 반환하는 메서드 (수정)
   Widget _getFormByType() {
-    // initialDate가 있으면 전달, 없으면 각 폼에서 기본적으로 DateTime.now() 사용
     final initialDate = widget.initialDate;
 
     switch (_selectedType) {
       case '수입':
-        // 여기서는 날짜만 전달하고 싶지만, 현재 IncomeForm은 initialDate를 직접 받지 않음
-        // 대신 IncomeForm 내부에서 initialDate를 활용하도록 IncomeForm도 수정 필요
         return IncomeForm(
-          // 참고: 이 부분은 IncomeForm 클래스가 initialDate를 받을 수 있도록 수정되어야 함
+          key: _incomeFormKey,
           initialDate: initialDate,
         );
       case '지출':
         return ExpenseForm(
+          key: _expenseFormKey,
           initialDate: initialDate,
         );
       case '이체':
         return TransferForm(
+          key: _transferFormKey,
           initialDate: initialDate,
         );
       default:
         return ExpenseForm(
+          key: _expenseFormKey,
           initialDate: initialDate,
         );
     }
@@ -61,11 +76,9 @@ class _TransactionFormState extends State<TransactionForm> {
 
   // 금액을 포맷팅하는 메서드
   String _formatAmount(String amount) {
-    // 숫자만 추출
     String numbers = amount.replaceAll(RegExp(r'[^0-9]'), '');
     if (numbers.isEmpty) return '0';
 
-    // 3자리마다 콤마 추가
     final formatted = int.parse(numbers)
         .toString()
         .split('')
@@ -96,9 +109,145 @@ class _TransactionFormState extends State<TransactionForm> {
     );
   }
 
+  // 가계부 내역 저장 메서드
+  Future<void> _saveTransaction() async {
+    // 금액이 0이면 저장하지 않음
+    if (_amount == '0' || _amount.isEmpty) {
+      CompletionMessage.show(context, message: '금액 입력');
+      return;
+    }
+
+    // 저장 중 상태로 변경
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      // 금액 파싱
+      final int amountValue = int.parse(_amount.replaceAll(',', ''));
+
+      // 가계부 분류 변환
+      String householdClassification;
+      switch (_selectedType) {
+        case '수입':
+          householdClassification = 'DEPOSIT';
+          break;
+        case '지출':
+          householdClassification = 'WITHDRAWAL';
+          break;
+        case '이체':
+          householdClassification = 'TRANSFER';
+          break;
+        default:
+          householdClassification = 'WITHDRAWAL';
+      }
+
+      // 현재 날짜와 시간 (기본값)
+      DateTime now = DateTime.now();
+      String tradeDate = DateFormat('yyyyMMdd').format(now);
+      String tradeTime = DateFormat('HHmm').format(now);
+
+      // 폼 데이터 수집
+      Map<String, dynamic> formData = {};
+
+      switch (_selectedType) {
+        case '수입':
+          if (_incomeFormKey.currentState != null) {
+            formData = _incomeFormKey.currentState!.getFormData();
+            if (formData['date'] != null) {
+              final DateTime selectedDate = formData['date'];
+              tradeDate = DateFormat('yyyyMMdd').format(selectedDate);
+              tradeTime = DateFormat('HHmm').format(selectedDate);
+            }
+          }
+          break;
+        case '지출':
+          if (_expenseFormKey.currentState != null) {
+            formData = _expenseFormKey.currentState!.getFormData();
+            if (formData['date'] != null) {
+              final DateTime selectedDate = formData['date'];
+              tradeDate = DateFormat('yyyyMMdd').format(selectedDate);
+              tradeTime = DateFormat('HHmm').format(selectedDate);
+            }
+          }
+          break;
+        case '이체':
+          if (_transferFormKey.currentState != null) {
+            formData = _transferFormKey.currentState!.getFormData();
+            if (formData['date'] != null) {
+              final DateTime selectedDate = formData['date'];
+              tradeDate = DateFormat('yyyyMMdd').format(selectedDate);
+              tradeTime = DateFormat('HHmm').format(selectedDate);
+            }
+          }
+          break;
+      }
+
+      // 필수 필드 검증
+      if (formData['tradeName'] == null ||
+          formData['paymentMethod'] == null ||
+          formData['categoryPk'] == null) {
+        CompletionMessage.show(context, message: '모든항목입력');
+        setState(() {
+          _isSaving = false;
+        });
+        return;
+      }
+
+      // LedgerRepository 인스턴스 가져오기
+      final repository = ref.read(ledgerRepositoryProvider);
+
+      // API 호출
+      await repository.createHousehold(
+        tradeName: formData['tradeName'],
+        tradeDate: tradeDate,
+        tradeTime: tradeTime,
+        householdAmount: amountValue,
+        householdMemo: formData['memo'],
+        paymentMethod: formData['paymentMethod'],
+        exceptedBudgetYn: formData['exceptedBudgetYn'] ?? 'N',
+        householdClassification: householdClassification,
+        householdDetailCategoryPk: formData['categoryPk'],
+      );
+
+      // 저장 성공
+      CompletionMessage.show(context, message: '저장 완료');
+
+      // 트랜잭션 목록 새로고침
+      ref.refresh(transactionsProvider);
+
+      // 월별 통계 새로고침
+      final datePickerState = ref.read(datePickerProvider);
+      if (datePickerState.selectedRange != null) {
+        ref
+            .read(ledgerViewModelProvider.notifier)
+            .loadHouseholdData(datePickerState.selectedRange!);
+      }
+
+      // 모달 닫기
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      print('가계부 내역 저장 중 오류: $e');
+      if (context.mounted) {
+        CompletionMessage.show(context, message: '저장 중 오류가 발생했습니다');
+      }
+    } finally {
+      // 저장 중 상태 해제
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final ledgerState = ref.watch(ledgerViewModelProvider);
+
     return Stack(
       children: [
         // 콘텐츠 영역
@@ -161,9 +310,12 @@ class _TransactionFormState extends State<TransactionForm> {
               color: Theme.of(context).scaffoldBackgroundColor,
             ),
             child: Button(
+              text: '저장하기',
               height: 50,
               width: screenWidth * 0.9,
-              onPressed: () {},
+              isDisabled: _isSaving || ledgerState.isLoading,
+              onPressed:
+                  _isSaving || ledgerState.isLoading ? null : _saveTransaction,
             ),
           ),
         ),

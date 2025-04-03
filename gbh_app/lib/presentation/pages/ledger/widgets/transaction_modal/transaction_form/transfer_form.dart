@@ -9,6 +9,8 @@ import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_view
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/category_mapping.dart';
+import 'package:marshmellow/data/models/ledger/payment_method.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/picker/payment_method_picker.dart';
 
 class TransferForm extends ConsumerStatefulWidget {
   final Transaction? initialData; // 초기 데이터 추가
@@ -26,10 +28,10 @@ class TransferForm extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<TransferForm> createState() => _TransferFormState();
+  ConsumerState<TransferForm> createState() => TransferFormState();
 }
 
-class _TransferFormState extends ConsumerState<TransferForm> {
+class TransferFormState extends ConsumerState<TransferForm> {
   DateTime _selectedDate = DateTime.now();
   String? _merchant;
   String? _memo;
@@ -101,10 +103,10 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     _notifyDataChanged(categoryPk: pk);
   }
 
-  // 계좌 업데이트 함수
-  void _updateAccount(String value) {
+  // 계좌 업데이트 함수 추가
+  void _updateAccount(PaymentMethod method) {
     setState(() {
-      _account = value;
+      _account = method.paymentMethod;
     });
   }
 
@@ -131,6 +133,19 @@ class _TransferFormState extends ConsumerState<TransferForm> {
 
       widget.onDataChanged!(_amount, _memo, pkToUse);
     }
+  }
+
+  Map<String, dynamic> getFormData() {
+    return {
+      'date': _selectedDate,
+      'tradeName': _merchant,
+      'paymentMethod': _account,
+      'memo': _memo,
+      'categoryPk': _selectedTransferCategory != null
+          ? CategoryPkMapping.getPkFromCategory(
+              transferCategory: _selectedTransferCategory)
+          : null,
+    };
   }
 
   @override
@@ -170,7 +185,12 @@ class _TransferFormState extends ConsumerState<TransferForm> {
           onTap: widget.readOnly
               ? null
               : () {
-                  // 계좌 선택 로직 구현
+                  showPaymentMethodPickerModal(
+                    context,
+                    transactionType: 'transfer',
+                    onPaymentMethodSelected: _updateAccount,
+                    title: '계좌 선택',
+                  );
                 },
           valueStyle: widget.readOnly
               ? AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)

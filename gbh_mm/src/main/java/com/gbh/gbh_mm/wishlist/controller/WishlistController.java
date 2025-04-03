@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/mm/wishlist")
+@RequestMapping("mm/wishlist")
 @RequiredArgsConstructor
 public class WishlistController {
 

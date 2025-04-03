@@ -7,7 +7,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/data/models/budget/budget_model.dart';
 
 class BudgetBubblechart extends ConsumerStatefulWidget {
-  final List<BudgetCategory> categories;
+  final List<BudgetCategoryModel> categories;
   final double maxRadius;
   final double padding;
 
@@ -85,7 +85,7 @@ class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
 }
 
 class BubblesPainter extends CustomPainter {
-  final List<BudgetCategory> budgetCategories;
+  final List<BudgetCategoryModel> budgetCategories;
   final int totalBudget;
   final double maxRadius;
   final double padding;
@@ -106,7 +106,7 @@ class BubblesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // 정렬된 예산 항목 (큰 금액부터 작은 금액 순으로)
-    final sortedCategories = List<BudgetCategory>.from(budgetCategories)
+    final sortedCategories = List<BudgetCategoryModel>.from(budgetCategories)
       ..sort((a, b) => b.budgetCategoryPrice.compareTo(a.budgetCategoryPrice));
 
     // 상위 6개 카테고리만 사용
@@ -253,8 +253,8 @@ class BubblesPainter extends CustomPainter {
     canvas.drawCircle(position, radius, categoryPaint);
     
     // 사용 비율 및 초과 여부
-    final spentPercent = category.usageRatio;
-    final isOverBudget = category.isOverBudget;
+    final spentPercent = category.budgetExpendPercent ?? 0.0;
+    final isOverBudget = spentPercent > 1.0;
     
     // 지출 비율이 있는 경우
     if (spentPercent > 0) {
@@ -407,7 +407,7 @@ class BubblesPainter extends CustomPainter {
 
 // 버블 클래스
 class Bubble {
-  final BudgetCategory category;
+  final BudgetCategoryModel category;
   final double radius;
   Offset position;
 

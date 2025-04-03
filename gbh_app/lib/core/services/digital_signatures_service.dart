@@ -12,23 +12,21 @@ class DigitalSignatureService {
 
   DigitalSignatureService(this._certificateService, this._secureStorage);
 
-  // 반쪽 키 생성 (UUID 형식의 문자열을 반으로 나눔)
-  Future<String> generateHalfUserKey() async {
-    final uuid = const Uuid().v4();
-    // UUID를 반으로 나누어 반쪽만 저장
-    final halfUserKey = uuid.substring(0, uuid.length ~/ 2);
+  // 반쪽키 가져오기
+  Future<String?> getHalfUserKey() async {
+    final savedHalfUserKey = await _secureStorage.read(key: StorageKeys.halfUserKey);
+    print('전자서명검증에사용할반쪽키는: $savedHalfUserKey');
     
-    // 반쪽 키 저장
-    await _secureStorage.write(key: 'half_user_key', value: halfUserKey);
-    
-    return halfUserKey;
+    return savedHalfUserKey;
   }
+
+
 
   // 전자서명 생성
   Future<Map<String, dynamic>> generateDigitalSignature(String originalText) async {
     try {
-      // 1. 반쪽 키 생성
-      final halfUserKey = await generateHalfUserKey();
+      // 1. 반쪽 키 가져오기
+      final halfUserKey = await getHalfUserKey();
       print('$halfUserKey');
       
       // 2. 원문 서명
@@ -40,11 +38,24 @@ class DigitalSignatureService {
 
       
       // 3. 인증서 가져오기
-      final certificatePem = await _secureStorage.read(key: StorageKeys.certificatePem);
+      final certificatePemRaw = await _secureStorage.read(key: StorageKeys.certificatePem);
+      if (certificatePemRaw == null) {
+        throw Exception('인증서를 찾을 수 없습니다.');
+      }
+      // 인증서에 \r\n 줄바꿈 유지 (기존 줄바꿈 제거 로직 변경)
+      final certificatePem = certificatePemRaw
+                          .replaceAll('\\n', '\r\n')
+                          .replaceAll('\n', '\r\n');
+
+      print('원본 인증서 데이터: $certificatePemRaw');
+      print('처리된 인증서 데이터: $certificatePem');
       if (certificatePem == null) {
         throw Exception('인증서를 찾을 수 없습니다.');
       }
-      print('$certificatePem');
+      // print('서버에 이거 보냄 : $certificatePem');
+
+      print('원본 데이터: $certificatePemRaw');
+      print('처리된 데이터: $certificatePem');
 
       
       // 4. 은행 및 카드사 코드 리스트

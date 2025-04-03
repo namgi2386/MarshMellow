@@ -7,7 +7,6 @@ import 'package:marshmellow/data/datasources/remote/api_client.dart';
   mm 인증서 api
 */
 class CertificateApi {
-  // final Dio _dio;
   final ApiClient _apiClient;
   final FlutterSecureStorage _secureStorage;
 
@@ -15,9 +14,6 @@ class CertificateApi {
   
   // 통합인증 여부 조회
   Future<Map<String, dynamic>> checkIntegratedStatus() async {
-    // // accessToken 가져오기
-    // final accessToken = await _secureStorage.read(key: StorageKeys.accessToken);
-
     final response = await _apiClient.get('/api/mm/auth/integrated-status');
     return response.data;
   }
@@ -42,19 +38,12 @@ class CertificateApi {
     required String csrPem,
     required String userEmail,
   }) async {
-    final accessToken = await _secureStorage.read(key: StorageKeys.accessToken);
-
     final response = await _apiClient.post(
       '/api/mm/auth/cert/issue',
       data:{
         'csrPem' : csrPem,
         'userEmail' : userEmail,
       },
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $accessToken'
-        }
-      )
     );
     return response.data;
   }

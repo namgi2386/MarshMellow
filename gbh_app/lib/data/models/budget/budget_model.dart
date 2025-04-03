@@ -1,56 +1,17 @@
-/*
-  전체 예산 조회 API 응답 모델
-*/
 import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 
-class BudgetResponse {
-  final int code;
-  final String message;
-  final BudgetData data;
-
-  BudgetResponse({
-    required this.code,
-    required this.message,
-    required this.data,
-  });
-
-  factory BudgetResponse.fromJson(Map<String, dynamic> json) {
-    return BudgetResponse(
-      code: json['code'], 
-      message: json['message'], 
-      data: BudgetData.fromJson(json['data'])
-    );
-  }
-}
-
-class BudgetData {
-  final String message;
-  final List<Budget> budgetList;
-
-  BudgetData({
-    required this.message,
-    required this.budgetList,
-  });
-
-  factory BudgetData.fromJson(Map<String, dynamic> json) {
-    return BudgetData(
-      message: json['message'], 
-      budgetList: (json['budgetList'] as List)
-          .map((item) => Budget.fromJson(item))
-          .toList(),
-    );
-  }
-}
-
-class Budget {
+/*
+  전체 예산 조회 API 응답 모델
+*/
+class BudgetModel {
   final int budgetPk;
   final int budgetAmount;
   final String startDate;
   final String endDate;
-  final List<BudgetCategory> budgetCategoryList;
+  final List<BudgetCategoryModel> budgetCategoryList;
 
-  Budget({
+  BudgetModel({
     required this.budgetPk,
     required this.budgetAmount,
     required this.startDate,
@@ -58,14 +19,14 @@ class Budget {
     required this.budgetCategoryList,
   });
 
-  factory Budget.fromJson(Map<String, dynamic> json) {
-    return Budget(
+  factory BudgetModel.fromJson(Map<String, dynamic> json) {
+    return BudgetModel(
       budgetPk: json['budgetPk'],
       budgetAmount: json['budgetAmount'],
       startDate: json['startDate'],
       endDate: json['endDate'],
       budgetCategoryList: (json['budgetCategoryList'] as List)
-          .map((item) => BudgetCategory.fromJson(item))
+          .map((item) => BudgetCategoryModel.fromJson(item))
           .toList(),
     );
   }
@@ -91,14 +52,17 @@ class Budget {
   }
 }
 
-class BudgetCategory {
+/*
+  예산 카테고리 모델
+*/
+class BudgetCategoryModel {
   final int budgetCategoryPk;
   final String budgetCategoryName;
   final int budgetCategoryPrice;
   final int? budgetExpendAmount;
   final double? budgetExpendPercent;
 
-  BudgetCategory({
+  BudgetCategoryModel({
     required this.budgetCategoryPk,
     required this.budgetCategoryName,
     required this.budgetCategoryPrice,
@@ -106,32 +70,43 @@ class BudgetCategory {
     this.budgetExpendPercent,
   });
 
-  factory BudgetCategory.fromJson(Map<String, dynamic> json) {
-    return BudgetCategory(
+  factory BudgetCategoryModel.fromJson(Map<String, dynamic> json) {
+    return BudgetCategoryModel(
       budgetCategoryPk: json['budgetCategoryPk'], 
       budgetCategoryName: json['budgetCategoryName'], 
       budgetCategoryPrice: json['budgetCategoryPrice'],
-      budgetExpendAmount: json['budgetExpendAmount'] != null 
-          ? json['budgetExpendAmount']
-          : 0,
-      budgetExpendPercent: json['budgetExpendPercent'] != null
-          ? json['budgetExpendPercent'].toDouble()
-          : null,
+      budgetExpendAmount: json['budgetExpendAmount'],
+      budgetExpendPercent: json['budgetExpendPercent'],
     );
   }
-
-  // 사용 비율 계산
-  double get usageRatio {
-    return budgetExpendPercent ?? 0.0;
-  }
-
-  // 예산 초과 여부
-  bool get isOverBudget {
-    return (budgetExpendPercent ?? 0.0) > 1.0;
-  }
-
   // 색상 가져오기
   Color get color {
-    return Budget.getCategoryColor(budgetCategoryName);
+    return BudgetModel.getCategoryColor(budgetCategoryName);
+  }
+}
+
+/*
+  오늘의 예산 모델
+*/
+class DailyBudgetModel {
+  final int budgetPk;
+  final int budgetAmount;
+  final int remainBudgetAmount;
+  final int dailyBudgetAmount;
+
+  DailyBudgetModel({
+    required this.budgetPk,
+    required this.budgetAmount,
+    required this.remainBudgetAmount,
+    required this.dailyBudgetAmount,
+  });
+
+  factory DailyBudgetModel.fromJson(Map<String, dynamic> json) {
+    return DailyBudgetModel(
+      budgetPk: json['budgetPk'],
+      budgetAmount: json['budgetAmount'],
+      remainBudgetAmount: json['remainBudgetAmount'],
+      dailyBudgetAmount: json['dailyBudgetAmount'],
+    );
   }
 }

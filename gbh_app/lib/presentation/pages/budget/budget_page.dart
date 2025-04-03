@@ -99,7 +99,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     }
 
     final categories = selectedBudget.budgetCategoryList;
-    final remainingBudget = state.remainingBudget;
+    final remainingBudget = state.dailyBudget?.remainBudgetAmount ?? 0;
 
     // 금액 포맷팅 (천 단위 쉼표)
     String formattedRemainingBudget = remainingBudget.toString().replaceAllMapped(
@@ -112,9 +112,8 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
       (Match m) => '${m[1]},'
     );
 
-    // TODO: 임시 하루 예산
-    int daysInperiod = 30;
-    int dailyBudget = selectedBudget.budgetAmount ~/ daysInperiod;
+    // 하루 예산
+    int dailyBudget = state.dailyBudget?.dailyBudgetAmount ?? 0;
 
     String formattedDailyBudget = dailyBudget.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),

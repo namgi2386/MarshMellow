@@ -67,7 +67,6 @@ public class WishlistService {
                 .build();
 
 
-
     }
 
     // 위시리스트 상세 조회
@@ -138,10 +137,10 @@ public class WishlistService {
 
     // 현재 위시 조회
     public ResponseFindDetailWishlist getCurrentWish(Long userPk) {
-        List<Wishlist> wishlist =  wishlistRepository.findAllByUser_UserPk(userPk)
+        List<Wishlist> wishlist = wishlistRepository.findAllByUser_UserPk(userPk)
                 .stream()
                 .filter(wish ->
-                    wish.getIsSelected().equals("Y") && wish.getIsCompleted().equals("N")
+                        wish.getIsSelected().equals("Y") && wish.getIsCompleted().equals("N")
                 )
                 .collect(Collectors.toList());
 

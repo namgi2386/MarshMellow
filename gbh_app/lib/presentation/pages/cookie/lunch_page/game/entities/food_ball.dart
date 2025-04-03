@@ -40,9 +40,11 @@ class FoodBall extends BaseBody {
 
     // 픽스처 속성 설정
     final fixtureDef = FixtureDef(shape)
-      ..restitution = 0.8 // 높은 반발력
+      ..restitution = 0.4 // 높은 반발력
       ..density = 1.0     // 밀도
-      ..friction = 0.2;   // 약간의 마찰력
+      ..friction = 0.2;    // 약간의 마찰력
+      // ..filter.categoryBits = 0x0002 // FoodBall 카테고리
+      // ..filter.maskBits = 0x0004 | 0x0001;    // FinishLine과 충돌 가능
 
     // 바디에 픽스처 추가
     body.createFixture(fixtureDef);
@@ -61,15 +63,14 @@ class FoodBall extends BaseBody {
     
     // 나중에 여기에 이미지 그리기 추가 가능
     
-    super.render(canvas);
+    // super.render(canvas);
   }
   // FoodBall 클래스에 update 메서드 추가
   // @override
   // void update(double dt) {
   //   super.update(dt);
-  //   if (_activated && body.position.y > 70) {
-  //     // 공이 특정 위치 아래로 내려갔을 때 로그
-  //     print('Ball ${name} passed y=70, position: ${body.position.y}');
+  //   if (_activated) {
+  //     print('Ball ${name} position: ${body.position.y}');
   //   }
   // }
 }

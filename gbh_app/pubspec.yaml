@@ -120,8 +120,12 @@ dependencies:
   flutter_markdown: ^0.7.6+2
 
   # 점메추 : 2D 물리엔진
-  flame: ^1.26.1
+  flame: ^1.27.0
   flame_forge2d: ^0.18.3
+  # flame: ^1.8.2 # (실패)
+  # flame_forge2d: ^0.15.2 # (실패)
+  # flame: ^1.10.0 # (실패)
+  # flame_forge2d: ^0.16.0 # (실패)
 
 dev_dependencies:
   flutter_test:

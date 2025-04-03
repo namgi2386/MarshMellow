@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/pages/cookie/lunch_page/game/entities/food_ball.dart';
 import 'package:marshmellow/presentation/viewmodels/lunch/lunch_view_model.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
@@ -174,7 +175,8 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
   }
   
   // 게임 결과 처리 콜백
-  void _handleGameComplete(List<String> winners) {
+  void _handleGameComplete(List<FoodBall> finishedBalls) {
+    final winners = finishedBalls.map((ball) => ball.name).toList();
     setState(() {
       _winners = winners;
     });

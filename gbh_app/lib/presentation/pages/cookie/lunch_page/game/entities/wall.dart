@@ -35,6 +35,8 @@ class Wall extends BaseBody {
     final fixtureDef = FixtureDef(shape)
       ..restitution = 0.1 // 낮은 반발력
       ..friction = 0.5;   // 높은 마찰력
+      // ..filter.categoryBits = 0x0001 // 기본 카테고리
+      // ..filter.maskBits = 0x0002;    // FoodBall과 충돌
 
     // 바디에 픽스처 추가
     body.createFixture(fixtureDef);
@@ -55,6 +57,6 @@ class Wall extends BaseBody {
       rect,
       Paint()..color = color,
     );
-    super.render(canvas);
+    // super.render(canvas);
   }
 }

@@ -10,42 +10,67 @@ import 'entities/finish_line.dart';
 
 // Forge2D 게임 확장하는 기본 게임 클래스
 class LunchGame extends Forge2DGame with ContactCallbacks {
-  // 선택된 메뉴 정보
   final List selectedMenus;
   bool gameStarted = false;
   final List<FoodBall> foodBalls = [];
   final List<FoodBall> finishedBalls = [];
-  
-  // 결과 콜백 함수
   Function(List<FoodBall>)? onGameComplete;
-  
-  // 생성자에서 중력 설정 (기본 지구 중력)
-  LunchGame({required this.selectedMenus}) 
-    : super(gravity: Vector2(0, 10.0));
-  
+
+  LunchGame({required this.selectedMenus}) : super(gravity: Vector2(0, 10.0)) {
+    print('World initialized: ${world != null}');
+  }
+
   @override
   Future<void> onLoad() async {
-    // 카메라 설정 (화면에 맞게)
-    camera.viewport = FixedResolutionViewport(resolution: Vector2(1080, 1920));
-    
-    // 화면 크기 계산
-    final viewportSize = camera.viewport.size;
-    final worldSize = screenToWorld(Vector2(viewportSize.x, viewportSize.y));
-    
+    await super.onLoad();
+    // 실제 디바이스 화면 크기에 맞게 설정
+    final screenSize = size; // 게임 위젯의 실제 크기 (디바이스 해상도 반영)
+    camera.viewport = FixedResolutionViewport(resolution: screenSize);
+    final worldSize = screenSize; // 월드 크기를 화면 크기에 맞춤
+
+    // 디버깅 로그 추가
+    print('Screen size: $screenSize, World size: $worldSize');
+
+    // 카메라 위치와 줌 설정 (최신 API 사용)
+    camera.viewfinder.position = worldSize / 2; // 화면 중앙으로 이동
+    camera.viewfinder.zoom = 1.0; // 기본 줌 (필요하면 조정)
+
     // 경계(벽과 바닥) 추가
     _addBoundaries(worldSize);
     
     // 장애물 추가
     _addObstacles(worldSize);
     
-    // 결승선 추가
+    // 결승선 추가\
     _addFinishLine(worldSize);
     
     // 공 추가 (아직 떨어지지 않게 대기)
     _addFoodBalls(worldSize);
     
-    await super.onLoad();
   }
+
+  // 충돌 감지를 위한 메서드
+  @override
+  void beginContact(Object objectA, Contact contact) {
+    print('beginContact called'); // 최소한 호출 여부 확인
+    final bodyA = contact.fixtureA.body;
+    final bodyB = contact.fixtureB.body;
+
+    final userDataA = bodyA.userData;
+    final userDataB = bodyB.userData;
+    print('just text');
+    print('Collision detected: A=$userDataA, B=$userDataB'); // 타입뿐만 아니라 객체 자체 출력
+    // print('BodyA type: ${bodyA.type}, BodyB type: ${bodyB.type}'); // 바디 타입 확인
+
+    if (userDataA is FinishLine && userDataB is FoodBall) {
+      print('FinishLine detected with FoodBall: ${userDataB.name}');
+      userDataA.beginContact(userDataB);
+    } else if (userDataA is FoodBall && userDataB is FinishLine) {
+      print('FoodBall detected with FinishLine: ${userDataA.name}');
+      userDataB.beginContact(userDataA);
+    }
+  }
+
 
   // 경계 추가 메서드
   void _addBoundaries(Vector2 worldSize) {
@@ -85,7 +110,7 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
     // 첫 번째 장애물 (왼쪽에서 오른쪽으로)
     add(Wall(
       position: Vector2(
-        worldSize.x * 0.3, 
+        worldSize.x * 0.3 , 
         worldSize.y * 0.3
       ),
       size: Vector2(obstacleWidth, obstacleHeight),
@@ -115,16 +140,15 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
   
   // 결승선 추가 메서드
   void _addFinishLine(Vector2 worldSize) {
-    final finishLineHeight = worldSize.y * 0.02; // 화면 높이의 2%
-    final finishLineY = worldSize.y * 0.7; // 바닥 바로 위
-    print('Adding finish line at y: $finishLineY (world height: ${worldSize.y})'); // 로그 추가
+    final finishLineHeight = worldSize.y * 0.05; // 높이 5%로 증가
+    final finishLineY = worldSize.y * 0.9; // 바닥에 더 가까이 (90%)
+    print('Adding finish line at y: $finishLineY, height: $finishLineHeight');
     final finishLine = FinishLine(
       position: Vector2(worldSize.x / 2, finishLineY),
       size: Vector2(worldSize.x * 0.8, finishLineHeight),
       color: Colors.green.shade600,
       onBallCrossed: _onBallFinished,
     );
-    
     add(finishLine);
     print('FinishLine added: ${finishLine.hashCode}');
   }
@@ -219,23 +243,6 @@ class LunchGame extends Forge2DGame with ContactCallbacks {
     }
   }
   
-  // 충돌 감지를 위한 메서드
-  @override
-  void beginContact(Object objectA, Contact contact) {
-    final fixtureA = contact.fixtureA;
-    final fixtureB = contact.fixtureB;
-    
-    final bodyA = fixtureA.body; // 코드에서는 objectA가 이미 첫 번째 파라미터로 전달되어 사용되기 때문에 bodyA를 통해 userData를 가져올 필요가 없는 상황
-    final bodyB = fixtureB.body;
-    
-    // 각 바디의 userdata 가져오기
-    final objectB = bodyB.userData;
-    
-    // 결승선과 공의 충돌 처리
-    if (objectA is FinishLine && objectB is FoodBall) {
-      objectA.beginContact(objectB);
-    } else if (objectA is FoodBall && objectB is FinishLine) {
-      objectB.beginContact(objectA);
-    }
-  }
+
+
 }

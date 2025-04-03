@@ -20,11 +20,13 @@ class FinishLine extends BaseBody {
     // 결승선은 움직이지 않는 정적 바디로 생성
     final bodyDef = BodyDef(
       position: position,
-      type: BodyType.static,
+      type: BodyType.static, // 처음엔 static, activate에서 dynamic으로 바뀜
+      userData: this, // 확인: this가 FoodBall 객체
     );
 
     // 바디 생성
     final body = world.createBody(bodyDef);
+    print('Body created with userData: ${body.userData}');
 
     // 사각형 모양의 픽스처 생성
     final shape = PolygonShape()
@@ -38,6 +40,8 @@ class FinishLine extends BaseBody {
     // 픽스처 속성 설정 - 센서로 설정하여 물리적 충돌 없이 통과 감지만
     final fixtureDef = FixtureDef(shape)
       ..isSensor = true; // 센서로 설정하여 통과 가능하게
+      // ..filter.categoryBits = 0x0004 // FinishLine 카테고리
+      // ..filter.maskBits = 0x0002;    // FoodBall과 충돌 가능
 
     // 바디에 픽스처 추가
     body.createFixture(fixtureDef);
@@ -55,8 +59,7 @@ class FinishLine extends BaseBody {
     );
 
     // 체크무늬 패턴 그리기
-    final paint = Paint()..color = color;
-    canvas.drawRect(rect, paint);
+    canvas.drawRect(rect, Paint()..color = color);
     
     // 체크무늬 효과
     final squareSize = size.y / 4;
@@ -78,7 +81,7 @@ class FinishLine extends BaseBody {
       }
     }
     
-    super.render(canvas);
+    // super.render(canvas);
   }
   
   // 충돌 감지 시 호출되는 메서드

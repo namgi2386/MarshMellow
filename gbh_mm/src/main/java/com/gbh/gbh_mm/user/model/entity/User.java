@@ -60,6 +60,9 @@ public class User {
     @Column(name = "salary_amount")
     private Long salaryAmount;
 
+    @Column(name = "salary_account")
+    private String salaryAccount;
+
     @Column(name = "fcm_token")
     private String fcmToken;
 

@@ -7,4 +7,5 @@ import lombok.Getter;
 public class RequestCreateSalary {
     private long salary;
     private int date;
+    private String account;
 }

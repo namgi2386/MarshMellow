@@ -16,6 +16,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -242,34 +246,42 @@ public class CardAPI {
         return responseJson;
     }
 
-    public Map<String, Object> findUserCardList(String userKey)
-        throws JsonProcessingException {
+    public Map<String, Object> findUserCardList(String userKey) throws JsonProcessingException {
+        // 요청 본문 구성
         Map<String, Object> requestBody = new HashMap<>();
-
         String apiName = "inquireSignUpCreditCardList";
-
         Map<String, Object> header = getDefaltHeader(apiName);
         header.put("userKey", userKey);
-
         requestBody.put("Header", header);
 
-        Map<String, Object> responseJson = new LinkedHashMap<>(); // 반환할 JSON 객체
+        System.out.println(requestBody);
 
-        String response = webClient.post()
-            .uri("/" + apiName)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(requestBody)
-            .retrieve()
-            .bodyToMono(String.class)
-            .block(); // ⚠️ 동기 처리
-        // ✅ String -> JSON 변환
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> apiResponseJson = objectMapper.readValue(response, Map.class);
-        // 성공 응답 JSON 생성
-        responseJson.put("status", "success");
-        responseJson.put("apiResponse", apiResponseJson); // ✅ JSON 형태로 변환하여 저장
-        return responseJson;
+        // 버츄얼 스레드용 Executor 생성
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            Future<Map<String, Object>> future = executor.submit(() -> {
+                // WebClient를 통한 블로킹 호출
+                String response = webClient.post()
+                    .uri("/" + apiName)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();  // 블로킹 호출
+                // JSON 파싱
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> apiResponseJson = objectMapper.readValue(response, Map.class);
+                // 성공 응답 JSON 구성
+                Map<String, Object> responseJson = new LinkedHashMap<>();
+                responseJson.put("status", "success");
+                responseJson.put("apiResponse", apiResponseJson);
+                return responseJson;
+            });
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
     public Map<String, Object> findMerchantList() throws JsonProcessingException {
         Map<String, Object> requestBody = new HashMap<>();

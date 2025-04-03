@@ -354,6 +354,7 @@ public class UserService {
 
             user.setSalaryAmount(request.getSalary());
             user.setSalaryDate(request.getDate());
+            user.setSalaryAccount(request.getAccount());
 
             userRepository.save(user);
 
@@ -381,6 +382,7 @@ public class UserService {
 
             user.setSalaryAmount(request.getSalary());
             user.setSalaryDate(request.getDate());
+            user.setSalaryAccount(request.getAccount());
 
             userRepository.save(user);
 
@@ -398,5 +400,28 @@ public class UserService {
             .build();
 
         return response;
+    }
+
+    public ResponseUserDetail findUserDetail(CustomUserDetails userDetails) {
+        User user = userRepository.findByUserPk(userDetails.getUserPk())
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        ResponseUserDetail response= mapper.map(user, ResponseUserDetail.class);
+
+        if (user.getUserKey() != null) {
+            response.setUserKeyYn("Y");
+        } else {
+            response.setUserKeyYn("N");
+        }
+
+        return response;
+
+    }
+
+    public Integer findSalary(CustomUserDetails userDetails) {
+        User user = userRepository.findByUserPk(userDetails.getUserPk())
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return user.getSalaryDate();
     }
 }

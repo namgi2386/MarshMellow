@@ -432,7 +432,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
       ref: ref,
       backgroundColor: Colors.white,
       title: '위시 선택',
-      child: const WishListModal(initialTab: WishListTab.pending),
+      child: const WishDetailModal(initialTab: WishListTab.pending),
     );
   }
 

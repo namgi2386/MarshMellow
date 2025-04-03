@@ -81,8 +81,7 @@ class AnalysisViewModel extends StateNotifier<AnalysisState> {
   // 지출 분석 데이터 로드
   Future<void> loadAnalysisData({
     required DateTime startDate, 
-    required DateTime endDate,
-    int userPk = 3, // 기본값으로 3 사용
+    required DateTime endDate,  
   }) async {
     state = state.copyWith(
       isLoading: true, 
@@ -98,7 +97,6 @@ class AnalysisViewModel extends StateNotifier<AnalysisState> {
 
       // 지출 내역만 조회 (WITHDRAWAL)
       final result = await _repository.getHouseholdByClassification(
-        userPk: userPk,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         classification: 'WITHDRAWAL', // 지출 내역만 가져오기

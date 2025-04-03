@@ -1,15 +1,17 @@
 // data/datasources/remote/auth_api.dart
 import 'package:dio/dio.dart';
+import 'package:marshmellow/data/datasources/remote/api_client.dart';
 
 class AuthApi {
-  final Dio _dio;
+  final ApiClient _apiClient;
   
-  AuthApi(this._dio);
+  AuthApi(this._apiClient);
 
   // 본인확인 api
   Future<Map<String, dynamic>> verifyIdentity(String phoneNumber) async {
-    final response = await _dio.post(
+    final response = await _apiClient.post(
       '/api/mm/auth/identity-verify',
+      requiresAuth: false,
       data: {
         'phoneNumber' : phoneNumber,
       }
@@ -29,8 +31,9 @@ class AuthApi {
     required String userCode,
     required String pin
   }) async {
-    final response = await _dio.post(
+    final response = await _apiClient.post(
       '/api/mm/auth/sign-up',
+      requiresAuth: false,
       data: {
       'userName': userName,
       'phoneNumber': phoneNumber,
@@ -52,8 +55,9 @@ class AuthApi {
     required String phoneNumber,
     required String pin,
   }) async {
-    final response = await _dio.post(
+    final response = await _apiClient.post(
       '/api/mm/auth/login/pin',
+      requiresAuth: false,
       data: {
       'phoneNumber': phoneNumber,
       'pin': pin
@@ -66,8 +70,9 @@ class AuthApi {
   Future<Map<String, dynamic>> loginWithBiometrics({
     required String phoneNumber
   }) async {
-    final response = await _dio.post(
+    final response = await _apiClient.post(
       '/api/mm/auth/login/bio',
+      requiresAuth: false,
       data: {
         'phoneNumber': phoneNumber
       }
@@ -79,8 +84,9 @@ class AuthApi {
   Future<Map<String, dynamic>> reissueToken({
     required String refreshToken
   }) async {
-    final response = await _dio.post(
+    final response = await _apiClient.post(
       '/api/mm/auth/reissue',
+      requiresAuth: false,
       data: {
         'refreshToken': refreshToken
       }
@@ -90,7 +96,7 @@ class AuthApi {
 
   // 핀번호 로그아웃
   Future<Map<String, dynamic>> logout() async {
-    final response = await _dio.post('/api/mm/auth/logout');
+    final response = await _apiClient.post('/api/mm/auth/logout');
     return response.data;
   }
 }

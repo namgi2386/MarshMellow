@@ -8,6 +8,8 @@ import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 import 'package:marshmellow/data/models/ledger/category/category_mapping.dart';
+import 'package:marshmellow/data/models/ledger/payment_method.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/picker/payment_method_picker.dart';
 
 class ExpenseForm extends ConsumerStatefulWidget {
   final Transaction? initialData; // 초기 데이터 추가
@@ -25,10 +27,10 @@ class ExpenseForm extends ConsumerStatefulWidget {
       this.readOnly = false});
 
   @override
-  ConsumerState<ExpenseForm> createState() => _ExpenseFormState();
+  ConsumerState<ExpenseForm> createState() => ExpenseFormState();
 }
 
-class _ExpenseFormState extends ConsumerState<ExpenseForm> {
+class ExpenseFormState extends ConsumerState<ExpenseForm> {
   bool _isExcludedFromBudget = false;
   DateTime _selectedDate = DateTime.now();
   WithdrawalCategory? _selectedExpenseCategory; // ExpenseCategory 타입으로 변경
@@ -118,6 +120,27 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
     }
   }
 
+  // 결제수단 업데이트 함수
+  void _updatePaymentMethod(PaymentMethod method) {
+    setState(() {
+      _paymentMethod = method.paymentMethod;
+    });
+  }
+
+  Map<String, dynamic> getFormData() {
+    return {
+      'date': _selectedDate,
+      'tradeName': _merchant,
+      'paymentMethod': _paymentMethod,
+      'memo': _memo,
+      'exceptedBudgetYn': _isExcludedFromBudget ? 'Y' : 'N',
+      'categoryPk': _selectedExpenseCategory != null
+          ? CategoryPkMapping.getPkFromCategory(
+              expenseCategory: _selectedExpenseCategory)
+          : null,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -139,7 +162,11 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
         TransactionFields.paymentMethodField(
           method: _paymentMethod,
           onTap: () {
-            // 결제수단 선택 다이얼로그 표시
+            showPaymentMethodPickerModal(
+              context,
+              transactionType: 'expense',
+              onPaymentMethodSelected: _updatePaymentMethod,
+            );
           },
           enabled: !widget.readOnly, // 비활성화 여부
         ),

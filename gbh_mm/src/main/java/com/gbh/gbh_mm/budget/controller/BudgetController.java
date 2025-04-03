@@ -3,6 +3,7 @@ package com.gbh.gbh_mm.budget.controller;
 import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.model.request.RequestCreateBudget;
+import com.gbh.gbh_mm.budget.model.request.RequestFindHouseholdOfBudget;
 import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetAlarm;
 import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.*;
@@ -13,7 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/mm/budget")
+@RequestMapping("mm/budget")
 @RequiredArgsConstructor
 public class BudgetController {
 
@@ -61,5 +62,11 @@ public class BudgetController {
     @PostMapping("/alarm")
     public ResponseUpdateBudgetAlarm updateBudgetAlarm(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody RequestUpdateBudgetAlarm requestUpdateBudgetAlarm) {
         return budgetService.updateBudgetAlarm(userDetails.getUserPk(), requestUpdateBudgetAlarm);
+    }
+
+    // 예산 가계부 조회
+    @PostMapping("/detail")
+    public ResponseFindHouseholdOfBudget getHouseholdOfBudget (@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody RequestFindHouseholdOfBudget requestFindHouseholdOfBudget) {
+        return budgetService.getHouseholdOfBudget(userDetails.getUserPk(), requestFindHouseholdOfBudget);
     }
 }

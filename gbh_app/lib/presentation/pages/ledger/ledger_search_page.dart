@@ -34,6 +34,20 @@ class _LedgerSearchPageState extends ConsumerState<LedgerSearchPage> {
   void initState() {
     super.initState();
     _loadSearchHistory();
+
+    // 페이지에 들어올 때 검색 결과 초기화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(searchViewModelProvider.notifier).clearSearch();
+      _searchController.clear();
+    });
+  }
+
+  @override
+  void dispose() {
+    // 페이지를 떠날 때 검색 결과 초기화
+    ref.read(searchViewModelProvider.notifier).clearSearch();
+    _searchController.dispose();
+    super.dispose();
   }
 
   // 검색 히스토리 불러오기

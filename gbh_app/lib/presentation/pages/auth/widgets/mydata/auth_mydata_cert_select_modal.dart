@@ -62,7 +62,7 @@ class AuthMydataCertSelectModal extends ConsumerWidget {
 
             Center(
               child: SmallCertificateCard(
-                userName: '손효자', 
+                userName: userName, 
                 expiryDate: '2028.03.14',
                 onTap: () {
                   // 인증서를 탭하면 무엇이 어떻게 변할 계획이죠?

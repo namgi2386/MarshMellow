@@ -128,8 +128,8 @@ extension EdgeInsetsGeometryExtension on EdgeInsetsGeometry {
 /// 범용 모달을 표시하는 함수
 void showCustomModal({
   required BuildContext context,
-  required WidgetRef ref,
   required Widget child,
+  WidgetRef? ref,
   String? title,
   TextStyle? titleStyle,
   Color backgroundColor = Colors.white,
@@ -138,7 +138,7 @@ void showCustomModal({
   bool showDivider = true,
 }) {
   // 모달 상태 변경
-  ref.read(modalProvider.notifier).showModal();
+  ref?.read(modalProvider.notifier).showModal();
 
   showModalBottomSheet(
     context: context,
@@ -158,6 +158,6 @@ void showCustomModal({
     },
   ).then((_) {
     // 모달이 닫힐 때 상태 업데이트
-    ref.read(modalProvider.notifier).hideModal();
+    ref?.read(modalProvider.notifier).hideModal();
   });
 }

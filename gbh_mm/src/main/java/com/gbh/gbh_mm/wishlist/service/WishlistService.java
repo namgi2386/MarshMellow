@@ -105,6 +105,7 @@ public class WishlistService {
         oldWishlist.setProductPrice(requestUpdateWishlist.getProductPrice());
         oldWishlist.setProductImageUrl(requestUpdateWishlist.getProductImageUrl());
         oldWishlist.setProductUrl(requestUpdateWishlist.getProductUrl());
+        wishlistRepository.save(oldWishlist);
 
         return ResponseUpdateWishlist.builder()
                 .message("위시리스트 수정 완료")

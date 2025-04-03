@@ -3,6 +3,7 @@ package com.gbh.gbh_mm.budget.service;
 import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.model.request.RequestCreateBudget;
+import com.gbh.gbh_mm.budget.model.request.RequestFindHouseholdOfBudget;
 import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetAlarm;
 import com.gbh.gbh_mm.budget.model.request.RequestUpdateBudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.*;
@@ -10,6 +11,7 @@ import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
 import com.gbh.gbh_mm.budget.repo.BudgetRepository;
 import com.gbh.gbh_mm.common.exception.CustomException;
 import com.gbh.gbh_mm.common.exception.ErrorCode;
+import com.gbh.gbh_mm.household.model.entity.Household;
 import com.gbh.gbh_mm.household.repo.HouseholdRepository;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
@@ -33,6 +35,7 @@ public class BudgetService {
     private final UserRepository userRepository;
     private final BudgetRepository budgetRepository;
     private final BudgetCategoryRepository budgetCategoryRepository;
+    private final HouseholdRepository householdRepository;
 
     // 전체 예산 조회
     public ResponseFindBudgetList getBudgetList(Long userPk) {
@@ -237,6 +240,9 @@ public class BudgetService {
     // 오늘의 예산 조회
     public ResponseFindDailyBudget getDailyBudget(Long userPk) {
         Budget budget = budgetRepository.findAllByUser_UserPkOrderByBudgetPkDesc(userPk).get(0);
+        if (budget == null) {
+            throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         long remainDay = ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(budget.getEndDate(), formatter)) + 1;
@@ -269,4 +275,23 @@ public class BudgetService {
                 .newAlarmTime(user.getBudgetAlarmTime())
                 .build();
     }
+
+    // 예산별 가계부 조회
+    public ResponseFindHouseholdOfBudget getHouseholdOfBudget(long userPk, RequestFindHouseholdOfBudget requestFindHouseholdOfBudget) {
+        // 가계부 리스트 조회
+        List<Household> households = householdRepository.findHouseholdsByBudget(
+                userPk,
+                requestFindHouseholdOfBudget.getStartDate(),
+                requestFindHouseholdOfBudget.getEndDate(),
+                requestFindHouseholdOfBudget.getAiCategory()
+        );
+
+        return ResponseFindHouseholdOfBudget.builder()
+                .message(requestFindHouseholdOfBudget.getAiCategory() + " 카테고리 가계부 조회")
+                .totalNumberOfHouseholds(households.size())
+                .totalAmount(households.stream().mapToLong(Household::getHouseholdAmount).sum())
+                .households(households)
+                .build();
+    }
+
 }

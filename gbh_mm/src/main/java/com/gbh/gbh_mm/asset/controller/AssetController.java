@@ -1,5 +1,7 @@
 package com.gbh.gbh_mm.asset.controller;
 
+import com.gbh.gbh_mm.asset.RequestDecodeTest;
+import com.gbh.gbh_mm.asset.ResponseAuthTest;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestCheckAccountAuth;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindDepositDemandTransactionList;
@@ -153,6 +155,18 @@ public class AssetController {
         ResponseAccountTransfer response = assetService.accountTransger(request);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/auth-test")
+    public ResponseAuthTest authTest() {
+        return assetService.authTest();
+    }
+
+    @GetMapping("/decode-test")
+    public ResponseAuthTest decodeTest(
+        @RequestBody RequestDecodeTest request
+    ) {
+        return assetService.decodeTest(request);
     }
 
 }

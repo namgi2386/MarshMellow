@@ -8,6 +8,6 @@ import lombok.Data;
 @Data
 @Builder
 public class CardListDto {
-    private long totalAmount;
+    private String totalAmount;
     private List<Card> cardList;
 }

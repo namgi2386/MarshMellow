@@ -23,6 +23,7 @@ public class CustomUserDetails implements UserDetails {
     private final Boolean budgetFeature;
     private final LocalDateTime budgetAlarmTime;
     private final LocalDate createdAt;
+    private final String aesKey;
 
     public CustomUserDetails(User user) {
         this.userPk = user.getUserPk();
@@ -36,6 +37,7 @@ public class CustomUserDetails implements UserDetails {
         this.budgetFeature = user.getBudgetFeature();
         this.budgetAlarmTime = user.getBudgetAlarmTime();
         this.createdAt = user.getCreatedAt();
+        this.aesKey = user.getAesKey();
     }
 
     @Override

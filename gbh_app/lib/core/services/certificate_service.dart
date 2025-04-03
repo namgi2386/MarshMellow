@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:asn1lib/asn1lib.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:marshmellow/core/constants/storage_keys.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:pointycastle/export.dart';
@@ -10,7 +11,7 @@ import 'package:pointycastle/key_generators/api.dart';
 import 'package:pointycastle/key_generators/rsa_key_generator.dart';
 import 'package:pointycastle/random/fortuna_random.dart';
 import 'package:pointycastle/signers/rsa_signer.dart';
-import 'package:pointycastle/digests/sha256.dart';
+import 'package:pointycastle/digests/sha512.dart';
 
 /*
  TEE/SE 하드웨어 접근 불가능시 사용할
@@ -29,7 +30,7 @@ class CertificateService {
         // 보안 랜덤 생성기
         final secureRandom = FortunaRandom();
         final random = Random.secure();
-        final seeds = List<int>.generate(32, (_) => random.nextInt(256));
+        final seeds = List<int>.generate(32, (_) => random.nextInt(512));
         secureRandom.seed(KeyParameter(Uint8List.fromList(seeds)));
 
         // RSA 키 생성기
@@ -248,7 +249,7 @@ class CertificateService {
     
     // 서명 알고리즘
     print('RSA 서명자 생성 시작');
-    final signer = RSASigner(SHA256Digest(), '0609608648016503040201');
+    final signer = RSASigner(SHA512Digest(), '0609608648016503040205');
     print('다이제스트 및 알고리즘 설정 완료');
 
     print('개인키 파라미터 생성');
@@ -281,7 +282,7 @@ class CertificateService {
     final csrSequence = ASN1Sequence()
       ..add(csrInfoSeq)
       ..add(ASN1Sequence()
-        ..add(ASN1ObjectIdentifier(Uint8List.fromList([42, 134, 72, 134, 247, 13, 1, 1, 11]))) // SHA-256 with RSA 
+        ..add(ASN1ObjectIdentifier(Uint8List.fromList([42, 134, 72, 134, 247, 13, 1, 1, 13])))
         ..add(ASN1Null()))
       ..add(ASN1BitString(signatureBytes));
 
@@ -305,7 +306,7 @@ class CertificateService {
   ASN1Sequence _encodePublicKey(RSAPublicKey publicKey) {
     final algorithmSeq = ASN1Sequence();
     // OID를 Uint8List로 변환
-    final algorithmAsn1Obj = ASN1ObjectIdentifier(Uint8List.fromList([42, 134, 72, 134, 247, 13, 1, 1, 1])); // RSA
+    final algorithmAsn1Obj = ASN1ObjectIdentifier(Uint8List.fromList([42, 134, 72, 134, 247, 13, 1, 1, 13])); // RSA
     final paramsAsn1 = ASN1Null();
     algorithmSeq.add(algorithmAsn1Obj);
     algorithmSeq.add(paramsAsn1);
@@ -337,33 +338,113 @@ class CertificateService {
   }
 
   // 전자서명(SHA-512 + RSA)
-  Future<String?> signData(String data) async {
+  // 원문 데이터에 대한 전자서명 생성
+  Future<String?> signData(String originalText) async {
     try {
-      // 개인키 가져오기
-      final privateKey = await getPrivateKey();
-      if (privateKey == null) {
-        throw Exception('개인키를 찾을 수 없습니다');
+      // 1. 개인 키 가져오기
+      final privateKeyPem = await _secureStorage.read(key: StorageKeys.privateKey);
+      if (privateKeyPem == null) {
+        throw Exception('개인 키를 찾을 수 없습니다.');
       }
-
-      // UTF-8로 인코딩
-      final dataBytes = Uint8List.fromList(utf8.encode(data));
-
-      // SHA-512 해시 생성
+      
+      // 2. PEM 형식의 개인 키를 파싱
+      final privateKey = _parsePrivateKeyFromPem(privateKeyPem);
+      
+      // 3. 원문을 UTF-8로 인코딩
+      final dataBytes = utf8.encode(originalText);
+      
+      // 4. SHA-512 해시 알고리즘과 RSA 서명 설정
       final digest = SHA512Digest();
-      final hashedData = digest.process(dataBytes);
+      final signer = RSASigner(digest, '06092a864886f70d01010d'); // SHA512withRSA OID
+
+      // 5. 개인 키로 서명자 초기화
+      signer.init(true, PrivateKeyParameter<RSAPrivateKey>(privateKey));
       
-      // RSA 서명 생성
-      final signer = RSASigner(SHA512Digest(), '0609608648016503040205');
-      final params = PrivateKeyParameter<RSAPrivateKey>(privateKey);
-      signer.init(true, params);
+      // 6. 서명 생성
+      final signature = signer.generateSignature(Uint8List.fromList(dataBytes));
       
-      final signature = signer.generateSignature(hashedData) as RSASignature;
+      // 7. 서명 데이터 추출 및 Base64 인코딩
+      final signatureBytes = (signature as RSASignature).bytes;
+      final signatureBase64 = base64.encode(signatureBytes);
       
-      // Base64로 인코딩하여 반환
-      return base64.encode(signature.bytes);
+      return signatureBase64;
     } catch (e) {
-      print('서명 생성 실패: $e');
+      print('데이터 서명 실패: $e');
       return null;
     }
+  }
+
+  // PEM 형식의 개인 키를 RSAPrivateKey 객체로 파싱
+  RSAPrivateKey _parsePrivateKeyFromPem(String privateKeyPem) {
+    // PEM 헤더/푸터 제거 및 줄바꿈 제거
+    String pemContent = privateKeyPem
+        .replaceAll('-----BEGIN PRIVATE KEY-----', '')
+        .replaceAll('-----END PRIVATE KEY-----', '')
+        .replaceAll('-----BEGIN RSA PRIVATE KEY-----', '')
+        .replaceAll('-----END RSA PRIVATE KEY-----', '')
+        .replaceAll('\n', '')
+        .replaceAll('\r', '')
+        .trim();
+    
+    // Base64 디코드
+    Uint8List keyBytes = base64.decode(pemContent);
+    
+    // PKCS#1 형식인지 PKCS#8 형식인지 확인
+    bool isPkcs8 = privateKeyPem.contains('BEGIN PRIVATE KEY');
+    
+    if (isPkcs8) {
+      // PKCS#8 형식 처리
+      return _parsePkcs8PrivateKey(keyBytes);
+    } else {
+      // PKCS#1 형식 처리
+      return _parsePkcs1PrivateKey(keyBytes);
+    }
+  }
+
+  // PKCS#8 형식의 RSA 개인 키 파싱
+  RSAPrivateKey _parsePkcs8PrivateKey(Uint8List keyBytes) {
+    // ASN.1 파싱
+    ASN1Parser parser = ASN1Parser(keyBytes);
+    ASN1Sequence topLevelSeq = parser.nextObject() as ASN1Sequence;
+    
+    // PKCS#8 형식: PrivateKeyInfo
+    // 0: version
+    // 1: privateKeyAlgorithm
+    // 2: privateKey (octet string)
+    
+    ASN1OctetString privateKeyOctet = topLevelSeq.elements[2] as ASN1OctetString;
+    ASN1Parser privateKeyParser = ASN1Parser(privateKeyOctet.contentBytes());
+    ASN1Sequence pkcs1PrivateKey = privateKeyParser.nextObject() as ASN1Sequence;
+    
+    return _parseRsaPrivateKeySequence(pkcs1PrivateKey);
+  }
+
+  // PKCS#1 형식의 RSA 개인 키 파싱
+  RSAPrivateKey _parsePkcs1PrivateKey(Uint8List keyBytes) {
+    ASN1Parser parser = ASN1Parser(keyBytes);
+    ASN1Sequence privateKeySeq = parser.nextObject() as ASN1Sequence;
+    
+    return _parseRsaPrivateKeySequence(privateKeySeq);
+  }
+
+  // RSA 개인 키 ASN.1 시퀀스 파싱
+  RSAPrivateKey _parseRsaPrivateKeySequence(ASN1Sequence sequence) {
+    // RSA 개인 키 구조 (PKCS#1 RSAPrivateKey)
+    // 0: version
+    // 1: modulus (n)
+    // 2: publicExponent (e)
+    // 3: privateExponent (d)
+    // 4: prime1 (p)
+    // 5: prime2 (q)
+    // 6: exponent1 (d mod (p-1))
+    // 7: exponent2 (d mod (q-1))
+    // 8: coefficient (q^-1 mod p)
+    
+    BigInt modulus = (sequence.elements[1] as ASN1Integer).valueAsBigInteger!;
+    BigInt privateExponent = (sequence.elements[3] as ASN1Integer).valueAsBigInteger!;
+    BigInt p = (sequence.elements[4] as ASN1Integer).valueAsBigInteger!;
+    BigInt q = (sequence.elements[5] as ASN1Integer).valueAsBigInteger!;
+    
+    return RSAPrivateKey(modulus, privateExponent, p, q);
   }
 }

@@ -59,58 +59,50 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
   void _handleAgreementSubmit() async {
     final originalText = _extractAgreementText();
 
-// 인증서 비밀번호 확인 모달 표시
-    showCertificateModal(
-      context: context, 
-      ref: ref, 
-      userName: '사용자', // 실제 사용자 이름으로 변경
-      expiryDate: '2028.03.14', // 실제 만료일로 변경
-      onConfirm: () async {
-        // 로딩 표시
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => const CustomLoadingIndicator(text: "전자서명 검증 중..."),
-        );
-
-        try {
-          // 전자서명 검증 API 호출
-          final result = await ref.read(mydataAgreementProvider.notifier)
-              .verifyDigitalSignature(originalText);
-          
-          // 로딩 닫기
-          if (context.mounted) {
-            Navigator.of(context).pop();
-          }
-
-          // 결과 처리
-          if (result && context.mounted) {
-            // 성공 시 다음 페이지로 이동
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('전자서명 검증 성공! 마이데이터 연동이 완료되었습니다.')),
-            );
-            
-            // 완료 페이지로 이동
-            context.go('/signup/mydatacomplete');
-          } else if (context.mounted) {
-            // 실패 시 에러 메시지 표시
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('전자서명 검증에 실패했습니다. 다시 시도해주세요.')),
-            );
-          }
-        } catch (e) {
-          // 오류 발생 시 로딩 닫기
-          if (context.mounted) {
-            Navigator.of(context).pop();
-            
-            // 에러 메시지 표시
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('오류가 발생했습니다: $e')),
-            );
-          }
-        }
-      }
+    // 로딩 표시
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => CustomLoadingIndicator(text: "전자서명 검증 중", backgroundColor: AppColors.whiteLight, opacity: 0.9,),
     );
+
+    try {
+      // 전자서명 검증 API 호출
+      final result = await ref.read(mydataAgreementProvider.notifier)
+          .verifyDigitalSignature(originalText);
+      
+      // 로딩 닫기
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      // 결과 처리
+      if (result && context.mounted) {
+        // 성공 시 다음 페이지로 이동
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('전자서명 검증 성공! 마이데이터 연동이 완료되었습니다.')),
+        );
+        
+        // 완료 페이지로 이동
+        // 여기가 어디야..?
+        context.go('/signup/mydatacomplete');
+      } else if (context.mounted) {
+        // 실패 시 에러 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('전자서명 검증에 실패했습니다. 다시 시도해주세요.')),
+        );
+      }
+    } catch (e) {
+      // 오류 발생 시 로딩 닫기
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        
+        // 에러 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('오류가 발생했습니다: $e')),
+        );
+      }
+    }
   }
 
   @override

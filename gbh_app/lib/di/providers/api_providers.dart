@@ -12,13 +12,12 @@ final apiClientProvider = Provider<ApiClient>((ref) {
 
 // Auth API 프로바이더
 final authApiProvider = Provider<AuthApi>((ref) {
-  final dio = ref.watch(dioProvider);
-  return AuthApi(dio);
+  final apiClient = ref.watch(apiClientProvider);
+  return AuthApi(apiClient);
 });
 
 // mm인증서 API 프로바이더
 final certificateApiProvider = Provider<CertificateApi>((ref) {
-  // final dio = ref.watch(dioProvider);
   final apiClient = ref.watch(apiClientProvider);
   final secureStorage = ref.watch(secureStorageProvider);
   return CertificateApi(apiClient, secureStorage);

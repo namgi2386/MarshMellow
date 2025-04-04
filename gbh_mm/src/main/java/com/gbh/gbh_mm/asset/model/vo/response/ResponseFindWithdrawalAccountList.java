@@ -10,5 +10,6 @@ import java.util.List;
 @Data
 @Builder
 public class ResponseFindWithdrawalAccountList {
-    List<WithdrawalAccountDto> withdrawalAccountList;
+    private String iv;
+    private List<WithdrawalAccountDto> withdrawalAccountList;
 }

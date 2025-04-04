@@ -5,10 +5,16 @@ import com.gbh.gbh_mm.api.*;
 import com.gbh.gbh_mm.asset.RequestDecodeTest;
 import com.gbh.gbh_mm.asset.ResponseAuthTest;
 import com.gbh.gbh_mm.asset.model.dto.CardListDto;
+import com.gbh.gbh_mm.asset.model.dto.CardTransactionDto;
 import com.gbh.gbh_mm.asset.model.dto.DemandDepositListDto;
 import com.gbh.gbh_mm.asset.model.dto.DepositListDto;
+import com.gbh.gbh_mm.asset.model.dto.DemandDepositTransactionDto;
+import com.gbh.gbh_mm.asset.model.dto.DepositPaymentDto;
 import com.gbh.gbh_mm.asset.model.dto.LoanListDto;
+import com.gbh.gbh_mm.asset.model.dto.LoanPaymentDto;
 import com.gbh.gbh_mm.asset.model.dto.SavingsListDto;
+import com.gbh.gbh_mm.asset.model.dto.SavingsPaymentDto;
+import com.gbh.gbh_mm.asset.model.dto.SavingsPaymentListDto;
 import com.gbh.gbh_mm.asset.model.dto.WithdrawalAccountDto;
 import com.gbh.gbh_mm.asset.model.entity.*;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestCheckAccountAuth;
@@ -28,7 +34,6 @@ import com.gbh.gbh_mm.finance.card.vo.request.RequestFindBilling;
 import com.gbh.gbh_mm.finance.demandDeposit.vo.request.RequestAccountTransfer;
 import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -37,6 +42,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -187,12 +193,14 @@ public class AssetServiceImpl implements AssetService {
                     String totalAmountString = String.valueOf(totalAmount);
                     byte[] cardBalanceBytes = cipher
                         .doFinal(totalAmountString.getBytes(StandardCharsets.UTF_8));
-                    cardList.get(i).setCardBalance(Base64.getEncoder().encodeToString(cardBalanceBytes));
+                    cardList.get(i)
+                        .setCardBalance(Base64.getEncoder().encodeToString(cardBalanceBytes));
                 }
             }
 
             String totalAmountString = String.valueOf(cardAmount);
-            byte[] totalAmountBytes = cipher.doFinal(totalAmountString.getBytes(StandardCharsets.UTF_8));
+            byte[] totalAmountBytes = cipher.doFinal(
+                totalAmountString.getBytes(StandardCharsets.UTF_8));
 
             CardListDto responseCard = CardListDto.builder()
                 .totalAmount(Base64.getEncoder().encodeToString(totalAmountBytes))
@@ -216,7 +224,8 @@ public class AssetServiceImpl implements AssetService {
                     cipher.doFinal(accountBalanceString.getBytes(StandardCharsets.UTF_8));
                 demandDeposit.setAccountNo(Base64.getEncoder().encodeToString(accountNoBytes));
                 demandDeposit
-                    .setEncodedAccountBalance(Base64.getEncoder().encodeToString(accountBalanceBytes));
+                    .setEncodedAccountBalance(
+                        Base64.getEncoder().encodeToString(accountBalanceBytes));
                 demandDeposit.setAccountBalance(0);
             }
 
@@ -254,7 +263,8 @@ public class AssetServiceImpl implements AssetService {
             }
 
             String stringLoanTotal = String.valueOf(loanTotalAmount);
-            byte[] loanTotalBytes = cipher.doFinal(stringLoanTotal.getBytes(StandardCharsets.UTF_8));
+            byte[] loanTotalBytes = cipher.doFinal(
+                stringLoanTotal.getBytes(StandardCharsets.UTF_8));
 
             LoanListDto responseLoan = LoanListDto.builder()
                 .totalAmount(Base64.getEncoder().encodeToString(loanTotalBytes))
@@ -280,7 +290,8 @@ public class AssetServiceImpl implements AssetService {
                     cipher.doFinal(savings1.getAccountNo().getBytes(StandardCharsets.UTF_8));
 
                 savings1.setAccountNo(Base64.getEncoder().encodeToString(accountNoByte));
-                savings1.setEncodedTotalBalance(Base64.getEncoder().encodeToString(byteTotalBalance));
+                savings1.setEncodedTotalBalance(
+                    Base64.getEncoder().encodeToString(byteTotalBalance));
                 savings1.setTotalBalance(0);
             }
 
@@ -312,13 +323,13 @@ public class AssetServiceImpl implements AssetService {
                     cipher.doFinal(deposit.getAccountNo().getBytes(StandardCharsets.UTF_8));
                 deposit.setAccountNo(Base64.getEncoder().encodeToString(accountNoByte));
                 deposit.setDepositBalance(0);
-                deposit.setEncodeDepositBalance(Base64.getEncoder().encodeToString(depositBalanceByte));
+                deposit.setEncodeDepositBalance(
+                    Base64.getEncoder().encodeToString(depositBalanceByte));
             }
 
             String depositTotalString = String.valueOf(depositTotalAmount);
             byte[] depositTotalByte =
                 cipher.doFinal(depositTotalString.getBytes(StandardCharsets.UTF_8));
-
 
             DepositListDto responseDeposit = DepositListDto.builder()
                 .totalAmount(Base64.getEncoder().encodeToString(depositTotalByte))
@@ -337,7 +348,6 @@ public class AssetServiceImpl implements AssetService {
             e.printStackTrace();
         }
 
-
         return response;
     }
 
@@ -349,8 +359,24 @@ public class AssetServiceImpl implements AssetService {
         ResponseFindDepositDemandTransactionList response =
             new ResponseFindDepositDemandTransactionList();
         try {
+            String encodedKey = customUserDetails.getAesKey();
+            String encodedIv = request.getIv();
+
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+            byte[] decodedIv = Base64.getDecoder().decode(encodedIv);
+            byte[] decodedAccountNo = Base64.getDecoder().decode(request.getAccountNo());
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(decodedIv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+            byte[] decryptedByte = cipher.doFinal(decodedAccountNo);
+            String accountNo = new String(decryptedByte, StandardCharsets.UTF_8);
+
             RequestFindTransactionList requestApi = RequestFindTransactionList.builder()
-                .accountNo(request.getAccountNo())
+                .accountNo(accountNo)
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .transactionType(request.getTransactionType())
@@ -363,10 +389,81 @@ public class AssetServiceImpl implements AssetService {
             Map<String, Object> transactionData = (Map<String, Object>) responseData.get("REC");
             List<Map<String, Object>> transactionList =
                 (List<Map<String, Object>>) transactionData.get("list");
-            response.setTransactionList(transactionList);
 
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            byte[] newIv = new byte[16];
+            SecureRandom secureRandom = new SecureRandom();
+            secureRandom.nextBytes(newIv);
+            IvParameterSpec newIvParameterSpec = new IvParameterSpec(newIv);
+
+            Cipher newCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            newCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, newIvParameterSpec);
+
+            String encodedNewIv = Base64.getEncoder().encodeToString(newIv);
+
+            List<DemandDepositTransactionDto> demandDepositTransactionDtos = new ArrayList<>();
+
+            for (Map<String, Object> transaction : transactionList) {
+                String transactionUniqueNo = (String) transaction.get("transactionUniqueNo");
+                byte[] byteTransactionUniqueNo =
+                    newCipher.doFinal(transactionUniqueNo.getBytes(StandardCharsets.UTF_8));
+                String transactionDate = (String) transaction.get("transactionDate");
+                byte[] byteTransactionDate =
+                    newCipher.doFinal(transactionDate.getBytes(StandardCharsets.UTF_8));
+                String transactionTime = (String) transaction.get("transactionTime");
+                byte[] byteTransactionTime =
+                    newCipher.doFinal(transactionTime.getBytes(StandardCharsets.UTF_8));
+                String transactionType = (String) transaction.get("transactionType");
+                byte[] byteTransactionType =
+                    newCipher.doFinal(transactionType.getBytes(StandardCharsets.UTF_8));
+                String transactionTypeName = (String) transaction.get("transactionTypeName");
+                byte[] byteTransactionTypeName =
+                    newCipher.doFinal(transactionTypeName.getBytes(StandardCharsets.UTF_8));
+                String transactionAccountNo = (String) transaction.get("transactionAccountNo");
+                byte[] byteTransactionAccountNo =
+                    newCipher.doFinal(transactionAccountNo.getBytes(StandardCharsets.UTF_8));
+                String transactionBalance = (String) transaction.get("transactionBalance");
+                byte[] byteTransactionBalance =
+                    newCipher.doFinal(transactionBalance.getBytes(StandardCharsets.UTF_8));
+                String transactionAfterBalance = (String) transaction.get(
+                    "transactionAfterBalance");
+                byte[] byteTransactionAfterBalance =
+                    newCipher.doFinal(transactionAfterBalance.getBytes(StandardCharsets.UTF_8));
+                String transactionSummary = (String) transaction.get("transactionSummary");
+                byte[] byteTransactionSummary =
+                    newCipher.doFinal(transactionSummary.getBytes(StandardCharsets.UTF_8));
+                String transactionMemo = (String) transaction.get("transactionMemo");
+                byte[] byteTransactionTypeMemo =
+                    newCipher.doFinal(transactionMemo.getBytes(StandardCharsets.UTF_8));
+
+                DemandDepositTransactionDto demandDepositTransactionDto =
+                    DemandDepositTransactionDto.builder()
+                        .transactionUniqueNo(
+                            Base64.getEncoder().encodeToString(byteTransactionUniqueNo))
+                        .transactionDate(Base64.getEncoder().encodeToString(byteTransactionDate))
+                        .transactionTime(Base64.getEncoder().encodeToString(byteTransactionTime))
+                        .transactionType(Base64.getEncoder().encodeToString(byteTransactionType))
+                        .transactionTypeName(
+                            Base64.getEncoder().encodeToString(byteTransactionTypeName))
+                        .transactionAccountNo(
+                            Base64.getEncoder().encodeToString(byteTransactionAccountNo))
+                        .transactionBalance(
+                            Base64.getEncoder().encodeToString(byteTransactionBalance))
+                        .transactionAfterBalance(
+                            Base64.getEncoder().encodeToString(byteTransactionAfterBalance))
+                        .transactionSummary(
+                            Base64.getEncoder().encodeToString(byteTransactionSummary))
+                        .transactionMemo(
+                            Base64.getEncoder().encodeToString(byteTransactionTypeMemo))
+                        .build();
+
+                demandDepositTransactionDtos.add(demandDepositTransactionDto);
+            }
+
+            response.setTransactionList(demandDepositTransactionDtos);
+            response.setIv(encodedNewIv);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return response;
     }
@@ -379,16 +476,63 @@ public class AssetServiceImpl implements AssetService {
         ResponseFindDepositPayment response = new ResponseFindDepositPayment();
 
         try {
+            String encodedKey = customUserDetails.getAesKey();
+            String encodedIv = request.getIv();
+
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+            byte[] decodedIv = Base64.getDecoder().decode(encodedIv);
+            byte[] decodedAccountNo = Base64.getDecoder().decode(request.getAccountNo());
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(decodedIv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+            byte[] decryptedByte = cipher.doFinal(decodedAccountNo);
+            String accountNo = new String(decryptedByte, StandardCharsets.UTF_8);
+
             RequestFindPayment requestApi = RequestFindPayment.builder()
-                .accountNo(request.getAccountNo())
+                .accountNo(accountNo)
                 .userKey(customUserDetails.getUserKey())
                 .build();
             Map<String, Object> apiData = depositAPI.findPayment(requestApi);
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             Map<String, Object> paymentData = (Map<String, Object>) responseData.get("REC");
 
-            response.setPayment(paymentData);
-        } catch (JsonProcessingException e) {
+            byte[] newIv = new byte[16];
+            SecureRandom secureRandom = new SecureRandom();
+            secureRandom.nextBytes(newIv);
+            IvParameterSpec newIvParameterSpec = new IvParameterSpec(newIv);
+
+            Cipher newCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            newCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, newIvParameterSpec);
+
+            String encodedNewIv = Base64.getEncoder().encodeToString(newIv);
+
+            String paymentUniqueNo = (String) paymentData.get("paymentUniqueNo");
+            byte[] paymentUniqueNoByte =
+                newCipher.doFinal(paymentUniqueNo.getBytes(StandardCharsets.UTF_8));
+            String paymentDate = (String) paymentData.get("paymentDate");
+            byte[] paymentDateByte =
+                newCipher.doFinal(paymentDate.getBytes(StandardCharsets.UTF_8));
+            String paymentTime = (String) paymentData.get("paymentTime");
+            byte[] paymentTimeByte =
+                newCipher.doFinal(paymentTime.getBytes(StandardCharsets.UTF_8));
+            String paymentBalance = (String) paymentData.get("paymentBalance");
+            byte[] paymentBalanceByte =
+                newCipher.doFinal(paymentBalance.getBytes(StandardCharsets.UTF_8));
+
+            DepositPaymentDto depositPaymentDto = DepositPaymentDto.builder()
+                .paymentUniqueNo(Base64.getEncoder().encodeToString(paymentUniqueNoByte))
+                .paymentDate(Base64.getEncoder().encodeToString(paymentDateByte))
+                .paymentTime(Base64.getEncoder().encodeToString(paymentTimeByte))
+                .paymentBalance(Base64.getEncoder().encodeToString(paymentBalanceByte))
+                .build();
+
+            response.setPayment(depositPaymentDto);
+            response.setIv(encodedNewIv);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -403,18 +547,114 @@ public class AssetServiceImpl implements AssetService {
         ResponseFindSavingsPaymentList response = new ResponseFindSavingsPaymentList();
 
         try {
+            String encodedKey = customUserDetails.getAesKey();
+            String encodedIv = request.getIv();
+
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+            byte[] decodedIv = Base64.getDecoder().decode(encodedIv);
+            byte[] decodedAccountNo = Base64.getDecoder().decode(request.getAccountNo());
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(decodedIv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+            byte[] decryptedByte = cipher.doFinal(decodedAccountNo);
+            String accountNo = new String(decryptedByte, StandardCharsets.UTF_8);
+
             RequestFindSavingsPayment requestApi = RequestFindSavingsPayment.builder()
-                .accountNo(request.getAccountNo())
+                .accountNo(accountNo)
                 .userKey(customUserDetails.getUserKey())
                 .build();
             Map<String, Object> apiData = savingsAPI.findPayment(requestApi);
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             List<Map<String, Object>> paymentList = (List<Map<String, Object>>) responseData.get(
                 "REC");
-            response.setPaymentList(paymentList);
 
+            byte[] newIv = new byte[16];
+            SecureRandom secureRandom = new SecureRandom();
+            secureRandom.nextBytes(newIv);
+            IvParameterSpec newIvParameterSpec = new IvParameterSpec(newIv);
 
-        } catch (JsonProcessingException e) {
+            Cipher newCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            newCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, newIvParameterSpec);
+
+            String encodedNewIv = Base64.getEncoder().encodeToString(newIv);
+
+            Map<String, Object> paymentInfo = paymentList.get(0);
+            List<Map<String, Object>> savingsPaymentList =
+                (List<Map<String, Object>>) paymentInfo.get("paymentInfo");
+
+            List<SavingsPaymentListDto> savingsPaymentListDtos = new ArrayList<>();
+            for (Map<String, Object> stringObjectMap : savingsPaymentList) {
+                String depositInstallment = (String) stringObjectMap.get("depositInstallment");
+                byte[] depositInstallmentByte =
+                    newCipher.doFinal(depositInstallment.getBytes(StandardCharsets.UTF_8));
+                String paymentBalance = (String) stringObjectMap.get("paymentBalance");
+                byte[] paymentBalanceByte =
+                    newCipher.doFinal(paymentBalance.getBytes(StandardCharsets.UTF_8));
+                String paymentDate = (String) stringObjectMap.get("paymentDate");
+                byte[] paymentDateByte =
+                    newCipher.doFinal(paymentDate.getBytes(StandardCharsets.UTF_8));
+                String paymentTime = (String) stringObjectMap.get("paymentTime");
+                byte[] paymentTimeByte =
+                    newCipher.doFinal(paymentTime.getBytes(StandardCharsets.UTF_8));
+                String status = (String) stringObjectMap.get("status");
+                byte[] statusByte =
+                    newCipher.doFinal(status.getBytes(StandardCharsets.UTF_8));
+
+                SavingsPaymentListDto savingsPaymentListDto = SavingsPaymentListDto.builder()
+                    .depositInstallment(Base64.getEncoder().encodeToString(depositInstallmentByte))
+                    .paymentBalance(Base64.getEncoder().encodeToString(paymentBalanceByte))
+                    .paymentDate(Base64.getEncoder().encodeToString(paymentDateByte))
+                    .paymentTime(Base64.getEncoder().encodeToString(paymentTimeByte))
+                    .status(Base64.getEncoder().encodeToString(statusByte))
+                    .build();
+
+                if (stringObjectMap.get("failureReason") != null) {
+                    String failureReason = (String) stringObjectMap.get("failureReason");
+                    byte[] failureReasonByte =
+                        newCipher.doFinal(failureReason.getBytes(StandardCharsets.UTF_8));
+                    savingsPaymentListDto
+                        .setFailureReason(Base64.getEncoder().encodeToString(failureReasonByte));
+                }
+
+                savingsPaymentListDtos.add(savingsPaymentListDto);
+            }
+
+            String savingsAccountNo = (String) paymentInfo.get("accountNo");
+            byte[] savingsAccountNoByte =
+                newCipher.doFinal(savingsAccountNo.getBytes(StandardCharsets.UTF_8));
+            String depositBalance = (String) paymentInfo.get("depositBalance");
+            byte[] depositBalanceByte =
+                newCipher.doFinal(depositBalance.getBytes(StandardCharsets.UTF_8));
+            String totalBalance = (String) paymentInfo.get("totalBalance");
+            byte[] totalBalanceByte =
+                newCipher.doFinal(totalBalance.getBytes(StandardCharsets.UTF_8));
+            String accountCreateDate = (String) paymentInfo.get("accountCreateDate");
+            byte[] accountCreateDateByte =
+                newCipher.doFinal(accountCreateDate.getBytes(StandardCharsets.UTF_8));
+            String accountExpireDate = (String) paymentInfo.get("accountExpiryDate");
+            byte[] accountExpireDateByte =
+                newCipher.doFinal(accountExpireDate.getBytes(StandardCharsets.UTF_8));
+
+            SavingsPaymentDto savingsPaymentDto = SavingsPaymentDto.builder()
+                .bankCode((String) paymentInfo.get("bankCode"))
+                .bankName((String) paymentInfo.get("bankName"))
+                .accountNo(Base64.getEncoder().encodeToString(savingsAccountNoByte))
+                .interestRate((String) paymentInfo.get("interestRate"))
+                .depositBalance(Base64.getEncoder().encodeToString(depositBalanceByte))
+                .totalBalance(Base64.getEncoder().encodeToString(totalBalanceByte))
+                .accountCreateDate(Base64.getEncoder().encodeToString(accountCreateDateByte))
+                .accountExpiryDate(Base64.getEncoder().encodeToString(accountExpireDateByte))
+                .paymentInfo(savingsPaymentListDtos)
+                .build();
+
+            response.setPaymentList(savingsPaymentDto);
+            response.setIv(encodedNewIv);
+
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -429,18 +669,106 @@ public class AssetServiceImpl implements AssetService {
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         try {
+            String encodedKey = customUserDetails.getAesKey();
+            String encodedIv = request.getIv();
+
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+            byte[] decodedIv = Base64.getDecoder().decode(encodedIv);
+            byte[] decodedAccountNo = Base64.getDecoder().decode(request.getAccountNo());
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(decodedIv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+            byte[] decryptedByte = cipher.doFinal(decodedAccountNo);
+            String accountNo = new String(decryptedByte, StandardCharsets.UTF_8);
+
             RequestFindRepaymentList requestApi = RequestFindRepaymentList.builder()
-                .accountNo(request.getAccountNo())
+                .accountNo(accountNo)
                 .userKey(customUserDetails.getUserKey())
                 .build();
             Map<String, Object> apiData = loanAPI.findRepaymentList(requestApi);
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             Map<String, Object> recData = (Map<String, Object>) responseData.get("REC");
-            ResponseFindLoanPaymentList response = mapper.map(recData,
-                ResponseFindLoanPaymentList.class);
+            List<Map<String, Object>> repaymentRecords =
+                (List<Map<String, Object>>) recData.get("repaymentRecords");
+
+            byte[] newIv = new byte[16];
+            SecureRandom secureRandom = new SecureRandom();
+            secureRandom.nextBytes(newIv);
+            IvParameterSpec newIvParameterSpec = new IvParameterSpec(newIv);
+
+            Cipher newCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            newCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, newIvParameterSpec);
+
+            String encodedNewIv = Base64.getEncoder().encodeToString(newIv);
+
+            List<LoanPaymentDto> loanPaymentDtoList = new ArrayList<>();
+            for (Map<String, Object> repaymentRecord : repaymentRecords) {
+                String installmentNumber = (String) repaymentRecord.get("installmentNumber");
+                byte[] installmentNumberByte =
+                    newCipher.doFinal(installmentNumber.getBytes(StandardCharsets.UTF_8));
+                String status = (String) repaymentRecord.get("status");
+                byte[] statusByte = newCipher.doFinal(status.getBytes(StandardCharsets.UTF_8));
+                String paymentBalance = (String) repaymentRecord.get("paymentBalance");
+                byte[] paymentBalanceByte =
+                    newCipher.doFinal(paymentBalance.getBytes(StandardCharsets.UTF_8));
+                String repaymentAttemptDate = (String) repaymentRecord.get("repaymentAttemptDate");
+                byte[] repaymentAttemptDateByte =
+                    newCipher.doFinal(repaymentAttemptDate.getBytes(StandardCharsets.UTF_8));
+                String repaymentAttemptTime = (String) repaymentRecord.get("repaymentAttemptTime");
+                byte[] repaymentAttemptTimeByte =
+                    newCipher.doFinal(repaymentAttemptTime.getBytes(StandardCharsets.UTF_8));
+                String repaymentActualDate = (String) repaymentRecord.get("repaymentActualDate");
+                byte[] repaymentActualDateByte =
+                    newCipher.doFinal(repaymentActualDate.getBytes(StandardCharsets.UTF_8));
+                String repaymentActualTime = (String) repaymentRecord.get("repaymentActualTime");
+                byte[] repaymentActualTimeByte =
+                    newCipher.doFinal(repaymentActualTime.getBytes(StandardCharsets.UTF_8));
+                String failureReason = (String) repaymentRecord.get("failureReason");
+                byte[] failureReasonByte =
+                    newCipher.doFinal(failureReason.getBytes(StandardCharsets.UTF_8));
+
+                LoanPaymentDto loanPaymentDto = LoanPaymentDto.builder()
+                    .installmentNumber(Base64.getEncoder().encodeToString(installmentNumberByte))
+                    .status(Base64.getEncoder().encodeToString(statusByte))
+                    .paymentBalance(Base64.getEncoder().encodeToString(paymentBalanceByte))
+                    .repaymentAttemptDate(
+                        Base64.getEncoder().encodeToString(repaymentAttemptDateByte))
+                    .repaymentAttemptTime(
+                        Base64.getEncoder().encodeToString(repaymentAttemptTimeByte))
+                    .repaymentActualDate(
+                        Base64.getEncoder().encodeToString(repaymentActualDateByte))
+                    .repaymentActualTime(
+                        Base64.getEncoder().encodeToString(repaymentActualTimeByte))
+                    .failureReason(Base64.getEncoder().encodeToString(failureReasonByte))
+                    .build();
+
+                loanPaymentDtoList.add(loanPaymentDto);
+            }
+
+            String accountStatus = (String) recData.get("status");
+            byte[] accountStatusByte =
+                newCipher.doFinal(accountStatus.getBytes(StandardCharsets.UTF_8));
+            String loanBalance = (String) recData.get("loanBalance");
+            byte[] loanBalanceByte =
+                newCipher.doFinal(loanBalance.getBytes(StandardCharsets.UTF_8));
+            String remainingLoanBalance = (String) recData.get("remainingLoanBalance");
+            byte[] remainingLoanBalanceByte =
+                newCipher.doFinal(remainingLoanBalance.getBytes(StandardCharsets.UTF_8));
+
+            ResponseFindLoanPaymentList response = ResponseFindLoanPaymentList.builder()
+                .iv(encodedNewIv)
+                .status(Base64.getEncoder().encodeToString(accountStatusByte))
+                .loanBalance(Base64.getEncoder().encodeToString(loanBalanceByte))
+                .remainingLoanBalance(Base64.getEncoder().encodeToString(remainingLoanBalanceByte))
+                .repaymentRecords(loanPaymentDtoList)
+                .build();
 
             return response;
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -450,12 +778,30 @@ public class AssetServiceImpl implements AssetService {
         RequestFindCardTransactionList request,
         CustomUserDetails customUserDetails
     ) {
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         try {
+            String encodedKey = customUserDetails.getAesKey();
+            String encodedIv = request.getIv();
+
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+            byte[] decodedIv = Base64.getDecoder().decode(encodedIv);
+            byte[] decodedCardNo = Base64.getDecoder().decode(request.getCardNo());
+            byte[] decodedCvc = Base64.getDecoder().decode(request.getCvc());
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(decodedIv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+            byte[] decryptedCardNo = cipher.doFinal(decodedCardNo);
+            byte[] decryptedCvc = cipher.doFinal(decodedCvc);
+            String cardNo = new String(decryptedCardNo, StandardCharsets.UTF_8);
+            String cvc = new String(decryptedCvc, StandardCharsets.UTF_8);
+
             com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList requestApi =
                 com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList.builder()
-                    .cardNo(request.getCardNo())
-                    .cvc(request.getCvc())
+                    .cardNo(cardNo)
+                    .cvc(cvc)
                     .startDate(request.getStartDate())
                     .endDate(request.getEndDate())
                     .userKey(customUserDetails.getUserKey())
@@ -465,11 +811,80 @@ public class AssetServiceImpl implements AssetService {
             Map<String, Object> responseData = (Map<String, Object>) apiData.get("apiResponse");
             Map<String, Object> recData = (Map<String, Object>) responseData.get("REC");
 
-            ResponseFindCardTransactionList response = mapper.map(recData,
-                ResponseFindCardTransactionList.class);
+            byte[] newIv = new byte[16];
+            SecureRandom secureRandom = new SecureRandom();
+            secureRandom.nextBytes(newIv);
+            IvParameterSpec newIvParameterSpec = new IvParameterSpec(newIv);
+
+            Cipher newCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            newCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, newIvParameterSpec);
+
+            String encodedNewIv = Base64.getEncoder().encodeToString(newIv);
+
+            String estimatedBalance = (String) recData.get("estimatedBalance");
+            byte[] estimatedBalanceByte =
+                newCipher.doFinal(estimatedBalance.getBytes(StandardCharsets.UTF_8));
+
+            List<CardTransactionDto> cardTransactionDtoList = new ArrayList<>();
+            List<Map<String, Object>> transactionList =
+                (List<Map<String, Object>>) recData.get("transactionList");
+            for (Map<String, Object> stringObjectMap : transactionList) {
+                String transactionUniqueNo = (String) stringObjectMap.get("transactionUniqueNo");
+                byte[] transactionUniqueNoByte =
+                    newCipher.doFinal(Base64.getDecoder().decode(transactionUniqueNo));
+                String merchantId = (String) stringObjectMap.get("merchantId");
+                byte[] merchantIdByte =
+                    newCipher.doFinal(merchantId.getBytes(StandardCharsets.UTF_8));
+                String billStatementYn = (String) stringObjectMap.get("billStatementsYn");
+                byte[] billStatementYnByte =
+                    newCipher.doFinal(billStatementYn.getBytes(StandardCharsets.UTF_8));
+                String transactionBalance = (String) stringObjectMap.get("transactionBalance");
+                byte[] transactionBalanceByte =
+                    newCipher.doFinal(transactionBalance.getBytes(StandardCharsets.UTF_8));
+                String transactionDate = (String) stringObjectMap.get("transactionDate");
+                byte[] transactionDateByte =
+                    newCipher.doFinal(transactionDate.getBytes(StandardCharsets.UTF_8));
+                String transactionTime = (String) stringObjectMap.get("transactionTime");
+                byte[] transactionTimeByte =
+                    newCipher.doFinal(transactionTime.getBytes(StandardCharsets.UTF_8));
+                String categoryName = (String) stringObjectMap.get("categoryName");
+                byte[] categoryNameByte =
+                    newCipher.doFinal(categoryName.getBytes(StandardCharsets.UTF_8));
+                String categoryId = (String) stringObjectMap.get("categoryId");
+                byte[] categoryIdByte =
+                    newCipher.doFinal(categoryId.getBytes(StandardCharsets.UTF_8));
+                String cardStatus = (String) stringObjectMap.get("cardStatus");
+                byte[] cardStatusByte =
+                    newCipher.doFinal(cardStatus.getBytes(StandardCharsets.UTF_8));
+                String merchantName = (String) stringObjectMap.get("merchantName");
+                byte[] merchantNameByte =
+                    newCipher.doFinal(merchantName.getBytes(StandardCharsets.UTF_8));
+
+                CardTransactionDto cardTransactionDto = CardTransactionDto.builder()
+                    .transactionUniqueNo(
+                        Base64.getEncoder().encodeToString(transactionUniqueNoByte))
+                    .merchantId(Base64.getEncoder().encodeToString(merchantIdByte))
+                    .billStatementsYn(Base64.getEncoder().encodeToString(billStatementYnByte))
+                    .transactionBalance(Base64.getEncoder().encodeToString(transactionBalanceByte))
+                    .transactionDate(Base64.getEncoder().encodeToString(transactionDateByte))
+                    .transactionTime(Base64.getEncoder().encodeToString(transactionTimeByte))
+                    .categoryName(Base64.getEncoder().encodeToString(categoryNameByte))
+                    .categoryId(Base64.getEncoder().encodeToString(categoryIdByte))
+                    .cardStatus(Base64.getEncoder().encodeToString(cardStatusByte))
+                    .merchantName(Base64.getEncoder().encodeToString(merchantNameByte))
+                    .build();
+
+                cardTransactionDtoList.add(cardTransactionDto);
+            }
+
+            ResponseFindCardTransactionList response = ResponseFindCardTransactionList.builder()
+                .iv(encodedNewIv)
+                .estimatedBalance(Base64.getEncoder().encodeToString(estimatedBalanceByte))
+                .transactionList(cardTransactionDtoList)
+                .build();
 
             return response;
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -479,23 +894,35 @@ public class AssetServiceImpl implements AssetService {
         RequestOpenAccountAuth request,
         CustomUserDetails customUserDetails) {
         try {
+            String encodedKey = customUserDetails.getAesKey();
+            String encodedIv = request.getIv();
+
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+            byte[] decodedIv = Base64.getDecoder().decode(encodedIv);
+            byte[] decodedAccountNo = Base64.getDecoder().decode(request.getAccountNo());
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(decodedIv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+            byte[] decryptedByte = cipher.doFinal(decodedAccountNo);
+            String accountNo = new String(decryptedByte, StandardCharsets.UTF_8);
+
             RequestCreateAccountAuth requestApi = RequestCreateAccountAuth.builder()
-                .accountNo(request.getAccountNo())
+                .accountNo(accountNo)
                 .userKey(customUserDetails.getUserKey())
                 .build();
             authAPI.createAccountAuth(requestApi);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
 
-        try {
             LocalDate currentDate = LocalDate.now();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
             String currentString = currentDate.format(formatter);
 
             RequestFindTransactionList requestTransaction = new RequestFindTransactionList();
-            requestTransaction.setAccountNo(request.getAccountNo());
+            requestTransaction.setAccountNo(accountNo);
             requestTransaction.setUserKey(customUserDetails.getUserKey());
             requestTransaction.setOrderByType("DESC");
             requestTransaction.setTransactionType("M");
@@ -512,10 +939,25 @@ public class AssetServiceImpl implements AssetService {
             String[] authCodeSplit = transactionSummary.split(" ");
 
             ResponseOpenAccountAuth response = new ResponseOpenAccountAuth();
-            response.setAuthCode(authCodeSplit[1]);
+
+            byte[] newIv = new byte[16];
+            SecureRandom secureRandom = new SecureRandom();
+            secureRandom.nextBytes(newIv);
+            IvParameterSpec newIvParameterSpec = new IvParameterSpec(newIv);
+
+            Cipher newCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            newCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, newIvParameterSpec);
+
+            String encodedNewIv = Base64.getEncoder().encodeToString(newIv);
+
+            String authCode = authCodeSplit[1];
+            byte[] authCodeByte = newCipher.doFinal(authCode.getBytes(StandardCharsets.UTF_8));
+
+            response.setAuthCode(Base64.getEncoder().encodeToString(authCodeByte));
+            response.setIv(encodedNewIv);
 
             return response;
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -525,10 +967,29 @@ public class AssetServiceImpl implements AssetService {
         RequestCheckAccountAuth request,
         CustomUserDetails customUserDetails) {
         try {
+            String encodedKey = customUserDetails.getAesKey();
+            String encodedIv = request.getIv();
+
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+            byte[] decodedIv = Base64.getDecoder().decode(encodedIv);
+            byte[] decodedAccountNo = Base64.getDecoder().decode(request.getAccountNo());
+            byte[] decodedAuthCode = Base64.getDecoder().decode(request.getAuthCode());
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(decodedIv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+            byte[] decryptedByte = cipher.doFinal(decodedAccountNo);
+            byte[] decryptedByte2 = cipher.doFinal(decodedAuthCode);
+            String accountNo = new String(decryptedByte, StandardCharsets.UTF_8);
+            String authCode = new String(decryptedByte2, StandardCharsets.UTF_8);
+
             com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth requestApi =
                 com.gbh.gbh_mm.finance.auth.vo.request.RequestCheckAccountAuth.builder()
-                    .accountNo(request.getAccountNo())
-                    .authCode(request.getAuthCode())
+                    .accountNo(accountNo)
+                    .authCode(authCode)
                     .userKey(customUserDetails.getUserKey())
                     .build();
 
@@ -540,8 +1001,16 @@ public class AssetServiceImpl implements AssetService {
                 User user = userRepository.findByUserKey(customUserDetails.getUserKey());
 
                 if (user.getUserKey() != null) {
+                    byte[] newIv = new byte[16];
+                    SecureRandom secureRandom = new SecureRandom();
+                    secureRandom.nextBytes(newIv);
+                    IvParameterSpec newIvParameterSpec = new IvParameterSpec(newIv);
+
+                    Cipher newCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                    newCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, newIvParameterSpec);
+
                     WithdrawalAccount withdrawalAccount = WithdrawalAccount.builder()
-                        .accountNo(request.getAccountNo())
+                        .accountNo(accountNo)
                         .user(user)
                         .build();
 
@@ -564,7 +1033,7 @@ public class AssetServiceImpl implements AssetService {
             } else {
                 return null;
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -574,16 +1043,47 @@ public class AssetServiceImpl implements AssetService {
         (CustomUserDetails customUserDetails) {
         List<WithdrawalAccount> withdrawalAccountList = withdrawalAccountRepository
             .findByUser_UserPk(customUserDetails.getUserPk());
-        Type listType = new TypeToken<List<WithdrawalAccountDto>>() {
-        }.getType();
-        List<WithdrawalAccountDto> withdrawalAccountDtos = mapper.map(withdrawalAccountList,
-            listType);
 
-        ResponseFindWithdrawalAccountList response = ResponseFindWithdrawalAccountList.builder()
-            .withdrawalAccountList(withdrawalAccountDtos)
-            .build();
+        try {
+            String encodedKey = customUserDetails.getAesKey();
 
-        return response;
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
+
+            byte[] newIv = new byte[16];
+            SecureRandom secureRandom = new SecureRandom();
+            secureRandom.nextBytes(newIv);
+            IvParameterSpec newIvParameterSpec = new IvParameterSpec(newIv);
+
+            Cipher newCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            newCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, newIvParameterSpec);
+
+            String encodedNewIv = Base64.getEncoder().encodeToString(newIv);
+
+            List<WithdrawalAccountDto> withdrawalAccountDtoList = new ArrayList<>();
+            for (WithdrawalAccount withdrawalAccount : withdrawalAccountList) {
+                byte[] accountByte =
+                    newCipher.doFinal(withdrawalAccount.getAccountNo().getBytes(StandardCharsets.UTF_8));
+
+                WithdrawalAccountDto withdrawalAccountDto = new WithdrawalAccountDto();
+                withdrawalAccountDto.setWithdrawalAccountId(withdrawalAccount.getWithdrawalAccountId());
+                withdrawalAccountDto.setAccountNo(Base64.getEncoder().encodeToString(accountByte));
+
+                withdrawalAccountDtoList.add(withdrawalAccountDto);
+            }
+
+            ResponseFindWithdrawalAccountList response = ResponseFindWithdrawalAccountList.builder()
+                .iv(encodedNewIv)
+                .withdrawalAccountList(withdrawalAccountDtoList)
+                .build();
+
+            return response;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -610,22 +1110,47 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public ResponseAccountTransfer accountTransger(RequestWithdrawalAccountTransfer request) {
+    public ResponseAccountTransfer accountTransfer(
+        RequestWithdrawalAccountTransfer request,
+        CustomUserDetails customUserDetails
+    ) {
         try {
             WithdrawalAccount withdrawalAccount = withdrawalAccountRepository
                 .findById(request.getWithdrawalAccountId())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 출금계죄"));
 
+            String encodedKey = customUserDetails.getAesKey();
+            String encodedIv = request.getIv();
+
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+            byte[] decodedIv = Base64.getDecoder().decode(encodedIv);
+            byte[] decodedAccountNo = Base64.getDecoder().decode(request.getDepositAccountNo());
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(decodedIv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+            byte[] decryptedAccountNo = cipher.doFinal(decodedAccountNo);
+            byte[] decryptedSummary = cipher.doFinal(decodedAccountNo);
+            byte[] decryptedTransactionBalance = cipher.doFinal(decodedAccountNo);
+            String depositAccountNo = new String(decryptedAccountNo, StandardCharsets.UTF_8);
+            String summary = new String(decryptedSummary, StandardCharsets.UTF_8);
+            String transactionBalanceStr =
+                new String(decryptedTransactionBalance, StandardCharsets.UTF_8);
+            long transactionBalance = Long.parseLong(transactionBalanceStr);
+
             String userKey = withdrawalAccount.getUser().getUserKey();
 
             RequestAccountTransfer apiRequest = new RequestAccountTransfer();
             apiRequest.setUserKey(userKey);
-            apiRequest.setDepositAccountNo(request.getDepositAccountNo());
+            apiRequest.setDepositAccountNo(depositAccountNo);
             apiRequest.setDepositTransactionSummary
                 ("MarshMellow 입금 " + withdrawalAccount.getUser().getUserName());
             apiRequest.setWithdrawalAccountNo(withdrawalAccount.getAccountNo());
-            apiRequest.setWithdrawalTransactionSummary(request.getTransactionSummary());
-            apiRequest.setTransactionBalance(request.getTransactionBalance());
+            apiRequest.setWithdrawalTransactionSummary(summary);
+            apiRequest.setTransactionBalance(transactionBalance);
 
             demandDepositAPI.accountTransfer(apiRequest);
 
@@ -634,7 +1159,7 @@ public class AssetServiceImpl implements AssetService {
                 .build();
 
             return response;
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -642,10 +1167,10 @@ public class AssetServiceImpl implements AssetService {
     @Override
     public ResponseAuthTest authTest() {
         try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-            keyGen.init(128);
-            SecretKey key = keyGen.generateKey();
-            String encodedKey = Base64.getEncoder().encodeToString(key.getEncoded());
+            User user = userRepository.findByUserPk(3L).orElseThrow();
+            String encodedKey = user.getAesKey();
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
 
             ResponseAuthTest response = new ResponseAuthTest();
             response.setEncodeKey(encodedKey);
@@ -656,18 +1181,22 @@ public class AssetServiceImpl implements AssetService {
             IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, key, ivParameterSpec);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
 
             String encodedIV = Base64.getEncoder().encodeToString(iv);
 
             response.setIv(encodedIV);
 
-            String planeText = "암호화 할 값";
+            String planeText = "0017542192720367";
+            String planeText2 = "3196";
             byte[] planeBytes = cipher.doFinal(planeText.getBytes(StandardCharsets.UTF_8));
+            byte[] planeBytes2 = cipher.doFinal(planeText2.getBytes(StandardCharsets.UTF_8));
 
             String cipherText = Base64.getEncoder().encodeToString(planeBytes);
+            String cipherText2 = Base64.getEncoder().encodeToString(planeBytes2);
 
             response.setValue(cipherText);
+            response.setValue2(cipherText2);
 
             return response;
 
@@ -705,18 +1234,18 @@ public class AssetServiceImpl implements AssetService {
 
         try {
 
-        // 3. Cipher 초기화 (AES/CBC/PKCS5Padding 모드 사용)
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+            // 3. Cipher 초기화 (AES/CBC/PKCS5Padding 모드 사용)
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
 
-        // 4. 복호화 수행
-        byte[] decryptedBytes = cipher.doFinal(decodedCipherText);
-        String decryptedText = new String(decryptedBytes, StandardCharsets.UTF_8);
+            // 4. 복호화 수행
+            byte[] decryptedBytes = cipher.doFinal(decodedCipherText);
+            String decryptedText = new String(decryptedBytes, StandardCharsets.UTF_8);
 
-        ResponseAuthTest response = new ResponseAuthTest();
-        response.setValue(decryptedText);
+            ResponseAuthTest response = new ResponseAuthTest();
+            response.setValue(decryptedText);
 
-        return response;
+            return response;
         } catch (NoSuchPaddingException e) {
             throw new RuntimeException(e);
         } catch (IllegalBlockSizeException e) {

@@ -7,4 +7,5 @@ public class ResponseAuthTest {
     String iv;
     String encodeKey;
     String value;
+    String value2;
 }

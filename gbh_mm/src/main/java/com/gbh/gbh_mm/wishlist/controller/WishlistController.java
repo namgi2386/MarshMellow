@@ -21,22 +21,22 @@ public class WishlistController {
     // 위시리스트 생성
     @PostMapping
     public ResponseCreateWishlist createWishlist(
-        @AuthenticationPrincipal CustomUserDetails userDetails,
-        @RequestParam String productNickname,
-        @RequestParam String productName,
-        @RequestParam Long productPrice,
-        @RequestParam String productUrl,
-        @RequestParam MultipartFile file
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam String productNickname,
+            @RequestParam String productName,
+            @RequestParam Long productPrice,
+            @RequestParam String productUrl,
+            @RequestParam MultipartFile file
     ) {
         return wishlistService
-            .createWishlist(userDetails.getUserPk(), productNickname,
-                productName, productPrice, productUrl, file);
+                .createWishlist(userDetails.getUserPk(), productNickname,
+                        productName, productPrice, productUrl, file);
     }
 
     // 위시리스트 조회
     @GetMapping
     public ResponseFindWishlist getWishlist(
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         return wishlistService.getWishlist(userDetails.getUserPk());
     }
 
@@ -50,10 +50,15 @@ public class WishlistController {
     // 위시리스트 수정
     @PutMapping("/detail/{wishlistPk}")
     public ResponseUpdateWishlist updateWishlist(
-        @PathVariable Long wishlistPk,
-        @RequestParam String
-        ) {
-        return wishlistService.updateWishlist(wishlistPk, requestUpdateWishlist);
+            @PathVariable Long wishlistPk,
+            @RequestParam String productNickname,
+            @RequestParam String productName,
+            @RequestParam Long productPrice,
+            @RequestParam String productUrl,
+            @RequestParam MultipartFile file
+    ) {
+        return wishlistService.updateWishlist(wishlistPk, productNickname, productName,
+                productPrice, productUrl, file);
     }
 
     // 위시리스트 삭제
@@ -65,7 +70,7 @@ public class WishlistController {
     // 현재 위시 조회
     @GetMapping("/detail")
     public ResponseFindDetailWishlist getCurrentWish(
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         return wishlistService.getCurrentWish(userDetails.getUserPk());
     }
 

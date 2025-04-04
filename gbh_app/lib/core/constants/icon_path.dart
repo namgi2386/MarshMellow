@@ -179,4 +179,7 @@ class IconPath {
   static const String fileTxt = 'assets/icons/file/fileTxt.svg';
   static const String fileXls = 'assets/icons/file/fileXls.svg';
   static const String fileZip = 'assets/icons/file/fileZip.svg';
+
+  // 폴더
+  static const String folderSimple = 'assets/icons/folder/folderSimple.svg';
 }

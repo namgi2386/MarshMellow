@@ -9,6 +9,7 @@ import 'package:marshmellow/core/utils/back_gesture/detector.dart';
 import 'package:marshmellow/router/app_router.dart'; // 라우터 import
 import 'package:marshmellow/di/providers/lifecycle_provider.dart';
 import 'package:marshmellow/presentation/widgets/datepicker/date_picker_overlay.dart';
+import 'package:marshmellow/di/providers/calendar_providers.dart';
 
 // Flutter 로컬라이제이션 패키지 추가
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -30,6 +31,7 @@ class _AppState extends ConsumerState<App> {
     super.initState();
     // 라이프사이클 매니저 초기화 - 프로바이더를 읽는 것만으로 초기화됨
     ref.read(appLifecycleManagerProvider);
+    ref.read(paydayFetchProvider);
   }
 
   @override

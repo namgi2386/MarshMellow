@@ -8,6 +8,7 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
 import 'package:marshmellow/di/providers/calendar_providers.dart';
+import 'package:marshmellow/di/providers/my/salary_provider.dart';
 
 class DateRangeSelector extends ConsumerWidget {
   final String? dateRange;
@@ -31,6 +32,7 @@ class DateRangeSelector extends ConsumerWidget {
     final containerWidth = width ?? screenWidth * 0.52;
     final datePickerState = ref.watch(datePickerProvider);
     final selectedRange = datePickerState.selectedRange;
+    final payday = ref.watch(paydayProvider);
 
     // 표시할 날짜 문자열 계산
     String displayDateRange = dateRange ?? '';
@@ -46,24 +48,42 @@ class DateRangeSelector extends ConsumerWidget {
       displayDateRange =
           '${formatter.format(startDate)} - ${formatter.format(endDate)}';
     } else {
-      // 선택된 범위가 없는 경우 현재 월의 1일부터 한 달간으로 설정
+      // 현재 날짜와 월급일을 기준으로 날짜 범위 계산
       final now = DateTime.now();
-      final firstDayOfMonth = DateTime(now.year, now.month, 1);
-      final lastDayOfMonth =
-          DateTime(now.year, now.month + 1, 0); // 다음 달의 0일 = 현재 달의 마지막 날
+
+      DateTime startDate;
+      DateTime endDate;
+
+      // 현재 날짜가 월급일 이전이면 전 달의 월급일부터
+      if (now.day < payday) {
+        startDate = DateTime(now.year, now.month - 1, payday);
+        endDate = DateTime(now.year, now.month, payday - 1);
+      } else {
+        // 현재 날짜가 월급일 이후면 현재 달의 월급일부터
+        startDate = DateTime(now.year, now.month, payday);
+
+        // 다음 달의 월급일 이전 날까지
+        if (startDate.month == 12) {
+          endDate = DateTime(startDate.year + 1, 1, payday - 1);
+        } else {
+          endDate = DateTime(now.year, now.month + 1, payday - 1);
+        }
+      }
 
       final formatter = DateFormat('yy.MM.dd');
       displayDateRange =
-          '${formatter.format(firstDayOfMonth)} - ${formatter.format(lastDayOfMonth)}';
+          '${formatter.format(startDate)} - ${formatter.format(endDate)}';
 
       // 범위 업데이트 (선택적)
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(datePickerProvider.notifier).updateSelectedRange(
-            PickerDateRange(firstDayOfMonth, lastDayOfMonth));
+        ref
+            .read(datePickerProvider.notifier)
+            .updateSelectedRange(PickerDateRange(startDate, endDate));
 
         // 초기 데이터 로드 추가
-        ref.read(ledgerViewModelProvider.notifier).loadHouseholdData(
-            PickerDateRange(firstDayOfMonth, lastDayOfMonth));
+        ref
+            .read(ledgerViewModelProvider.notifier)
+            .loadHouseholdData(PickerDateRange(startDate, endDate));
       });
     }
 
@@ -74,18 +94,21 @@ class DateRangeSelector extends ConsumerWidget {
         final startDate = datePickerState.selectedRange!.startDate!;
         final endDate = datePickerState.selectedRange!.endDate ?? startDate;
 
-        // 월 단위로 이동하는지 확인 (1일부터 말일까지인 경우)
-        bool isMonthPeriod = startDate.day == 1 &&
-            endDate.day == DateTime(endDate.year, endDate.month + 1, 0).day;
-
         DateTime newStartDate;
         DateTime newEndDate;
 
-        if (isMonthPeriod) {
-          // 이전 달의 1일
-          newStartDate = DateTime(startDate.year, startDate.month - 1, 1);
-          // 이전 달의 마지막 날
-          newEndDate = DateTime(newStartDate.year, newStartDate.month + 1, 0);
+        // 월급일 기준으로 이전 기간 계산
+        if (startDate.day == payday) {
+          // 이전 달의 월급일
+          if (startDate.month == 1) {
+            // 1월인 경우 특별 처리
+            newStartDate = DateTime(startDate.year - 1, 12, payday);
+            newEndDate = DateTime(startDate.year, 1, payday - 1);
+          } else {
+            newStartDate =
+                DateTime(startDate.year, startDate.month - 1, payday);
+            newEndDate = DateTime(startDate.year, startDate.month, payday - 1);
+          }
         } else {
           // 월 단위가 아닌 경우는 기존 로직 사용
           final duration = endDate.difference(startDate);
@@ -120,18 +143,22 @@ class DateRangeSelector extends ConsumerWidget {
         final startDate = datePickerState.selectedRange!.startDate!;
         final endDate = datePickerState.selectedRange!.endDate ?? startDate;
 
-        // 월 단위로 이동하는지 확인 (1일부터 말일까지인 경우)
-        bool isMonthPeriod = startDate.day == 1 &&
-            endDate.day == DateTime(endDate.year, endDate.month + 1, 0).day;
-
         DateTime newStartDate;
         DateTime newEndDate;
 
-        if (isMonthPeriod) {
-          // 다음 달의 1일
-          newStartDate = DateTime(endDate.year, endDate.month + 1, 1);
-          // 다음 달의 마지막 날
-          newEndDate = DateTime(newStartDate.year, newStartDate.month + 1, 0);
+        // 월급일 기준으로 다음 기간 계산
+        if (startDate.day == payday) {
+          // 다음 달의 월급일
+          if (startDate.month == 12) {
+            // 12월인 경우 특별 처리
+            newStartDate = DateTime(startDate.year + 1, 1, payday);
+            newEndDate = DateTime(startDate.year + 1, 2, payday - 1);
+          } else {
+            newStartDate =
+                DateTime(startDate.year, startDate.month + 1, payday);
+            newEndDate =
+                DateTime(startDate.year, startDate.month + 2, payday - 1);
+          }
         } else {
           // 월 단위가 아닌 경우는 기존 로직 사용
           final duration = endDate.difference(startDate);

@@ -174,13 +174,23 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem> {
               Text(
                 widget.transaction.type == TransactionType.withdrawal
                     ? '- ${numberFormat.format(widget.transaction.amount)}원'
-                    : '+ ${numberFormat.format(widget.transaction.amount)}원',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  fontSize: 16,
-                  color: widget.transaction.type == TransactionType.withdrawal
-                      ? AppColors.textPrimary
-                      : AppColors.blueDark,
-                ),
+                    : widget.transaction.type == TransactionType.deposit
+                        ? '+ ${numberFormat.format(widget.transaction.amount)}원'
+                        : '${numberFormat.format(widget.transaction.amount)}원',
+                style: widget.transaction.type == TransactionType.withdrawal
+                    ? AppTextStyles.bodyLarge.copyWith(
+                        fontSize: 16,
+                        color: AppColors.textPrimary,
+                      )
+                    : widget.transaction.type == TransactionType.deposit
+                        ? AppTextStyles.bodyLarge.copyWith(
+                            fontSize: 16,
+                            color: AppColors.blueDark,
+                          )
+                        : AppTextStyles.bodyLarge.copyWith(
+                            fontSize: 16,
+                            color: AppColors.textSecondary,
+                          ),
               ),
             ],
           ),

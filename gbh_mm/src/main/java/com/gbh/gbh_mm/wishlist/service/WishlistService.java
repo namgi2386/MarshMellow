@@ -2,6 +2,7 @@ package com.gbh.gbh_mm.wishlist.service;
 
 import com.gbh.gbh_mm.common.exception.CustomException;
 import com.gbh.gbh_mm.common.exception.ErrorCode;
+import com.gbh.gbh_mm.s3.S3Component;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
@@ -10,6 +11,7 @@ import com.gbh.gbh_mm.wishlist.model.response.*;
 import com.gbh.gbh_mm.wishlist.repo.WishlistRepository;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -27,26 +30,35 @@ public class WishlistService {
 
     private final WishlistRepository wishlistRepository;
     private final UserRepository userRepository;
+    private final S3Component s3Component;
+    private final ModelMapper mapper;
 
     // 위시리스트 생성
     @Transactional
-    public ResponseCreateWishlist createWishlist(Long userPk, Wishlist wishlist) {
+    public ResponseCreateWishlist createWishlist(
+        Long userPk, String productNickname, String productName, Long productPrice,
+        String productUrl, MultipartFile file
+    ) {
         User user = userRepository.findById(userPk)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHILD_NOT_FOUND));
 
-        wishlist.setUser(user);
-        wishlistRepository.save(wishlist);
-        return ResponseCreateWishlist.builder()
-                .message("위시리스트 생성 완료")
-                .wishlistPk(wishlist.getWishlistPk())
-                .productNickname(wishlist.getProductNickname())
-                .productName(wishlist.getProductName())
-                .productPrice(wishlist.getProductPrice())
-                .productImageUrl(wishlist.getProductImageUrl())
-                .productUrl(wishlist.getProductUrl())
-                .isSelected(wishlist.getIsSelected())
-                .isCompleted(wishlist.getIsCompleted())
-                .build();
+        String fileUrl = s3Component.uploadFile(file);
+
+        Wishlist wishlist = Wishlist.builder()
+            .productNickname(productNickname)
+            .productName(productName)
+            .productPrice(productPrice)
+            .productUrl(productUrl)
+            .isSelected("N")
+            .isCompleted("N")
+            .productImageUrl(fileUrl)
+            .user(user)
+            .build();
+
+        Wishlist savedWishList = wishlistRepository.save(wishlist);
+        ResponseCreateWishlist response = mapper.map(savedWishList, ResponseCreateWishlist.class);
+
+        return response;
     }
 
     // 위시리스트 조회

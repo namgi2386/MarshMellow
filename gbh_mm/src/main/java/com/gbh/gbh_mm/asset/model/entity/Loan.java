@@ -7,4 +7,5 @@ public class Loan {
     private String accountNo;
     private String accountName;
     private long loanBalance;
+    private String encodeLoanBalance;
 }

@@ -10,6 +10,7 @@ import lombok.Data;
 
 @Data
 public class ResponseFindAssetList {
+    private String iv;
     private CardListDto cardData;
     private DemandDepositListDto demandDepositData;
     private LoanListDto loanData;

@@ -27,18 +27,17 @@ class CategoryTransactionApi {
     required int categoryPk,
     required String startDate,
     required String endDate,
-    String? aiCategory,
+    required String aiCategory,
   }) async {
     try {
       // API 명세서에 따라 몸체(body)로 파라미터를 전송
       final Map<String, dynamic> body = {
         'startDate': startDate,
         'endDate': endDate,
+        'aiCategory': aiCategory,
       };
 
-      if (aiCategory != null) {
-        body['aiCategory'] = aiCategory;
-      }
+      print('🍀🍀🍀api 요청 본문: $body');
 
       final response = await _apiClient.post(
         '/mm/budget/detail',
@@ -48,6 +47,8 @@ class CategoryTransactionApi {
       if (response.statusCode == 200) {
         final data = response.data['data'];
         final List<dynamic> households = data['households'] ?? [];
+
+        print('API 응답 데이터 수: ${households.length}');
         
         // 응답 데이터를 Transaction 모델로 변환
         return convertHouseholdToTransactions(households);
@@ -71,10 +72,10 @@ class CategoryTransactionRepository {
     required int categoryPk,
     required String startDate,
     required String endDate,
-    String? aiCategory,
+    required String categoryName,
   }) async {
-    // 카테고리 이름 조회
-    String categoryName = await _getCategoryName(categoryPk);
+
+    print('🍀🍀🍀 요청정보: budgetPk=$budgetPk, categoryPk=$categoryPk, startDate=$startDate, endDate=$endDate, categoryName=$categoryName');
     
     return _api.getCategoryTransactions(
       budgetPk: budgetPk,
@@ -86,20 +87,20 @@ class CategoryTransactionRepository {
   }
   
   // 카테고리PK로 카테고리 이름 조회 메서드 
-  Future<String> _getCategoryName(int categoryPk) async {
-    // 카테고리 매핑 테이블
-    Map<int, String> categoryMapping = {
-      1: "식비/외식",
-      2: "교통비",
-      3: "여가",
-      4: "커피/디저트",
-      5: "쇼핑",
-      6: "생활",
-      7: "주거",
-      8: "의료",
-      9: "기타"
-    };
+  // Future<String> _getCategoryName(int categoryPk) async {
+  //   // 카테고리 매핑 테이블
+  //   Map<int, String> categoryMapping = {
+  //     1: "식비/외식",
+  //     2: "교통비",
+  //     3: "여가",
+  //     4: "커피/디저트",
+  //     5: "쇼핑",
+  //     6: "생활",
+  //     7: "주거",
+  //     8: "의료",
+  //     9: "기타"
+  //   };
     
-    return categoryMapping[categoryPk] ?? "기타";
-  }
+  //   return categoryMapping[categoryPk] ?? "기타";
+  // }
 }

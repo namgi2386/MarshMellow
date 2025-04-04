@@ -16,13 +16,16 @@ final categoryTransactionsProvider = FutureProvider.family<List<Transaction>, Ca
   (ref, params) async {
     ref.keepAlive();
     final repository = ref.watch(categoryTransactionRepositoryProvider);
-    
+
+    print('Provider 호출: budgetPk=${params.budgetPk}, categoryPk=${params.categoryPk}, categoryName=${params.categoryName}');
+
     // 카테고리 지출 내역 조회 API 호출
     return repository.getCategoryTransactions(
       budgetPk: params.budgetPk,
       categoryPk: params.categoryPk,
       startDate: params.startDate,
       endDate: params.endDate,
+      categoryName: params.categoryName,
     );
   },
 );
@@ -33,12 +36,14 @@ class CategoryExpensePageParams {
   final int categoryPk;
   final String startDate;
   final String endDate;
+  final String categoryName;
 
   CategoryExpensePageParams({
     required this.budgetPk,
     required this.categoryPk,
     required this.startDate,
     required this.endDate,
+    required this.categoryName,
   });
 
   @override
@@ -48,7 +53,8 @@ class CategoryExpensePageParams {
            other.budgetPk == budgetPk &&
            other.categoryPk == categoryPk &&
            other.startDate == startDate &&
-           other.endDate == endDate;
+           other.endDate == endDate &&
+           other.categoryName == categoryName;
   }
 
   @override
@@ -83,8 +89,9 @@ class CategoryExpensePage extends ConsumerWidget {
       categoryPk: categoryPk,
       startDate: selectedBudget.startDate,
       endDate: selectedBudget.endDate,
+      categoryName: category.budgetCategoryName,
     );
-
+    // autoDispose 모디파이어 사용하여 불필요한 api 호출 방지
     final transactionsAsync = ref.watch(categoryTransactionsProvider(params));
 
     return Scaffold(

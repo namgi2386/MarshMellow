@@ -59,7 +59,6 @@ public class CertService {
     @Transactional
     public CIResponseDto getConnectionInformation(CIRequestDto ciRequestDto) {
         String ci = ciGenerator.generateCi(ciRequestDto);
-
         userService.registerUserIfNotExist(ciRequestDto, ci);
 
         return CIResponseDto.builder()
@@ -295,18 +294,17 @@ public class CertService {
             log.info("🧾 [서버 수신 원문 Base64]: {}", Base64.getEncoder().encodeToString(originalText.getBytes(StandardCharsets.UTF_8)));
 
             // 3. 원문 정규화
-            String normalizedText = originalText.trim().replace("\r\n", "\n").replace("\r", "");
-            log.info(normalizedText);
+            log.info("서버 Base64 원문: {}", Base64.getEncoder().encodeToString(originalText.getBytes(StandardCharsets.UTF_8)));
             MessageDigest digest = MessageDigest.getInstance("SHA-512");
-            byte[] hash = digest.digest(normalizedText.getBytes(StandardCharsets.UTF_8));
-            byte[] originalBytes = normalizedText.getBytes(StandardCharsets.UTF_8); // ← 여기에
+            byte[] hash = digest.digest(originalText.getBytes(StandardCharsets.UTF_8));
+            byte[] originalBytes = originalText.getBytes(StandardCharsets.UTF_8); // ← 여기에
             log.info("📦 서버 원문 바이트: " + Arrays.toString(originalBytes));
             log.info("🔑 검증용 원문(Base64): " + Base64.getEncoder().encodeToString(hash));
 
             // 4. 서명 객체 초기화
-            Signature signature = Signature.getInstance("NONEwithRSA", "BC");
+            Signature signature = Signature.getInstance("SHA512withRSA", "BC");
             signature.initVerify(publicKey);
-            signature.update(normalizedText.getBytes(StandardCharsets.UTF_8));
+            signature.update(originalText.getBytes(StandardCharsets.UTF_8));
             log.info("✍ 원문 데이터 입력 완료");
 
             // 5. 서명 검증

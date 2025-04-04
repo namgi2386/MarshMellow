@@ -129,6 +129,9 @@ dependencies:
   # flame: ^1.10.0 # (실패)
   # flame_forge2d: ^0.16.0 # (실패)
 
+  # confetti (점메추 색종이 팡팡)
+  confetti: ^0.8.0
+
   # 파일 저장
   permission_handler: ^11.0.1
   file_picker: ^10.0.0

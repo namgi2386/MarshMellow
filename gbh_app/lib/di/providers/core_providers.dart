@@ -17,8 +17,7 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 });
 
 // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-// const String TEST_TOKEN =
-    // 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjIxLCJzdWIiOiJhY2Nlc3MtdG9rZW4iLCJpYXQiOjE3NDM3MDQ5MjcsImV4cCI6MTc0MzcyMjkyN30.ddwBBIfKUK7QJ_OXAZZgOdPp20wf2WSFqQKUoLOUIRsNxJBlFLZyYrSQcaaglslERPBVMl4Qk70_5fa8B0-fWg';
+const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzcyNDU3MywiZXhwIjoxNzQzNzQyNTczfQ.R3umoxc6VFSqoh_tsylYDCCv2mfajAknHVjm-2ISZrBnHdONPLtq_RcpT7hhFoQ2d5jNs7FfWomPdLavINT4PA';
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // Dio 프로바이더
@@ -32,7 +31,7 @@ final dioProvider = Provider<Dio>((ref) {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-      // 'Authorization': TEST_TOKEN,
+      'Authorization': TEST_TOKEN, 
       // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     },
     validateStatus: (status) {

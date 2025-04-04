@@ -15,27 +15,27 @@ class LunchMenu {
 final List<LunchMenu> allLunchMenus = [
   const LunchMenu(
     id: 'chinese',
-    name: '중식',
+    name: '짜장면',
     imagePath: 'assets/images/food/chinese.png',
   ),
   const LunchMenu(
     id: 'japanese',
-    name: '일식',
+    name: '초밥밥',
     imagePath: 'assets/images/food/japanese.png',
   ),
   const LunchMenu(
     id: 'western',
-    name: '양식',
-    imagePath: 'assets/images/food/western.png',
+    name: '타코',
+    imagePath: 'assets/images/food/taco.png',
   ),
   const LunchMenu(
     id: 'snack',
-    name: '분식',
+    name: '떡볶이',
     imagePath: 'assets/images/food/snack.png',
   ),
   const LunchMenu(
     id: 'fastfood',
-    name: '패스트푸드',
+    name: '햄버거',
     imagePath: 'assets/images/food/fastfood.png',
   ),
   const LunchMenu(
@@ -55,17 +55,17 @@ final List<LunchMenu> allLunchMenus = [
   ),
   const LunchMenu(
     id: 'stew',
-    name: '찌개/탕',
+    name: '돼지찌개',
     imagePath: 'assets/images/food/stew.png',
   ),
   const LunchMenu(
     id: 'baekban',
-    name: '백반',
+    name: '집밥',
     imagePath: 'assets/images/food/baekban.png',
   ),
   const LunchMenu(
     id: 'deopbap',
-    name: '덮밥',
+    name: '차슈덮밥',
     imagePath: 'assets/images/food/deopbap.png',
   ),
   const LunchMenu(

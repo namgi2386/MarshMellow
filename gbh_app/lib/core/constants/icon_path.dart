@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class IconPath {
@@ -142,10 +144,17 @@ class IconPath {
   static const String quoteLeft = 'assets/icons/body/Quotes_L.svg';
   static const String quoteRight = 'assets/icons/body/Quotes_R.svg';
   static const String refesh = 'assets/icons/body/ArrowCounterClockwise.svg';
+  static const String map = 'assets/icons/body/Map.svg';
+  static const String tent = 'assets/icons/body/Tent.svg';
+  static const String rocket = 'assets/icons/body/Rocket.svg';
+  static const String gas = 'assets/icons/body/Gas.svg';
 
   static const String caretcircleup = 'assets/icons/body/CaretCircleUp.svg';
   static const String caretdoubledown = 'assets/icons/body/CaretDoubleDown.svg';
   static const String question = 'assets/icons/body/question.svg';
+  static const String add = 'assets/icons/body/Add.svg';
+  static const String shareNetwork = 'assets/icons/body/ShareNetwork.svg';
+  static const String paperclip = 'assets/icons/body/Paperclip.svg';
 
   // 카드 이미지
   static const String testCard = 'assets/icons/card/testCard.svg';
@@ -161,4 +170,17 @@ class IconPath {
       'assets/images/celebration/confetti_yellow1.png';
   static const String confettiYellow2 =
       'assets/images/celebration/confetti_yellow2.png';
+
+  // 파일
+  static const String fileCsv = 'assets/icons/file/fileCsv.svg';
+  static const String fileDoc = 'assets/icons/file/fileDoc.svg';
+  static const String fileJpg = 'assets/icons/file/fileJpg.svg';
+  static const String filePdf = 'assets/icons/file/filePdf.svg';
+  static const String filePng = 'assets/icons/file/filePng.svg';
+  static const String filePpt = 'assets/icons/file/filePpt.svg';
+  static const String fileSvg = 'assets/icons/file/fileSvg.svg';
+  static const String fileText = 'assets/icons/file/fileText.svg';
+  static const String fileTxt = 'assets/icons/file/fileTxt.svg';
+  static const String fileXls = 'assets/icons/file/fileXls.svg';
+  static const String fileZip = 'assets/icons/file/fileZip.svg';
 }

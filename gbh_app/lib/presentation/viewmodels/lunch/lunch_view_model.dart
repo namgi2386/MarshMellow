@@ -11,9 +11,13 @@ final lunchViewModelProvider = ChangeNotifierProvider<LunchViewModel>((ref) {
 class LunchViewModel extends ChangeNotifier {
   // 선택된 메뉴 목록 (중복 허용)
   final List<LunchMenu> _selectedMenus = [];
+  LunchMenu? _finalSelectedMenu;
 
   // 선택된 메뉴 목록 getter
   List<LunchMenu> get selectedMenus => _selectedMenus;
+
+  // 최종 선택된 메뉴 getter
+  LunchMenu? get finalSelectedMenu => _finalSelectedMenu;
 
   // 최대 선택 가능한 메뉴 개수
   static const int maxSelectableMenus = 8;
@@ -41,6 +45,11 @@ class LunchViewModel extends ChangeNotifier {
   // 모든 선택을 초기화하는 메서드
   void clearAllSelections() {
     _selectedMenus.clear();
+    notifyListeners();
+  }
+  // 최종 메뉴를 선택하는 메서드
+  void selectFinalMenu(LunchMenu menu) {
+    _finalSelectedMenu = menu;
     notifyListeners();
   }
 

@@ -26,8 +26,8 @@ public class CertAPI {
 
     public CertAPI(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder
-                .baseUrl("http://yun-server.duckdns.org:9001")
-//                .baseUrl("http://localhost:9001")
+//                .baseUrl("http://yun-server.duckdns.org:9001")
+                .baseUrl("http://localhost:9001")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

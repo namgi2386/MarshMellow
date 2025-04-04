@@ -70,11 +70,17 @@ class _LedgerTransactionHistoryState
             double dayIncome = 0;
             double dayExpense = 0;
 
-            for (var item in items) {
-              if (item.type == TransactionType.deposit) {
-                dayIncome += item.amount;
-              } else {
-                dayExpense += item.amount;
+            for (var transaction in transactions) {
+              if (transaction.dateTime.year == date.year &&
+                  transaction.dateTime.month == date.month &&
+                  transaction.dateTime.day == date.day) {
+                if (transaction.classification ==
+                    TransactionClassification.DEPOSIT) {
+                  dayIncome += transaction.householdAmount.toDouble();
+                } else if (transaction.classification ==
+                    TransactionClassification.WITHDRAWAL) {
+                  dayExpense += transaction.householdAmount.toDouble();
+                }
               }
             }
 

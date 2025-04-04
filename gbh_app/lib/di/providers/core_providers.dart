@@ -13,16 +13,12 @@ final sharedPreferencesProvider = Provider<SharedPreferences?>((ref) {
 // SecureStorage 프로바이더
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true
-    )
-  );
+      aOptions: AndroidOptions(encryptedSharedPreferences: true));
 });
 
 // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
 const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzcyNDU3MywiZXhwIjoxNzQzNzQyNTczfQ.R3umoxc6VFSqoh_tsylYDCCv2mfajAknHVjm-2ISZrBnHdONPLtq_RcpT7hhFoQ2d5jNs7FfWomPdLavINT4PA';
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
 // Dio 프로바이더
 final dioProvider = Provider<Dio>((ref) {
@@ -44,7 +40,7 @@ final dioProvider = Provider<Dio>((ref) {
   ));
 
   dio.interceptors.add(InterceptorsWrapper(
-    // 요청 인터셉터 추가 - accessToken 처리  
+    // 요청 인터셉터 추가 - accessToken 처리
     onRequest: (options, handler) async {
       // options.extra에서 requiresAuth 값 확인(default: true입니다)
       final requiresAuth = options.extra['requiresAuth'] ?? true;
@@ -79,7 +75,7 @@ final dioProvider = Provider<Dio>((ref) {
       return handler.next(response);
     },
   ));
-  
+
   // 디버그 모드일 때만 로그 인터셉터 추가
   if (AppConfig.debugMode) {
     dio.interceptors.add(LogInterceptor(
@@ -87,6 +83,6 @@ final dioProvider = Provider<Dio>((ref) {
       responseBody: true,
     ));
   }
-  
+
   return dio;
 });

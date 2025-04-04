@@ -18,6 +18,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -155,36 +159,39 @@ public class DemandDepositAPI {
     }
 
     /* 4. 입출금 계좌 목록 */
-    public Map<String, Object> findDemandDepositAccountList(
-        String userKey) throws JsonProcessingException {
-
+    public Map<String, Object> findDemandDepositAccountList(String userKey) throws JsonProcessingException {
+        // 요청 본문 구성
         Map<String, Object> requestBody = new HashMap<>();
-
         Map<String, Object> header = getDefaltHeader("inquireDemandDepositAccountList");
         header.put("userKey", userKey);
-
         requestBody.put("Header", header);
-
-        Map<String, Object> responseJson = new LinkedHashMap<>(); // 반환할 JSON 객체
 
         System.out.println(requestBody);
 
-        String response = webClient.post()
-            .uri("/inquireDemandDepositAccountList")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(requestBody)
-            .retrieve()
-            .bodyToMono(String.class)
-            .block(); // ⚠️ 동기 처리
-        // ✅ String -> JSON 변환
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> apiResponseJson = objectMapper.readValue(response, Map.class);
-        // 성공 응답 JSON 생성
-        responseJson.put("status", "success");
-        responseJson.put("apiResponse", apiResponseJson); // ✅ JSON 형태로 변환하여 저장
-
-        return responseJson;
+        // 버츄얼 스레드를 위한 Executor 생성 (Java 21)
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            // 블로킹 호출을 버츄얼 스레드에서 실행
+            Future<Map<String, Object>> future = executor.submit(() -> {
+                String response = webClient.post()
+                    .uri("/inquireDemandDepositAccountList")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block(); // 블로킹 호출
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> apiResponseJson = objectMapper.readValue(response, Map.class);
+                Map<String, Object> responseJson = new LinkedHashMap<>();
+                responseJson.put("status", "success");
+                responseJson.put("apiResponse", apiResponseJson);
+                return responseJson;
+            });
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
     public Map<String, Object> findDemandDepositAccount(RequestFindDemandDepositAccount request)
         throws JsonProcessingException {

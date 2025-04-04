@@ -8,28 +8,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:marshmellow/core/utils/back_gesture/controller.dart';
+import 'package:marshmellow/core/services/transaction_classifier_service.dart';
 
 // 환경설정 import
 import 'core/config/environment_loader.dart';
 import 'di/providers/core_providers.dart';
 import 'app.dart';
 
-// Hive 서비스 (새로 추가)
+/// Hive 서비스
 class HiveService {
-  // Hive 초기화 메서드
+  /// Hive 초기화
   static Future<void> init() async {
     try {
-      // 앱의 로컬 문서 디렉토리 경로 가져오기
       final appDocumentDir = await getApplicationDocumentsDirectory();
 
-      // Hive 초기화 및 저장 경로 설정
       await Hive.initFlutter(appDocumentDir.path);
-
-      // 필요한 Box 미리 열어두기
       await Hive.openBox('searchHistory');
-
-      // 필요하다면 다른 Hive 어댑터 등록
-      // Hive.registerAdapter(MyModelAdapter());
 
       if (kDebugMode) {
         print('Hive 초기화 성공');
@@ -41,45 +35,33 @@ class HiveService {
     }
   }
 
-  // 모든 Hive 박스 닫기 (앱 종료 시 사용 가능)
+  /// Hive 박스 전체 닫기
   static Future<void> closeBoxes() async {
     await Hive.close();
   }
 }
 
 Future<void> main() async {
-  // 위젯 바인딩 초기화
+  // 초기화 단계
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 환경 설정 로드
-  await EnvironmentLoader.load();
+  // 환경 설정 및 서비스 초기화
+  await Future.wait([EnvironmentLoader.load(), HiveService.init()]);
 
-  // Hive 초기화
-  await HiveService.init();
+  // SharedPreferences 초기화 (옵셔널)
+  SharedPreferences? sharedPreferences = await _initSharedPreferences();
 
-  // SharedPreferences 초기화 - 에러 방지를 위한 조건부 초기화
-  SharedPreferences? sharedPreferences;
-  try {
-    sharedPreferences = await SharedPreferences.getInstance();
-  } catch (e) {
-    // 디버그 모드에서만 로그 출력
-    if (kDebugMode) {
-      print('SharedPreferences 초기화 실패: $e');
-    }
-  }
-
-  // 뒤로가기 제스처 컨트롤러 생성
+  // 백 제스처 및 라우터 설정
   final backGestureController = BackGestureController();
-
-  // 뒤로가기 제스처 관리 포함된 라우터 생성
   final router = createRouter(backGestureController);
 
-  // Override 프로바이더를 사용하여 초기화된 인스턴스 제공
+  // 트랜잭션 동기화 수행
+  await _performTransactionSync();
+
+  // 앱 실행
   runApp(
     ProviderScope(
       overrides: [
-        // 초기화된 SharedPreferences 인스턴스로 오버라이드
-        // null일 수 있으므로 조건부 오버라이드
         if (sharedPreferences != null)
           sharedPreferencesProvider.overrideWithValue(sharedPreferences),
       ],
@@ -89,4 +71,55 @@ Future<void> main() async {
       ),
     ),
   );
+}
+
+/// SharedPreferences 초기화
+Future<SharedPreferences?> _initSharedPreferences() async {
+  try {
+    return await SharedPreferences.getInstance();
+  } catch (e) {
+    if (kDebugMode) {
+      print('❌ SharedPreferences 초기화 실패: $e');
+    }
+    return null;
+  }
+}
+
+/// 트랜잭션 동기화 수행
+Future<void> _performTransactionSync() async {
+  final container = ProviderContainer();
+  final syncService = container.read(transactionSyncServiceProvider);
+
+  try {
+    // 미분류 내역 확인
+    if (kDebugMode) {
+      print('🔄 미분류 거래 내역 확인 중...');
+    }
+
+    final hasUnsortedTransactions = await syncService.hasUnsortedTransactions();
+
+    if (hasUnsortedTransactions) {
+      if (kDebugMode) {
+        print('🔄 미분류 거래 내역 동기화 시작');
+      }
+
+      final syncResult = await syncService.performFullSync();
+
+      if (kDebugMode) {
+        print(
+            '🔄 미분류 내역 동기화 결과: ${syncResult.success ? '성공' : '실패'} - ${syncResult.message}');
+        print('📊 동기화된 거래 내역 수: ${syncResult.totalTransactions}');
+      }
+    } else {
+      if (kDebugMode) {
+        print('✅ 미분류 거래 내역 없음');
+      }
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('❌ 트랜잭션 동기화 중 오류 발생: $e');
+    }
+  } finally {
+    container.dispose();
+  }
 }

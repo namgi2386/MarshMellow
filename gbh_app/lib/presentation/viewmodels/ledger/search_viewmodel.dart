@@ -63,7 +63,6 @@ class SearchViewModel extends StateNotifier<SearchState> {
       print('검색 시작: $keyword, 기간: $startDate-$endDate');
 
       final results = await _repository.searchTransactions(
-        userPk: UserInfo.userPk,
         startDate: startDate,
         endDate: endDate,
         keyword: keyword,

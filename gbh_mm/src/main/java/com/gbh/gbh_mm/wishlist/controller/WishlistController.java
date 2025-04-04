@@ -2,6 +2,7 @@ package com.gbh.gbh_mm.wishlist.controller;
 
 import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
+import com.gbh.gbh_mm.wishlist.model.request.RequestJsoupLink;
 import com.gbh.gbh_mm.wishlist.model.request.RequestUpdateWishlist;
 import com.gbh.gbh_mm.wishlist.model.response.*;
 import com.gbh.gbh_mm.wishlist.service.WishlistService;
@@ -51,5 +52,11 @@ public class WishlistController {
     @GetMapping("/detail")
     public ResponseFindDetailWishlist getCurrentWish(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return wishlistService.getCurrentWish(userDetails.getUserPk());
+    }
+
+    // 링크로 크롤링
+    @PostMapping("/jsoup")
+    public ResponseJsoupLink jsoupLink(@RequestBody RequestJsoupLink requestJsoupLink) {
+        return wishlistService.jsoupLink(requestJsoupLink.getUrl());
     }
 }

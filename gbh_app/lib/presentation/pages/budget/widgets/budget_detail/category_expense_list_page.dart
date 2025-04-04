@@ -63,6 +63,10 @@ class CategoryExpensePageParams {
   }
 }
 
+/*
+  예산 카테고리 지출 내역 페이지
+  : 예산 카테고리의 지출 내역을 보여주는 페이지입니다.
+*/
 class CategoryExpensePage extends ConsumerWidget {
   final int categoryPk;
   final BudgetCategoryModel category;
@@ -97,7 +101,7 @@ class CategoryExpensePage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(
-        title: '${category.budgetCategoryName} 지출 내역',
+        title: '지출 내역',
         backgroundColor: category.color.withOpacity(0.1),
       ),
       body: Column(
@@ -193,8 +197,8 @@ class CategoryExpensePage extends ConsumerWidget {
                       : '예산 내에서 사용 중',
                     style: AppTextStyles.bodyExtraSmall.copyWith(
                       color: percentage > 100 
-                        ? AppColors.pinkPrimary 
-                        : AppColors.greenPrimary,
+                        ? AppColors.buttonDelete 
+                        : AppColors.backgroundBlack,
                     ),
                   ),
                 ],
@@ -223,12 +227,12 @@ class CategoryExpensePage extends ConsumerWidget {
             children: [
               _buildAmountItem('사용금액', '$formattedSpent원', 
                 percentage > 100 ? AppColors.pinkPrimary : AppColors.textPrimary),
-              _buildAmountItem('예산금액', '$formattedBudget원', AppColors.textSecondary),
               _buildAmountItem(
                 '사용률', 
                 '${percentage.toStringAsFixed(0)}%', 
                 percentage > 100 ? AppColors.pinkPrimary : category.color,
               ),
+              _buildAmountItem('예산금액', '$formattedBudget원', AppColors.textSecondary),
             ],
           ),
         ],
@@ -239,6 +243,7 @@ class CategoryExpensePage extends ConsumerWidget {
   Widget _buildAmountItem(String label, String value, Color valueColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           label,
@@ -277,7 +282,7 @@ class CategoryExpensePage extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '이 카테고리의 지출 내역이 표시됩니다',
+            '카테고리의 지출 내역이 표시됩니다',
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.disabled,
             ),

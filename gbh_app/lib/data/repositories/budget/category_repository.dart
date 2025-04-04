@@ -85,22 +85,4 @@ class CategoryTransactionRepository {
       aiCategory: categoryName,
     );
   }
-  
-  // 카테고리PK로 카테고리 이름 조회 메서드 
-  // Future<String> _getCategoryName(int categoryPk) async {
-  //   // 카테고리 매핑 테이블
-  //   Map<int, String> categoryMapping = {
-  //     1: "식비/외식",
-  //     2: "교통비",
-  //     3: "여가",
-  //     4: "커피/디저트",
-  //     5: "쇼핑",
-  //     6: "생활",
-  //     7: "주거",
-  //     8: "의료",
-  //     9: "기타"
-  //   };
-    
-  //   return categoryMapping[categoryPk] ?? "기타";
-  // }
 }

@@ -19,13 +19,25 @@ class LunchPage extends ConsumerWidget {
     final lunchViewModel = ref.watch(lunchViewModelProvider);
     
     return Scaffold(
-      appBar: CustomAppbar(title: '점심 메뉴 추천'),
+      appBar: CustomAppbar(
+        title: '점심 메뉴 추천',
+        actions: [
+          // Button(
+          //   width: 50,
+          //   onPressed: (){
+          //     context.replace(CookieRoutes.getLunchTutorialPath());
+          //   },
+          //   text: 'test',
+          // ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 상단 타이틀
+
             const Text(
               'Jump Mea Choo',
               style: TextStyle(

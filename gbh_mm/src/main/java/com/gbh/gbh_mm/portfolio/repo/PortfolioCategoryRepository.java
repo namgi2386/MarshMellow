@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface PortfolioCategoryRepository extends JpaRepository<PortfolioCategory, Integer> {
 
     List<PortfolioCategory> findAllByUser_UserPk(long userPk);
+
+    PortfolioCategory findByUser_UserPkAndPortfolioCategoryName(Long userPk, String 미분류);
 }

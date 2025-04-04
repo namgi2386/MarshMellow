@@ -64,6 +64,9 @@ class WishlistRepository {
     int? productPrice,
     String? productImageUrl,
     String? productUrl,
+    String? isSelected,     // 추가됨
+    String? isCompleted,
+    
   }) async {
     final response = await _wishlistApi.updateWishlist(
       wishlistPk: wishlistPk,

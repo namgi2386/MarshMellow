@@ -33,15 +33,15 @@ class BudgetModel {
 
   static Map<String, Color> getCategoryColors() {
     return {
-      '식비': AppColors.yellowPrimary,
-      '교통비' : AppColors.bluePrimary,
-      '여가' : AppColors.greenLight,
+      '식비/외식': AppColors.yellowPrimary,
+      '교통/자동차' : AppColors.bluePrimary,
+      '여가비' : AppColors.greenLight,
       '커피/디저트' : AppColors.yellowLight,
       '쇼핑' : AppColors.pinkLight,
-      '생활' : AppColors.pinkPrimary,
-      '주거' : AppColors.blueLight,
-      '의료' : AppColors.blueDark,
-      '기타' : AppColors.whiteLight,
+      '편의점/마트' : AppColors.pinkPrimary,
+      '비상금' : AppColors.blueLight,
+      '금융' : AppColors.blueDark,
+      '고정지출' : AppColors.greyLight,
     };
   }
 
@@ -71,6 +71,7 @@ class BudgetCategoryModel {
   });
 
   factory BudgetCategoryModel.fromJson(Map<String, dynamic> json) {
+    print('BudgetCategory JSON: $json');
     return BudgetCategoryModel(
       budgetCategoryPk: json['budgetCategoryPk'], 
       budgetCategoryName: json['budgetCategoryName'], 

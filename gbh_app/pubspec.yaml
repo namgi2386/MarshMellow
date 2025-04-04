@@ -114,14 +114,24 @@ dependencies:
 
   # mm인증서 공개키/개인키 생성
   pointycastle: ^3.7.3
-  asn1lib: ^1.4.0  # CSR 생성용
+  asn1lib: ^1.4.0 # CSR 생성용
 
   # 마크다운
   flutter_markdown: ^0.7.6+2
 
   # 점메추 : 2D 물리엔진
-  flame: ^1.26.1
+  flame: ^1.27.0
   flame_forge2d: ^0.18.3
+  # flame: ^1.8.0 (실패)
+  # flame_forge2d: ^0.15.0 (실패)
+  # flame: ^1.8.2 # (실패)
+  # flame_forge2d: ^0.15.2 # (실패)
+  # flame: ^1.10.0 # (실패)
+  # flame_forge2d: ^0.16.0 # (실패)
+
+  # 파일 저장
+  permission_handler: ^11.0.1
+  file_picker: ^10.0.0
 
 dev_dependencies:
   flutter_test:
@@ -170,6 +180,7 @@ flutter:
     - assets/icons/body/
     - assets/icons/card/
     - assets/icons/etc/
+    - assets/icons/files/
     - assets/agreements/
     - assets/images/celebration/
 

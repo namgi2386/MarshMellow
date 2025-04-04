@@ -12,7 +12,7 @@ class MySalaryRepository {
     try {
       final response = await _mySalaryApi.getAccountList();
       final accountListResponse = AccountListResponse.fromJson(response.data);
-      
+
       if (accountListResponse.code == 200 && accountListResponse.data != null) {
         return accountListResponse.data!.accountList;
       } else {
@@ -31,7 +31,7 @@ class MySalaryRepository {
     try {
       final response = await _mySalaryApi.getDepositList(accountNo);
       final depositListResponse = DepositListResponse.fromJson(response.data);
-      
+
       if (depositListResponse.code == 200 && depositListResponse.data != null) {
         return depositListResponse.data!.depositList;
       } else {
@@ -50,9 +50,9 @@ class MySalaryRepository {
     try {
       final response = await _mySalaryApi.registerSalary(salary, date);
       final salaryResponse = SalaryResponse.fromJson(response.data);
-      
-      if (salaryResponse.code == 200 && 
-          salaryResponse.data != null && 
+
+      if (salaryResponse.code == 200 &&
+          salaryResponse.data != null &&
           salaryResponse.data!.message == 'SUCCESS') {
         return true;
       } else {
@@ -71,9 +71,9 @@ class MySalaryRepository {
     try {
       final response = await _mySalaryApi.updateSalary(salary, date);
       final salaryResponse = SalaryResponse.fromJson(response.data);
-      
-      if (salaryResponse.code == 200 && 
-          salaryResponse.data != null && 
+
+      if (salaryResponse.code == 200 &&
+          salaryResponse.data != null &&
           salaryResponse.data!.message == 'SUCCESS') {
         return true;
       } else {
@@ -82,6 +82,19 @@ class MySalaryRepository {
     } catch (e) {
       if (e is DioException) {
         throw Exception('네트워크 오류: ${e.message}');
+      }
+      rethrow;
+    }
+  }
+
+  // 월급일 조회
+  Future<int> getSalaryDay() async {
+    try {
+      final response = await _mySalaryApi.getSalaryDay();
+      return response;
+    } catch (e) {
+      if (e is DioException) {
+        throw Exception('Network error: ${e.message}');
       }
       rethrow;
     }

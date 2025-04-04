@@ -448,7 +448,13 @@ public class HouseholdServiceImpl implements HouseholdService {
                 .householdDetailCategory(householdDetailCategory)
                 .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
                 .build();
-            householdList.add(household);
+
+            try {
+                householdRepository.save(household);
+                householdList.add(household);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             // 입출금 내역 예산 반영
             if (household.getHouseholdClassificationCategory().equals("WITHDRAWAL")) {
@@ -487,7 +493,7 @@ public class HouseholdServiceImpl implements HouseholdService {
 
         }
 
-        householdRepository.saveAll(householdList);
+
 
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");

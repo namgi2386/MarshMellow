@@ -4,8 +4,9 @@ import lombok.Data;
 
 @Data
 public class RequestWithdrawalAccountTransfer {
+    private String iv;
     private int withdrawalAccountId;
     private String depositAccountNo;
     private String transactionSummary;
-    private long transactionBalance;
+    private String transactionBalance;
 }

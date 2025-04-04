@@ -150,9 +150,10 @@ public class AssetController {
     /* 계좌 송금 */
     @PostMapping("/account-transfer")
     public ResponseEntity<ResponseAccountTransfer> accountTransfer(
-        @RequestBody RequestWithdrawalAccountTransfer request
+        @RequestBody RequestWithdrawalAccountTransfer request,
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        ResponseAccountTransfer response = assetService.accountTransger(request);
+        ResponseAccountTransfer response = assetService.accountTransfer(request, customUserDetails);
 
         return ResponseEntity.ok(response);
     }

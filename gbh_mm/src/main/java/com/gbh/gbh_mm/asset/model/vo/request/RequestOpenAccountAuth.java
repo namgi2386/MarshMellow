@@ -4,5 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class RequestOpenAccountAuth {
+    private String iv;
     private String accountNo;
 }

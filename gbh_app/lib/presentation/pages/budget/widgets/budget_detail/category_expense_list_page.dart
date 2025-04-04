@@ -14,6 +14,7 @@ import 'package:marshmellow/data/repositories/budget/category_repository.dart';
 // Provider for fetching category transactions
 final categoryTransactionsProvider = FutureProvider.family<List<Transaction>, CategoryExpensePageParams>(
   (ref, params) async {
+    ref.keepAlive();
     final repository = ref.watch(categoryTransactionRepositoryProvider);
     
     // 카테고리 지출 내역 조회 API 호출
@@ -39,6 +40,21 @@ class CategoryExpensePageParams {
     required this.startDate,
     required this.endDate,
   });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is CategoryExpensePageParams &&
+           other.budgetPk == budgetPk &&
+           other.categoryPk == categoryPk &&
+           other.startDate == startDate &&
+           other.endDate == endDate;
+  }
+
+  @override
+  int get hashCode {
+    return budgetPk.hashCode ^ categoryPk.hashCode ^ startDate.hashCode ^ endDate.hashCode;
+  }
 }
 
 class CategoryExpensePage extends ConsumerWidget {

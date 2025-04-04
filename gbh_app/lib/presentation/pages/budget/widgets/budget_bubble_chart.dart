@@ -109,7 +109,7 @@ class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
                 path,
                 extra: {
                   'category': tappedBubble.category,
-                'budgetPk': selectedBudget.budgetPk,
+                  'budgetPk': selectedBudget.budgetPk,
                 }
               );     
             } else {

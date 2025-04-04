@@ -28,7 +28,12 @@ class DigitalSignatureService {
       final halfUserKey = await getHalfUserKey();
       print('$halfUserKey');
 
-      final normalizedText = originalText.trim().replaceAll('\r\n', '\n').replaceAll('\r', '');
+      final normalizedText = originalText
+      .replaceAll(RegExp(r'[\u00A0\u200B\u202F]'), ' ') // ← 특수 스페이스 제거
+      .replaceAll('\r\n', '\n')
+      .replaceAll('\r', '')
+      .replaceAll(RegExp(r'\s+'), ' ') // ← 여러 공백 하나로
+      .trim();
       print("📦 normalizedText:");
       print(normalizedText);
 

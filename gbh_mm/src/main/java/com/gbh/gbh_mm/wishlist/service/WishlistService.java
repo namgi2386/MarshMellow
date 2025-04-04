@@ -2,6 +2,7 @@ package com.gbh.gbh_mm.wishlist.service;
 
 import com.gbh.gbh_mm.common.exception.CustomException;
 import com.gbh.gbh_mm.common.exception.ErrorCode;
+import com.gbh.gbh_mm.s3.S3Component;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
@@ -10,6 +11,7 @@ import com.gbh.gbh_mm.wishlist.model.response.*;
 import com.gbh.gbh_mm.wishlist.repo.WishlistRepository;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -17,9 +19,12 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -27,26 +32,36 @@ public class WishlistService {
 
     private final WishlistRepository wishlistRepository;
     private final UserRepository userRepository;
+    private final S3Component s3Component;
+    private final ModelMapper mapper;
 
     // 위시리스트 생성
     @Transactional
-    public ResponseCreateWishlist createWishlist(Long userPk, Wishlist wishlist) {
+    public ResponseCreateWishlist createWishlist(
+            Long userPk, String productNickname, String productName, Long productPrice,
+            String productUrl, MultipartFile file
+    ) {
         User user = userRepository.findById(userPk)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHILD_NOT_FOUND));
 
-        wishlist.setUser(user);
-        wishlistRepository.save(wishlist);
-        return ResponseCreateWishlist.builder()
-                .message("위시리스트 생성 완료")
-                .wishlistPk(wishlist.getWishlistPk())
-                .productNickname(wishlist.getProductNickname())
-                .productName(wishlist.getProductName())
-                .productPrice(wishlist.getProductPrice())
-                .productImageUrl(wishlist.getProductImageUrl())
-                .productUrl(wishlist.getProductUrl())
-                .isSelected(wishlist.getIsSelected())
-                .isCompleted(wishlist.getIsCompleted())
+        String fileUrl = s3Component.uploadFile(file);
+
+        Wishlist wishlist = Wishlist.builder()
+                .achievePrice(0L)
+                .productNickname(productNickname)
+                .productName(productName)
+                .productPrice(productPrice)
+                .productUrl(productUrl)
+                .isSelected("N")
+                .isCompleted("N")
+                .productImageUrl(fileUrl)
+                .user(user)
                 .build();
+
+        Wishlist savedWishList = wishlistRepository.save(wishlist);
+        ResponseCreateWishlist response = mapper.map(savedWishList, ResponseCreateWishlist.class);
+
+        return response;
     }
 
     // 위시리스트 조회
@@ -95,37 +110,43 @@ public class WishlistService {
     }
 
     // 위시리스트 수정
-    public ResponseUpdateWishlist updateWishlist(Long wishlistPk, RequestUpdateWishlist requestUpdateWishlist) {
-        Wishlist oldWishlist = wishlistRepository.findById(wishlistPk)
+    public ResponseUpdateWishlist updateWishlist(Long wishlistPk, String productNickname, String productName,
+                                                 Long productPrice, String productUrl, MultipartFile file) {
+        Wishlist wishlist = wishlistRepository.findById(wishlistPk)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        String oldProductNickname = oldWishlist.getProductNickname();
-        String oldProductName = oldWishlist.getProductName();
-        Long oldProductPrice = oldWishlist.getProductPrice();
-        String oldProductImageUrl = oldWishlist.getProductImageUrl();
-        String oldProductUrl = oldWishlist.getProductUrl();
 
-        oldWishlist.setProductNickname(requestUpdateWishlist.getProductNickname());
-        oldWishlist.setProductName(requestUpdateWishlist.getProductName());
-        oldWishlist.setProductPrice(requestUpdateWishlist.getProductPrice());
-        oldWishlist.setProductImageUrl(requestUpdateWishlist.getProductImageUrl());
-        oldWishlist.setProductUrl(requestUpdateWishlist.getProductUrl());
-        wishlistRepository.save(oldWishlist);
+        if (!productNickname.isEmpty() && productNickname != null) {
+            wishlist.setProductNickname(productNickname);
+        }
 
-        return ResponseUpdateWishlist.builder()
-                .message("위시리스트 수정 완료")
-                .wishlistPk(wishlistPk)
-                .oldNickname(oldProductNickname)
-                .newNickname(requestUpdateWishlist.getProductNickname())
-                .oldProductName(oldProductName)
-                .newProductName(requestUpdateWishlist.getProductName())
-                .oldProductPrice(oldProductPrice)
-                .newProductPrice(requestUpdateWishlist.getProductPrice())
-                .oldProductImageUrl(oldProductImageUrl)
-                .newProductImageUrl(requestUpdateWishlist.getProductImageUrl())
-                .oldProductUrl(oldProductUrl)
-                .newProductUrl(requestUpdateWishlist.getProductUrl())
-                .build();
+        if (!productName.isEmpty() && productName != null) {
+            wishlist.setProductName(productName);
+        }
+
+        if (productPrice != 0 && productPrice != null) {
+            wishlist.setProductPrice(productPrice);
+        }
+
+        if (!productUrl.isEmpty() && productUrl != null) {
+            wishlist.setProductUrl(productUrl);
+        }
+
+        if (!file.isEmpty() && file != null) {
+            try {
+                s3Component.deleteFileByUrl(wishlist.getProductImageUrl());
+                String fileUrl = s3Component.uploadFile(file);
+                wishlist.setProductImageUrl(fileUrl);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        Wishlist updatedWishList = wishlistRepository.save(wishlist);
+
+
+
+        return mapper.map(updatedWishList, ResponseUpdateWishlist.class);
     }
 
     // 위시리스트 삭제
@@ -202,6 +223,7 @@ public class WishlistService {
                 .productImage(ogImage)
                 .build();
     }
+
     // OG 태그의 content 값 가져오는 함수
     public static String getMetaTagContent(WebDriver driver, String property) {
         List<WebElement> metaTags = driver.findElements(By.cssSelector("meta[property='" + property + "']"));

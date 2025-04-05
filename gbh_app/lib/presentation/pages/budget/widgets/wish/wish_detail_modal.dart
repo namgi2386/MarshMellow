@@ -436,92 +436,125 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
     );
   }
   
-  // 위시 상세 컨텐츠
+  // 위시리스트 상세 컨텐츠
   Widget _buildWishDetailContent() {
-    final wishState = ref.watch(wishProvider);
-    final wish = _selectedWish ?? wishState.currentWish;
+    final wishlistState = ref.watch(wishlistProvider);
     
-    // 로딩중이거나 데이터 없을 때
-    if (wishState.isLoading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
-        child: Center(child: CircularProgressIndicator()),
-      );
+    // 선택한 위시리스트의 상세 정보가 있는지 확인
+  if (_selectedWishPk != null && 
+      wishlistState.selectedWishlist != null &&
+      wishlistState.selectedWishlist!.wishlistPk == _selectedWishPk) {
+    
+    // 상세 정보를 가져와서 컨트롤러 업데이트
+    if (mounted) {
+      final detail = wishlistState.selectedWishlist!;
+      
+      // 컨트롤러가 이미 초기화되어 있고 값이 변경된 경우에만 업데이트
+      if (_nicknameController.text != detail.productNickname) {
+        _nicknameController.text = detail.productNickname;
+      }
+      
+      if (_productNameController.text != detail.productName) {
+        _productNameController.text = detail.productName;
+      }
+      
+      final formattedPrice = NumberFormat('#,###').format(detail.productPrice);
+      if (_priceController.text != formattedPrice) {
+        _priceController.text = formattedPrice;
+      }
+      
+      if (_urlController.text != (detail.productUrl ?? '')) {
+        _urlController.text = detail.productUrl ?? '';
+      }
     }
-
-    if (wish == null) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
-        child: Center(child: Text('위시 정보를 불러올 수 없습니다')),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 상품 이미지와 닉네임 영역
-          _buildProductHeaderSection(wish),
-          
-          // 디바이더
-          const Divider(height: 1, thickness: 0.5),
-          
-          // 상품명 영역
-          _buildProductNameSection(wish),
-          
-          // 디바이더
-          const Divider(height: 1, thickness: 0.5),
-          
-          // 상품 금액 영역
-          _buildProductPriceSection(wish),
-          
-          // 디바이더
-          const Divider(height: 1, thickness: 0.5),
-          
-          // 달성 금액 영역 (읽기 전용)
-          _buildAchievePriceSection(wish),
-          
-          // 디바이더
-          const Divider(height: 1, thickness: 0.5),
-          
-          // 종료일 영역 (읽기 전용)
-          _buildEndDateSection(),
-          
-          // 버튼 영역
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Button(
-                    text: '삭제',
-                    onPressed: () => _deleteWish(wish.wishlistPk),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Button(
-                    text: '수정',
-                    onPressed: () {
-                      // 현재 활성화된 편집 필드의 저장 처리
-                      if (_isEditingNickname || _isEditingProductName || 
-                          _isEditingPrice || _isEditingUrl) {
-                        _saveWish();
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+  }
+  
+  // 로딩 상태 확인
+  if (wishlistState.isLoading) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 32),
+      child: Center(child: CircularProgressIndicator()),
     );
   }
   
+  // 위시리스트 상세 정보 사용
+  final wishListDetail = wishlistState.selectedWishlist;
+  
+  // 데이터 없는 경우
+  if (_selectedWishPk != null && wishListDetail == null) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 32),
+      child: Center(child: Text('위시 정보를 불러올 수 없습니다')),
+    );
+  }
+
+  // 나머지 내용은 동일하게 유지하되 wishDetail을 사용하도록 수정
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 상품 이미지와 닉네임 영역
+        _buildProductHeaderSection(wishListDetail!),
+        
+        // 디바이더
+        const Divider(height: 1, thickness: 0.5),
+        
+        // 상품명 영역
+        _buildProductNameSection(wishListDetail!),
+        
+        // 디바이더
+        const Divider(height: 1, thickness: 0.5),
+        
+        // 상품 금액 영역
+        _buildProductPriceSection(wishListDetail!),
+        
+        // 디바이더
+        const Divider(height: 1, thickness: 0.5),
+        
+        // 달성 금액 영역 (읽기 전용)
+        _buildAchievePriceSection(wishListDetail!),
+        
+        // 디바이더
+        const Divider(height: 1, thickness: 0.5),
+        
+        // 종료일 영역 (읽기 전용)
+        _buildEndDateSection(),
+        
+        // 버튼 영역
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Button(
+                  text: '삭제',
+                  onPressed: () => _deleteWish(wishListDetail.wishlistPk),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Button(
+                  text: '수정',
+                  onPressed: () {
+                    // 현재 활성화된 편집 필드의 저장 처리
+                    if (_isEditingNickname || _isEditingProductName || 
+                        _isEditingPrice || _isEditingUrl) {
+                      _saveWish();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+  
   // 상품 이미지와 닉네임 영역
-  Widget _buildProductHeaderSection(WishDetail wish) {
+  Widget _buildProductHeaderSection(WishlistDetailResponse wish) {
     // 이미지 URL 처리
     String? imageUrl;
     if (wish.productImageUrl != null && wish.productImageUrl!.isNotEmpty) {
@@ -639,7 +672,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
   }
   
   // 상품명 영역
-  Widget _buildProductNameSection(WishDetail wish) {
+  Widget _buildProductNameSection(WishlistDetailResponse wish) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: _isEditingProductName
@@ -705,7 +738,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
   }
   
   // 상품 금액 영역
-  Widget _buildProductPriceSection(WishDetail wish) {
+  Widget _buildProductPriceSection(WishlistDetailResponse wish) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: _isEditingPrice
@@ -782,7 +815,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
   }
   
   // 달성 금액 영역 (읽기 전용)
-  Widget _buildAchievePriceSection(WishDetail wish) {
+  Widget _buildAchievePriceSection(WishlistDetailResponse wish) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(

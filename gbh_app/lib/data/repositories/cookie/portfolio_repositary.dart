@@ -24,8 +24,8 @@ class PortfolioRepository {
   }
 
   // 포트폴리오 카테고리 목록 조회
-  Future<List<PortfolioCategory>> getPortfolioCategories() async {
-    return await _portfolioApi.getPortfolioCategories();
+  Future<List<PortfolioCategory>> getPortfolioCategoryList() async {
+    return await _portfolioApi.getPortfolioCategoryList();
   }
 
   // 포트폴리오 카테고리 등록

@@ -1,4 +1,3 @@
-// lib/presentation/viewmodels/portfolio/portfolio_viewmodel.dart
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_model.dart';
@@ -64,7 +63,7 @@ class PortfolioViewModel extends StateNotifier<PortfolioState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final categories = await _repository.getPortfolioCategories();
+      final categories = await _repository.getPortfolioCategoryList();
       state = state.copyWith(
         isLoading: false,
         categories: categories,
@@ -302,6 +301,57 @@ class PortfolioViewModel extends StateNotifier<PortfolioState> {
       return false;
     }
   }
+
+  // 모든 데이터 로드 (카테고리와 포트폴리오 목록 함께 로드)
+  Future<void> loadData() async {
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
+      // 동시에 카테고리와 포트폴리오 로드
+      final results = await Future.wait([
+        _repository.getPortfolioCategoryList(),
+        _repository.getPortfolioList()
+      ]);
+
+      state = state.copyWith(
+        isLoading: false,
+        categories: results[0] as List<PortfolioCategory>,
+        portfolios: results[1] as List<Portfolio>,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '데이터를 불러오는데 실패했습니다: $e',
+      );
+    }
+  }
+
+  // 상세 페이지에서 돌아왔을 때 데이터 다시 로드하는 메서드 추가
+  Future<void> refreshData() async {
+    await loadData();
+  }
+
+  // 특정 카테고리의 포트폴리오 로드
+  Future<void> loadPortfoliosByCategory(int categoryPk) async {
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
+      // API 호출하여 특정 카테고리의 포트폴리오만 로드
+      final filteredPortfolios = state.portfolios
+          .where((p) => p.portfolioCategory?.portfolioCategoryPk == categoryPk)
+          .toList();
+
+      state = state.copyWith(
+        portfolios: filteredPortfolios,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
 }
 
 // 포트폴리오 뷰모델 프로바이더
@@ -324,6 +374,4 @@ final portfolioListProvider = FutureProvider<List<Portfolio>>((ref) async {
   final viewModel = ref.watch(portfolioViewModelProvider.notifier);
   await viewModel.loadPortfolios();
   return ref.watch(portfolioViewModelProvider).portfolios;
-
 });
-

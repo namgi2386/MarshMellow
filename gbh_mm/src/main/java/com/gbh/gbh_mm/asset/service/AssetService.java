@@ -1,5 +1,7 @@
 package com.gbh.gbh_mm.asset.service;
 
+import com.gbh.gbh_mm.asset.RequestDecodeTest;
+import com.gbh.gbh_mm.asset.ResponseAuthTest;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestCheckAccountAuth;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindCardTransactionList;
 import com.gbh.gbh_mm.asset.model.vo.request.RequestFindDepositDemandTransactionList;
@@ -46,5 +48,10 @@ public interface AssetService {
 
     ResponseDeleteWithdrawalAccount deleteWithdrawalAccount(RequestDeleteWithdrawalAccount request);
 
-    ResponseAccountTransfer accountTransger(RequestWithdrawalAccountTransfer request);
+    ResponseAccountTransfer accountTransfer
+        (RequestWithdrawalAccountTransfer request, CustomUserDetails customUserDetails);
+
+    ResponseAuthTest authTest();
+
+    ResponseAuthTest decodeTest(RequestDecodeTest request);
 }

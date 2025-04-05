@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
-import 'package:marshmellow/data/repositories/ledger_repository.dart';
+import 'package:marshmellow/data/repositories/ledger/ledger_repository.dart';
 import 'package:marshmellow/data/models/ledger/category/withdrawal_category.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/chart/doughnut_chart_with_legend.dart' as doughnut;

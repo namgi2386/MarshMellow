@@ -139,27 +139,46 @@ public class PortfolioServiceImpl implements PortfolioService {
         String fileName, CustomUserDetails customUserDetails, int portfolioCategoryPk) {
         User user = userRepository.findByUserPk(customUserDetails.getUserPk())
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        PortfolioCategory portfolioCategory = portfolioCategoryRepository
-            .findById(portfolioCategoryPk)
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 카테고리"));
+
 
         String fileUrl = s3Component.uploadFile(file);
 
         LocalDateTime now = LocalDateTime.now();
         String date = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String time = now.format(DateTimeFormatter.ofPattern("HHmmss"));
+        String time = now.format(DateTimeFormatter.ofPattern("HHmm"));
 
         Portfolio portfolio = Portfolio.builder()
-            .fileUrl(fileUrl)
-            .fileName(fileName)
-            .createDate(date)
-            .createTime(time)
-            .originFileName(file.getOriginalFilename())
-            .fileName(fileName)
-            .portfolioMemo(portfolioMemo)
-            .user(user)
-            .portfolioCategory(portfolioCategory)
-            .build();
+                .fileUrl(fileUrl)
+                .fileName(fileName)
+                .createDate(date)
+                .createTime(time)
+                .originFileName(file.getOriginalFilename())
+                .fileName(fileName)
+                .portfolioMemo(portfolioMemo)
+                .user(user)
+                .build();
+
+        try {
+            PortfolioCategory portfolioCategory = portfolioCategoryRepository
+                    .findById(portfolioCategoryPk)
+                    .orElseThrow(() -> new EntityNotFoundException());
+            portfolio.setPortfolioCategory(portfolioCategory);
+        } catch (EntityNotFoundException e) {
+            PortfolioCategory portfolioCategory = portfolioCategoryRepository
+                    .findByUser_UserPkAndPortfolioCategoryName(customUserDetails.getUserPk(),"미분류");
+
+            if (portfolioCategory == null) {
+                PortfolioCategory newCategory = PortfolioCategory.builder()
+                        .portfolioCategoryMemo("")
+                        .portfolioCategoryName("미분류")
+                        .user(user)
+                        .build();
+                PortfolioCategory savedCategory = portfolioCategoryRepository.save(newCategory);
+                portfolio.setPortfolioCategory(savedCategory);
+            } else {
+                portfolio.setPortfolioCategory(portfolioCategory);
+            }
+        }
 
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 

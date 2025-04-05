@@ -1,5 +1,6 @@
 package com.gbh.gbh_mm.asset.model.vo.response;
 
+import com.gbh.gbh_mm.asset.model.dto.DemandDepositTransactionDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,5 +9,6 @@ import java.util.Map;
 
 @Data
 public class ResponseFindDepositDemandTransactionList {
-    List<Map<String, Object>> transactionList;
+    String iv;
+    List<DemandDepositTransactionDto> transactionList;
 }

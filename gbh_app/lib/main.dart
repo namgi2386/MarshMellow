@@ -50,6 +50,7 @@ class HiveService {
 Future<void> main() async {
   // 초기화 단계
   WidgetsFlutterBinding.ensureInitialized();
+  
   // Firebase 초기화
   await Firebase.initializeApp();
   await initLocalNotification(); // 로컬 알림 초기화
@@ -169,6 +170,9 @@ void _showLocalNotification(RemoteMessage message) {
           channel.id,
           channel.name,
           channelDescription: channel.description,
+          importance: channel.importance,
+          priority: Priority.high,
+          playSound: true,
           icon: android.smallIcon,
         ),
       ),
@@ -213,7 +217,8 @@ void setupFCM() async {
   // 백그라운드에서 앱을 열었을 때
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     print('🔔 Background opened message: ${message.notification?.title}');
-    _showLocalNotification(message);
+    // _showLocalNotification(message);
+    // 원하는 페이지로 이동하는 코드 추가 // 예: Navigator.pushNamed(context, '/notificationPage');
 
   });
 }
@@ -228,4 +233,9 @@ Future<void> initLocalNotification() async {
   );
 
   await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+  await flutterLocalNotificationsPlugin
+  .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+  ?.createNotificationChannel(channel);
+
 }

@@ -110,6 +110,37 @@ class WishlistApi {
     final response = await _apiClient.delete('/mm/wishlist/detail/$wishlistPk');
     return response.data;
   }
+
+  // 링크 크롤링 메서드
+  // Future<Map<String, dynamic>> crawlProductUrl(String url) async {
+  //   final data = {'url': url};
+  //   final response = await _apiClient.post('/mm/wishlist/jsoup', data: data);
+  //   return response.data;
+  // }
+
+  // 디버깅용
+  Future<Map<String, dynamic>> crawlProductUrl(String url) async {
+  try {
+    print("🐥🐥크롤링 요청 URL: $url");
+    final data = {'url': url};
+    print("🐥🐥요청 데이터: $data");
+    
+    final response = await _apiClient.post('/mm/wishlist/jsoup', data: data);
+    print("🐥🐥응답 상태 코드: ${response.statusCode}");
+    print("🐥🐥응답 데이터: ${response.data}");
+    
+    return response.data;
+  } catch (e) {
+    print("🐥🐥크롤링 API 오류: $e");
+    if (e is DioException) {
+      print("🐥🐥상태 코드: ${e.response?.statusCode}");
+      print("🐥🐥응답 데이터: ${e.response?.data}");
+      print("🐥🐥요청 데이터: ${e.requestOptions.data}");
+      print("🐥🐥요청 헤더: ${e.requestOptions.headers}");
+    }
+    rethrow;
+  }
+}
 }
 
 class WishApi {

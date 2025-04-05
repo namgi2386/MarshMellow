@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -16,12 +17,13 @@ import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
 import 'package:marshmellow/presentation/viewmodels/wishlist/wishlist_providers.dart';
 
-
 /*
   위시리스트 생성 페이지
 */
 class WishlistCreationPage extends ConsumerStatefulWidget {
-  const WishlistCreationPage({super.key});
+  final String? sharedUrl; // 공유된 URL
+
+  const WishlistCreationPage({super.key, this.sharedUrl});
 
   @override
   ConsumerState<WishlistCreationPage> createState() => _WishlistCreationPageState();
@@ -48,6 +50,20 @@ class _WishlistCreationPageState extends ConsumerState<WishlistCreationPage> {
     // 위시리스트 생성 상태 초기화
     Future.microtask(() {
       ref.read(wishlistCreationProvider.notifier).resetState();
+
+      // widget.sharedUrl이 있다면 처리
+      if (widget.sharedUrl != null && widget.sharedUrl!.isNotEmpty) {
+        _urlController.text = widget.sharedUrl!;
+        _processSharedUrl(widget.sharedUrl!);
+      }
+      
+      // 공유된 URL이 있으면 처리
+      if (widget.sharedUrl != null && widget.sharedUrl!.isNotEmpty) {
+        setState(() {
+          _urlController.text = widget.sharedUrl!;
+        });
+        _processSharedUrl(widget.sharedUrl!);
+      }
     });
   }
 
@@ -58,6 +74,74 @@ class _WishlistCreationPageState extends ConsumerState<WishlistCreationPage> {
     _priceController.dispose();
     _urlController.dispose();
     super.dispose();
+  }
+
+  // 공유된 URL 처리
+  Future<void> _processSharedUrl(String url) async {
+    if (url.isEmpty) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+    
+    try {
+      // URL 크롤링 API 호출
+      final data = await ref.read(wishlistCreationProvider.notifier).crawlProductUrl(url);
+      
+      if (data != null) {
+        setState(() {
+          // 상품명 설정
+          if (data['productName'] != null && data['productName'].isNotEmpty) {
+            _productNameController.text = data['productName'];
+            _nickNameController.text = data['productName']; // 상품명을 닉네임에도 설정
+          }
+          
+          // 이미지 URL이 있으면 다운로드
+          if (data['productImage'] != null && data['productImage'].isNotEmpty) {
+            _downloadImage(data['productImage']);
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('URL 정보를 가져오는 중 오류가 발생했습니다: $e')),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // 이미지 URL에서 이미지 다운로드
+  Future<void> _downloadImage(String imageUrl) async {
+    if (imageUrl.isEmpty) return;
+    
+    // URL이 //로 시작하면 https: 추가
+    if (imageUrl.startsWith('//')) {
+      imageUrl = 'https:$imageUrl';
+    }
+    
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      
+      if (response.statusCode == 200) {
+        // 임시 디렉토리에 이미지 저장
+        final tempDir = await Directory.systemTemp.createTemp();
+        final tempFile = File('${tempDir.path}/temp_image.jpg');
+        await tempFile.writeAsBytes(response.bodyBytes);
+        
+        if (mounted) {
+          setState(() {
+            _selectedImage = tempFile;
+          });
+        }
+      }
+    } catch (e) {
+      print('이미지 다운로드 중 오류 발생: $e');
+    }
   }
 
   // 이미지 선택 함수

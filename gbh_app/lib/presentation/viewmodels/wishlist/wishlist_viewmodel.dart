@@ -191,75 +191,92 @@ class WishlistCreationNotifier extends StateNotifier<WishlistCreationState> {
   // 위시리스트 생성
   Future<void> createWishlist({
     required String productNickname,
-  required String productName,
-  required int productPrice,
-  required String productUrl,
-  File? imageFile,
-}) async {
-  state = state.copyWith(isLoading: true, errorMessage: null);
+    required String productName,
+    required int productPrice,
+    required String productUrl,
+    File? imageFile,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
 
-  try {
-    final apiClient = _ref.read(apiClientProvider);
-    
-    // FormData 생성
-    FormData formData = FormData.fromMap({
-      'productNickname': productNickname,
-      'productName': productName,
-      'productPrice': productPrice.toString(),
-      'productUrl': productUrl,
-    });
-    
-    // 이미지 파일이 있는 경우 추가
-    if (imageFile != null) {
-      final String fileName = path.basename(imageFile.path);
-      final String fileExtension = path.extension(fileName).toLowerCase().substring(1);
+    try {
+      final apiClient = _ref.read(apiClientProvider);
       
-      formData.files.add(MapEntry(
-        'file',
-        await MultipartFile.fromFile(
-          imageFile.path,
-          filename: fileName,
-          contentType: MediaType('image', fileExtension),
-        ),
-      ));
-    }
-    
-    // API 요청
-    final response = await apiClient.post('/mm/wishlist', data: formData);
-    
-    // 응답 처리
-    final wishlistResponse = WishlistResponse.fromJson(response.data);
-    
-    if (wishlistResponse.code == 200) {
-      // 업데이트된 응답 형식에 맞춰 처리
-      final responseData = wishlistResponse.data;
-      final createdWishlist = WishlistCreationResponse(
-        message: responseData['message'] ?? '',
-        wishlistPk: responseData['wishlistPk'],
-        productNickname: responseData['productNickname'],
-        productName: responseData['productName'],
-        productPrice: responseData['productPrice'],
-        productImageUrl: responseData['productImageUrl'],
-        productUrl: responseData['productUrl'],
-      );
+      // FormData 생성
+      FormData formData = FormData.fromMap({
+        'productNickname': productNickname,
+        'productName': productName,
+        'productPrice': productPrice.toString(),
+        'productUrl': productUrl,
+      });
       
+      // 이미지 파일이 있는 경우 추가
+      if (imageFile != null) {
+        final String fileName = path.basename(imageFile.path);
+        final String fileExtension = path.extension(fileName).toLowerCase().substring(1);
+        
+        formData.files.add(MapEntry(
+          'file',
+          await MultipartFile.fromFile(
+            imageFile.path,
+            filename: fileName,
+            contentType: MediaType('image', fileExtension),
+          ),
+        ));
+      }
+      
+      // API 요청
+      final response = await apiClient.post('/mm/wishlist', data: formData);
+      
+      // 응답 처리
+      final wishlistResponse = WishlistResponse.fromJson(response.data);
+      
+      if (wishlistResponse.code == 200) {
+        // 업데이트된 응답 형식에 맞춰 처리
+        final responseData = wishlistResponse.data;
+        final createdWishlist = WishlistCreationResponse(
+          message: responseData['message'] ?? '',
+          wishlistPk: responseData['wishlistPk'],
+          productNickname: responseData['productNickname'],
+          productName: responseData['productName'],
+          productPrice: responseData['productPrice'],
+          productImageUrl: responseData['productImageUrl'],
+          productUrl: responseData['productUrl'],
+        );
+        
+        state = state.copyWith(
+          isLoading: false,
+          createdWishlist: createdWishlist,
+        );
+        
+        // 위시리스트 목록 갱신
+        _ref.read(wishlistProvider.notifier).fetchWishlists();
+      } else {
+        throw Exception(wishlistResponse.message);
+      }
+    } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        createdWishlist: createdWishlist,
+        errorMessage: '위시리스트를 생성하는 중 오류가 발생했습니다: $e',
       );
-      
-      // 위시리스트 목록 갱신
-      _ref.read(wishlistProvider.notifier).fetchWishlists();
-    } else {
-      throw Exception(wishlistResponse.message);
     }
-  } catch (e) {
-    state = state.copyWith(
-      isLoading: false,
-      errorMessage: '위시리스트를 생성하는 중 오류가 발생했습니다: $e',
-    );
   }
-}
+
+  // URL 크롤링으로 상품 정보 가져오기
+  Future<Map<String, dynamic>?> crawlProductUrl(String url) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final data = await _repository.crawlProductUrl(url);
+      state = state.copyWith(isLoading: false);
+      return data;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'URL 정보를 가져오는 중 오류가 발생했습니다: $e',
+      );
+      return null;
+    }
+  }
 
   // 상태 초기화 (새로운 위시리스트 생성 시)
   void resetState() {

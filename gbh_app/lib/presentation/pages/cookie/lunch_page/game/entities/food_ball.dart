@@ -68,7 +68,7 @@ class FoodBall extends BaseBody with ContactCallbacks {
 
     // 픽스처 속성 설정
     final fixtureDef = FixtureDef(shape)
-      ..restitution = 0.4 // 높은 반발력
+      ..restitution = 0.5 // 높은 반발력
       ..density = 1.0     // 밀도
       ..friction = 0.2;    // 약간의 마찰력
 
@@ -93,7 +93,7 @@ class FoodBall extends BaseBody with ContactCallbacks {
   void render(Canvas canvas) {
     if (_imageLoaded && _sprite != null) {
       // 이미지가 로드됐으면 스프라이트 렌더링
-      final size = Vector2(radius * 2, radius * 2);
+      final size = Vector2(radius * 2, radius * 2 );
       final position = Vector2(-radius, -radius); // 중앙에 맞추기 위해 오프셋 조정
       
       // 스프라이트 그리기

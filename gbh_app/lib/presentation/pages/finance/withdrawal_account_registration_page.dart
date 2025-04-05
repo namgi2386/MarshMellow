@@ -5,6 +5,8 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_select_content.dart';
 import 'package:marshmellow/presentation/pages/finance/widgets/withdrawl/finance_terms_agreement_widget.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/withdrawal_account_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/my/user_secure_info_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/finance/certificate_login_modal.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
@@ -47,6 +49,8 @@ class _WithdrawalAccountRegistrationPageState extends ConsumerState<WithdrawalAc
   Widget build(BuildContext context) {
     final state = ref.watch(withdrawalAccountProvider);
     final viewModel = ref.read(withdrawalAccountProvider.notifier);
+    final userSecureInfoState = ref.watch(userSecureInfoProvider);
+
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (state.isLoading) {
@@ -83,7 +87,8 @@ class _WithdrawalAccountRegistrationPageState extends ConsumerState<WithdrawalAc
               showCertificateModal(
                 context: context, 
                 ref: ref, 
-                userName: '손효자', 
+                // userName: '임남기', 
+                userName: '${userSecureInfoState.userName ?? '사용자'}', 
                 expiryDate: '2028.03.14.', 
                 onConfirm: () {
                   // TODO: 여기서 인증서 확인 작업 필요

@@ -104,7 +104,7 @@ class LunchGame extends Forge2DGame {
 
   @override
   void update(double dt) {
-    super.update(dt * 1.5);
+    super.update(dt * 3.0);
     
     if (gameStarted) {
       // 가장 아래에 있는 공 찾기

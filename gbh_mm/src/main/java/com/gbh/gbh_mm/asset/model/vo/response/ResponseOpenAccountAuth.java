@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class ResponseOpenAccountAuth {
+    private String iv;
     private String authCode;
 }

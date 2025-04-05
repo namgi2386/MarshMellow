@@ -9,4 +9,5 @@ public class Savings {
     private String accountNo;
     private String accountName;
     private long totalBalance;
+    private String encodedTotalBalance;
 }

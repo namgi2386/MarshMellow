@@ -66,6 +66,9 @@ public class User {
     @Column(name = "fcm_token")
     private String fcmToken;
 
+    @Column(name = "aes_key")
+    private String aesKey;
+
     @Column(name = "created_at")
     private LocalDate createdAt;
 

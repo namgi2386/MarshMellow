@@ -9,6 +9,7 @@ class WishRepository {
   // 현재 진행 중인 wish 조회
   Future<WishDetail?> getCurrentWish() async {
     try {
+      print('Repository: Fetching current wish...');
       final response = await _wishApi.getCurrentWish();
       final wishResponse = WishResponse.fromJson(response);
 
@@ -16,6 +17,7 @@ class WishRepository {
         return WishDetail.fromJson(wishResponse.data);
       } else {
         // 404 등 정상 응답이지만 데이터 없는 경우
+        print('Repository: No wish data found or non-200 code');
         return null;
       }
     } catch (e) {

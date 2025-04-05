@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/data/models/wishlist/wish_model.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_bubble_chart.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/wish/wish_detail_modal.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
-import 'package:marshmellow/presentation/viewmodels/wishlist/wishlist_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/wishlist/wish_provider.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-import 'package:marshmellow/data/models/wishlist/wishlist_model.dart'; 
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 
 class BudgetPage extends ConsumerStatefulWidget {
   const BudgetPage({super.key});
@@ -21,9 +26,10 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     super.initState();
     // 화면이 처음 로드될 때 위시리스트 데이터 가져오기
     Future.microtask(() {
-      final budgetState = ref.read(budgetProvider);
-      if (!budgetState.isLoading && budgetState.budgets.isNotEmpty) {
-        ref.read(wishlistProvider.notifier).fetchWishlists();
+      try {
+        ref.read(wishProvider.notifier).fetchCurrentWish();
+      } catch (e) {
+        print('위시 데이터 로드 중 오류: $e');
       }
     });
   }
@@ -31,8 +37,8 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(budgetProvider);
-    // 위시리스트 상태 가져오기
-    final wishlistState = ref.watch(wishlistProvider);
+    // 위시 상태 가져오기
+    final wishState = ref.watch(wishProvider);
 
     if (state.isLoading) {
       return const Scaffold(
@@ -65,23 +71,8 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     if (state.budgets.isEmpty) {
       return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: const Text(
-            '예산',
-            style: TextStyle(color: Colors.black),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: const Icon(Icons.account_circle_outlined, color: Colors.black),
-              onPressed: () {},
-            ),
-          ],
+        appBar: CustomAppbar(
+        title: '예산',
         ),
         body: const Center(
           child: Text('등록된 예산이 없습니다.'),
@@ -99,34 +90,34 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     }
 
     final categories = selectedBudget.budgetCategoryList;
-    final remainingBudget = state.dailyBudget?.remainBudgetAmount ?? 0;
 
     // 금액 포맷팅 (천 단위 쉼표)
-    String formattedRemainingBudget = remainingBudget.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},'
-    );
-
     String formmatedTotalBudget = selectedBudget.budgetAmount.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},'
     );
 
-    // 하루 예산
-    int dailyBudget = state.dailyBudget?.dailyBudgetAmount ?? 0;
+    // 현재 날짜
+    final now = DateTime.now();
+    // 선택된 예산 시작일과 종료일 파싱
+    final startDate = DateTime.parse(selectedBudget.startDate);
+    final endDate = DateTime.parse(selectedBudget.endDate);
+    // 현재 날짜가 예산 기간 내에 있는지 확인
+    final isCurrentBudget = now.isAfter(startDate.subtract(const Duration(days: 1))) &&
+                            now.isBefore(endDate.subtract(const Duration(days: 1)));
 
-    String formattedDailyBudget = dailyBudget.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},'
-    );
-
-    // 선택된 위시리스트 찾기 (isSelected가 'Y'인 항목)
-    final selectedWishlist = wishlistState.wishlists
-        .where((item) => item.isSelected == 'Y')
-        .toList();
 
     return Scaffold(
-      appBar: CustomAppbar(title: '남은 예산'),
+      appBar: CustomAppbar(
+        title: '예산',
+        actions: [
+          IconButton(
+            icon: SvgPicture.asset(IconPath.analysis),
+            onPressed: () {
+              context.go('/budget/detail/${selectedBudget.budgetPk}');
+            },
+          ),
+        ],),
       body: Column(
         children: [
           // 예산 정보 요약
@@ -141,7 +132,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: formattedRemainingBudget,
+                        text: formmatedTotalBudget,
                         style: AppTextStyles.congratulation
                       ),
                       const TextSpan(
@@ -152,21 +143,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                   ),
                 ),
                 // 우측: 총액과 하루 예산
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '예산 $formmatedTotalBudget 원',
-                      style: AppTextStyles.bodyExtraSmall, 
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '하루 예산 $formattedDailyBudget 원',
-                      style: AppTextStyles.bodyExtraSmall,
-                    )
-                  ],
-                )
+                if (isCurrentBudget && state.dailyBudget != null) _buildCurrentBudgetInfo(state)
               ],
             ),
           ),
@@ -179,7 +156,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
               children: [
                 IconButton(
                   onPressed: () {
-                    ref.read(budgetProvider.notifier).navigateToPreviousBudget();
+                    ref.read(budgetProvider.notifier).navigateToNextBudget();
                   }, 
                   icon: const Icon(Icons.chevron_left),
                 ),
@@ -189,13 +166,15 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                 ),
                 IconButton(
                   onPressed: () {
-                    ref.read(budgetProvider.notifier).navigateToNextBudget();
+                    ref.read(budgetProvider.notifier).navigateToPreviousBudget();
                   }, 
                   icon: const Icon(Icons.chevron_right)
                 ),
               ],
             )
           ),
+
+          SizedBox(height: 10),
 
           // 메인 버블 차트 
           Expanded(
@@ -208,7 +187,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
             ),
           ),
 
-          // 위시 리스트 섹션
+          // 위시 섹션
           Expanded(
             flex: 2,
             child: Padding(
@@ -217,18 +196,18 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '위시 리스트',
+                    '위시',
                     style: AppTextStyles.appBar,
                   ),
                   const SizedBox(height: 12),
                   Expanded(
-                    child: wishlistState.isLoading
+                    child: wishState.isLoading
                       ? const Center(child: CircularProgressIndicator())
-                      : wishlistState.errorMessage != null
-                        ? Center(child: Text('위시 리스트를 불러오는 중 오류가 발생했습니다.'))
-                        : selectedWishlist.isEmpty
-                          ? const Center(child: Text('위시 리스트가 비어있습니다.'))
-                          : _buildWishlistItem(context, selectedWishlist.first),
+                      : wishState.errorMessage != null
+                        ? Center(child: Text('위시를 불러오는 중 오류가 발생했습니다.'))
+                        : wishState.currentWish == null
+                          ? _buildAddWishButton(context)
+                          : _buildWishItem(context, wishState.currentWish!),
                   )
                 ],
               )
@@ -239,93 +218,212 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     );
   }
 
-  // 위시리스트 항목 위젯
-  Widget _buildWishlistItem(BuildContext context, Wishlist wishlist) {
-    // 가격 포맷팅
-    String formattedPrice = wishlist.productPrice.toString().replaceAllMapped(
+  // 현재 진행 중인 예산 정보 위젯
+  Widget _buildCurrentBudgetInfo(BudgetState state) {
+    final remainingBudget = state.dailyBudget!.remainBudgetAmount;
+    final dailyBudget = state.dailyBudget!.dailyBudgetAmount;
+
+    // 금액 포맷팅
+    String formattedRemainingBudget = remainingBudget.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},'
     );
 
-    // 예시로 일단 날짜는 고정값 사용 (실제로는 API 응답에서 받아와야 함)
-    String createdDate = "2025-04-10";
+    String formattedDailyBudget = dailyBudget.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},'
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '남은 예산 $formattedRemainingBudget 원',
+          style: AppTextStyles.bodyExtraSmall, 
+        ),
+        const SizedBox(height: 2),
+        Text(
+          '오늘의 예산 $formattedDailyBudget 원',
+          style: AppTextStyles.bodyExtraSmall,
+        )
+      ],
+    );
+  }
+  
+  /// 위시 없을 때 추가 버튼
+  Widget _buildAddWishButton(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        _showWishListModal(context, ref);
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.backgroundBlack),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                child: Icon(
+                  Icons.add, 
+                  color: AppColors.greyLight, 
+                  size: 30
+                ),
+              ),
+              Text(
+                '위시리스트 추가',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.greyPrimary,
+                  fontWeight: FontWeight.w300,
+                ),
+
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 위시 아이템 위젯
+  Widget _buildWishItem(BuildContext context, WishDetail wish) {
+    // 가격 포맷팅
+    String formattedPrice = wish.productPrice.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},'
+    );
+
+    String formattedAchievePrice = wish.achievePrice.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},'
+    );
+
+    // 이미지 URL 처리 
+    String? imageUrl;
+    if (wish.productImageUrl != null) {
+      if (wish.productImageUrl!.startsWith('//')) {
+        // 프로토콜이 없는 URL에 https: 추가
+        imageUrl = 'https:${wish.productImageUrl!}';
+      } else if (!wish.productImageUrl!.startsWith('file://')) {
+        // 일반 URL은 그대로 사용
+        imageUrl = wish.productImageUrl;
+      }
+    }
+
+    // 달성률 계산 (0~1 사이 값으로 제한)
+    final progressValue = wish.achievementRate / 100;
+    final clampedProgress = progressValue.clamp(0.0, 1.0);
 
     return InkWell(
       onTap: () {
-        // 위시리스트 상세 페이지로 이동
-        // context.push('/wishlist/detail/${wishlist.wishlistPk}');
+        _showWishDetailModal(context, wish, ref);
       },
       child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: AppColors.backgroundBlack),
           borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
         ),
-        child: Row(
-          children: [
-            // 이미지 부분
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  bottomLeft: Radius.circular(8),
-                ),
-                image: DecorationImage(
-                  image: wishlist.productImageUrl != null
-                      ? NetworkImage(wishlist.productImageUrl!)
-                      : const AssetImage('assets/images/characters/char_hat.png') as ImageProvider,
-                  fit: BoxFit.cover,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Row(
+            children: [
+              // 이미지 : 원형으로 클립핑
+              ClipOval(
+                child: Container(
+                  width: 70,
+                  height: 70,
+                  color: AppColors.whiteDark, // 이미지 로드 실패시 배경색
+                  child: imageUrl != null
+                      ? Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('이미지 로드 실패: $imageUrl');
+                            return const Icon(Icons.image_not_supported, color: Colors.grey);
+                          },
+                        )
+                      : const Icon(Icons.image_not_supported, color: Colors.grey),
                 ),
               ),
-            ),
-            // 정보 부분
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.bookmark, size: 14, color: Colors.amber[700]),
-                        const SizedBox(width: 4),
-                        Text(
-                          wishlist.productNickname,
-                          style: AppTextStyles.bodyMedium,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      wishlist.productName,
-                      style: AppTextStyles.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '등록일: $createdDate   목표액: $formattedPrice원',
-                      style: AppTextStyles.bodyExtraSmall.copyWith(color: AppColors.disabled),
-                    ),
-                    const SizedBox(height: 8),
-                    // 진행바 (임시로 50% 진행 표시)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: LinearProgressIndicator(
-                        value: 0.5, // 실제로는 API에서 진행률 받아와야 함
-                        backgroundColor: AppColors.whiteDark,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.bluePrimary),
-                        minHeight: 8,
+              const SizedBox(width: 12),
+              // 정보 부분
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.favorite, size: 18, color: AppColors.backgroundBlack),
+                          const SizedBox(width: 4),
+                          Text(
+                            wish.productNickname,
+                            style: AppTextStyles.bodyMedium,
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        wish.productName,
+                        style: AppTextStyles.bodySmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '달성액: $formattedAchievePrice원  목표액: $formattedPrice원',
+                        style: AppTextStyles.bodyExtraSmall.copyWith(color: AppColors.disabled),
+                      ),
+                      const SizedBox(height: 8),
+                      // 진행바
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: LinearProgressIndicator(
+                          value: clampedProgress,
+                          backgroundColor: AppColors.whiteDark,
+                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.bluePrimary),
+                          minHeight: 15,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  /// 위시 목록 모달 표시
+  void _showWishListModal(BuildContext context, WidgetRef ref) {
+    showCustomModal(
+      context: context,
+      ref: ref,
+      backgroundColor: Colors.white,
+      child: const WishDetailModal(initialTab: WishListTab.pending),
+    );
+  }
+
+  /// 위시 상세 모달 표시
+  void _showWishDetailModal(BuildContext context, WishDetail wish, WidgetRef ref) {
+    showCustomModal(
+      context: context,
+      ref: ref,
+      backgroundColor: Colors.white,
+      showDivider: false,
+      child: WishDetailModal(currentWish: wish),
     );
   }
 }

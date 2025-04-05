@@ -41,11 +41,16 @@ class WishNotifier extends StateNotifier<WishState> {
 
     try {
       final wish = await _repository.getCurrentWish();
+      print('Wish received: $wish');
+      // wish 가 null 이더라도 에러가 아닌 정상 응답으로 처리
       state = state.copyWith(
         isLoading: false,
         currentWish: wish,
+        errorMessage: null,
       );
+      print('State updated with wish: ${state.currentWish}');
     } catch (e) {
+      print('Error fetching wish: $e');
       state = state.copyWith(
         isLoading: false,
         errorMessage: '현재 진행 중인 wish를 불러오는 중 오류가 발생했습니다: $e',

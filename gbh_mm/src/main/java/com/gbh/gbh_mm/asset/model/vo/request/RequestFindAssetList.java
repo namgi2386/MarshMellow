@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class RequestFindAssetList {
-    private String userKey;
+    private String iv;
 }

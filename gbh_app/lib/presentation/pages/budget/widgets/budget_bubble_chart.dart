@@ -1,21 +1,26 @@
 import 'dart:math' as math;
+import 'package:marshmellow/router/routes/budget_routes.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/data/models/budget/budget_model.dart';
+import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
 
 class BudgetBubblechart extends ConsumerStatefulWidget {
   final List<BudgetCategoryModel> categories;
   final double maxRadius;
   final double padding;
+  final bool enableNavigation; // 내비게이션 활성화 여부
 
   const BudgetBubblechart({
     Key? key,
     required this.categories,
     this.maxRadius = 120.0,
     this.padding = 10.0,
+    this.enableNavigation = true, // 기본적으로 내비게이션 활성화
   }) : super(key: key);
 
   @override
@@ -29,6 +34,9 @@ class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
   
   // Maximum tilt angles (in radians)
   final double _maxTiltAngle = 0.5;
+  
+  // 탭 위치가 어떤 버블 내에 있는지 확인하기 위한 버블 정보 저장
+  final List<Bubble> _bubbles = [];
   
   @override
   void initState() {
@@ -45,6 +53,22 @@ class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
     });
   }
 
+  // 탭 위치가 특정 버블 내에 있는지 확인하는 함수
+  Bubble? getBubbleAtPosition(Offset position) {
+    for (final bubble in _bubbles) {
+      if ((bubble.position - position).distance <= bubble.radius) {
+        return bubble;
+      }
+    }
+    return null;
+  }
+
+  // 버블 정보 업데이트 함수
+  void updateBubbles(List<Bubble> bubbles) {
+    _bubbles.clear();
+    _bubbles.addAll(bubbles);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.categories.isEmpty) {
@@ -59,22 +83,52 @@ class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
     // 전체 예산 합계 계산
     int totalBudget = widget.categories.fold(
         0, (sum, category) => sum + category.budgetCategoryPrice);
+    
+    // budgetState에서 현재 선택된 예산 정보 가져오기
+    final budgetState = ref.watch(budgetProvider);
+    final selectedBudget = budgetState.selectedBudget;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-          child: RepaintBoundary(
-            child: CustomPaint(
-              painter: BubblesPainter(
-                budgetCategories: widget.categories,
-                totalBudget: totalBudget,
-                maxRadius: widget.maxRadius,
-                padding: widget.padding,
-                containerSize: math.min(constraints.maxWidth, constraints.maxHeight),
-                tiltX: _tiltX,
-                tiltY: _tiltY,
+        return GestureDetector(
+          onTapUp: widget.enableNavigation ? (TapUpDetails details) {
+            if (selectedBudget == null) return;
+            
+            // 탭 위치 계산
+            final tapPosition = details.localPosition;
+            
+            // 탭한 위치에 버블이 있는지 확인
+            final tappedBubble = getBubbleAtPosition(tapPosition);
+            
+            if (tappedBubble != null) {
+              // 특정 버블을 탭한 경우 해당 카테고리 상세 페이지로 이동
+              context.go(
+                  '/budget/category/expenses/${tappedBubble.category.budgetCategoryPk}',
+                  extra: {
+                    'category': tappedBubble.category,
+                    'budgetPk': selectedBudget.budgetPk,
+                  }
+                );
+            } else {
+              // 버블이 아닌 차트의 다른 부분을 탭한 경우 예산 상세 페이지로 이동
+              context.go('/budget/detail/${selectedBudget.budgetPk}');
+            }
+          } : null,
+          child: Container(
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
+            child: RepaintBoundary(
+              child: CustomPaint(
+                painter: BubblesPainter(
+                  budgetCategories: widget.categories,
+                  totalBudget: totalBudget,
+                  maxRadius: widget.maxRadius,
+                  padding: widget.padding,
+                  containerSize: math.min(constraints.maxWidth, constraints.maxHeight),
+                  tiltX: _tiltX,
+                  tiltY: _tiltY,
+                  onBubblesUpdated: updateBubbles, // 버블 정보 업데이트 콜백
+                ),
               ),
             ),
           ),
@@ -92,6 +146,7 @@ class BubblesPainter extends CustomPainter {
   final double containerSize;
   final double tiltX;
   final double tiltY;
+  final Function(List<Bubble>) onBubblesUpdated; // 버블 정보 콜백 추가
 
   BubblesPainter({
     required this.budgetCategories,
@@ -101,6 +156,7 @@ class BubblesPainter extends CustomPainter {
     required this.containerSize,
     required this.tiltX,
     required this.tiltY,
+    required this.onBubblesUpdated,
   });
 
   @override
@@ -150,29 +206,33 @@ class BubblesPainter extends CustomPainter {
     for (final bubble in bubbles) {
       drawBubble(canvas, bubble);
     }
+    
+    // 버블 정보 콜백 호출
+    onBubblesUpdated(bubbles);
   }
 
   // 버블 위치 최적화 
   void optimizeBubblePositions(List<Bubble> bubbles, Size size) {
-    // 반복 횟수
-    int iterations = 12;
-    
-    // 버블 간 힘과 중앙 힘 조정
-    double repulsionForce = 5.8;
-    double centerForce = 0.00001;
-    
     final center = Offset(size.width / 2, size.height / 2);
     
-    // 초기 위치를 원형으로 배치
+    // 초기 위치를 고정된 패턴으로 배치 (무작위성 없이)
     if (bubbles.length > 1) {
+      // 완전한 원이 아닌 타원형으로 배치
       double angleStep = (math.pi * 2) / bubbles.length;
-      double radius = size.width * 0.3;
       
       for (int i = 0; i < bubbles.length; i++) {
         double angle = i * angleStep;
+        
+        // 타원형 배치 (가로:세로 = 1.2:1 비율)
+        double radiusX = size.width * 0.3;
+        double radiusY = size.width * 0.25;
+        
+        // 인덱스에 따라 약간 다른 거리 사용 (규칙적인 패턴)
+        double distanceFactor = 1.0 + (i % 3) * 0.05; // 0%, 5%, 10% 패턴으로 변화
+        
         bubbles[i].position = Offset(
-          center.dx + math.cos(angle) * radius,
-          center.dy + math.sin(angle) * radius
+          center.dx + math.cos(angle) * radiusX * distanceFactor,
+          center.dy + math.sin(angle) * radiusY * distanceFactor
         );
       }
     } else if (bubbles.length == 1) {
@@ -180,61 +240,37 @@ class BubblesPainter extends CustomPainter {
       bubbles[0].position = center;
     }
     
-    // 간단한 최적화 수행
-    for (int i = 0; i < iterations; i++) {
+    // 충돌 처리 및 경계 검사만 수행하여 안정적인 배치 확보
+    for (int i = 0; i < 5; i++) { // 반복 횟수 줄임
+      for (Bubble bubble in bubbles) {
+        // 화면 밖으로 나가지 않도록 경계 검사
+        bubble.position = Offset(
+          bubble.position.dx.clamp(bubble.radius, size.width - bubble.radius),
+          bubble.position.dy.clamp(bubble.radius, size.height - bubble.radius)
+        );
+      }
+      
+      // 충돌 해결 (단순화된 버전)
       for (int j = 0; j < bubbles.length; j++) {
-        Bubble bubble = bubbles[j];
-        Offset force = Offset.zero;
-        
-        // 다른 버블과 충돌 검사
-        for (int k = 0; k < bubbles.length; k++) {
-          if (j == k) continue;
+        for (int k = j + 1; k < bubbles.length; k++) {
+          Bubble b1 = bubbles[j];
+          Bubble b2 = bubbles[k];
           
-          Bubble other = bubbles[k];
-          Offset direction = bubble.position - other.position;
+          Offset direction = b1.position - b2.position;
           double distance = direction.distance;
+          double minDist = b1.radius + b2.radius + padding;
           
-          double minDist = bubble.radius + other.radius + padding;
-          
-          // 충돌시 밀어내기
-          if (distance < minDist) {
-            Offset norm = direction / (distance == 0 ? 1 : distance);
-            force += norm * repulsionForce;
+          // 충돌 감지 및 해결
+          if (distance < minDist && distance > 0) {
+            Offset norm = direction / distance;
+            double correction = (minDist - distance) / 2;
+            
+            // 두 버블을 서로 밀어내기
+            b1.position += norm * correction;
+            b2.position -= norm * correction;
           }
         }
-        
-        // 중앙으로 끌어당기기
-        Offset toCenter = center - bubble.position;
-        double centerDistance = toCenter.distance;
-        if (centerDistance > 0) {
-          force += toCenter / centerDistance * centerForce * centerDistance;
-        }
-        
-        // 화면 밖으로 나가지 않도록
-        if (bubble.position.dx - bubble.radius < 0) {
-          force += Offset(repulsionForce, 0);
-        }
-        if (bubble.position.dx + bubble.radius > size.width) {
-          force -= Offset(repulsionForce, 0);
-        }
-        if (bubble.position.dy - bubble.radius < 0) {
-          force += Offset(0, repulsionForce);
-        }
-        if (bubble.position.dy + bubble.radius > size.height) {
-          force -= Offset(0, repulsionForce);
-        }
-        
-        // 버블 위치 업데이트
-        bubble.position += force;
       }
-    }
-    
-    // 최종적으로 모든 버블이 화면 안에 있도록 보정
-    for (Bubble bubble in bubbles) {
-      bubble.position = Offset(
-        bubble.position.dx.clamp(bubble.radius, size.width - bubble.radius),
-        bubble.position.dy.clamp(bubble.radius, size.height - bubble.radius)
-      );
     }
   }
 
@@ -244,15 +280,18 @@ class BubblesPainter extends CustomPainter {
     final position = bubble.position;
     final radius = bubble.radius;
     
+    // 수정된 부분: 카테고리 색상 가져오기
+    final Color categoryColor = BudgetModel.getCategoryColor(category.budgetCategoryName);
+    
     // 카테고리 색상으로 원 그리기
     final categoryPaint = Paint()
-      ..color = category.color
+      ..color = categoryColor
       ..style = PaintingStyle.fill;
     
     // 전체 원 그리기 (베이스 색상)
     canvas.drawCircle(position, radius, categoryPaint);
     
-    // 사용 비율 및 초과 여부
+    // 사용 비율 및 초과 여부 (수정된 부분: budgetExpendPercent 접근)
     final spentPercent = category.budgetExpendPercent ?? 0.0;
     final isOverBudget = spentPercent > 1.0;
     
@@ -284,8 +323,8 @@ class BubblesPainter extends CustomPainter {
         canvas.clipPath(clipPath);
         
         // 액체 표면의 4개 꼭지점 계산
-        final leftOffset = surfaceTiltX * radius;
-        final rightOffset = -surfaceTiltX * radius;
+        final leftOffset = -surfaceTiltX * radius;
+        final rightOffset = surfaceTiltX * radius;
         
         // 기울어진 액체 표면의 경로
         final liquidPath = Path()

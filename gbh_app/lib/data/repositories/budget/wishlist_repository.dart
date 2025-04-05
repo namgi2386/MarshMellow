@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:marshmellow/data/datasources/remote/wishlist_api.dart';
 import 'package:marshmellow/data/models/wishlist/wishlist_model.dart';
 
@@ -11,21 +12,31 @@ class WishlistRepository {
     required String productNickname,
     required String productName,
     required int productPrice,
-    String? productImageUrl,
-    String? productUrl,
+    required String productUrl,
+    File? imageFile,
   }) async {
     final response = await _wishlistApi.createWishlist(
       productNickname: productNickname,
       productName: productName,
       productPrice: productPrice,
-      productImageUrl: productImageUrl,
       productUrl: productUrl,
+      imageFile: imageFile,
     );
 
     final wishlistResponse = WishlistResponse.fromJson(response);
 
     if (wishlistResponse.code == 200) {
-      return WishlistCreationResponse.fromJson(wishlistResponse.data);
+      // 응답 형식에 맞게 파싱
+      final responseData = wishlistResponse.data;
+      return WishlistCreationResponse(
+        message: responseData['message'] ?? '',
+        wishlistPk: responseData['wishlistPk'],
+        productNickname: responseData['productNickname'],
+        productName: responseData['productName'],
+        productPrice: responseData['productPrice'],
+        productImageUrl: responseData['productImageUrl'],
+        productUrl: responseData['productUrl'],
+      );
     } else {
       throw Exception(wishlistResponse.message);
     }
@@ -57,34 +68,54 @@ class WishlistRepository {
   }
 
   // 위시리스트 수정
-  Future<WishlistUpdateResponse> updateWishlist({
-    required int wishlistPk,
-    String? productNickname,
-    String? productName,
-    int? productPrice,
-    String? productImageUrl,
-    String? productUrl,
-    String? isSelected,     // 추가됨
-    String? isCompleted,
+Future<WishlistUpdateResponse> updateWishlist({
+  required int wishlistPk,
+  String? productNickname,
+  String? productName,
+  int? productPrice,
+  String? productImageUrl,  // 추가된 파라미터
+  String? productUrl,
+  String? isSelected,
+  String? isCompleted,
+  File? imageFile,
+}) async {
+  final response = await _wishlistApi.updateWishlist(
+    wishlistPk: wishlistPk,
+    productNickname: productNickname,
+    productName: productName,
+    productPrice: productPrice,
+    productImageUrl: productImageUrl,  // API에 전달
+    productUrl: productUrl,
+    isSelected: isSelected,
+    isCompleted: isCompleted,
+    imageFile: imageFile,
+  );
+
+  final wishlistResponse = WishlistResponse.fromJson(response);
+
+  if (wishlistResponse.code == 200) {
+    // 응답 변경에 따른 처리
+    final responseData = wishlistResponse.data;
     
-  }) async {
-    final response = await _wishlistApi.updateWishlist(
-      wishlistPk: wishlistPk,
-      productNickname: productNickname,
-      productName: productName,
-      productPrice: productPrice,
-      productImageUrl: productImageUrl,
-      productUrl: productUrl,
+    // 새 응답 형식에 맞게 변환
+    return WishlistUpdateResponse(
+      message: responseData['message'] ?? '',
+      wishlistPk: responseData['wishlistPk'],
+      oldNickname: responseData['oldNickname'] ?? responseData['productNickname'],
+      newNickname: responseData['productNickname'],
+      oldProductName: responseData['oldProductName'] ?? responseData['productName'],
+      newProductName: responseData['productName'],
+      oldProductPrice: responseData['oldProductPrice'] ?? responseData['productPrice'],
+      newProductPrice: responseData['productPrice'],
+      oldProductImageUrl: responseData['oldProductImageUrl'] ?? responseData['productImageUrl'],
+      newProductImageUrl: responseData['productImageUrl'],
+      oldProductUrl: responseData['oldProductUrl'] ?? responseData['productUrl'],
+      newProductUrl: responseData['productUrl'],
     );
-
-    final wishlistResponse = WishlistResponse.fromJson(response);
-
-    if (wishlistResponse.code == 200) {
-      return WishlistUpdateResponse.fromJson(wishlistResponse.data);
-    } else {
-      throw Exception(wishlistResponse.message);
-    }
+  } else {
+    throw Exception(wishlistResponse.message);
   }
+}
 
   // 위시리스트 삭제
   Future<WishlistDeleteResponse> deleteWishlist(int wishlistPk) async {

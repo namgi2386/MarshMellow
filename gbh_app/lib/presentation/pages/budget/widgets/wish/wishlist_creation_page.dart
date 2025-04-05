@@ -98,105 +98,51 @@ class _WishlistCreationPageState extends ConsumerState<WishlistCreationPage> {
   // 위시리스트 생성 함수
   Future<void> _createWishlist() async {
     if (_formKey.currentState?.validate() ?? false) {
-      try {  
-        setState(() {
-          _isLoading = true;
-        });
-
+      try {
         final price = int.parse(_priceController.text.replaceAll(',', ''));
 
         // URL 형식 수정
-        String? formattedUrl = _urlController.text;
+        String formattedUrl = _urlController.text;
         if (formattedUrl.isNotEmpty && !formattedUrl.startsWith('http')) {
           formattedUrl = 'http://$formattedUrl';
         }
 
-        // 이미지 있으면 multipart로 전송
-        if (_selectedImage != null) {
-          // api 엔드포인트 url
-          final Uri url = Uri.parse('https://j12c108.p.ssafy.io/api/wishlist/create');
+        // 위시리스트 생성 요청
+        await ref.read(wishlistCreationProvider.notifier).createWishlist(
+          productNickname: _nickNameController.text,
+          productName: _productNameController.text.isEmpty ? _nickNameController.text : _productNameController.text,
+          productPrice: price,
+          productUrl: formattedUrl,
+          imageFile: _selectedImage,              
+        );
 
-          // multipart 요청 생성
-          var request = http.MultipartRequest('POST', url);
+        // 상태 확인
+        final state = ref.read(wishlistCreationProvider);
 
-          // 텍스트 필드 추가
-          request.fields['productNickname'] = _nickNameController.text;
-          request.fields['productName'] = _productNameController.text;
-          request.fields['productPrice'] = price.toString();
-          if (formattedUrl != null) {
-            request.fields['productUrl'] = formattedUrl;
+        if (!state.isLoading && state.errorMessage == null) {
+          if (mounted) {
+            CompletionMessage.show(context, message: '위시가 성공적으로 생성되었습니다!');
+
+            // 위시리스트 목록 갱신
+            ref.read(wishlistProvider.notifier).fetchWishlists();
+
+            // 홈 화면으로 돌아가기
+            Future.delayed(const Duration(seconds: 2), () {
+              Navigator.of(context).pop();
+            });
           }
-
-          // 파일 추가
-          final fileExtension = path.extension(_selectedImage!.path).toLowerCase().substring(1);
-          request.files.add(
-            await http.MultipartFile.fromPath(
-              'file',
-              _selectedImage!.path,
-              contentType: MediaType('image', fileExtension),
-            ),
-          );
-
-          // 요청 전송
-          final response = await request.send();
-
-          if (response.statusCode == 200) {
-            // 성공적으로 업로드됨
-            final responseBody  = await response.stream.bytesToString();
-            print('Image uploaded successfully: $responseBody');
-
-            if (mounted) {
-              CompletionMessage.show(context, message: '위시가 성공적으로 생성되었습니다!');
-
-              // 홈 화면으로 돌아가기
-              Future.delayed(const Duration(seconds: 2), () {
-                Navigator.of(context).pop();
-              });
-            }
-          } else {
-            // 업로드 실패
-            print('Failed to upload image: ${response.statusCode}');
-          }
-        } else {
-          // 이미지가 없을 때는 일반 POST 요청
-          await ref.read(wishlistCreationProvider.notifier).createWishlist(
-            productNickname: _nickNameController.text,
-            productName: _productNameController.text,
-            productPrice: price,
-            productUrl: formattedUrl.isEmpty ? null : formattedUrl,
-          );
-
-          final state = ref.read(wishlistCreationProvider);
-
-          if (!state.isLoading && state.errorMessage == null) {
-            if (mounted) {
-              CompletionMessage.show(context, message: '위시가 성공적으로 생성되었습니다!');
-
-              // 홈 화면으로 돌아가기
-              Future.delayed(const Duration(seconds: 2), () {
-                Navigator.of(context).pop();
-              });
-            }
-          } else if (state.errorMessage != null) {  
-            // 업로드 실패
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.errorMessage!)),
-              );
-            }
+        } else if (state.errorMessage != null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage!)),
+            );
           }
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('위시리스트 생성 중 오류가 발생했습니다.')),
+            SnackBar(content: Text('위시리스트 생성 중 오류가 발생했습니다: $e')),
           );
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
         }
       }
     }

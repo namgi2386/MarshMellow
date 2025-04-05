@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:marshmellow/data/datasources/remote/api_client.dart';
 import 'package:marshmellow/data/datasources/remote/wishlist_api.dart';
 import 'package:marshmellow/data/models/wishlist/wishlist_model.dart';
 import 'package:marshmellow/data/repositories/budget/wishlist_repository.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
-import 'package:marshmellow/di/providers/core_providers.dart';
+import 'dart:io';
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart' as path;
 
 class WishlistState {
   final bool isLoading;
@@ -190,36 +191,75 @@ class WishlistCreationNotifier extends StateNotifier<WishlistCreationState> {
   // 위시리스트 생성
   Future<void> createWishlist({
     required String productNickname,
-    required String productName,
-    required int productPrice,
-    String? productImageUrl,
-    String? productUrl,
-  }) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+  required String productName,
+  required int productPrice,
+  required String productUrl,
+  File? imageFile,
+}) async {
+  state = state.copyWith(isLoading: true, errorMessage: null);
 
-    try {
-      final createdWishlist = await _repository.createWishlist(
-        productNickname: productNickname,
-        productName: productName,
-        productPrice: productPrice,
-        productImageUrl: productImageUrl,
-        productUrl: productUrl,
+  try {
+    final apiClient = _ref.read(apiClientProvider);
+    
+    // FormData 생성
+    FormData formData = FormData.fromMap({
+      'productNickname': productNickname,
+      'productName': productName,
+      'productPrice': productPrice.toString(),
+      'productUrl': productUrl,
+    });
+    
+    // 이미지 파일이 있는 경우 추가
+    if (imageFile != null) {
+      final String fileName = path.basename(imageFile.path);
+      final String fileExtension = path.extension(fileName).toLowerCase().substring(1);
+      
+      formData.files.add(MapEntry(
+        'file',
+        await MultipartFile.fromFile(
+          imageFile.path,
+          filename: fileName,
+          contentType: MediaType('image', fileExtension),
+        ),
+      ));
+    }
+    
+    // API 요청
+    final response = await apiClient.post('/mm/wishlist', data: formData);
+    
+    // 응답 처리
+    final wishlistResponse = WishlistResponse.fromJson(response.data);
+    
+    if (wishlistResponse.code == 200) {
+      // 업데이트된 응답 형식에 맞춰 처리
+      final responseData = wishlistResponse.data;
+      final createdWishlist = WishlistCreationResponse(
+        message: responseData['message'] ?? '',
+        wishlistPk: responseData['wishlistPk'],
+        productNickname: responseData['productNickname'],
+        productName: responseData['productName'],
+        productPrice: responseData['productPrice'],
+        productImageUrl: responseData['productImageUrl'],
+        productUrl: responseData['productUrl'],
       );
-
+      
       state = state.copyWith(
         isLoading: false,
         createdWishlist: createdWishlist,
       );
-
+      
       // 위시리스트 목록 갱신
       _ref.read(wishlistProvider.notifier).fetchWishlists();
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '위시리스트를 생성하는 중 오류가 발생했습니다: $e',
-      );
+    } else {
+      throw Exception(wishlistResponse.message);
     }
+  } catch (e) {
+    state = state.copyWith(
+      isLoading: false,
+      errorMessage: '위시리스트를 생성하는 중 오류가 발생했습니다: $e',
+    );
   }
+}
 
   // 상태 초기화 (새로운 위시리스트 생성 시)
   void resetState() {

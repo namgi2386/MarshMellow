@@ -49,6 +49,8 @@ class WishlistCreationResponse {
   final int productPrice;
   final String? productImageUrl;
   final String? productUrl;
+  final String isSelected;
+  final String isCompleted;
 
   WishlistCreationResponse({
     required this.message,
@@ -58,15 +60,21 @@ class WishlistCreationResponse {
     required this.productPrice,
     this.productImageUrl,
     this.productUrl,
+    this.isSelected = "N",
+    this.isCompleted = "N",
   });
 
   factory WishlistCreationResponse.fromJson(Map<String, dynamic> json) {
     return WishlistCreationResponse(
-      message: json['message'], 
+      message: json['message'] ?? '',
       wishlistPk: json['wishlistPk'], 
       productNickname: json['productNickname'], 
       productName: json['productName'], 
-      productPrice: json['productPrice'], 
+      productPrice: json['productPrice'],
+      productImageUrl: json['productImageUrl'],
+      productUrl: json['productUrl'],
+      isSelected: json['isSelected'] ?? 'N',
+      isCompleted: json['isCompleted'] ?? 'N',
     );
   }
 }

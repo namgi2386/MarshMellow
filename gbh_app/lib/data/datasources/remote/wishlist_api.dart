@@ -58,7 +58,7 @@ class WishlistApi {
       'productImageUrl': productImageUrl,
       'productUrl': productUrl,
       'isSelected': isSelected,         // 추가됨
-      'isCompleted': isCompleted,       // 추가됨됨
+      'isCompleted': isCompleted,       // 추가됨
     };
 
     // null 값 가진 항목 제거 (업데이트하지 않을 필드)

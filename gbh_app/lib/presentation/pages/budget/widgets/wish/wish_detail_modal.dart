@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
@@ -322,9 +324,8 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
             padding: const EdgeInsets.all(16.0),
             child: InkWell(
               onTap: () {
-                // 위시 추가 페이지 이동 (구현 필요)
                 Navigator.of(context).pop();
-                Navigator.of(context).pushNamed('/wish/add');
+                context.go(BudgetRoutes.getWishlistCreatePath());
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -89,6 +89,14 @@ class _FinancePageState extends ConsumerState<FinancePage> {
         title: 'my little 자산',
         actions: [
           const SimpleToggleButton(), // 분리한 커스텀 토글 버튼 위젯
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            color: AppColors.backgroundBlack,
+            onPressed: () {
+              ref.read(financeViewModelProvider.notifier).fetchAssetInfo();
+            },
+            tooltip: '테스트 페이지로 이동',
+          ),
         ],
       ),
       body: Center(

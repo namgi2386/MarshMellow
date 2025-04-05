@@ -8,7 +8,7 @@ import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_veiwmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
 
 class PortfolioForm extends ConsumerStatefulWidget {

@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/datasources/remote/portfolio_api.dart';
 import 'package:marshmellow/data/repositories/cookie/portfolio_repositary.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
-import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_veiwmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_viewmodel.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_model.dart';
 
 // API 프로바이더

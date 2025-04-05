@@ -64,7 +64,7 @@ class PortfolioViewModel extends StateNotifier<PortfolioState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final categories = await _repository.getPortfolioCategories();
+      final categories = await _repository.getPortfolioCategoryList();
       state = state.copyWith(
         isLoading: false,
         categories: categories,
@@ -302,6 +302,33 @@ class PortfolioViewModel extends StateNotifier<PortfolioState> {
       return false;
     }
   }
+
+  // 모든 데이터 로드 (카테고리와 포트폴리오 목록 함께 로드)
+  Future<void> loadData() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      // 병렬로 데이터 로드
+      final results = await Future.wait([
+        _repository.getPortfolioCategoryList(), // 올바른 API 메서드 사용
+        _repository.getPortfolioList()
+      ]);
+
+      final categories = results[0] as List<PortfolioCategory>;
+      final portfolios = results[1] as List<Portfolio>;
+
+      state = state.copyWith(
+        isLoading: false,
+        categories: categories,
+        portfolios: portfolios,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '데이터를 불러오는데 실패했습니다: $e',
+      );
+    }
+  }
 }
 
 // 포트폴리오 뷰모델 프로바이더
@@ -324,6 +351,4 @@ final portfolioListProvider = FutureProvider<List<Portfolio>>((ref) async {
   final viewModel = ref.watch(portfolioViewModelProvider.notifier);
   await viewModel.loadPortfolios();
   return ref.watch(portfolioViewModelProvider).portfolios;
-
 });
-

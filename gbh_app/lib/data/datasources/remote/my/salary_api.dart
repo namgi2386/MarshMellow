@@ -37,4 +37,27 @@ class MySalaryApi {
     final response = await _apiClient.get('/api/mm/auth/salary');
     return response.data['data'] as int;
   }
+  // 6. 회원 상세 조회
+  Future<Map<String, dynamic>> getMyInfoDetail() async {
+    final response = await _apiClient.get('/api/mm/auth/detail');
+    return response.data['data'];
+  }
+
+  // 3. 월급등록 (수정된 버전)
+  Future<Response> myRegisterSalary(int salary, int date, String account) async {
+    return await _apiClient.post('/api/mm/auth/salary', data: {
+      'salary': salary, 
+      'date': date,
+      'account': account
+    });
+  }
+
+  // 4. 월급수정 (수정된 버전)
+  Future<Response> myUpdateSalary(int salary, int date, String account) async {
+    return await _apiClient.patch('/api/mm/auth/salary', data: {
+      'salary': salary, 
+      'date': date,
+      'account': account
+    });
+  }
 }

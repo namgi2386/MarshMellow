@@ -9,5 +9,6 @@ public class DemandDeposit {
     private String accountNo;
     private String accountName;
     private long accountBalance;
+    private String encodedAccountBalance;
 
 }

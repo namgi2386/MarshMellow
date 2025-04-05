@@ -6,12 +6,16 @@ import 'dart:math' as math;
 class Wall extends BaseBody {
   final Vector2 size;
   final double angle; // 회전 각도 추가 (라디안)
+  bool isRotating;
+  double rotationSpeed;
 
   Wall({
     required Vector2 position,
     required this.size,
     this.angle = 0.0, // 기본값 0 (회전 없음)
     Color color = Colors.brown,
+    this.isRotating = false,
+    this.rotationSpeed = 0.0,
   }) : super(position: position, color: color);
 
   @override
@@ -47,11 +51,21 @@ class Wall extends BaseBody {
   }
 
   @override
+  void update(double dt) {
+    super.update(dt);
+    
+    if (isRotating) {
+      // 시간에 따라 회전 각도 업데이트
+      body.setTransform(body.position, body.angle + rotationSpeed * dt);
+    }
+  }
+
+  @override
   void render(Canvas canvas) {
     canvas.save();
     
     // 회전 적용
-    canvas.rotate(angle);
+    canvas.rotate(body.angle);
     
     // 벽 시각적으로 그리기
     final rect = Rect.fromCenter(
@@ -102,6 +116,8 @@ class CurvedWall extends BaseBody {
     
     return body;
   }
+
+
 
   @override
   void render(Canvas canvas) {

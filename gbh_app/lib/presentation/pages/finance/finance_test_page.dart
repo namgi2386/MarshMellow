@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart'; 
 
 import 'package:go_router/go_router.dart'; // 이제 라우트 할거면 필수
+import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart'; // 경로 상수 import
 
 // 로딩인디케이터 추가
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
+import 'package:marshmellow/router/routes/my_routes.dart';
 
 class FinanceTestPage extends StatelessWidget {
   const FinanceTestPage({Key? key}) : super(key: key);
@@ -113,6 +115,30 @@ class FinanceTestPage extends StatelessWidget {
               child: const Text('0.1초 API 호출 테스트 (1초 로딩)'),
             ),
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>> API호출시 로딩 인디케이터 >>>>>>>>>>>>>>>>
+
+            const SizedBox(height: 20), // 남기 datepicker 테스트페이지
+            ElevatedButton(
+              onPressed: () {
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(MyRoutes.getDatepickerTestPath());
+              },
+              child: const Text('데이트피커 테스트페이지'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(SignupRoutes.root);
+              },
+              child: const Text('회원가입 테스트페이지'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(SignupRoutes.getMyDataSplashPath());
+              },
+              child: const Text('인증서 테스트페이지'),
+            ),
+
 
           ],
         ),

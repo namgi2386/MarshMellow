@@ -106,10 +106,12 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     final isCurrentBudget = now.isAfter(startDate.subtract(const Duration(days: 1))) &&
                             now.isBefore(endDate.subtract(const Duration(days: 1)));
 
+    final startMonth = startDate.month;
+    final appTitle = '$startMonth월 예산';
 
     return Scaffold(
       appBar: CustomAppbar(
-        title: '예산',
+        title: appTitle,
         actions: [
           IconButton(
             icon: SvgPicture.asset(IconPath.analysis),

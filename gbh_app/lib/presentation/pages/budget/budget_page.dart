@@ -408,6 +408,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     );
   }
 
+
   /// 위시 목록 모달 표시
   void _showWishListModal(BuildContext context, WidgetRef ref) {
     showCustomModal(

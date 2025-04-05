@@ -117,5 +117,10 @@ public class UserController {
         return userService.findSalary(userDetails);
     }
 
+    @PostMapping("/key-gen")
+    public String createKey(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return userService.createAesKey(userDetails);
+    }
+
 
 }

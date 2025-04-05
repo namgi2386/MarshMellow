@@ -41,6 +41,7 @@ public interface HouseholdRepository extends JpaRepository<Household, Long> {
             "JOIN h.householdDetailCategory hdc " +
             "JOIN hdc.aiCategory a " +
             "WHERE h.user.userPk = :userPk " +
+            "AND h.exceptedBudgetYn = 'N' " +
             "AND h.householdClassificationCategory = 'WITHDRAWAL' " +
             "AND h.tradeDate BETWEEN :startDate AND :endDate " +
             "AND a.aiCategory = :aiCategory " +

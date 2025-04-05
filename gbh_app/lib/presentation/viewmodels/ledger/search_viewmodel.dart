@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
-import 'package:marshmellow/data/repositories/ledger_repository.dart';
+import 'package:marshmellow/data/repositories/ledger/ledger_repository.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 
 // 검색 상태 정의

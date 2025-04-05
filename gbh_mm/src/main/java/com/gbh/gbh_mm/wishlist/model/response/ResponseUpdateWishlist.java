@@ -1,28 +1,23 @@
 package com.gbh.gbh_mm.wishlist.model.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResponseUpdateWishlist {
-    private String message;
-
     private Long wishlistPk;
-
-    private String oldNickname;
-    private String newNickname;
-
-    private String oldProductName;
-    private String newProductName;
-
-    private Long oldProductPrice;
-    private Long newProductPrice;
-
-    private String oldProductImageUrl;
-    private String newProductImageUrl;
-
-    private String oldProductUrl;
-    private String newProductUrl;
+    private String productNickname;
+    private String productName;
+    private Long productPrice;
+    private Long achievePrice;
+    private String productImageUrl;
+    private String productUrl;
+    private String isSelected;
+    private String isCompleted;
 
 }

@@ -85,10 +85,4 @@ class WishApi {
     final response = await _apiClient.get('/mm/wishlist/detail');
     return response.data;
   }
-
-  // 특정 wish 상세 조회
-  Future<Map<String, dynamic>> getWishDetail(int wishPk) async {
-    final response = await _apiClient.get('/mm/wish/detail/$wishPk');
-    return response.data;
-  }
 }

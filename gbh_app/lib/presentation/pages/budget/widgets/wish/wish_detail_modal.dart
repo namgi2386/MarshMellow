@@ -70,15 +70,20 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
     _initializeControllers();
 
     // 위시 상세 정보 로드
-    if (_selectedWishPk != null && _selectedWish == null) {
-      Future.microtask(() {
-        ref.read(wishProvider.notifier).fetchWishDetail(_selectedWishPk!);
-      });
-    }
-    
+    if (_selectedWishPk != null) {
+    Future.microtask(() {
+      ref.read(wishlistProvider.notifier).fetchWishlistDetail(_selectedWishPk!);  
+    });
+  }
+ 
     // 위시리스트 불러오기
     Future.microtask(() {
       ref.read(wishlistProvider.notifier).fetchWishlists();
+    });
+
+    // 위시(진행중) 불러오기
+    Future.microtask(() {
+      ref.read(wishProvider.notifier).fetchCurrentWish();
     });
   }
 
@@ -187,7 +192,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
     });
     
     // 위시 상세 정보 로드
-    ref.read(wishProvider.notifier).fetchWishDetail(wishPk);
+    ref.read(wishlistProvider.notifier).fetchWishlistDetail(wishPk);
   }
 
   @override
@@ -865,7 +870,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
         CompletionMessage.show(context, message: '위시가 수정되었습니다.');
         
         // 위시 상세 정보 갱신
-        ref.read(wishProvider.notifier).fetchWishDetail(wishPk);
+        ref.read(wishlistProvider.notifier).fetchWishlistDetail(wishPk);
       }
     } catch (e) {
       if (mounted) {
@@ -908,7 +913,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
           CompletionMessage.show(context, message: '위시가 수정되었습니다.');
           
           // 위시 상세 정보 갱신
-          ref.read(wishProvider.notifier).fetchWishDetail(wishPk);
+          ref.read(wishlistProvider.notifier).fetchWishlistDetail(wishPk);
         }
       } catch (e) {
         if (mounted) {

@@ -212,7 +212,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
           ),
           
           // 디바이더
-          const Divider(height: 1, thickness: 1),
+          // const Divider(height: 1, thickness: 1),
           
           // 컨텐츠 영역 - 선택된 탭에 따라 다른 내용 표시
           _selectedWishPk != null 
@@ -233,15 +233,15 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.blueLight : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
+            color: isSelected ? AppColors.backgroundBlack : Colors.transparent,
+            borderRadius: BorderRadius.circular(40),
           ),
           child: Text(
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? AppColors.bluePrimary : AppColors.textSecondary,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? AppColors.whiteLight : AppColors.textSecondary,
+              fontWeight: isSelected ? FontWeight.w200 : FontWeight.w200,
             ),
           ),
         ),
@@ -287,10 +287,9 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.sentiment_neutral,
-                size: 60,
-                color: AppColors.disabled,
+              Image.asset(
+                _getEmptyImage(_selectedTab),
+                height: 150,
               ),
               const SizedBox(height: 16),
               Text(
@@ -306,11 +305,12 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
     // 위시 목록 표시
     return Column(
       children: [
+        const SizedBox(height: 20),
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.5,
           child: ListView.separated(
             itemCount: filteredWishes.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
+            separatorBuilder: (context, index) => const Divider(thickness: 0.5),
             itemBuilder: (context, index) {
               final wish = filteredWishes[index];
               return _buildWishItem(wish);
@@ -332,14 +332,15 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
                 children: [
                   Icon(
                     Icons.add_circle_outline, 
-                    color: AppColors.bluePrimary,
+                    color: AppColors.greyLight,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '추가하기',
                     style: TextStyle(
-                      color: AppColors.bluePrimary,
-                      fontWeight: FontWeight.bold,
+                      color: AppColors.backgroundBlack,
+                      fontWeight: FontWeight.w200,
+                      fontSize: 16,
                     ),
                   ),
                 ],
@@ -459,25 +460,25 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
           _buildProductHeaderSection(wish),
           
           // 디바이더
-          const Divider(height: 1, thickness: 1),
+          const Divider(height: 1, thickness: 0.5),
           
           // 상품명 영역
           _buildProductNameSection(wish),
           
           // 디바이더
-          const Divider(height: 1, thickness: 1),
+          const Divider(height: 1, thickness: 0.5),
           
           // 상품 금액 영역
           _buildProductPriceSection(wish),
           
           // 디바이더
-          const Divider(height: 1, thickness: 1),
+          const Divider(height: 1, thickness: 0.5),
           
           // 달성 금액 영역 (읽기 전용)
           _buildAchievePriceSection(wish),
           
           // 디바이더
-          const Divider(height: 1, thickness: 1),
+          const Divider(height: 1, thickness: 0.5),
           
           // 종료일 영역 (읽기 전용)
           _buildEndDateSection(),
@@ -961,10 +962,10 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
     }
   }
 
-    // 빈 목록 메시지
+  // 빈 목록 메시지
   String _getEmptyMessage(WishListTab tab) {
     switch (tab) {
-      case WishListTab.pending:
+      case WishListTab.pending: 
         return '대기중인 위시가 없습니다';
       case WishListTab.inProgress:
         return '진행중인 위시가 없습니다';
@@ -972,4 +973,18 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
         return '완료된 위시가 없습니다';
     }
   }
+
+  // 빈 목록 이미지
+  String _getEmptyImage(WishListTab tab) {
+    switch (tab) {
+      case WishListTab.pending: 
+        return 'assets/images/characters/charlying_down.png';
+      case WishListTab.inProgress:
+        return 'assets/images/characters/char_chair_phone.png';
+      case WishListTab.completed:
+        return 'assets/images/characters/char_angry_notebook.png';
+    }
+  }
+
+
 }

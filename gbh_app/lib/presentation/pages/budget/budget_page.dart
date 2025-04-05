@@ -271,22 +271,19 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
               Container(
                 width: 50,
                 height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.whiteDark,
-                  shape: BoxShape.circle,
-                ),
                 child: Icon(
-                  Icons.add_circle_outline, 
-                  color: AppColors.bluePrimary, 
+                  Icons.add, 
+                  color: AppColors.greyLight, 
                   size: 30
                 ),
               ),
-              const SizedBox(height: 8),
               Text(
-                '위시 추가하기',
+                '위시리스트 추가',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.bluePrimary
+                  color: AppColors.greyPrimary,
+                  fontWeight: FontWeight.w300,
                 ),
+
               )
             ],
           ),
@@ -415,7 +412,6 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
       context: context,
       ref: ref,
       backgroundColor: Colors.white,
-      title: '위시 선택',
       child: const WishDetailModal(initialTab: WishListTab.pending),
     );
   }

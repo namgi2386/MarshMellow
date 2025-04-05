@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/data/models/wishlist/wish_model.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_bubble_chart.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/wish/wish_detail_modal.dart';
-import 'package:marshmellow/presentation/pages/budget/widgets/wish/wish_list_modal.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/wishlist/wish_provider.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
@@ -70,23 +71,8 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     if (state.budgets.isEmpty) {
       return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: const Text(
-            '예산',
-            style: TextStyle(color: Colors.black),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: const Icon(Icons.account_circle_outlined, color: Colors.black),
-              onPressed: () {},
-            ),
-          ],
+        appBar: CustomAppbar(
+        title: '예산',
         ),
         body: const Center(
           child: Text('등록된 예산이 없습니다.'),
@@ -104,14 +90,8 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     }
 
     final categories = selectedBudget.budgetCategoryList;
-    final remainingBudget = state.dailyBudget?.remainBudgetAmount ?? 0;
 
     // 금액 포맷팅 (천 단위 쉼표)
-    String formattedRemainingBudget = remainingBudget.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},'
-    );
-
     String formmatedTotalBudget = selectedBudget.budgetAmount.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},'
@@ -126,16 +106,18 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     final isCurrentBudget = now.isAfter(startDate.subtract(const Duration(days: 1))) &&
                             now.isBefore(endDate.subtract(const Duration(days: 1)));
 
-    // 오늘의 예산
-    int dailyBudget = state.dailyBudget?.dailyBudgetAmount ?? 0;
-
-    String formattedDailyBudget = dailyBudget.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},'
-    );
 
     return Scaffold(
-      appBar: CustomAppbar(title: '예산'),
+      appBar: CustomAppbar(
+        title: '예산',
+        actions: [
+          IconButton(
+            icon: SvgPicture.asset(IconPath.analysis),
+            onPressed: () {
+              context.go('/budget/detail/${selectedBudget.budgetPk}');
+            },
+          ),
+        ],),
       body: Column(
         children: [
           // 예산 정보 요약
@@ -191,6 +173,8 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
               ],
             )
           ),
+
+          SizedBox(height: 10),
 
           // 메인 버블 차트 
           Expanded(
@@ -287,22 +271,19 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
               Container(
                 width: 50,
                 height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.whiteDark,
-                  shape: BoxShape.circle,
-                ),
                 child: Icon(
-                  Icons.add_circle_outline, 
-                  color: AppColors.bluePrimary, 
+                  Icons.add, 
+                  color: AppColors.greyLight, 
                   size: 30
                 ),
               ),
-              const SizedBox(height: 8),
               Text(
-                '위시 추가하기',
+                '위시리스트 추가',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.bluePrimary
+                  color: AppColors.greyPrimary,
+                  fontWeight: FontWeight.w300,
                 ),
+
               )
             ],
           ),
@@ -431,7 +412,6 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
       context: context,
       ref: ref,
       backgroundColor: Colors.white,
-      title: '위시 선택',
       child: const WishDetailModal(initialTab: WishListTab.pending),
     );
   }

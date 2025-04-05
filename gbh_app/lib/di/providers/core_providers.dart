@@ -17,7 +17,7 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 });
 
 // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzgxNTI4NCwiZXhwIjoxNzQzODMzMjg0fQ.2-ciY3K3_czGYkappqLzKXRdfTDBoLXqDWO-g5NYsMEGpv1qt4WGUzE9OU-3Nv5olajrzIu__dwsuQghT_yVDA';
+const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzgzMzY4MiwiZXhwIjoxNzQzODUxNjgyfQ.KO9VEIVeDqkMITEZ0cZZ0R7BBYfi9fHW6mw6BtGC4b8Ryr7NaVW3bHs77WczsOIUUMxOTKhgbtn-QIWwVKmUcw';
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // Dio 프로바이더

@@ -68,31 +68,40 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
       body: Column(
         children: [
           // 예산 종합
+          // 카테고리 목록 타이틀
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
+            child: Row(
+              children: [
+                Text(
+                  '이번 달 예산',
+                  style: AppTextStyles.appBar.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ],
+            ),
+          ),
           Container(
-            margin: const EdgeInsets.all(16),
+            margin: const EdgeInsets.symmetric(horizontal: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 1,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.disabled),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '이번 달 예산',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                  '총 예산',
+                  style: AppTextStyles.bodyExtraSmall.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
                   '$totalBudgetFormatted원',
                   style: AppTextStyles.mainTitle,
@@ -109,6 +118,8 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
             ),
           ),
 
+          const SizedBox(height: 16),
+
           // 카테고리 목록 타이틀
           Padding(
             padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
@@ -116,13 +127,9 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
               children: [
                 Text(
                   '카테고리별 예산',
-                  style: AppTextStyles.appBar,
-                ),
-                const Spacer(),
-                Text(
-                  '${categories.length}개 카테고리',
-                  style: AppTextStyles.bodyExtraSmall.copyWith(
-                    color: AppColors.textSecondary,
+                  style: AppTextStyles.appBar.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ],
@@ -158,25 +165,14 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
                     margin: EdgeInsets.only(
                       top: 4,
                       bottom: 4,
-                      left: 16 + (index * 4), // Staggered effect
+                      left: 16, // Staggered effect
                       right: 16,
                     ),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                      border: Border.all(
-                        color: categoryColor.withOpacity(0.3),
-                        width: 1,
-                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.whiteDark),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,7 +191,10 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
                             const SizedBox(width: 8),
                             Text(
                               category.budgetCategoryName,
-                              style: AppTextStyles.bodyMedium,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w300,
+                              ),
                             ),
                             const Spacer(),
                             Text(
@@ -262,7 +261,8 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
         Text(
           label,
           style: AppTextStyles.bodyExtraSmall.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w300,
           ),
         ),
         const SizedBox(height: 4),

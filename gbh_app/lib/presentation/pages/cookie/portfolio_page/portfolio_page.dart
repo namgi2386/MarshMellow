@@ -56,6 +56,17 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
     final isLoading = portfolioState.isLoading;
     final errorMessage = portfolioState.errorMessage;
 
+    // 미분류가 아닌 카테고리만 필터링
+    final filteredCategories = portfolioState.categories
+        .where((category) => category.portfolioCategoryName != '미분류')
+        .toList();
+
+    // 미분류 카테고리의 포트폴리오만 필터링
+    final unclassifiedPortfolios = portfolioState.portfolios
+        .where((portfolio) =>
+            portfolio.portfolioCategory?.portfolioCategoryName == '미분류')
+        .toList();
+
     if (isLoading) {
       return const Scaffold(
         body: Center(
@@ -116,7 +127,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
                   },
                 ),
               ),
-              if (categories.isNotEmpty)
+              if (filteredCategories.isNotEmpty)
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -126,9 +137,9 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
                     mainAxisSpacing: 5,
                     childAspectRatio: 300 / 260,
                   ),
-                  itemCount: categories.length,
+                  itemCount: filteredCategories.length,
                   itemBuilder: (context, index) {
-                    final category = categories[index];
+                    final category = filteredCategories[index];
                     return CategoryItem(
                       category: category,
                       onTap: () {
@@ -147,7 +158,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
                 ),
 
               // 포트폴리오 목록 섹션
-              if (portfolioState.portfolios.isEmpty)
+              if (unclassifiedPortfolios.isEmpty)
                 Center(
                   child: Column(
                     children: [
@@ -169,9 +180,9 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: portfolioState.portfolios.length,
+                  itemCount: unclassifiedPortfolios.length,
                   itemBuilder: (context, index) {
-                    final portfolio = portfolioState.portfolios[index];
+                    final portfolio = unclassifiedPortfolios[index];
                     return PortfolioItem(
                       portfolio: portfolio,
                       onTap: () {

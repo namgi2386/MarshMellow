@@ -61,6 +61,9 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
   int? _selectedWishPk;
   WishDetail? _selectedWish;
 
+  // 컨텐츠 영역 높이 상수 정의
+  final double _contentHeight = 400.0;
+
   @override
   void initState() {
     super.initState();
@@ -71,10 +74,10 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
 
     // 위시 상세 정보 로드
     if (_selectedWishPk != null) {
-    Future.microtask(() {
-      ref.read(wishlistProvider.notifier).fetchWishlistDetail(_selectedWishPk!);  
-    });
-  }
+      Future.microtask(() {
+        ref.read(wishlistProvider.notifier).fetchWishlistDetail(_selectedWishPk!);  
+      });
+    }
  
     // 위시리스트 불러오기
     Future.microtask(() {
@@ -217,12 +220,15 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
           ),
           
           // 디바이더
-          // const Divider(height: 1, thickness: 1),
+          const Divider(height: 1, thickness: 1),
           
-          // 컨텐츠 영역 - 선택된 탭에 따라 다른 내용 표시
-          _selectedWishPk != null 
-            ? _buildWishDetailContent() // 위시 상세 내용
-            : _buildWishListContent(), // 위시 목록
+          // 컨텐츠 영역 - 고정된 높이 컨테이너 내에 컨텐츠 표시
+          SizedBox(
+            height: _contentHeight,
+            child: _selectedWishPk != null 
+              ? _buildWishDetailContent() // 위시 상세 내용
+              : _buildWishListContent(), // 위시 목록
+          ),
         ],
       ),
     );
@@ -286,34 +292,60 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
     
     // 위시 목록이 비어있는 경우
     if (filteredWishes.isEmpty) {
-      return SizedBox(
-        height: MediaQuery.of(context).size.height * 0.5,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                _getEmptyImage(_selectedTab),
-                height: 150,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _getEmptyMessage(_selectedTab),
-                style: TextStyle(color: AppColors.disabled),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              _getEmptyImage(_selectedTab),
+              height: 150,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _getEmptyMessage(_selectedTab),
+              style: TextStyle(color: AppColors.disabled),
+            ),
+            
+            // + 추가하기 버튼(대기 탭일 때만 표시)
+            if (_selectedTab == WishListTab.pending) ...[
+              const SizedBox(height: 24),
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.go(BudgetRoutes.getWishlistCreatePath());
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_circle_outline, 
+                      color: AppColors.greyLight,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '추가하기',
+                      style: TextStyle(
+                        color: AppColors.backgroundBlack,
+                        fontWeight: FontWeight.w200,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
-          ),
+          ],
         ),
       );
     }
     
-    // 위시 목록 표시
+    // 위시 목록 표시 (스크롤 가능한 영역으로)
     return Column(
       children: [
-        const SizedBox(height: 20),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.5,
+        const SizedBox(height: 8),
+        Expanded(
           child: ListView.separated(
+            padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: filteredWishes.length,
             separatorBuilder: (context, index) => const Divider(thickness: 0.5),
             itemBuilder: (context, index) {
@@ -441,117 +473,113 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
     final wishlistState = ref.watch(wishlistProvider);
     
     // 선택한 위시리스트의 상세 정보가 있는지 확인
-  if (_selectedWishPk != null && 
-      wishlistState.selectedWishlist != null &&
-      wishlistState.selectedWishlist!.wishlistPk == _selectedWishPk) {
-    
-    // 상세 정보를 가져와서 컨트롤러 업데이트
-    if (mounted) {
-      final detail = wishlistState.selectedWishlist!;
+    if (_selectedWishPk != null && 
+        wishlistState.selectedWishlist != null &&
+        wishlistState.selectedWishlist!.wishlistPk == _selectedWishPk) {
       
-      // 컨트롤러가 이미 초기화되어 있고 값이 변경된 경우에만 업데이트
-      if (_nicknameController.text != detail.productNickname) {
-        _nicknameController.text = detail.productNickname;
-      }
-      
-      if (_productNameController.text != detail.productName) {
-        _productNameController.text = detail.productName;
-      }
-      
-      final formattedPrice = NumberFormat('#,###').format(detail.productPrice);
-      if (_priceController.text != formattedPrice) {
-        _priceController.text = formattedPrice;
-      }
-      
-      if (_urlController.text != (detail.productUrl ?? '')) {
-        _urlController.text = detail.productUrl ?? '';
+      // 상세 정보를 가져와서 컨트롤러 업데이트
+      if (mounted) {
+        final detail = wishlistState.selectedWishlist!;
+        
+        // 컨트롤러가 이미 초기화되어 있고 값이 변경된 경우에만 업데이트
+        if (_nicknameController.text != detail.productNickname) {
+          _nicknameController.text = detail.productNickname;
+        }
+        
+        if (_productNameController.text != detail.productName) {
+          _productNameController.text = detail.productName;
+        }
+        
+        final formattedPrice = NumberFormat('#,###').format(detail.productPrice);
+        if (_priceController.text != formattedPrice) {
+          _priceController.text = formattedPrice;
+        }
+        
+        if (_urlController.text != (detail.productUrl ?? '')) {
+          _urlController.text = detail.productUrl ?? '';
+        }
       }
     }
-  }
-  
-  // 로딩 상태 확인
-  if (wishlistState.isLoading) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 32),
-      child: Center(child: CircularProgressIndicator()),
-    );
-  }
-  
-  // 위시리스트 상세 정보 사용
-  final wishListDetail = wishlistState.selectedWishlist;
-  
-  // 데이터 없는 경우
-  if (_selectedWishPk != null && wishListDetail == null) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 32),
-      child: Center(child: Text('위시 정보를 불러올 수 없습니다')),
-    );
-  }
+    
+    // 로딩 상태 확인
+    if (wishlistState.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    
+    // 위시리스트 상세 정보 사용
+    final wishListDetail = wishlistState.selectedWishlist;
+    
+    // 데이터 없는 경우
+    if (_selectedWishPk != null && wishListDetail == null) {
+      return const Center(child: Text('위시 정보를 불러올 수 없습니다'));
+    }
 
-  // 나머지 내용은 동일하게 유지하되 wishDetail을 사용하도록 수정
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 상품 이미지와 닉네임 영역
-        _buildProductHeaderSection(wishListDetail!),
-        
-        // 디바이더
-        const Divider(height: 1, thickness: 0.5),
-        
-        // 상품명 영역
-        _buildProductNameSection(wishListDetail!),
-        
-        // 디바이더
-        const Divider(height: 1, thickness: 0.5),
-        
-        // 상품 금액 영역
-        _buildProductPriceSection(wishListDetail!),
-        
-        // 디바이더
-        const Divider(height: 1, thickness: 0.5),
-        
-        // 달성 금액 영역 (읽기 전용)
-        _buildAchievePriceSection(wishListDetail!),
-        
-        // 디바이더
-        const Divider(height: 1, thickness: 0.5),
-        
-        // 종료일 영역 (읽기 전용)
-        _buildEndDateSection(),
-        
-        // 버튼 영역
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Button(
-                  text: '삭제',
-                  onPressed: () => _deleteWish(wishListDetail.wishlistPk),
-                ),
+    // 나머지 내용은 동일하게 유지하되 스크롤 가능하게 수정
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 상품 이미지와 닉네임 영역
+            _buildProductHeaderSection(wishListDetail!),
+            
+            // 디바이더
+            const Divider(height: 1, thickness: 0.5),
+            
+            // 상품명 영역
+            _buildProductNameSection(wishListDetail),
+            
+            // 디바이더
+            const Divider(height: 1, thickness: 0.5),
+            
+            // 상품 금액 영역
+            _buildProductPriceSection(wishListDetail),
+            
+            // 디바이더
+            const Divider(height: 1, thickness: 0.5),
+            
+            // 달성 금액 영역 (읽기 전용)
+            _buildAchievePriceSection(wishListDetail),
+            
+            // 디바이더
+            const Divider(height: 1, thickness: 0.5),
+            
+            // 종료일 영역 (읽기 전용)
+            _buildEndDateSection(),
+            
+            // 버튼 영역
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Button(
+                      text: '삭제',
+                      onPressed: () => _deleteWish(wishListDetail.wishlistPk),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Button(
+                      text: '수정',
+                      onPressed: () {
+                        // 현재 활성화된 편집 필드의 저장 처리
+                        if (_isEditingNickname || _isEditingProductName || 
+                            _isEditingPrice || _isEditingUrl) {
+                          _saveWish();
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Button(
-                  text: '수정',
-                  onPressed: () {
-                    // 현재 활성화된 편집 필드의 저장 처리
-                    if (_isEditingNickname || _isEditingProductName || 
-                        _isEditingPrice || _isEditingUrl) {
-                      _saveWish();
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
   
   // 상품 이미지와 닉네임 영역
   Widget _buildProductHeaderSection(WishlistDetailResponse wish) {
@@ -1016,13 +1044,11 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
   String _getEmptyImage(WishListTab tab) {
     switch (tab) {
       case WishListTab.pending: 
-        return 'assets/images/characters/charlying_down.png';
+        return 'assets/images/characters/char_lying_down.png';
       case WishListTab.inProgress:
         return 'assets/images/characters/char_chair_phone.png';
       case WishListTab.completed:
         return 'assets/images/characters/char_angry_notebook.png';
     }
   }
-
-
 }

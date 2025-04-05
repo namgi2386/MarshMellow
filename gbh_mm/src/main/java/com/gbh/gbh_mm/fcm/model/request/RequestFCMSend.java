@@ -1,4 +1,4 @@
-package com.gbh.gbh_mm.fcm.repo.request;
+package com.gbh.gbh_mm.fcm.model.request;
 
 import lombok.Data;
 

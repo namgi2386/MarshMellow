@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Component
 @AllArgsConstructor
@@ -48,7 +49,7 @@ public class AlertScheduler {
     // 오늘의 예산 알림
     /* 매일 9시 */
     @Scheduled(cron = "0 0 9 * * ?")
-    public void sendBudgetNotification() {
+    public void sendBudgetNotification() throws InterruptedException, ExecutionException {
 
         List<User> userList = userRepository.findAll();
 

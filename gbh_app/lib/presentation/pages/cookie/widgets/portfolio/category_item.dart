@@ -31,6 +31,10 @@ class CategoryItem extends StatelessWidget {
               width: 300,
               height: 260,
               fit: BoxFit.contain,
+              colorFilter: const ColorFilter.mode(
+                AppColors.textPrimary,
+                BlendMode.srcIn,
+              ),
             ),
 
             // 텍스트 오버레이
@@ -39,7 +43,7 @@ class CategoryItem extends StatelessWidget {
               left: 30,
               right: 30,
               child: Column(
-                mainAxisSize: MainAxisSize.min, // 컨텐츠에 맞게 크기 조정
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -57,7 +61,7 @@ class CategoryItem extends StatelessWidget {
                     style: AppTextStyles.bodySmall.copyWith(
                       color: Colors.white70,
                     ),
-                    maxLines: 1, // 메모 텍스트 줄 수 제한
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],

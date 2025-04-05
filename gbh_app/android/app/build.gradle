@@ -10,9 +10,17 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    dependencies {
+        implementation 'com.google.firebase:firebase-messaging:23.3.1'
+        // ✅ 이거 추가!
+        coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.3"
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+
+        // ✅ 이거 추가!
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -42,3 +50,5 @@ android {
 flutter {
     source = "../.."
 }
+
+apply plugin: 'com.google.gms.google-services' // ✅ 맨 아래에 추가

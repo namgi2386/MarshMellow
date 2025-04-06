@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:marshmellow/data/datasources/remote/wishlist_api.dart';
+import 'package:marshmellow/data/datasources/remote/budget/wishlist_api.dart';
 import 'package:marshmellow/data/models/wishlist/wishlist_model.dart';
 import 'package:marshmellow/data/repositories/budget/wishlist_repository.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';

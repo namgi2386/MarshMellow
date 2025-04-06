@@ -6,7 +6,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_category_model.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_model.dart';
-import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/category_item.dart';
+import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_category_item.dart';
 import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_form.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/custom_search_bar/custom_search_bar.dart';

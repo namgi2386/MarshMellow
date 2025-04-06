@@ -96,6 +96,11 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public ResponseDeleteCategory deleteCategory(RequestDeleteCategory request) {
         try {
+            List<Portfolio> portfolioList =
+                    portfolioRepository.findByPortfolioCategory_PortfolioCategoryPk(request.getCategoryPk());
+
+            portfolioRepository.deleteAll(portfolioList);
+
             portfolioCategoryRepository.deleteById(request.getCategoryPk());
 
             ResponseDeleteCategory response = ResponseDeleteCategory.builder()

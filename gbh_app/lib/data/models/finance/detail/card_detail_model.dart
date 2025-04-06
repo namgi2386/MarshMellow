@@ -58,36 +58,38 @@ class CardDetailData {
 }
 
 class CardTransactionItem {
-  final String transactionUniqueNo;
-  final String merchantId;
-  final String billStatementsStatus;
-  final String billStatementsYn;
-  final String transactionBalance;
-  final String transactionDate;
-  final String transactionTime;
-  final String categoryName;
-  final String categoryId;
-  final String cardStatus;
-  final String merchantName;
+  final String? transactionUniqueNo;
+  final String? merchantId;
+  // billStatementsStatus 필드는 응답에 없음 - 제거하거나 nullable로 변경
+  final String? billStatementsStatus;
+  final String? billStatementsYn;
+  final String? transactionBalance;
+  final String? transactionDate;
+  final String? transactionTime;
+  final String? categoryName;
+  final String? categoryId;
+  final String? cardStatus;
+  final String? merchantName;
 
   CardTransactionItem({
-    required this.transactionUniqueNo,
-    required this.merchantId,
-    required this.billStatementsStatus,
-    required this.billStatementsYn,
-    required this.transactionBalance,
-    required this.transactionDate,
-    required this.transactionTime,
-    required this.categoryName,
-    required this.categoryId,
-    required this.cardStatus,
-    required this.merchantName,
+    this.transactionUniqueNo,
+    this.merchantId,
+    this.billStatementsStatus,
+    this.billStatementsYn,
+    this.transactionBalance,
+    this.transactionDate,
+    this.transactionTime,
+    this.categoryName,
+    this.categoryId,
+    this.cardStatus,
+    this.merchantName,
   });
 
   factory CardTransactionItem.fromJson(Map<String, dynamic> json) {
     return CardTransactionItem(
       transactionUniqueNo: json['transactionUniqueNo'],
       merchantId: json['merchantId'],
+      // billStatementsStatus 필드가 응답에 없으면 null로 설정
       billStatementsStatus: json['billStatementsStatus'],
       billStatementsYn: json['billStatementsYn'],
       transactionBalance: json['transactionBalance'],

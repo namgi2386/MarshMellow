@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'; // 추가
 import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
 import 'package:marshmellow/core/theme/bank_colors.dart'; // 새로 추가한 import
 
-// 계좌 정보 모델 (여기서만 써서  )
+// 계좌 정보 모델 (여기서만 써서)
 // 클래스 이름만 변경하고 내부 필드는 그대로 유지
 class DemandDepositItem {
   final String bankName;

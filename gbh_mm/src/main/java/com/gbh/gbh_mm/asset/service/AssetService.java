@@ -19,6 +19,7 @@ public interface AssetService {
 
     ResponseFindAssetList findAssetList(CustomUserDetails customUserDetails);
 
+    ResponseFindAssetList findAssetListWithNoEncrypt(CustomUserDetails customUserDetails);
 
     ResponseFindDepositDemandTransactionList findDepositDemandTransactionList
         (RequestFindDepositDemandTransactionList request,

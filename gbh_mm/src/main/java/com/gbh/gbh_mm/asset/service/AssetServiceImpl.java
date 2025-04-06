@@ -342,6 +342,182 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
+    public ResponseFindAssetList findAssetListWithNoEncrypt(CustomUserDetails customUserDetails) {
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        ResponseFindAssetList response = new ResponseFindAssetList();
+
+        String userKey = customUserDetails.getUserKey();
+        String aesKey = customUserDetails.getAesKey();
+
+        try {
+            /* 목록 조회 API 호출 */
+            Map<String, Object> responseCardData =
+                    cardAPI.findUserCardList(userKey);
+            Map<String, Object> responseDepositDemandData =
+                    demandDepositAPI.findDemandDepositAccountList(userKey);
+            Map<String, Object> responseLoanData =
+                    loanAPI.findAccountList(userKey);
+            Map<String, Object> responseSavingsData =
+                    savingsAPI.findAccountList(userKey);
+            Map<String, Object> responseDepositData =
+                    depositAPI.findAccountList(userKey);
+
+            Map<String, Object> cardApiData =
+                    (Map<String, Object>) responseCardData.get("apiResponse");
+            Map<String, Object> depositDemandApiData =
+                    (Map<String, Object>) responseDepositDemandData.get("apiResponse");
+            Map<String, Object> loanApiData =
+                    (Map<String, Object>) responseLoanData.get("apiResponse");
+            Map<String, Object> savingsApiData =
+                    (Map<String, Object>) responseSavingsData.get("apiResponse");
+            Map<String, Object> depositApiData =
+                    (Map<String, Object>) responseDepositData.get("apiResponse");
+
+            List<Map<String, Object>> responseCardList =
+                    (List<Map<String, Object>>) cardApiData.get("REC");
+            List<Map<String, Object>> responseDemandDepositList =
+                    (List<Map<String, Object>>) depositDemandApiData.get("REC");
+            List<Map<String, Object>> responseLoanList =
+                    (List<Map<String, Object>>) loanApiData.get("REC");
+            Map<String, Object> responseSavingsList =
+                    (Map<String, Object>) savingsApiData.get("REC");
+            List<Map<String, Object>> savings =
+                    (List<Map<String, Object>>) responseSavingsList.get("list");
+            Map<String, Object> responseDepositList =
+                    (Map<String, Object>) depositApiData.get("REC");
+            List<Map<String, Object>> deposits =
+                    (List<Map<String, Object>>) responseDepositList.get("list");
+
+            List<Card> cardList = responseCardList.stream()
+                    .map(cardMap -> mapper.map(cardMap, Card.class))
+                    .collect(Collectors.toList());
+
+            YearMonth current = YearMonth.now();
+            YearMonth lastMonth = current.minusMonths(1);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+            String currentString = current.format(formatter);
+            String lastMonthString = lastMonth.format(formatter);
+
+            long cardAmount = 0;
+            for (Card card : cardList) {
+                RequestFindBilling requestFindBilling = RequestFindBilling.builder()
+                        .cvc(card.getCvc())
+                        .cardNo(card.getCardNo())
+                        .startMonth(lastMonthString)
+                        .endMonth(currentString)
+                        .userKey(userKey)
+                        .build();
+
+                Map<String, Object> cardBillApi = cardAPI.findBilling(requestFindBilling);
+                Map<String, Object> cardBillData =
+                        (Map<String, Object>) cardBillApi.get("apiResponse");
+                List<Map<String, Object>> recList =
+                        (List<Map<String, Object>>) cardBillData.get("REC");
+
+                if (!recList.isEmpty()) {
+                    Map<String, Object> bill = recList.getFirst();
+                    List<Map<String, Object>> billingList =
+                            (List<Map<String, Object>>) bill.get("billingList");
+                    Map<String, Object> billing = billingList.getFirst();
+                    long totalAmount = Long.parseLong((String) billing.get("totalBalance"));
+
+                    cardAmount += totalAmount;
+
+                    String totalAmountString = String.valueOf(totalAmount);
+                    card.setCardBalance(String.valueOf(totalAmount));
+                }
+            }
+
+            CardListDto responseCard = CardListDto.builder()
+                    .totalAmount(String.valueOf(cardAmount))
+                    .cardList(cardList)
+                    .build();
+
+            /* 데이터 매핑(직렬화) */
+            List<DemandDeposit> demandDepositList = responseDemandDepositList.stream()
+                    .map(demandDepositMap ->
+                            mapper.map(demandDepositMap, DemandDeposit.class))
+                    .collect(Collectors.toList());
+
+            long demandDepositTotal = 0;
+            for (DemandDeposit demandDeposit : demandDepositList) {
+                demandDepositTotal += demandDeposit.getAccountBalance();
+                demandDeposit.setEncodedAccountBalance(String.valueOf(demandDeposit.getAccountBalance()));
+            }
+
+            /* 총 금액 계산 */
+            DemandDepositListDto responseDemandDeposit = DemandDepositListDto.builder()
+                    .demandDepositList(demandDepositList)
+                    .totalAmount(String.valueOf(demandDepositTotal))
+                    .build();
+
+            /* 데이터 매핑(직렬화) */
+            List<Loan> loanList = responseLoanList.stream()
+                    .map(loanMap -> mapper.map(loanMap, Loan.class))
+                    .collect(Collectors.toList());
+
+            /* 총 금액 계산 */
+            long loanTotalAmount = 0;
+
+            for (Loan loan : loanList) {
+                loanTotalAmount += loan.getLoanBalance();
+                loan.setEncodeLoanBalance(String.valueOf(loan.getLoanBalance()));
+            }
+
+            LoanListDto responseLoan = LoanListDto.builder()
+                    .totalAmount(String.valueOf(loanTotalAmount))
+                    .loanList(loanList)
+                    .build();
+
+            List<Savings> savingsList = savings.stream()
+                    .map(map -> mapper.map(map, Savings.class))
+                    .collect(Collectors.toList());
+
+            long savingsTotal = 0;
+            for (Savings saving : savingsList) {
+                savingsTotal += saving.getTotalBalance();
+                saving.setEncodedTotalBalance(String.valueOf(saving.getTotalBalance()));
+            }
+
+            SavingsListDto responseSavings = SavingsListDto.builder()
+                    .totalAmount(String.valueOf(savingsTotal))
+                    .savingsList(savingsList)
+                    .build();
+
+            List<Deposit> depositList = deposits.stream()
+                    .map(map -> mapper.map(map, Deposit.class))
+                    .collect(Collectors.toList());
+
+            long depositTotal = 0;
+            for (Deposit deposit : depositList) {
+                depositTotal += deposit.getDepositBalance();
+                deposit.setEncodeDepositBalance(String.valueOf(deposit.getDepositBalance()));
+            }
+
+            DepositListDto responseDeposit = DepositListDto.builder()
+                    .totalAmount(String.valueOf(depositTotal))
+                    .depositList(depositList)
+                    .build();
+
+            response.setCardData(responseCard);
+            response.setDemandDepositData(responseDemandDeposit);
+            response.setLoanData(responseLoan);
+            response.setSavingsData(responseSavings);
+            response.setDepositData(responseDeposit);
+            response.setIv(null); // IV 필요 없음
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        return response;
+    }
+
+    @Override
     public ResponseFindDepositDemandTransactionList findDepositDemandTransactionList(
         RequestFindDepositDemandTransactionList request,
         CustomUserDetails customUserDetails

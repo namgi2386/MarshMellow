@@ -40,7 +40,9 @@ class DigitalSignatureService {
       final bytes = utf8.encode(normalizedText);
       print("📦 클라 원문 바이트: $bytes");
       print("📦 클라 원문 바이트 길이: ${bytes.length}");
+      print("🔑 클라 검증용 원문(Base64) 바이트 길이: ${base64.encode(bytes).length}");
       print("🔑 클라 검증용 원문(Base64): ${base64.encode(bytes)}");
+      
       // 2. 원문 서명
       final signedData = await _certificateService.signData(normalizedText);
       
@@ -57,9 +59,8 @@ class DigitalSignatureService {
       }
       // 인증서에 \r\n 줄바꿈 유지 (기존 줄바꿈 제거 로직 변경)
       final certificatePem = certificatePemRaw
-        .replaceAll('\r', '') // 캐리지리턴 제거
-        .replaceAll('\\n', '\n') // 문자열 literal "\n" → 줄바꿈
-        .trim(); // 앞뒤 공백 제거
+          .replaceAll('\n', '\r\n')  // 일반 줄바꿈을 CRLF로 변환
+          .replaceAll('\r\r\n', '\r\n').trim(); 
 
       print('원본 인증서 데이터: $certificatePemRaw');
       print('처리된 인증서 데이터: $certificatePem');

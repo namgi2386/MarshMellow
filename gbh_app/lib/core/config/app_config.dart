@@ -11,6 +11,7 @@ class AppConfig {
   static late final Environment _environment;
   static late final String apiBaseUrl;
   static late final bool debugMode;
+  static late final String rsaPrivateKey;
   // static late final String testVariable; // 새로운 변수 추가 예시 (수정가능)(수정가능)(수정가능)(수정가능)
 
   // 환경 설정을 초기화하는 메서드
@@ -35,7 +36,12 @@ class AppConfig {
     apiBaseUrl = dotenv.get('API_BASE_URL');
     // testVariable = dotenv.get('TEST_VARIABLE'); // 새로운 변수 추가 예시 (수정가능)(수정가능)(수정가능)(수정가능)
     debugMode = dotenv.get('DEBUG_MODE') == 'true';
-    
+    // RSA 개인키 저장
+    rsaPrivateKey = "-----BEGIN PRIVATE KEY-----\n" +
+                    dotenv.get('RSA_PRIVATE_KEY') +
+                    "\n-----END PRIVATE KEY-----";
+
+
     // 초기화 로그 출력 (어떤 환경으로 시작되었는지)
     debugPrint('🚀 App initialized with ${env.name} environment');
     debugPrint('🔗 API URL: $apiBaseUrl');

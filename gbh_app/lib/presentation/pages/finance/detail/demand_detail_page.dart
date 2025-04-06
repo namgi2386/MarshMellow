@@ -102,7 +102,7 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
           _buildDateSelector(),
           Expanded(
             child: transactionsAsync.when(
-              data: (response) => _buildTransactionList(response.data.transactionList),
+              data: (response) => _buildTransactionList(response.data?.transactionList ?? []),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => Center(child: Text('오류가 발생했습니다: $error')),
             ),

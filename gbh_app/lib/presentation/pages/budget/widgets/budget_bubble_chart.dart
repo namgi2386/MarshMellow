@@ -102,22 +102,16 @@ class _BudgetBubblechartState extends ConsumerState<BudgetBubblechart> {
             
             if (tappedBubble != null) {
               // 특정 버블을 탭한 경우 해당 카테고리 상세 페이지로 이동
-              final path = BudgetRoutes.getBudgetCategoryExpensePath()
-                    .replaceFirst(':categoryPk', '${tappedBubble.category.budgetCategoryPk}');
-
               context.go(
-                path,
-                extra: {
-                  'category': tappedBubble.category,
-                'budgetPk': selectedBudget.budgetPk,
-                }
-              );     
+                  '/budget/category/expenses/${tappedBubble.category.budgetCategoryPk}',
+                  extra: {
+                    'category': tappedBubble.category,
+                    'budgetPk': selectedBudget.budgetPk,
+                  }
+                );
             } else {
               // 버블이 아닌 차트의 다른 부분을 탭한 경우 예산 상세 페이지로 이동
-              final path = BudgetRoutes.getBudgetDetailPath()
-                    .replaceFirst(':budgetPk', '${selectedBudget.budgetPk}');
-              
-              context.go(path);
+              context.go('/budget/detail/${selectedBudget.budgetPk}');
             }
           } : null,
           child: Container(

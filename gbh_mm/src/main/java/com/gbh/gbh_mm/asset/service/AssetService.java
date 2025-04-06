@@ -49,7 +49,8 @@ public interface AssetService {
 
     ResponseDeleteWithdrawalAccount deleteWithdrawalAccount(RequestDeleteWithdrawalAccount request);
 
-    ResponseAccountTransfer accountTransger(RequestWithdrawalAccountTransfer request);
+    ResponseAccountTransfer accountTransfer
+        (RequestWithdrawalAccountTransfer request, CustomUserDetails customUserDetails);
 
     ResponseAuthTest authTest();
 

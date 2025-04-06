@@ -172,15 +172,18 @@ class IconPath {
       'assets/images/celebration/confetti_yellow2.png';
 
   // 파일
-  static const String fileCsv = 'assets/icons/file/fileCsv.svg';
-  static const String fileDoc = 'assets/icons/file/fileDoc.svg';
-  static const String fileJpg = 'assets/icons/file/fileJpg.svg';
-  static const String filePdf = 'assets/icons/file/filePdf.svg';
-  static const String filePng = 'assets/icons/file/filePng.svg';
-  static const String filePpt = 'assets/icons/file/filePpt.svg';
-  static const String fileSvg = 'assets/icons/file/fileSvg.svg';
-  static const String fileText = 'assets/icons/file/fileText.svg';
-  static const String fileTxt = 'assets/icons/file/fileTxt.svg';
-  static const String fileXls = 'assets/icons/file/fileXls.svg';
-  static const String fileZip = 'assets/icons/file/fileZip.svg';
+  static const String fileCsv = 'assets/icons/files/FileCsv.svg';
+  static const String fileDoc = 'assets/icons/files/FileDoc.svg';
+  static const String fileJpg = 'assets/icons/files/FileJpg.svg';
+  static const String filePdf = 'assets/icons/files/FilePdf.svg';
+  static const String filePng = 'assets/icons/files/FilePng.svg';
+  static const String filePpt = 'assets/icons/files/FilePpt.svg';
+  static const String fileSvg = 'assets/icons/files/FileSvg.svg';
+  static const String fileText = 'assets/icons/files/FileText.svg';
+  static const String fileTxt = 'assets/icons/files/FileTxt.svg';
+  static const String fileXls = 'assets/icons/files/FileXls.svg';
+  static const String fileZip = 'assets/icons/files/FileZip.svg';
+
+  // 폴더
+  static const String folderSimple = 'assets/icons/files/folderSimple.svg';
 }

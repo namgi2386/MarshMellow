@@ -75,15 +75,15 @@ class CardItemWidget extends ConsumerWidget {
                 children: [
                   Text(
                     card.cardName,
-                    style: AppTextStyles.subTitle,
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.buttonBlack),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall),
+                  Text('${_maskCardNumber(card.cardNo)}', style: AppTextStyles.bodySmall.copyWith(color: AppColors.divider)),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(isHidden ? '금액보기' :'${formatAmount(card.cardBalance)}원', 
+                      Text(isHidden ? '금액보기' :'${formatAmount(int.tryParse(card.cardBalance ?? "0") ?? 0)}원', 
                       style:  isHidden ? AppTextStyles.bodyMediumLight : AppTextStyles.subTitle),
                       Text(isHidden ? '' :' 결제 예정', style: AppTextStyles.bodySmall.copyWith(color: AppColors.divider)),
                     ],

@@ -122,7 +122,7 @@ class LoanDetailPage extends ConsumerWidget {
             children: [
               Text('대출금', style: AppTextStyles.bodyMedium),
               Text(
-                '${NumberFormat('#,###').format(data.loanBalance)}원',
+                '${NumberFormat('#,###').format(int.tryParse(data.loanBalance) ?? 0)}원',
                 style: AppTextStyles.bodyMedium,
               ),
             ],
@@ -133,7 +133,8 @@ class LoanDetailPage extends ConsumerWidget {
             children: [
               Text('남은 상환금액', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)),
               Text(
-                '${NumberFormat('#,###').format(data.remainingLoanBalance)}원',
+                // '${NumberFormat('#,###').format(data.remainingLoanBalance)}원',
+                '${NumberFormat('#,###').format(int.tryParse(data.remainingLoanBalance) ?? 0)}원',
                 style: AppTextStyles.bodyExtraLarge,
               ),
             ],

@@ -14,14 +14,18 @@ import 'package:marshmellow/data/repositories/budget/category_repository.dart';
 // Provider for fetching category transactions
 final categoryTransactionsProvider = FutureProvider.family<List<Transaction>, CategoryExpensePageParams>(
   (ref, params) async {
+    ref.keepAlive();
     final repository = ref.watch(categoryTransactionRepositoryProvider);
-    
+
+    print('Provider 호출: budgetPk=${params.budgetPk}, categoryPk=${params.categoryPk}, categoryName=${params.categoryName}');
+
     // 카테고리 지출 내역 조회 API 호출
     return repository.getCategoryTransactions(
       budgetPk: params.budgetPk,
       categoryPk: params.categoryPk,
       startDate: params.startDate,
       endDate: params.endDate,
+      categoryName: params.categoryName,
     );
   },
 );
@@ -32,15 +36,37 @@ class CategoryExpensePageParams {
   final int categoryPk;
   final String startDate;
   final String endDate;
+  final String categoryName;
 
   CategoryExpensePageParams({
     required this.budgetPk,
     required this.categoryPk,
     required this.startDate,
     required this.endDate,
+    required this.categoryName,
   });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is CategoryExpensePageParams &&
+           other.budgetPk == budgetPk &&
+           other.categoryPk == categoryPk &&
+           other.startDate == startDate &&
+           other.endDate == endDate &&
+           other.categoryName == categoryName;
+  }
+
+  @override
+  int get hashCode {
+    return budgetPk.hashCode ^ categoryPk.hashCode ^ startDate.hashCode ^ endDate.hashCode;
+  }
 }
 
+/*
+  예산 카테고리 지출 내역 페이지
+  : 예산 카테고리의 지출 내역을 보여주는 페이지입니다.
+*/
 class CategoryExpensePage extends ConsumerWidget {
   final int categoryPk;
   final BudgetCategoryModel category;
@@ -67,14 +93,15 @@ class CategoryExpensePage extends ConsumerWidget {
       categoryPk: categoryPk,
       startDate: selectedBudget.startDate,
       endDate: selectedBudget.endDate,
+      categoryName: category.budgetCategoryName,
     );
-
+    // autoDispose 모디파이어 사용하여 불필요한 api 호출 방지
     final transactionsAsync = ref.watch(categoryTransactionsProvider(params));
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(
-        title: '${category.budgetCategoryName} 지출 내역',
+        title: '지출 내역',
         backgroundColor: category.color.withOpacity(0.1),
       ),
       body: Column(
@@ -170,8 +197,8 @@ class CategoryExpensePage extends ConsumerWidget {
                       : '예산 내에서 사용 중',
                     style: AppTextStyles.bodyExtraSmall.copyWith(
                       color: percentage > 100 
-                        ? AppColors.pinkPrimary 
-                        : AppColors.greenPrimary,
+                        ? AppColors.buttonDelete 
+                        : AppColors.backgroundBlack,
                     ),
                   ),
                 ],
@@ -200,12 +227,12 @@ class CategoryExpensePage extends ConsumerWidget {
             children: [
               _buildAmountItem('사용금액', '$formattedSpent원', 
                 percentage > 100 ? AppColors.pinkPrimary : AppColors.textPrimary),
-              _buildAmountItem('예산금액', '$formattedBudget원', AppColors.textSecondary),
               _buildAmountItem(
                 '사용률', 
                 '${percentage.toStringAsFixed(0)}%', 
                 percentage > 100 ? AppColors.pinkPrimary : category.color,
               ),
+              _buildAmountItem('예산금액', '$formattedBudget원', AppColors.textSecondary),
             ],
           ),
         ],
@@ -216,6 +243,7 @@ class CategoryExpensePage extends ConsumerWidget {
   Widget _buildAmountItem(String label, String value, Color valueColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           label,
@@ -254,7 +282,7 @@ class CategoryExpensePage extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '이 카테고리의 지출 내역이 표시됩니다',
+            '카테고리의 지출 내역이 표시됩니다',
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.disabled,
             ),

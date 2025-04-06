@@ -1,4 +1,3 @@
-// lib/router/routes/cookie_routes.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/pages/cookie/cookie_page.dart';
@@ -8,6 +7,7 @@ import 'package:marshmellow/presentation/pages/cookie/lunch_page/lunch_tutorial_
 import 'package:marshmellow/presentation/pages/cookie/quit_page/quit_page.dart';
 import 'package:marshmellow/presentation/pages/cookie/portfolio_page/portfolio_page.dart';
 import 'package:marshmellow/presentation/pages/cookie/quit_page/quit_info_page.dart';
+import 'package:marshmellow/presentation/pages/cookie/portfolio_page/portfolio_category_detail_page.dart';
 
 class CookieRoutes {
   static const String root = '/cookie';
@@ -18,14 +18,18 @@ class CookieRoutes {
   static const String info = 'info';
   static const String tutorial = 'tutorial';
   static const String run = 'run';
+  static const String portfolioCategory = 'portfolio-category';
 
   static String getLunchPath() => '$root/$lunch';
   static String getQuitPath() => '$root/$quit';
   static String getPortfolioPath() => '$root/$portfolio';
-  static String getQuitInfoPath() => '$root/$quit/$info';
 
   static String getLunchTutorialPath() => '$root/$lunch/$tutorial';
   static String getLunchRunPath() => '$root/$lunch/$run';
+
+  static String getQuitInfoPath() => '$root/$quit/$info';
+  static String getPortfolioCategoryDetailPath(int categoryPk) =>
+      '$root/$portfolio/$portfolioCategory/$categoryPk';
 }
 
 List<RouteBase> cookieRoutes = [
@@ -54,6 +58,15 @@ List<RouteBase> cookieRoutes = [
       GoRoute(
         path: 'portfolio',
         builder: (context, state) => const PortfolioPage(),
+        routes: [
+          GoRoute(
+            path: 'portfolio-category/:categoryPk',
+            builder: (context, state) {
+              final categoryPk = int.parse(state.pathParameters['categoryPk']!);
+              return PortfolioCategoryDetailPage(categoryPk: categoryPk);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: 'quit/info',

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/models/ledger/payment_method.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
-import 'package:marshmellow/data/repositories/ledger_repository.dart';
+import 'package:marshmellow/data/repositories/ledger/ledger_repository.dart';
 
 // 결제수단 상태
 class PaymentMethodState {

@@ -271,7 +271,13 @@ class _TransferPageState extends ConsumerState<TransferPage> {
                 onValueChanged: (value) {
                   setState(() {
                     _amountController.text = value;
-                    viewModel.setAmount(int.parse(value.replaceAll(',', '')));
+                    // 예외 처리 추가
+                    if (value.isNotEmpty && value != ',') {
+                      print('설정할 금액: $value');
+                      viewModel.setAmount(int.tryParse(value.replaceAll(',', '')) ?? 0);
+                    } else {
+                      viewModel.setAmount(0);
+                    }
                   });
                 },
                 initialValue: _amountController.text.isEmpty ? '' : _amountController.text,

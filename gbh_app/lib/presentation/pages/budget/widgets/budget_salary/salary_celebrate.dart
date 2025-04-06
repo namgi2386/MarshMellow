@@ -6,6 +6,7 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 // 라우트
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/constants/storage_keys.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_card.dart';
 import 'package:marshmellow/router/routes/budget_routes.dart';
 import 'package:marshmellow/router/routes/cookie_routes.dart';
 
@@ -23,6 +24,7 @@ class SalaryCelebratePage extends StatefulWidget {
 class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
   final storage = FlutterSecureStorage();
   String userName = '';
+  bool showBudgetTypeOVerlay = false;
 
   @override
   void initState() {
@@ -52,7 +54,9 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
 
         Future.delayed(const Duration(seconds: 5), () {
           if (mounted) {
-            context.push(BudgetRoutes.getBudgetTypePath());
+            setState(() {
+              showBudgetTypeOVerlay = true;
+            });
           }
         });
       });
@@ -63,10 +67,51 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
 
   }
 
+  void _navigateToBudgetTypePage() {
+    context.go(BudgetRoutes.getBudgetTypeSelectionPath());
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      body: SizedBox(),
+      body: Stack(
+        children: [
+          // BudgetTypeCard를 오버레이로 표시
+          if (showBudgetTypeOVerlay)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.4),
+                child: Center(
+                  child: AnimatedOpacity(
+                    opacity: showBudgetTypeOVerlay ? 1.0 : 0.0,
+                    duration: Duration(milliseconds: 500),
+                    child: Container(
+                      width: screenWidth * 0.85,
+                      height: screenHeight * 0.65,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 15,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: BudgetTypeCard(
+                        onTapMoreDetails: _navigateToBudgetTypePage,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

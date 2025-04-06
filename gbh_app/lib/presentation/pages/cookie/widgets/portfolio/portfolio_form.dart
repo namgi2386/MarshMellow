@@ -32,7 +32,7 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
   File? _selectedFile;
-  int? _categoryPk; // 카테고리 PK 추가
+  int? _categoryPk;
 
   @override
   void initState() {
@@ -150,12 +150,11 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
         // 화면 닫기
         Navigator.of(context).pop(true);
       } else {
-        // 에러 메시지는 뷰모델에서 state.errorMessage에 설정됨
         final errorMessage = ref.read(portfolioViewModelProvider).errorMessage;
         CompletionMessage.show(context, message: errorMessage ?? '등록 실패');
       }
     } catch (e) {
-      CompletionMessage.show(context, message: '오류가 발생했습니다: $e');
+      CompletionMessage.show(context, message: '오류 발생: $e');
     } finally {
       // 로딩 상태 해제
       if (mounted) {

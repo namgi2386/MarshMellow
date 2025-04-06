@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
@@ -9,6 +10,8 @@ import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfoli
 import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_form.dart';
+import 'package:marshmellow/data/models/cookie/portfolio/portfolio_model.dart';
+import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
 
 class PortfolioCategoryDetailPage extends ConsumerStatefulWidget {
   final int categoryPk;
@@ -34,6 +37,36 @@ class _PortfolioCategoryDetailPageState
     });
   }
 
+  // 포트폴리오 삭제 처리
+  Future<void> _deletePortfolio(Portfolio portfolio) async {
+    try {
+      final success = await ref
+          .read(portfolioViewModelProvider.notifier)
+          .deletePortfolio(portfolio.portfolioPk ?? 0);
+
+      if (context.mounted) {
+        if (success) {
+          // 성공 메시지 표시
+          CompletionMessage.show(context, message: '삭제 완료');
+
+          // 해당 카테고리의 데이터만 새로고침
+          ref
+              .read(portfolioViewModelProvider.notifier)
+              .loadPortfoliosByCategory(widget.categoryPk);
+        } else {
+          // 실패 메시지 표시
+          CompletionMessage.show(context,
+              message:
+                  ref.read(portfolioViewModelProvider).errorMessage ?? '삭제 실패');
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        CompletionMessage.show(context, message: '오류가 발생했습니다: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final portfolioState = ref.watch(portfolioViewModelProvider);
@@ -56,6 +89,7 @@ class _PortfolioCategoryDetailPageState
             onPressed: () {
               showCustomModal(
                 context: context,
+                ref: ref,
                 backgroundColor: AppColors.background,
                 child: PortfolioForm(),
               );
@@ -64,9 +98,11 @@ class _PortfolioCategoryDetailPageState
           ),
         ],
       ),
-      body: categoryPortfolios.isEmpty
-          ? _buildEmptyState()
-          : _buildPortfolioList(categoryPortfolios),
+      body: portfolioState.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : categoryPortfolios.isEmpty
+              ? _buildEmptyState()
+              : _buildPortfolioList(categoryPortfolios),
     );
   }
 
@@ -108,6 +144,7 @@ class _PortfolioCategoryDetailPageState
                   onTap: () {
                     // 포트폴리오 상세보기 로직 추가 가능
                   },
+                  onDelete: (portfolio) => _deletePortfolio(portfolio),
                 );
               },
             ),

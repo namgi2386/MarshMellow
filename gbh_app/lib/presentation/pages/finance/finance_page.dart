@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart';
+import 'package:marshmellow/presentation/pages/finance/widgets/TopTriangleBubbleWidget.dart';
 import 'package:marshmellow/presentation/pages/finance/widgets/finance_analytics_widget.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
@@ -95,7 +97,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
             onPressed: () {
               ref.read(financeViewModelProvider.notifier).fetchAssetInfo();
             },
-            tooltip: '테스트 페이지로 이동',
+            tooltip: '새로고침',
           ),
         ],
       ),
@@ -161,10 +163,23 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           const SizedBox(height: 12),
           // 총 자산 정보
           TotalAssetsWidget(totalAssets: totalAssets , scrollController: scrollController),
-          const SizedBox(height: 12),
-
+          // 클릭 버튼
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const TopTriangleBubbleWidget(
+                text: 'click',
+                baseBackgroundColor: Color.fromARGB(255, 211, 211, 211),
+                pulseBackgroundColor: Color.fromARGB(255, 180, 180, 180),
+                pulseDuration: Duration(seconds: 1),
+                width: 45,
+                height: 30,
+              ),
+            ],
+          ),
           // 입출금 계좌 정보
-FinancialSectionWidget(
+          FinancialSectionWidget(
             key: sectionKeys['입출금'], // 섹션 위치 추적용 키
             title: '입출금',
             // String 타입의 totalAmount를 int로 변환하거나 String 타입 그대로 사용
@@ -275,3 +290,4 @@ FinancialSectionWidget(
     );
   }
 }
+

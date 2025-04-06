@@ -1,19 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_model.dart';
+import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_detail_modal.dart';
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 
-class PortfolioItem extends StatelessWidget {
+class PortfolioItem extends StatefulWidget {
   final Portfolio portfolio;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final Function(Portfolio)? onDelete;
+  final SlidableController? controller;
+  final bool isSelectionMode;
+  final bool isSelected;
+  final VoidCallback? onSelectionToggle;
+  final VoidCallback? onLongPress;
 
   const PortfolioItem({
     Key? key,
     required this.portfolio,
-    required this.onTap,
+    this.onTap,
+    this.onDelete,
+    this.controller,
+    this.isSelectionMode = false,
+    this.isSelected = false,
+    this.onSelectionToggle,
+    this.onLongPress,
   }) : super(key: key);
+
+  @override
+  State<PortfolioItem> createState() => _PortfolioItemState();
+}
+
+class _PortfolioItemState extends State<PortfolioItem> {
+  bool _isDeleting = false;
 
   // 파일 확장자에 따른 아이콘을 선택하는 메서드
   String _selectFileIcon(String fileName) {
@@ -50,14 +72,21 @@ class PortfolioItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
+    // 삭제 중이면 빈 컨테이너 반환
+    if (_isDeleting) {
+      return const SizedBox.shrink();
+    }
+
+    // 아이템 본문
+    final itemContent = GestureDetector(
+      onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
+      onLongPress: widget.onLongPress,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Row(
           children: [
             SvgPicture.asset(
-              _selectFileIcon(portfolio.originFileName),
+              _selectFileIcon(widget.portfolio.originFileName),
               width: 30,
               height: 30,
               fit: BoxFit.contain,
@@ -75,7 +104,7 @@ class PortfolioItem extends StatelessWidget {
                 children: [
                   // 파일명
                   Text(
-                    portfolio.fileName,
+                    widget.portfolio.fileName,
                     style: AppTextStyles.bodyMedium,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -83,7 +112,7 @@ class PortfolioItem extends StatelessWidget {
                   const SizedBox(height: 4),
                   // 파일 메모
                   Text(
-                    portfolio.portfolioMemo,
+                    widget.portfolio.portfolioMemo,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w300,
@@ -94,9 +123,72 @@ class PortfolioItem extends StatelessWidget {
                 ],
               ),
             ),
+
+            // 선택 모드일 때 체크 아이콘 표시
+            if (widget.isSelectionMode)
+              SvgPicture.asset(
+                widget.isSelected ? IconPath.checked : IconPath.unchecked,
+                width: 20,
+                height: 20,
+              ),
           ],
         ),
       ),
     );
+
+    // 선택 모드가 아닐 때만 Slidable 사용
+    if (!widget.isSelectionMode) {
+      return Slidable(
+        key: ValueKey(widget.portfolio.portfolioPk),
+        controller: widget.controller,
+        endActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          extentRatio: 0.2,
+          dismissible: DismissiblePane(
+            key: ValueKey('dismiss-${widget.portfolio.portfolioPk}'),
+            onDismissed: () {
+              setState(() {
+                _isDeleting = true;
+              });
+
+              Future.microtask(() {
+                if (widget.onDelete != null) {
+                  widget.onDelete!(widget.portfolio);
+                }
+              });
+            },
+            closeOnCancel: true,
+            confirmDismiss: () async {
+              return true;
+            },
+          ),
+          children: [
+            CustomSlidableAction(
+              onPressed: (context) {
+                setState(() {
+                  _isDeleting = true;
+                });
+
+                Future.microtask(() {
+                  if (widget.onDelete != null) {
+                    widget.onDelete!(widget.portfolio);
+                  }
+                });
+              },
+              backgroundColor: AppColors.warnning,
+              flex: 1,
+              child: Icon(
+                Icons.delete,
+                color: AppColors.background,
+              ),
+            ),
+          ],
+        ),
+        child: itemContent,
+      );
+    }
+
+    // 선택 모드일 때
+    return itemContent;
   }
 }

@@ -1,4 +1,4 @@
-import 'package:marshmellow/data/datasources/remote/wishlist_api.dart';
+import 'package:marshmellow/data/datasources/remote/budget/wishlist_api.dart';
 import 'package:marshmellow/data/models/wishlist/wish_model.dart';
 
 class WishRepository {

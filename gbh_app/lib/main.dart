@@ -51,10 +51,13 @@ Future<void> main() async {
   // 초기화 단계
   WidgetsFlutterBinding.ensureInitialized();
   
+
   // Firebase 초기화
   await Firebase.initializeApp();
   await initLocalNotification(); // 로컬 알림 초기화
   setupFCM(); // FCM 설정 함수 호출
+ 
+
 
   // 환경 설정 및 서비스 초기화
   await Future.wait([EnvironmentLoader.load(), HiveService.init()]);

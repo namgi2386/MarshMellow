@@ -60,8 +60,10 @@ class PortfolioViewModel extends StateNotifier<PortfolioState> {
 
   // 카테고리 목록 로드
   Future<void> loadCategories() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    // 이미 로딩 중이거나 데이터가 있으면 스킵
+    if (state.isLoading || state.categories.isNotEmpty) return;
 
+    state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final categories = await _repository.getPortfolioCategoryList();
       state = state.copyWith(

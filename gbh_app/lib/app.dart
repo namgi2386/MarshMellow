@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart'; 
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart'; // 텍스트 스타일 import 추가
 import 'package:marshmellow/core/theme/app_colors.dart'; // 테마 import 추가
@@ -13,6 +14,13 @@ import 'package:marshmellow/di/providers/calendar_providers.dart';
 
 // Flutter 로컬라이제이션 패키지 추가
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
+
+// 공유된 URL을 저장할 전역 상태 제공자
+final sharedUrlProvider = StateProvider<String?>((ref) => null);
+
+// 메서드 채널 설정
+const MethodChannel _channel = MethodChannel('app.channel.shared.data');
 
 class App extends ConsumerStatefulWidget {
   final GoRouter router;
@@ -29,13 +37,58 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
+
+    // 메서드 채널 리스너 설정
+    _setupMethodChannelListener();
+    
+    // 초기 공유 텍스트 확인
+    _getInitialSharedText();
+
     // 라이프사이클 매니저 초기화 - 프로바이더를 읽는 것만으로 초기화됨
     ref.read(appLifecycleManagerProvider);
     ref.read(paydayFetchProvider);
   }
 
+  // 메서드 채널 리스너 설정
+  void _setupMethodChannelListener() {
+    _channel.setMethodCallHandler((MethodCall call) async {
+      if (call.method == 'sharedText') {
+        final String? sharedText = call.arguments as String?;
+        if (sharedText != null && sharedText.isNotEmpty) {
+
+          // 공유된 URL을 상태에 저장
+          ref.read(sharedUrlProvider.notifier).state = sharedText;
+          
+          // 위시리스트 생성 페이지로 이동
+          widget.router.go(BudgetRoutes.getWishlistCreatePath());
+        }
+      }
+      return null;
+    });
+  }
+  
+  // 초기 공유 텍스트 확인
+  Future<void> _getInitialSharedText() async {
+    try {
+      final String? sharedText = await _channel.invokeMethod('getSharedText');
+      if (sharedText != null && sharedText.isNotEmpty) {
+
+        // 공유된 URL을 상태에 저장
+        ref.read(sharedUrlProvider.notifier).state = sharedText;
+        
+        // 위시리스트 생성 페이지로 이동
+        Future.microtask(() {
+          widget.router.go(BudgetRoutes.getWishlistCreatePath());
+        });
+      }
+    } catch (e) {
+      print('초기 공유 텍스트 가져오기 오류: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp.router(
         title: 'MMApp',
         debugShowCheckedModeBanner: false,

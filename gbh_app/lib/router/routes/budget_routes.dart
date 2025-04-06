@@ -1,11 +1,13 @@
 // lib/router/routes/budget_routes.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:marshmellow/data/models/budget/budget_model.dart';
 import 'package:marshmellow/presentation/pages/budget/budget_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/budget_category_detail_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/category_expense_list_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/wish/wishlist_creation_page.dart';
+import 'package:marshmellow/app.dart';
 
 /*
   예산 routes
@@ -59,7 +61,22 @@ List<RouteBase> budgetRoutes = [
       GoRoute(
         path: BudgetRoutes.wishlistcreate,
         builder: (context, state) {
-          return WishlistCreationPage();
+          // Consumer 위젯으로 Riverpod 상태 접근
+          return Consumer(
+            builder: (context, ref, child) {
+              // 공유된 URL 접근
+              final sharedUrl = ref.read(sharedUrlProvider);
+              
+              // URL 사용 후 상태 초기화
+              if (sharedUrl != null) {
+                Future.microtask(() {
+                  ref.read(sharedUrlProvider.notifier).state = null;
+                });
+              }
+              
+              return WishlistCreationPage(sharedUrl: sharedUrl);
+            },
+          );
         },
       ),
 

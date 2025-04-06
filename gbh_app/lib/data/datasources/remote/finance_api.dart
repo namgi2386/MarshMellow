@@ -149,25 +149,15 @@ class FinanceApi {
     required String accountNo,
     required String authCode,
   }) async {
-    // 디버깅: 타입 확인 및 로그 출력
-    // print('authCode 타입: ${authCode.runtimeType}');
-    // print('authCode 값: $authCode');
-    
     final data = {
       'accountNo': accountNo,
-      'authCode': authCode.toString(), // 명시적으로 문자열 변환
+      'authCode': authCode,
+      // 'authCode': authCode.toString(), // 명시적으로 문자열 변환
     };
-    
-    // 요청 데이터 확인용 로그
-    // print('API 요청 데이터: $data');
-    
     final response = await _apiClient.post('/asset/check-account-auth', data: data);
-    
-    // 응답 확인용 로그
-    // print('API 응답: $response');
-    
     return AccountAuthVerifyResponse.fromJson(response.data);
   }
+
   // 계좌 송금
   Future<TransferResponse> transferMoney(TransferRequest request) async {
     final response = await _apiClient.post('/asset/account-transfer', data: request.toJson());

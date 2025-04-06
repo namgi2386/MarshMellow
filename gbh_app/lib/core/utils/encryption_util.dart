@@ -49,7 +49,7 @@ class EncryptionUtil {
     
     // 항상 암호화해야 하는 민감 필드들 목록
     // final sensitiveFields = ['cardNo', 'accountNo', 'cvc', 'password'];
-    final sensitiveFields = ['cardNo', 'accountNo', 'cvc', 'password','depositAccountNo','transactionSummary','transactionBalance'];
+    final sensitiveFields = ['authCode','cardNo', 'accountNo', 'cvc', 'password','depositAccountNo','transactionSummary','transactionBalance'];
     
     // 민감 필드 암호화
     sensitiveFields.forEach((field) {
@@ -147,12 +147,13 @@ class EncryptionUtil {
     if (key == 'iv') return false;
     
     // 2. 'encode' 또는 'encrypted'가 들어간 키는 암호화된 필드로 간주
-    if (key.toLowerCase().contains('encode') || key.toLowerCase().contains('encrypted')) {
+    final alwaysEncryptedFields = ['authCode', 'cardNo', 'accountNo'];
+    if (alwaysEncryptedFields.contains(key)) {
       return true;
     }
     
     // 3. 'Balance', 'amount', 'No' 등의 민감한 정보 키워드가 포함된 경우
-    final sensitiveKeywords = ['balance', 'amount', 'no', 'date', 'time', 'type', 'summary', 'memo', 'merchant', 'category', 'bill', 'status','cardNo','installment'];
+    final sensitiveKeywords = ['balance', 'amount', 'no', 'date', 'time', 'type', 'summary', 'memo', 'merchant', 'category', 'bill', 'status','cardNo','installment','authCode'];
     for (var keyword in sensitiveKeywords) {
       if (key.toLowerCase().contains(keyword)) {
         // 값이 Base64 형식인지 확인 (간단한 휴리스틱)

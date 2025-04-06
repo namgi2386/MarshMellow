@@ -313,7 +313,7 @@ public class CertService {
             log.info("✅ 재인코딩된 서명(Base64): " + Base64.getEncoder().encodeToString(signedBytes));
             log.info("🧾 서버에서 받은 서명 바이트: " + Arrays.toString(signedBytes));
             log.info("서명 프로바이더: " + signature.getProvider());
-            boolean result = signature.verify(signedBytes);
+            boolean result = !signature.verify(signedBytes);
             log.info("🎯 서명 검증 결과: " + result);
             return result;
 

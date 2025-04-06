@@ -184,10 +184,7 @@ class _MyPageState extends ConsumerState<MyPage> {
               SizedBox(height: 4),
               Text(
                 value,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.blackPrimary)
               ),
             ],
           ),
@@ -273,7 +270,7 @@ Widget _buildEditField({
     
     return Scaffold(
       appBar: CustomAppbar(
-        title: '마이구미🍇',
+        title: '마이구미 🍇',
         actions: [
           if (AppConfig.isDevelopment())
             IconButton(
@@ -282,6 +279,13 @@ Widget _buildEditField({
                 context.push(FinanceRoutes.getTestPath());
               },
               tooltip: '테스트 페이지로 이동',
+            ),
+          IconButton(
+              icon: const Icon(Icons.refresh),
+              color: AppColors.blackPrimary,
+              onPressed: () {
+                ref.read(userInfoProvider.notifier).loadAllUserInfo();
+              },
             ),
         ],
       ),
@@ -305,11 +309,12 @@ Widget _buildEditField({
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '내 정보',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
+                          child: Text(
+                            '내 정보',
+                            style: AppTextStyles.appBar.copyWith(color: AppColors.blackPrimary)
                           ),
                         ),
                         SizedBox(height: 16),
@@ -340,11 +345,11 @@ Widget _buildEditField({
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              '월급 정보',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
+                              child: Text(
+                                '월급 정보',
+                                style: AppTextStyles.appBar.copyWith(color: AppColors.blackPrimary)
                               ),
                             ),
                             // 편집 모드가 아닐 때만 편집 버튼 표시
@@ -357,11 +362,11 @@ Widget _buildEditField({
                               ),
                               child: Container(
                                 padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
-                                decoration: BoxDecoration(
-                                  color: AppColors.backgroundBlack,
-                                  borderRadius: BorderRadius.circular(5.0),
-                                ),
-                                child: SvgPicture.asset(IconPath.pencilSimple, color: AppColors.background,)
+                                // decoration: BoxDecoration(
+                                //   color: AppColors.backgroundBlack,
+                                //   borderRadius: BorderRadius.circular(5.0),
+                                // ),
+                                child: SvgPicture.asset(IconPath.pencilSimple, color: AppColors.backgroundBlack,)
                               ),
                             ) else
                             Row(
@@ -471,11 +476,11 @@ Widget _buildEditField({
                             ],
                           ),
                         SizedBox(height: 24),
-                        Text(
-                          '인증 정보',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
+                          child: Text(
+                            '인증 정보',
+                            style: AppTextStyles.appBar.copyWith(color: AppColors.blackPrimary)
                           ),
                         ),
                         SizedBox(height: 16),
@@ -496,11 +501,11 @@ Widget _buildEditField({
                           isHighlighted: true,
                         ),
                         SizedBox(height: 32),
-                        Button(
-                          onPressed: () => ref.read(userInfoProvider.notifier).loadAllUserInfo(),
-                          text: '새로고침',
-                        ),
-                        SizedBox(height: 16), // 스크롤 시 여백 확보
+                        // Button(
+                        //   onPressed: () => ref.read(userInfoProvider.notifier).loadAllUserInfo(),
+                        //   text: '새로고침',
+                        // ),
+                        // SizedBox(height: 16), // 스크롤 시 여백 확보
                       ],
                     ),
                   ),

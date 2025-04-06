@@ -83,7 +83,7 @@ class CardItemWidget extends ConsumerWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(isHidden ? '금액보기' :'${formatAmount(card.cardBalance)}원', 
+                      Text(isHidden ? '금액보기' :'${formatAmount(int.tryParse(card.cardBalance ?? "0") ?? 0)}원', 
                       style:  isHidden ? AppTextStyles.bodyMediumLight : AppTextStyles.subTitle),
                       Text(isHidden ? '' :' 결제 예정', style: AppTextStyles.bodySmall.copyWith(color: AppColors.divider)),
                     ],

@@ -38,14 +38,14 @@ class SavingDetailPage extends ConsumerWidget {
       body: paymentsAsync.when(
         data: (response) {
           // 데이터가 있는 경우
-          if (response.data.paymentList.isEmpty) {
+          if (response.data.paymentList.paymentInfo.isEmpty) {
             return const Center(
               child: Text('납입 내역이 없습니다.'),
             );
           }
           
           // 첫 번째 적금 정보 가져오기 (API 응답에서 하나의 적금만 반환된다고 가정)
-          final savingItem = response.data.paymentList[0];
+          final savingItem = response.data.paymentList;
           
           return Column(
             children: [
@@ -247,16 +247,16 @@ class SavingDetailPage extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          if (item.failureReason != null && item.failureReason!.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Text(
-                                '실패 사유: ${item.failureReason}',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.warnningLight,
-                                ),
-                              ),
-                            ),
+if (item.failureReason != null && item.failureReason!.isNotEmpty)
+  Padding(
+    padding: const EdgeInsets.only(top: 4),
+    child: Text(
+      '실패 사유: ${item.failureReason}',
+      style: AppTextStyles.bodySmall.copyWith(
+        color: AppColors.warnningLight,
+      ),
+    ),
+  ),
                         ],
                       ),
                     ),

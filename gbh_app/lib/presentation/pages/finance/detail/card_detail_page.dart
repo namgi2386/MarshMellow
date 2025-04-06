@@ -76,7 +76,7 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
               Container(
                 // color: Colors.amber,
                 child: transactionsAsync.when(
-                  data: (response) => _buildEstimatedBalance(response.data.estimatedBalance),
+                  data: (response) => _buildEstimatedBalance(int.tryParse(response.data.estimatedBalance) ?? 0),
                   loading: () => const SizedBox(
                     height: 80, // _buildDateSelector와 비슷한 높이로 설정
                   ),

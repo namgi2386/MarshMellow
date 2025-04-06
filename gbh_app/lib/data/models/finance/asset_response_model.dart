@@ -1,7 +1,7 @@
-import 'package:marshmellow/data/models/finance/card_model.dart';
-import 'package:marshmellow/data/models/finance/account_models.dart';
-
 // 응답의 최상위 모델
+import 'package:marshmellow/data/models/finance/account_models.dart';
+import 'package:marshmellow/data/models/finance/card_model.dart';
+
 class AssetResponseModel {
   final int code;
   final String message;
@@ -24,6 +24,10 @@ class AssetResponseModel {
 
 // 모든 자산 데이터를 포함하는 모델
 class AssetData {
+  //**********************************************
+  //* 추가: IV 필드 추가
+  //**********************************************
+  final String? iv;  // 응답에 포함된 IV 추가
   final CardData cardData;
   final DemandDepositData demandDepositData;
   final LoanData loanData;
@@ -31,6 +35,7 @@ class AssetData {
   final DepositData depositData;
 
   AssetData({
+    this.iv,  // IV 필드 추가
     required this.cardData,
     required this.demandDepositData,
     required this.loanData,
@@ -40,6 +45,10 @@ class AssetData {
 
   factory AssetData.fromJson(Map<String, dynamic> json) {
     return AssetData(
+      //**********************************************
+      //* 추가: json에서 iv 필드를 가져와서 저장
+      //**********************************************
+      iv: json['iv'],
       cardData: CardData.fromJson(json['cardData']),
       demandDepositData: DemandDepositData.fromJson(json['demandDepositData']),
       loanData: LoanData.fromJson(json['loanData']),

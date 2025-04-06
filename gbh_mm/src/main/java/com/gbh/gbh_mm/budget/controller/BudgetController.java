@@ -1,6 +1,5 @@
 package com.gbh.gbh_mm.budget.controller;
 
-import com.gbh.gbh_mm.budget.model.entity.Budget;
 import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.model.request.RequestCreateBudget;
 import com.gbh.gbh_mm.budget.model.request.RequestFindHouseholdOfBudget;

@@ -34,6 +34,7 @@ import com.gbh.gbh_mm.user.repo.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -448,7 +449,13 @@ public class HouseholdServiceImpl implements HouseholdService {
                 .householdDetailCategory(householdDetailCategory)
                 .householdClassificationCategory(householdDto.getHouseholdClassificationCategory())
                 .build();
-            householdList.add(household);
+
+            try {
+                householdRepository.save(household);
+                householdList.add(household);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             // 입출금 내역 예산 반영
             if (household.getHouseholdClassificationCategory().equals("WITHDRAWAL")) {
@@ -482,12 +489,11 @@ public class HouseholdServiceImpl implements HouseholdService {
                     }
                 }
 
-
             }
 
         }
 
-        householdRepository.saveAll(householdList);
+
 
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -709,5 +715,79 @@ public class HouseholdServiceImpl implements HouseholdService {
         } catch (JsonProcessingException e) {
             return null;
         }
+    }
+
+    @Override
+    public ResponseAiAvg findAiAvg(CustomUserDetails customUserDetails) {
+        User user = userRepository.findByUserPk(customUserDetails.getUserPk())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+//        List<Household> householdList = householdRepository
+//                .findAllByUser_UserPkAndHouseholdClassificationCategoryOrderByTradeDateAsc
+//                        (customUserDetails.getUserPk(), HouseholdClassificationEnum.WITHDRAWAL);
+        List<Household> householdList = householdRepository
+                .findAllWithDetailAndAiCategoryAndHouseholdCategory(customUserDetails.getUserPk(), HouseholdClassificationEnum.WITHDRAWAL);
+
+        long fixedAvg = 0;
+        long foodAvg = 0;
+        long trafficAvg = 0;
+        long martAvg = 0;
+        long bankAvg = 0;
+        long leisureAvg = 0;
+        long coffeeAvg = 0;
+        long shoppingAvg = 0;
+        long emergencyAvg = 0;
+
+        for (Household household : householdList) {
+            switch (household.getHouseholdDetailCategory().getAiCategory().getAiCategoryPk()) {
+                case 1:
+                    fixedAvg += household.getHouseholdAmount();
+                case 2:
+                    foodAvg += household.getHouseholdAmount();
+                case 3:
+                    trafficAvg += household.getHouseholdAmount();
+                case 4:
+                    martAvg += household.getHouseholdAmount();
+                case 5:
+                    bankAvg += household.getHouseholdAmount();
+                case 6:
+                    leisureAvg += household.getHouseholdAmount();
+                case 7:
+                    coffeeAvg += household.getHouseholdAmount();
+                case 8:
+                    shoppingAvg += household.getHouseholdAmount();
+                case 9:
+                    emergencyAvg += household.getHouseholdAmount();
+            }
+        }
+
+        String startDateStr = householdList.get(0).getTradeDate();
+        String endDateStr = householdList.get(householdList.size() - 1).getTradeDate();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate startDate = LocalDate.parse(startDateStr, formatter);
+        LocalDate endDate = LocalDate.parse(endDateStr, formatter);
+
+        long totalDays = ChronoUnit.DAYS.between(startDate, endDate);
+
+        double monthDiff = totalDays / 30.44;
+
+        double totalSalary = user.getSalaryAmount() * monthDiff;
+
+
+        ResponseAiAvg response = ResponseAiAvg.builder()
+                .salary(user.getSalaryAmount())
+                .fixedAvg(fixedAvg/totalSalary)
+                .foodAvg(foodAvg/totalSalary)
+                .trafficAvg(trafficAvg/totalSalary)
+                .martAvg(martAvg/totalSalary)
+                .bankAvg(bankAvg/totalSalary)
+                .leisureAvg(leisureAvg/totalSalary)
+                .coffeeAvg(coffeeAvg/totalSalary)
+                .shoppingAvg(shoppingAvg/totalSalary)
+                .emergencyAvg(emergencyAvg/totalSalary)
+                .build();
+
+        return response;
     }
 }

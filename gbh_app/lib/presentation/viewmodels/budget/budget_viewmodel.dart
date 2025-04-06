@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:marshmellow/data/models/budget/budget_model.dart';
 import 'package:marshmellow/data/repositories/budget/budget_repository.dart';
-import 'package:marshmellow/di/providers/budget_provider.dart';
+import 'package:marshmellow/di/providers/budget/budget_provider.dart';
 
 // Budget ViewModel 상태 클래스
 class BudgetState {

@@ -85,11 +85,11 @@
     if (assetData == null) return 0;
     
     // 각 자산 유형별 금액 합산 및 부채 차감
-    return assetData.cardData.totalAmount + 
-          assetData.demandDepositData.totalAmount + 
-          assetData.savingsData.totalAmount + 
-          assetData.depositData.totalAmount - 
-          assetData.loanData.totalAmount;
+    return (int.tryParse(assetData.cardData.totalAmount) ?? 0) + 
+          (int.tryParse(assetData.demandDepositData.totalAmount) ?? 0) + 
+          (int.tryParse(assetData.savingsData.totalAmount) ?? 0) + 
+          (int.tryParse(assetData.depositData.totalAmount) ?? 0) - 
+          (int.tryParse(assetData.loanData.totalAmount) ?? 0);
   }
   
   /// 자산 데이터 강제 새로고침 메소드

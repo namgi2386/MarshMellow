@@ -9,4 +9,5 @@ public class Deposit {
     private String accountNo;
     private String accountName;
     private long depositBalance;
+    private String encodeDepositBalance;
 }

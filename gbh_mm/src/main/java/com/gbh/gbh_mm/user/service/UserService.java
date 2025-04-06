@@ -13,11 +13,14 @@ import com.gbh.gbh_mm.user.model.request.*;
 import com.gbh.gbh_mm.user.model.response.*;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.user.util.JwtTokenProvider;
+
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -27,10 +30,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.Date;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -50,6 +54,9 @@ public class UserService {
 
     @Value("${spring.mail.username}")
     private String serverEmail;
+
+    @Value("${rsa.pubkey}")
+    private String rsaPubKey;
 
     public IdentityVerificationResponseDto verify(
         IdentityVerificationRequestDto identityVerificationRequestDto) {
@@ -423,5 +430,37 @@ public class UserService {
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return user.getSalaryDate();
+    }
+
+    @Transactional
+    public String createAesKey(CustomUserDetails userDetails) {
+        User user = userRepository.findByUserPk(userDetails.getUserPk())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        try {
+            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+            keyGen.init(128);
+
+            SecretKey aesKey = keyGen.generateKey();
+
+            String encodedAes = Base64.getEncoder().encodeToString(aesKey.getEncoded());
+
+            user.setAesKey(encodedAes);
+            userRepository.save(user);
+
+            byte[] rsaPubKeyByte = Base64.getDecoder().decode(rsaPubKey);
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(rsaPubKeyByte);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
+            PublicKey rsaPublicKey = keyFactory.generatePublic(spec);
+
+            Cipher ciper = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            ciper.init(Cipher.ENCRYPT_MODE, rsaPublicKey);
+            byte[] encryptedBytes = ciper.doFinal(aesKey.getEncoded());
+
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

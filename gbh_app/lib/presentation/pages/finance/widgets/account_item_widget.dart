@@ -123,7 +123,7 @@ class AccountItemWidget extends ConsumerWidget {
           },
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8.0, 8.0, 14.0, 8.0),
+          padding: const EdgeInsets.fromLTRB(8.0, 12.0, 14.0, 12.0),
           child: Row(
             children: [
               Padding(
@@ -140,7 +140,7 @@ class AccountItemWidget extends ConsumerWidget {
                     // Text('타입: $type'),
                     Text(
                       accountName,
-                      style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600,
+                      style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w400,
                       color: AppColors.blackLight)
                     ),
                     // if (bankName != '-') Text('은행: $bankName'),
@@ -154,7 +154,7 @@ class AccountItemWidget extends ConsumerWidget {
                   ],
                 ),
               ),
-              noMoneyMan
+              noMoneyMan // 입출금 계좌 여부 판단 변수 
                 ? GestureDetector(
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 상세페이지 테스트중 <<<<<<<<<<<<<<<<<<<<<<<<<
                     onTap: () {

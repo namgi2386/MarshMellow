@@ -25,8 +25,7 @@ final encryptionUtilProvider = Provider<EncryptionUtil>((ref) {
 });
 
 // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-const String TEST_TOKEN =
-    'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzkzMzMyMCwiZXhwIjoxNzQzOTUxMzIwfQ.0Oq2fDesUAPezQHFLsDtyHh01x67iNzWHkVYEn6luzmsqifVaAYuWVwS2ix2OOU9AK9djhmXDnCtfpPafSRmMA';
+const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzkzMzMyMCwiZXhwIjoxNzQzOTUxMzIwfQ.0Oq2fDesUAPezQHFLsDtyHh01x67iNzWHkVYEn6luzmsqifVaAYuWVwS2ix2OOU9AK9djhmXDnCtfpPafSRmMA';
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // Dio 프로바이더
@@ -69,6 +68,7 @@ final dioProvider = Provider<Dio>((ref) {
         try {
           // 요청 데이터가 있는 경우만 처리
           if (options.data != null) {
+            print('암호화 전 요청 데이터: ${options.data}');
             Map<String, dynamic> requestData;
             
             // 문자열인 경우 JSON으로 파싱
@@ -87,6 +87,7 @@ final dioProvider = Provider<Dio>((ref) {
             // 요청 데이터 암호화
             final encryptedData = await encryptionUtil.encryptRequest(requestData);
             options.data = encryptedData;
+            print('암호화 후 요청 데이터: ${options.data}');
           }
         } catch (e) {
           print('요청 암호화 오류: $e');

@@ -146,6 +146,9 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
             //     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             //   ),
             // ),
+            // Text('@@ee@@${accountList[0].toString()}'), // Map<String, dynamic> Instance of 'DemandDepositItem'
+            // Text('@@ee@@${accountList[0].encodedAccountBalance}'), 
+            // Text('@@ee@@${accountList[0].demandDepositData.totalAmount}'), 
             Expanded(
               child: Stack(
                 alignment: Alignment.center,
@@ -225,6 +228,8 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
   // 카드 컨텐츠만 생성 (지갑 모양 없이)
   Widget _buildCardContent(BuildContext context, List accountList, int mainIndex) {
     final item = accountList[mainIndex];
+    // print('@@@@@here@ : ${item.accountName}');
+    // print('@@@@@her2e@ : ${item.accountBalance}');
     
     // 계좌 정보 추출
     String bankName = '';
@@ -238,19 +243,19 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
         bankName = item.bankName;
         accountNo = item.accountNo;
         accountName = item.accountName;
-        balance = item.accountBalance;
+        balance = item.encodedAccountBalance;
         break;
       case '예금':
         bankName = item.bankName;
         accountNo = item.accountNo;
         accountName = item.accountName;
-        balance = item.depositBalance;
+        balance = item.encodeDepositBalance;
         break;
       case '적금':
         bankName = item.bankName;
         accountNo = item.accountNo;
         accountName = item.accountName;
-        balance = item.totalBalance;
+        balance = item.encodedTotalBalance;
         break;
       case '카드':
         bankName = item.cardIssuerName;
@@ -262,7 +267,7 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
         bankName = ""; // 대출은 bankName이 없음
         accountNo = item.accountNo;
         accountName = item.accountName;
-        balance = item.loanBalance;
+        balance = item.encodeLoanBalance;
         break;
       default:
         bankName = '알 수 없음';

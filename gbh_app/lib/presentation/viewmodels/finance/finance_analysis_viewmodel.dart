@@ -194,7 +194,7 @@ class FinanceAnalysisViewModel extends StateNotifier<FinanceAnalysisState> {
   bool _checkSmallLoan(AssetData assetData) {
     // 500만원 이하의 대출 보유 여부 확인
     return assetData.loanData.loanList.any(
-      (loan) => loan.loanBalance <= 5000000
+      (loan) => (loan.loanBalance ?? 0) <= 5000000
     );
   }
 
@@ -202,7 +202,7 @@ class FinanceAnalysisViewModel extends StateNotifier<FinanceAnalysisState> {
   bool _checkMultipleSmallSavings(AssetData assetData) {
     // 100만원 이하 적금이 3개 이상인지 확인
     final smallSavings = assetData.savingsData.savingsList.where(
-      (savings) => savings.totalBalance <= 1000000
+      (savings) => (savings.totalBalance ?? 0) <= 1000000
     ).toList();
     
     return smallSavings.length >= 3;
@@ -223,8 +223,8 @@ class FinanceAnalysisViewModel extends StateNotifier<FinanceAnalysisState> {
   // 유형 6: 예적금 총액 높음 체크
   bool _checkHighTotalSavings(AssetData assetData) {
     // 예금 + 적금 총액이 1억 이상인지 확인
-    final totalDeposit = assetData.depositData.totalAmount;
-    final totalSavings = assetData.savingsData.totalAmount;
+    final totalDeposit = int.tryParse(assetData.depositData.totalAmount) ?? 0;
+    final totalSavings = int.tryParse(assetData.savingsData.totalAmount) ?? 0;
     
     return (totalDeposit + totalSavings) >= 100000000;
   }

@@ -151,7 +151,7 @@ class TransferViewModel extends StateNotifier<TransferState> {
         withdrawalAccountId: state.withdrawalAccountId,
         depositAccountNo: state.depositAccountNo,
         transactionSummary: '송금',  // 기본값
-        transactionBalance: state.amount,
+        transactionBalance: state.amount.toString(),
       );
 
       final financeApi = _ref.read(financeApiProvider);

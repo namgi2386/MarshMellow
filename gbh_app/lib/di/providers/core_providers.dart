@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/config/app_config.dart';
+import '../../core/utils/encryption_util.dart';
+import 'dart:convert';
 
 // SharedPreferences 프로바이더
 final sharedPreferencesProvider = Provider<SharedPreferences?>((ref) {
@@ -14,6 +16,12 @@ final sharedPreferencesProvider = Provider<SharedPreferences?>((ref) {
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return FlutterSecureStorage(
       aOptions: AndroidOptions(encryptedSharedPreferences: true));
+});
+
+// 암호화 유틸리티 프로바이더
+final encryptionUtilProvider = Provider<EncryptionUtil>((ref) {
+  final secureStorage = ref.read(secureStorageProvider);
+  return EncryptionUtil(secureStorage);
 });
 
 // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
@@ -39,6 +47,9 @@ final dioProvider = Provider<Dio>((ref) {
     },
   ));
 
+  // 암호화 유틸리티
+  final encryptionUtil = ref.read(encryptionUtilProvider);
+
   dio.interceptors.add(InterceptorsWrapper(
     // 요청 인터셉터 추가 - accessToken 처리
     onRequest: (options, handler) async {
@@ -52,11 +63,62 @@ final dioProvider = Provider<Dio>((ref) {
           options.headers['Authorization'] = 'Bearer $token';
         }
       }
+      // 자산 API 요청인 경우 암호화 처리
+      if (encryptionUtil.isAssetApiPath(options.path)) {
+        try {
+          // 요청 데이터가 있는 경우만 처리
+          if (options.data != null) {
+            Map<String, dynamic> requestData;
+            
+            // 문자열인 경우 JSON으로 파싱
+            if (options.data is String) {
+              requestData = jsonDecode(options.data);
+            } 
+            // Map인 경우 그대로 사용
+            else if (options.data is Map) {
+              requestData = Map<String, dynamic>.from(options.data);
+            }
+            // 다른 타입인 경우 변환
+            else {
+              requestData = Map<String, dynamic>.from(options.data);
+            }
+            
+            // 요청 데이터 암호화
+            final encryptedData = await encryptionUtil.encryptRequest(requestData);
+            options.data = encryptedData;
+          }
+        } catch (e) {
+          print('요청 암호화 오류: $e');
+          return handler.reject(DioException(
+            requestOptions: options,
+            error: '요청 암호화 실패: $e',
+          ));
+        }
+      }
+      
       return handler.next(options);
     },
 
     // 응답 인터셉터 추가 - 백엔드 커스텀 상태 코드 처리
-    onResponse: (response, handler) {
+    onResponse: (response, handler) async {
+      // 자산 API 응답인 경우 복호화 처리
+      if (encryptionUtil.isAssetApiPath(response.requestOptions.path)) {
+        try {
+          // 응답 데이터가 Map인 경우 복호화 시도
+          if (response.data is Map) {
+            final Map<String, dynamic> responseData = Map<String, dynamic>.from(response.data);
+            final decryptedData = await encryptionUtil.decryptResponse(responseData);
+            response.data = decryptedData;
+          }
+        } catch (e) {
+          print('응답 복호화 오류: $e');
+          return handler.reject(DioException(
+            requestOptions: response.requestOptions,
+            response: response,
+            error: '응답 복호화 실패: $e',
+          ));
+        }
+      }
       // 응답에서 실제 상태 코드 확인 (response.data.status)
       if (response.data is Map && response.data['status'] != null) {
         final statusCode = response.data['status'];

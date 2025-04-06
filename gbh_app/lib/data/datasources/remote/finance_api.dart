@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/datasources/remote/api_client.dart';
@@ -105,6 +107,21 @@ class FinanceApi {
     };
 
     final response = await _apiClient.getWithBody('/asset/card-transaction', data: data);
+    // 디버깅 로그 추가
+    print('카드 거래내역 API 응답: ${response.data.runtimeType}');
+    print('응답 데이터: ${response.data}');
+    
+    if (response.data is String) {
+      // 문자열인 경우 JSON 파싱 시도
+      try {
+        final Map<String, dynamic> parsedData = jsonDecode(response.data);
+        return CardDetailResponse.fromJson(parsedData);
+      } catch (e) {
+        print('JSON 파싱 오류: $e');
+        rethrow;
+      }
+    }
+    
     return CardDetailResponse.fromJson(response.data);
   }
 

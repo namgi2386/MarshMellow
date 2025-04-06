@@ -89,6 +89,14 @@ class _FinancePageState extends ConsumerState<FinancePage> {
         title: 'my little 자산',
         actions: [
           const SimpleToggleButton(), // 분리한 커스텀 토글 버튼 위젯
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            color: AppColors.backgroundBlack,
+            onPressed: () {
+              ref.read(financeViewModelProvider.notifier).fetchAssetInfo();
+            },
+            tooltip: '테스트 페이지로 이동',
+          ),
         ],
       ),
       body: Center(
@@ -156,10 +164,11 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           const SizedBox(height: 12),
 
           // 입출금 계좌 정보
-          FinancialSectionWidget(
+FinancialSectionWidget(
             key: sectionKeys['입출금'], // 섹션 위치 추적용 키
             title: '입출금',
-            totalAmount: data.data.demandDepositData.totalAmount,
+            // String 타입의 totalAmount를 int로 변환하거나 String 타입 그대로 사용
+            totalAmount: int.tryParse(data.data.demandDepositData.totalAmount) ?? 0,
             isEmpty: data.data.demandDepositData.demandDepositList.isEmpty,
             emptyMessage: '등록된 입출금 계좌가 없습니다.',
             itemList: data.data.demandDepositData.demandDepositList
@@ -167,7 +176,10 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                     bankName: account.bankName,
                     accountName: account.accountName,
                     accountNo: account.accountNo,
-                    balance: account.accountBalance,
+                    // encodedAccountBalance를 사용하거나 복호화된 accountBalance 사용
+                    balance: account.encodedAccountBalance != null
+                        ? int.tryParse(account.encodedAccountBalance!) ?? 0
+                        : account.accountBalance ?? 0,
                     noMoneyMan: true,
                     type: '입출금'))
                 .toList(),
@@ -177,7 +189,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           FinancialSectionWidget(
             key: sectionKeys['카드'], // 섹션 위치 추적용 키
             title: '${currentMonth}월 카드 결제',
-            totalAmount: data.data.cardData.totalAmount,
+            totalAmount: int.tryParse(data.data.cardData.totalAmount)?? 0,
             isEmpty: data.data.cardData.cardList.isEmpty,
             emptyMessage: '등록된 카드가 없습니다.',
             itemList: data.data.cardData.cardList
@@ -200,7 +212,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           FinancialSectionWidget(
             key: sectionKeys['예적금'], // 섹션 위치 추적용 키
             title: '예금',
-            totalAmount: data.data.depositData.totalAmount,
+            totalAmount: int.tryParse(data.data.depositData.totalAmount) ?? 0,
             isEmpty: data.data.depositData.depositList.isEmpty,
             emptyMessage: '등록된 예금이 없습니다.',
             itemList: data.data.depositData.depositList
@@ -208,7 +220,10 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                     bankName: account.bankName,
                     accountName: account.accountName,
                     accountNo: account.accountNo,
-                    balance: account.depositBalance,
+                    // encodeDepositBalance를 사용하거나 복호화된 depositBalance 사용
+                    balance: account.encodeDepositBalance != null
+                        ? int.tryParse(account.encodeDepositBalance!) ?? 0
+                        : account.depositBalance ?? 0,
                     type: '예금'))
                 .toList(),
           ),
@@ -216,7 +231,8 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           // 적금 정보
           FinancialSectionWidget(
             title: '적금',
-            totalAmount: data.data.savingsData.totalAmount,
+            // String 타입의 totalAmount를 int로 변환
+            totalAmount: int.tryParse(data.data.savingsData.totalAmount) ?? 0,
             isEmpty: data.data.savingsData.savingsList.isEmpty,
             emptyMessage: '등록된 적금이 없습니다.',
             itemList: data.data.savingsData.savingsList
@@ -224,7 +240,10 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                     bankName: account.bankName,
                     accountName: account.accountName,
                     accountNo: account.accountNo,
-                    balance: account.totalBalance,
+                    // encodedTotalBalance를 사용하거나 복호화된 totalBalance 사용
+                    balance: account.encodedTotalBalance != null
+                        ? int.tryParse(account.encodedTotalBalance!) ?? 0
+                        : account.totalBalance ?? 0,
                     type: '적금'))
                 .toList(),
           ),
@@ -233,7 +252,8 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           FinancialSectionWidget(
             key: sectionKeys['대출'], // 섹션 위치 추적용 키
             title: '대출',
-            totalAmount: data.data.loanData.totalAmount,
+            // String 타입의 totalAmount를 int로 변환
+            totalAmount: int.tryParse(data.data.loanData.totalAmount) ?? 0,
             isEmpty: data.data.loanData.loanList.isEmpty,
             emptyMessage: '등록된 대출이 없습니다.',
             itemList: data.data.loanData.loanList
@@ -241,11 +261,15 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                     bankName: '-', // 은행명 정보 없음
                     accountName: loan.accountName,
                     accountNo: loan.accountNo,
-                    balance: loan.loanBalance,
+                    // encodeLoanBalance를 사용하거나 복호화된 loanBalance 사용
+                    balance: loan.encodeLoanBalance != null
+                        ? int.tryParse(loan.encodeLoanBalance!) ?? 0
+                        : loan.loanBalance ?? 0,
                     isLoan: true,
                     type: '대출'))
                 .toList(),
           ),
+
         ],
       ),
     );

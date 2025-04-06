@@ -164,7 +164,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           const SizedBox(height: 12),
 
           // 입출금 계좌 정보
-FinancialSectionWidget(
+          FinancialSectionWidget(
             key: sectionKeys['입출금'], // 섹션 위치 추적용 키
             title: '입출금',
             // String 타입의 totalAmount를 int로 변환하거나 String 타입 그대로 사용

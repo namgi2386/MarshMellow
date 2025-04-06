@@ -92,38 +92,44 @@ class FinanceApi {
     }
   }
 
-  // 카드 거래내역 조회 API 메서드
-  Future<CardDetailResponse> getCardTransactions({
-    required String cardNo,
-    required String cvc,
-    required String startDate,
-    required String endDate,
-  }) async {
-    final data = {
-      'cardNo': cardNo,
-      'cvc': cvc,
-      'startDate': startDate,
-      'endDate': endDate,
-    };
+Future<CardDetailResponse> getCardTransactions({
+  required String cardNo,
+  required String cvc,
+  required String startDate,
+  required String endDate,
+}) async {
+  final data = {
+    'cardNo': cardNo,
+    'cvc': cvc,
+    'startDate': startDate,
+    'endDate': endDate,
+  };
 
+  try {
     final response = await _apiClient.getWithBody('/asset/card-transaction', data: data);
-    // 디버깅 로그 추가
-    print('카드 거래내역 API 응답: ${response.data.runtimeType}');
-    print('응답 데이터: ${response.data}');
     
+    // response.data가 null이 아닌지 확인
+    if (response.data == null) {
+      throw Exception('응답 데이터가 null입니다');
+    }
+    
+    // 응답 타입 확인 로직
     if (response.data is String) {
-      // 문자열인 경우 JSON 파싱 시도
       try {
         final Map<String, dynamic> parsedData = jsonDecode(response.data);
         return CardDetailResponse.fromJson(parsedData);
       } catch (e) {
         print('JSON 파싱 오류: $e');
-        rethrow;
+        throw Exception('응답 데이터 파싱 실패: $e');
       }
     }
     
     return CardDetailResponse.fromJson(response.data);
+  } catch (e) {
+    print('카드 거래내역 조회 실패: $e');
+    rethrow;
   }
+}
 
   // 출금계좌 목록 조회
   Future<WithdrawalAccountResponse> getWithdrawalAccounts() async {

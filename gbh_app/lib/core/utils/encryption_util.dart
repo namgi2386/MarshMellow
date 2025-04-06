@@ -147,7 +147,7 @@ class EncryptionUtil {
     if (key == 'iv') return false;
     
     // 2. 'encode' 또는 'encrypted'가 들어간 키는 암호화된 필드로 간주
-    final alwaysEncryptedFields = ['authCode', 'cardNo', 'accountNo'];
+    final alwaysEncryptedFields = ['authCode', 'cardNo', 'accountNo','cvc'];
     if (alwaysEncryptedFields.contains(key)) {
       return true;
     }

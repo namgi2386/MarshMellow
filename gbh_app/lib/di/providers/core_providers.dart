@@ -25,7 +25,7 @@ final encryptionUtilProvider = Provider<EncryptionUtil>((ref) {
 });
 
 // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzkxNTIwOSwiZXhwIjoxNzQzOTMzMjA5fQ.z12mScUNjOezm13ZE5jR3Z_GE7cCGMSnlnaJKmmYF8DddanK_0MqL6p7bEvIi6Pv5nf62WKoogg2L5mUy2tDfA';
+const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0MzkzMzMyMCwiZXhwIjoxNzQzOTUxMzIwfQ.0Oq2fDesUAPezQHFLsDtyHh01x67iNzWHkVYEn6luzmsqifVaAYuWVwS2ix2OOU9AK9djhmXDnCtfpPafSRmMA';
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // Dio 프로바이더

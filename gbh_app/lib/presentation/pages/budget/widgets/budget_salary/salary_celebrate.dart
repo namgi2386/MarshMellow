@@ -40,6 +40,8 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
         });
       }
 
+      print('🥕🥕User name: $userName');
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showCelebrationPopup(
           context,

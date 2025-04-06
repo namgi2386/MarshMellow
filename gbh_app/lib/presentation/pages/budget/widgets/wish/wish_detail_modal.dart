@@ -108,27 +108,6 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
     _urlController.dispose();
     super.dispose();
   }
-  
-  // URL 열기 함수
-  Future<void> _launchURL(String url) async {
-    if (url.isEmpty) return;
-    
-    // URL에 프로토콜이 없으면 추가
-    String launchUrl = url;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      launchUrl = 'https://$url';
-    }
-    
-    try {
-      await launch(launchUrl);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('URL을 열 수 없습니다: $launchUrl')),
-        );
-      }
-    }
-  }
 
   // 탭 변경 처리
   void _changeTab(WishListTab tab) {

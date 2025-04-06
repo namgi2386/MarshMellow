@@ -256,7 +256,7 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
         bankName = item.cardIssuerName;
         accountNo = item.cardNo;
         accountName = item.cardName;
-        balance = item.cardBalance;
+        balance = item.cardBalance != null ? int.tryParse(item.cardBalance!) ?? 0 : 0;
         break;
       case '대출':
         bankName = ""; // 대출은 bankName이 없음

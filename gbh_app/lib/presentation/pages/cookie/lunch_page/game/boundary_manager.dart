@@ -16,6 +16,7 @@ class BoundaryManager {
 
 void addDefaultBoundaries() {
   final wallThickness = worldSize.x * 0.01;
+
   
   // 바닥 추가
   final floor = Floor(
@@ -38,7 +39,41 @@ void addDefaultBoundaries() {
     size: Vector2(wallThickness, worldSize.y),
     color: Colors.brown.shade600,
   ));
-  
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // 상단에 회전하는 막대기 추가
+  final rotatingBarWidth = worldSize.x * 0.1; // 막대기 길이는 화면 너비의 10%
+  final rotatingBarHeight = worldSize.x * 0.02; // 막대기 높이는 벽 두께의 2배
+  final rotatingBarY = worldSize.y * 0.1; // 화면 상단에서 10% 위치에 배치
+
+  // 롤링썬더
+  game.add(Wall(
+    position: Vector2(worldSize.x / 2, rotatingBarY*1.55),
+    size: Vector2(rotatingBarWidth*2, rotatingBarHeight),
+    color: const Color.fromARGB(255, 226, 53, 229),
+    isRotating: true, // Wall 클래스에 isRotating 속성 추가 필요
+    rotationSpeed: 1.0, // 회전 속도 설정 (라디안/초)
+  ));
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  final MyX = worldSize.x*0.1; // 장애물 높이 (화면 높이의 1/20)
+  final MyY = worldSize.y*0.1; // 장애물 높이 (화면 높이의 1/20)
+  final MyWidth = worldSize.x * 0.01; // 장애물 너비 (화면 너비의 60%)
+  final MyHeight = worldSize.y * 0.01; // 세로 간격 (화면 높이의 1/12)
+  game.add(Wall(
+    position: Vector2(MyX  , MyY),
+    size: Vector2(MyWidth, MyHeight*10),
+    color: Colors.orange.shade700,
+    // angle:  math.pi / 3.14
+  ));
+  // game.add(Wall(
+  //   position: Vector2(worldSize.x * 0.2, worldSize.y / 20 * 3 ),
+  //   size: Vector2(MyX, worldSize.y / 8),
+  //   color: const Color.fromARGB(255, 101, 255, 240),
+  // ));
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   // 지그재그 장애물 추가 (왼쪽 -> 오른쪽 방향)
   final obstacleHeight = worldSize.y / 20; // 장애물 높이 (화면 높이의 1/20)
   final obstacleWidth = worldSize.x * 0.6; // 장애물 너비 (화면 너비의 60%)

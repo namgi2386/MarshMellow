@@ -44,4 +44,18 @@ public class AlertScheduler {
             alertService.sendNotification(user.getFcmToken(), title, body);
         }
     }
+
+    // 오늘의 예산 알림
+    /* 매일 9시 */
+    @Scheduled(cron = "0 0 9 * * ?")
+    public void sendBudgetNotification() {
+
+        List<User> userList = userRepository.findAll();
+
+        for (User user : userList) {
+            if (user.getFcmToken() != null) {
+                alertService.sendBudgetNotification(user);
+            }
+        }
+    }
 }

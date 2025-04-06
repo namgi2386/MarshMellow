@@ -1,3 +1,4 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -28,7 +29,40 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
   List<String> _winners = [];
   // 현재 선택된 경기장 타입
   BoundaryType _currentBoundaryType = BoundaryType.DEFAULT;
+
+  // ConfettiController 추가
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    // 10초 동안 실행되는 ConfettiController 생성
+    _confettiController = ConfettiController(duration: const Duration(seconds: 10));
+  }
   
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  Path drawHeart(Size size) {
+    double width = size.width;
+    double height = size.height;
+
+    Path path = Path();
+
+    path.moveTo(0.5 * width, height * 0.35);
+    path.cubicTo(0.2 * width, height * 0.1, -0.25 * width, height * 0.6,
+        0.5 * width, height);
+    path.moveTo(0.5 * width, height * 0.35);
+    path.cubicTo(0.8 * width, height * 0.1, 1.25 * width, height * 0.6,
+        0.5 * width, height);
+
+    path.close();
+    return path;
+  }
+
   @override
   Widget build(BuildContext context) {
   // 뷰모델에서 선택된 메뉴 목록 가져오기
@@ -269,11 +303,35 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
       (menu) => menu.name == _winners[0],
       orElse: () => allLunchMenus[0], // 일치하는 메뉴가 없을 경우 기본값 설정
     );
+    _confettiController.play();
 
     return Container(
       color: Colors.black.withOpacity(0.9),
       child: Stack(
         children: [
+
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive, // 모든 방향으로 폭발하듯 발사
+              emissionFrequency: 0.05, // 발사 빈도 (값이 낮을수록 더 많은 조각)
+              numberOfParticles: 20, // 한 번에 발사되는 조각 수
+              maxBlastForce: 10, // 발사 강도 최대값
+              minBlastForce: 5, // 발사 강도 최소값
+              gravity: 0.1, // 중력 (낮을수록 천천히 떨어짐)
+              shouldLoop: true, // 애니메이션 반복 여부
+              colors: const [ // 색상 설정
+                Colors.pink,
+                Colors.red,
+                Colors.orange,
+                Colors.purple,
+                Colors.blue,
+              ],
+              createParticlePath: drawHeart, // 하트 모양 함수 사용
+            ),
+          ),
+
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -420,6 +478,7 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
       _winners = [];
     });
     _gameKey.currentState?.resetGame();
+    _confettiController.stop();
   }
   
   // 게임 결과 처리 콜백
@@ -429,5 +488,6 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
     setState(() {
       _winners = winners;
     });
+    _confettiController.play();
   }
 }

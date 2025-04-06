@@ -52,17 +52,6 @@ class PortfolioApi {
     }
   }
 
-  // 포트폴리오 카테고리 목록 조회
-  Future<List<PortfolioCategory>> getPortfolioCategories() async {
-    final response = await _apiClient.get('/portfolio/category');
-
-    List<dynamic> categoriesJson =
-        response.data['data']['portfolioCategoryList'];
-    return categoriesJson
-        .map((json) => PortfolioCategory.fromJson(json))
-        .toList();
-  }
-
   // 포트폴리오 카테고리 등록
   Future<List<PortfolioCategory>> createPortfolioCategory({
     required String categoryMemo,

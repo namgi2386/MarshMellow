@@ -1,6 +1,9 @@
 // 카드 관련 모델
 class CardData {
-  final int totalAmount;
+  //**********************************************
+  //* 변경: totalAmount를 String 타입으로 변경 (암호화된 값이므로)
+  //**********************************************
+  final String totalAmount;  // int에서 String으로 변경
   final List<CardItem> cardList;
 
   CardData({
@@ -10,6 +13,9 @@ class CardData {
 
   factory CardData.fromJson(Map<String, dynamic> json) {
     return CardData(
+      //**********************************************
+      //* 변경: 원래 정수형이었던 totalAmount가 이제는 암호화된 문자열
+      //**********************************************
       totalAmount: json['totalAmount'],
       cardList: (json['cardList'] as List)
           .map((item) => CardItem.fromJson(item))
@@ -24,7 +30,10 @@ class CardItem {
   final String cardIssuerCode;
   final String cardIssuerName;
   final String cardName;
-  final int cardBalance;
+  //**********************************************
+  //* 변경: cardBalance를 String 타입으로 변경 (암호화된 값이므로)
+  //**********************************************
+  final String? cardBalance;  // int에서 String으로 변경
 
   CardItem({
     required this.cardNo,
@@ -32,7 +41,7 @@ class CardItem {
     required this.cardIssuerCode,
     required this.cardIssuerName,
     required this.cardName,
-    required this.cardBalance,
+    this.cardBalance,
   });
 
   factory CardItem.fromJson(Map<String, dynamic> json) {
@@ -42,6 +51,9 @@ class CardItem {
       cardIssuerCode: json['cardIssuerCode'],
       cardIssuerName: json['cardIssuerName'],
       cardName: json['cardName'],
+      //**********************************************
+      //* 변경: 원래 정수형이었던 cardBalance가 이제는 암호화된 문자열
+      //**********************************************
       cardBalance: json['cardBalance'],
     );
   }

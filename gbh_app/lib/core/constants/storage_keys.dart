@@ -19,6 +19,8 @@ class StorageKeys {
   static const String userCode = 'user_code';
   static const String carrier = 'user_carrier';
   static const String halfUserKey = 'half_user_key';
+  static const String aesKey = 'aes_key';
+  static const String aesIv = 'aes_iv';
 
   // mm 인증서 관련 키
   static const String certificatePassword = 'certificate_password';

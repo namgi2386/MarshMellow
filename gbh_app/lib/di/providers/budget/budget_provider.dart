@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:marshmellow/data/datasources/remote/budget_api.dart';
+import 'package:marshmellow/data/datasources/remote/budget/budget_api.dart';
 import 'package:marshmellow/data/repositories/budget/budget_repository.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
 

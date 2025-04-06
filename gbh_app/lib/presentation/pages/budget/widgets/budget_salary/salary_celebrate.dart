@@ -6,6 +6,7 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 // 라우트
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/constants/storage_keys.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
 import 'package:marshmellow/router/routes/cookie_routes.dart';
 
 // 위젯
@@ -48,6 +49,12 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
           titleText: '야호!',
           subtitleText: '${userName.isNotEmpty ? userName : '사용자'} 님의\n월급날입니다!',
         );
+
+        Future.delayed(const Duration(seconds: 5), () {
+          if (mounted) {
+            context.push(BudgetRoutes.getBudgetTypePath());
+          }
+        });
       });
     } catch (e) {
       // 에러 처리
@@ -59,11 +66,7 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Text(''),
-        ],
-      ),
+      body: SizedBox(),
     );
   }
 }

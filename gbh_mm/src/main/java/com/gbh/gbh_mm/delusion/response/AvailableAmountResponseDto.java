@@ -1,4 +1,4 @@
-package com.gbh.gbh_mm.delusion.model.response;
+package com.gbh.gbh_mm.delusion.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

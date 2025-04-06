@@ -1,9 +1,11 @@
-package com.gbh.gbh_mm.delusion.model.response;
+package com.gbh.gbh_mm.delusion.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.Map;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -11,5 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class AverageSpendingResponseDto {
 
-    private String averageSpending;
+    private Map<String, Long> monthlySpendingMap;
+    private Long averageMonthlySpending;
+
 }

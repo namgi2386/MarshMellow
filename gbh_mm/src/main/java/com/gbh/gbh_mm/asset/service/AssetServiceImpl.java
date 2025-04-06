@@ -523,7 +523,6 @@ public class AssetServiceImpl implements AssetService {
             e.printStackTrace();
         }
 
-
         return response;
     }
 

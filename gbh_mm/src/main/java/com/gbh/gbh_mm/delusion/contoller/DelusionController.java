@@ -1,7 +1,8 @@
 package com.gbh.gbh_mm.delusion.contoller;
 
-import com.gbh.gbh_mm.delusion.model.response.AvailableAmountResponseDto;
-import com.gbh.gbh_mm.delusion.model.response.AverageSpendingResponseDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gbh.gbh_mm.delusion.response.AvailableAmountResponseDto;
+import com.gbh.gbh_mm.delusion.response.AverageSpendingResponseDto;
 import com.gbh.gbh_mm.delusion.service.DelusionService;
 import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class DelusionController {
     }
 
     @GetMapping("/average")
-    public AverageSpendingResponseDto getAverageSpending(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public AverageSpendingResponseDto getAverageSpending(@AuthenticationPrincipal CustomUserDetails customUserDetails) throws JsonProcessingException {
         return delusionService.getAverageSpending(customUserDetails);
     }
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:go_router/go_router.dart'; // 이제 라우트 할거면 필수
 import 'package:marshmellow/router/routes/auth_routes.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart'; // 경로 상수 import
 
 // 로딩인디케이터 추가
@@ -137,6 +138,15 @@ class FinanceTestPage extends StatelessWidget {
                 context.push(SignupRoutes.getMyDataSplashPath());
               },
               child: const Text('인증서 테스트페이지'),
+            ),
+
+
+            ElevatedButton(
+              onPressed: () {
+                // GoRouter를 사용하여 테스트 페이지로 이동
+                context.push(BudgetRoutes.getBudgetEventPath());
+              },
+              child: const Text('예산 축하!'),
             ),
 
 

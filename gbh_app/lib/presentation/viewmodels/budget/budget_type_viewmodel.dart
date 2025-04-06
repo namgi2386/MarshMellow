@@ -62,19 +62,23 @@ class BudgetTypeViewModel extends StateNotifier<BudgetTypeState> {
   // 예산 유형 분석
   Future<void> analyzeBudgetType() async {
     try {
+      print('🔄 예산 유형 분석 시작');
       state = state.copyWith(isLoading: true, errorMessage: null);
       
       // 실제 데이터가 없는 경우 더미 데이터 사용
       final result = await _repository.analyzeWithDummyData();
+      print('✅ 분석 결과 수신: ${result.myData.keys}');
       
       // 내 유형 찾기 (my_data의 첫 번째 키)
       final myBudgetType = result.myData.keys.first;
+      print('🏷️ 내 예산 유형: $myBudgetType');
       
       state = state.copyWith(
         isLoading: false,
         analysisResult: result,
         myBudgetType: myBudgetType,
       );
+      print('✅ 상태 업데이트 완료: ${state.myBudgetType}');
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

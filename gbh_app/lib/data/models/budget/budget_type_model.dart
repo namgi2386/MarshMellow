@@ -68,19 +68,24 @@ class BudgetTypeAnalysisResponse {
   });
 
   factory BudgetTypeAnalysisResponse.fromJson(Map<String, dynamic> json) {
+    print('📊 응답 파싱 시작: $json');
     // myData 파싱
     final myDataJson = json['my_data'] as Map<String, dynamic>;
+    print('📊 my_data: $myDataJson');
     final myDataMap = <String, BudgetTypeData>{};
     
     myDataJson.forEach((key, value) {
+      print('📊 my_data 키: $key, 값: $value');
       myDataMap[key] = BudgetTypeData.fromJson(value as Map<String, dynamic>);
     });
 
     // allData 파싱
     final allDataJson = json['all_data'] as Map<String, dynamic>;
+    print('📊 all_data: $allDataJson');
     final allDataMap = <String, BudgetTypeData>{};
     
     allDataJson.forEach((key, value) {
+      print('📊 all_data 키: $key');
       allDataMap[key] = BudgetTypeData.fromJson(value as Map<String, dynamic>);
     });
 
@@ -157,8 +162,10 @@ class BudgetTypeInfo {
 
   // 타입에 따른 정보 반환
   static BudgetTypeInfo getTypeInfo(String type) {
+    print('🔍 유형 정보 요청: $type');
     switch (type) {
       case '식비/외식':
+        print('🔍 식비/외식 유형 정보 반환'); 
         return BudgetTypeInfo(
           type: type,
           typeName: '아기 돼지 삼형제 형',
@@ -240,6 +247,7 @@ class BudgetTypeInfo {
           color: const Color(0xFF9E9E9E),
         );
       default:
+        print('🔍 기본 유형(평균) 정보 반환, 요청된 유형: $type');
         return BudgetTypeInfo(
           type: '평균',
           typeName: '밸런스 게임 승자 형',

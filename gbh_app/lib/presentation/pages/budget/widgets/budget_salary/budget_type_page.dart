@@ -16,10 +16,13 @@ class BudgetTypePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('🖌️ BudgetTypePage 빌드 시작');
     final state = ref.watch(budgetTypeProvider);
+    print('🖌️ 현재 상태: isLoading=${state.isLoading}, hasError=${state.errorMessage != null}, myType=${state.myBudgetType}');
     
     // 로딩 중이거나 분석 결과가 없는 경우 로딩 표시
     if (state.isLoading || state.analysisResult == null) {
+      print('🖌️ 로딩 상태 표시');
       return Scaffold(
         appBar: CustomAppbar(title: '예산 유형 분석'),
         body: const Center(
@@ -30,6 +33,7 @@ class BudgetTypePage extends ConsumerWidget {
 
     // 에러가 있는 경우 에러 메시지 표시
     if (state.errorMessage != null) {
+      print('🖌️ 에러 상태 표시: ${state.errorMessage}');
       return Scaffold(
         appBar: CustomAppbar(title: '예산 유형 분석'),
         body: Center(
@@ -56,8 +60,11 @@ class BudgetTypePage extends ConsumerWidget {
 
     // 내 유형 정보
     final myType = state.myBudgetType ?? '평균';
+    print('🖌️ 표시할 유형: $myType');
     final myTypeInfo = BudgetTypeInfo.getTypeInfo(myType);
+    print('🖌️ 유형 정보: ${myTypeInfo.typeName}');
 
+    print('🖌️ 정상 UI 렌더링');
     return Scaffold(
       appBar: CustomAppbar(title: '예산 유형 분석'),
       body: SingleChildScrollView(

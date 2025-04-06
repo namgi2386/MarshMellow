@@ -335,7 +335,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: filteredWishes.length,
-            separatorBuilder: (context, index) => const Divider(thickness: 0.5),
+            separatorBuilder: (context, index) => Divider(thickness: 0.5, color: AppColors.greyLight),
             itemBuilder: (context, index) {
               final wish = filteredWishes[index];
               return _buildWishItem(wish);
@@ -542,7 +542,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
                     child: Button(
                       text: '삭제',
                       textStyle: TextStyle(
-                        color: AppColors.buttonDelete,
+                        color: AppColors.whiteLight,
                         fontWeight: FontWeight.w200,
                         fontSize: 16
                       ),

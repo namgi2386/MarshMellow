@@ -160,7 +160,11 @@ List<RouteBase> financeRoutes = [
             bankName: extra?['bankName'] ?? '',
             cardName: extra?['cardName'] ?? '',  // accountName 대신 cardName 사용
             cvc: extra?['cvc'] ?? '',  // cvc 추가
-            balance: extra?['balance'] ?? 0,
+            balance: extra?['balance'] != null
+              ? (extra?['balance'] is String
+                  ? int.tryParse(extra?['balance']) ?? 0
+                  : extra?['balance'])
+              : 0,
           );
         },
       ),

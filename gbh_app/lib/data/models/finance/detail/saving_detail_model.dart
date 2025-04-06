@@ -21,17 +21,18 @@ class SavingDetailResponse {
 }
 
 class SavingDetailData {
-  final List<SavingPaymentItem> paymentList;
+  final String iv;  // IV 필드 추가
+  final SavingPaymentItem paymentList;  // 리스트가 아닌 단일 객체로 변경
 
   SavingDetailData({
+    required this.iv,
     required this.paymentList,
   });
 
   factory SavingDetailData.fromJson(Map<String, dynamic> json) {
     return SavingDetailData(
-      paymentList: (json['paymentList'] as List)
-          .map((item) => SavingPaymentItem.fromJson(item))
-          .toList(),
+      iv: json['iv'],
+      paymentList: SavingPaymentItem.fromJson(json['paymentList']),  // 단일 객체 파싱
     );
   }
 }
@@ -40,7 +41,7 @@ class SavingPaymentItem {
   final String bankCode;
   final String bankName;
   final String accountNo;
-  final String accountName;
+  final String? accountName;  // nullable로 변경 또는 제거
   final String interestRate;
   final String depositBalance;
   final String totalBalance;
@@ -52,7 +53,7 @@ class SavingPaymentItem {
     required this.bankCode,
     required this.bankName,
     required this.accountNo,
-    required this.accountName,
+    this.accountName,  // 선택적으로 변경
     required this.interestRate,
     required this.depositBalance,
     required this.totalBalance,
@@ -66,7 +67,7 @@ class SavingPaymentItem {
       bankCode: json['bankCode'],
       bankName: json['bankName'],
       accountNo: json['accountNo'],
-      accountName: json['accountName'],
+      accountName: json['accountName'],  // null이면 null로 설정됨
       interestRate: json['interestRate'],
       depositBalance: json['depositBalance'],
       totalBalance: json['totalBalance'],

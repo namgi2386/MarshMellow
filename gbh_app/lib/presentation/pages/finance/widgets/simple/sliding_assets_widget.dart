@@ -232,7 +232,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                                 bankName: item.cardName,
                                 accountName: item.cardIssuerName,
                                 accountNo: item.cardNo,
-                                accountBalance: item.cardBalance,
+                                accountBalance: item.cardBalance != null ? int.tryParse(item.cardBalance!) ?? 0 : 0,
                               )
                             ).toList().cast<DemandDepositItem>(),
                             totalAmount: widget.data.data.cardData.totalAmount,

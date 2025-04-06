@@ -24,20 +24,4 @@ class WishRepository {
       throw Exception('현재 진행 중인 wish를 불러오는 중 오류가 발생했습니다: $e');
     }
   }
-
-  // 특정 wish 상세 조회
-  Future<WishDetail> getWishDetail(int wishPk) async {
-    try {
-      final response = await _wishApi.getWishDetail(wishPk);
-      final wishResponse = WishResponse.fromJson(response);
-
-      if (wishResponse.code == 200) {
-        return WishDetail.fromJson(wishResponse.data);
-      } else {
-        throw Exception(wishResponse.message);
-      }
-    } catch (e) {
-      throw Exception('wish 상세 정보를 불러오는 중 오류가 발생했습니다: $e');
-    }
-  }
 }

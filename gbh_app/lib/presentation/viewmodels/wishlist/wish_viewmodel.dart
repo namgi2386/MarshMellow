@@ -57,22 +57,4 @@ class WishNotifier extends StateNotifier<WishState> {
       );
     }
   }
-
-  // 특정 wish 상세 조회
-  Future<void> fetchWishDetail(int wishPk) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
-    try {
-      final wishDetail = await _repository.getWishDetail(wishPk);
-      state = state.copyWith(
-        isLoading: false,
-        currentWish: wishDetail,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'wish 상세 정보를 불러오는 중 오류가 발생했습니다: $e',
-      );
-    }
-  }
 }

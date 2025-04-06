@@ -21,12 +21,15 @@ class LoanDetailResponse {
 }
 
 class LoanDetailData {
-  final String status;
-  final int loanBalance;
-  final int remainingLoanBalance;
+  // IV 필드 추가
+  final String iv;
+  final String status;  // 암호화된 상태값
+  final String loanBalance;  // int에서 String으로 변경 (암호화된 값)
+  final String remainingLoanBalance;  // int에서 String으로 변경 (암호화된 값)
   final List<RepaymentRecord> repaymentRecords;
 
   LoanDetailData({
+    required this.iv,
     required this.status,
     required this.loanBalance,
     required this.remainingLoanBalance,
@@ -35,6 +38,7 @@ class LoanDetailData {
 
   factory LoanDetailData.fromJson(Map<String, dynamic> json) {
     return LoanDetailData(
+      iv: json['iv'],
       status: json['status'],
       loanBalance: json['loanBalance'],
       remainingLoanBalance: json['remainingLoanBalance'],
@@ -48,11 +52,11 @@ class LoanDetailData {
 class RepaymentRecord {
   final String installmentNumber;
   final String repaymentAttemptTime;
-  final String? repaymentActualTime;
+  final String repaymentActualTime;  // nullable 제거 (항상 값이 오는 듯)
   final String repaymentAttemptDate;
   final String failureReason;
   final String paymentBalance;
-  final String? repaymentActualDate;
+  final String repaymentActualDate;  // nullable 제거 (항상 값이 오는 듯)
   final String status;
 
   RepaymentRecord({
@@ -72,7 +76,7 @@ class RepaymentRecord {
       repaymentAttemptTime: json['repaymentAttemptTime'],
       repaymentActualTime: json['repaymentActualTime'],
       repaymentAttemptDate: json['repaymentAttemptDate'],
-      failureReason: json['failureReason'] ?? '',
+      failureReason: json['failureReason'],
       paymentBalance: json['paymentBalance'],
       repaymentActualDate: json['repaymentActualDate'],
       status: json['status'],

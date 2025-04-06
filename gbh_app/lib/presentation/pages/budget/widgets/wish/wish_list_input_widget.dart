@@ -146,7 +146,7 @@ class _WishlistInputState extends State<WishlistInput> {
                     padding: const EdgeInsets.only(left: 16.0, right: 8.0),
                     child: widget.prefixIcon ?? 
                           Text(widget.label ?? '',
-                            style: AppTextStyles.bodySmall.copyWith(
+                            style: AppTextStyles.bodyExtraSmall.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -171,7 +171,7 @@ class _WishlistInputState extends State<WishlistInput> {
                     enabled: isEnabled,
                     decoration: InputDecoration(
                       hintText: widget.hintText,
-                      hintStyle: AppTextStyles.bodyMedium.copyWith(
+                      hintStyle: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary.withOpacity(0.5),
                       ),
                       border: InputBorder.none,

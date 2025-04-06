@@ -34,6 +34,7 @@ import com.gbh.gbh_mm.user.repo.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -718,6 +719,9 @@ public class HouseholdServiceImpl implements HouseholdService {
 
     @Override
     public ResponseAiAvg findAiAvg(CustomUserDetails customUserDetails) {
+        User user = userRepository.findByUserPk(customUserDetails.getUserPk())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
         List<Household> householdList = householdRepository
                 .findAllByUser_UserPkAndHouseholdClassificationCategoryOrderByTradeDateAsc
                         (customUserDetails.getUserPk(), HouseholdClassificationEnum.WITHDRAWAL);
@@ -755,33 +759,31 @@ public class HouseholdServiceImpl implements HouseholdService {
             }
         }
 
-        String startDate = householdList.get(0).getTradeDate();
-        String endDate = householdList.get(householdList.size() - 1).getTradeDate();
+        String startDateStr = householdList.get(0).getTradeDate();
+        String endDateStr = householdList.get(householdList.size() - 1).getTradeDate();
 
-        int startYear = Integer.parseInt(startDate.substring(0, 4));
-        int startMonth = Integer.parseInt(startDate.substring(4, 6));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate startDate = LocalDate.parse(startDateStr, formatter);
+        LocalDate endDate = LocalDate.parse(endDateStr, formatter);
 
-        int endYear = Integer.parseInt(endDate.substring(0, 4));
-        int endMonth = Integer.parseInt(endDate.substring(4, 6));
+        long totalDays = ChronoUnit.DAYS.between(startDate, endDate);
 
-        int monthDiff = (endYear - startYear) * 12 + (endMonth - startMonth);
-        monthDiff += 1;
+        double monthDiff = totalDays / 30.44;
 
-        long totalExpenditure = fixedAvg + foodAvg + trafficAvg + martAvg + bankAvg + leisureAvg + coffeeAvg
-                + shoppingAvg + emergencyAvg;
+        double totalSalary = user.getSalaryAmount() * monthDiff;
 
-        double totalExpenditureAvg = totalExpenditure/monthDiff/9;
 
         ResponseAiAvg response = ResponseAiAvg.builder()
-                .fixedAvg(fixedAvg/monthDiff)
-                .foodAvg(foodAvg/monthDiff)
-                .trafficAvg(trafficAvg/monthDiff)
-                .martAvg(martAvg/monthDiff)
-                .bankAvg(bankAvg/monthDiff)
-                .leisureAvg(leisureAvg/monthDiff)
-                .coffeeAvg(coffeeAvg/monthDiff)
-                .shoppingAvg(shoppingAvg/monthDiff)
-                .emergencyAvg(emergencyAvg/monthDiff)
+                .salary(user.getSalaryAmount())
+                .fixedAvg(fixedAvg/totalSalary)
+                .foodAvg(foodAvg/totalSalary)
+                .trafficAvg(trafficAvg/totalSalary)
+                .martAvg(martAvg/totalSalary)
+                .bankAvg(bankAvg/totalSalary)
+                .leisureAvg(leisureAvg/totalSalary)
+                .coffeeAvg(coffeeAvg/totalSalary)
+                .shoppingAvg(shoppingAvg/totalSalary)
+                .emergencyAvg(emergencyAvg/totalSalary)
                 .build();
 
         return response;

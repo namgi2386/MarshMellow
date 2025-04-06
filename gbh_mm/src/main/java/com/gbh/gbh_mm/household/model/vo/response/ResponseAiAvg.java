@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseAiAvg {
+    private long salary;
     private double fixedAvg;
     private double foodAvg;
     private double trafficAvg;

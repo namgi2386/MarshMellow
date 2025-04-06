@@ -488,7 +488,6 @@ public class HouseholdServiceImpl implements HouseholdService {
                     }
                 }
 
-
             }
 
         }
@@ -715,5 +714,76 @@ public class HouseholdServiceImpl implements HouseholdService {
         } catch (JsonProcessingException e) {
             return null;
         }
+    }
+
+    @Override
+    public ResponseAiAvg findAiAvg(CustomUserDetails customUserDetails) {
+        List<Household> householdList = householdRepository
+                .findAllByUser_UserPkAndHouseholdClassificationCategoryOrderByTradeDateAsc
+                        (customUserDetails.getUserPk(), HouseholdClassificationEnum.WITHDRAWAL);
+
+        long fixedAvg = 0;
+        long foodAvg = 0;
+        long trafficAvg = 0;
+        long martAvg = 0;
+        long bankAvg = 0;
+        long leisureAvg = 0;
+        long coffeeAvg = 0;
+        long shoppingAvg = 0;
+        long emergencyAvg = 0;
+
+        for (Household household : householdList) {
+            switch (household.getHouseholdDetailCategory().getAiCategory().getAiCategoryPk()) {
+                case 1:
+                    fixedAvg += household.getHouseholdAmount();
+                case 2:
+                    foodAvg += household.getHouseholdAmount();
+                case 3:
+                    trafficAvg += household.getHouseholdAmount();
+                case 4:
+                    martAvg += household.getHouseholdAmount();
+                case 5:
+                    bankAvg += household.getHouseholdAmount();
+                case 6:
+                    leisureAvg += household.getHouseholdAmount();
+                case 7:
+                    coffeeAvg += household.getHouseholdAmount();
+                case 8:
+                    shoppingAvg += household.getHouseholdAmount();
+                case 9:
+                    emergencyAvg += household.getHouseholdAmount();
+            }
+        }
+
+        String startDate = householdList.get(0).getTradeDate();
+        String endDate = householdList.get(householdList.size() - 1).getTradeDate();
+
+        int startYear = Integer.parseInt(startDate.substring(0, 4));
+        int startMonth = Integer.parseInt(startDate.substring(4, 6));
+
+        int endYear = Integer.parseInt(endDate.substring(0, 4));
+        int endMonth = Integer.parseInt(endDate.substring(4, 6));
+
+        int monthDiff = (endYear - startYear) * 12 + (endMonth - startMonth);
+        monthDiff += 1;
+
+        long totalExpenditure = fixedAvg + foodAvg + trafficAvg + martAvg + bankAvg + leisureAvg + coffeeAvg
+                + shoppingAvg + emergencyAvg;
+
+        double totalExpenditureAvg = totalExpenditure/monthDiff/9;
+
+        ResponseAiAvg response = ResponseAiAvg.builder()
+                .fixedAvg(fixedAvg/monthDiff)
+                .foodAvg(foodAvg/monthDiff)
+                .trafficAvg(trafficAvg/monthDiff)
+                .martAvg(martAvg/monthDiff)
+                .bankAvg(bankAvg/monthDiff)
+                .leisureAvg(leisureAvg/monthDiff)
+                .coffeeAvg(coffeeAvg/monthDiff)
+                .shoppingAvg(shoppingAvg/monthDiff)
+                .emergencyAvg(emergencyAvg/monthDiff)
+                .build();
+
+        return response;
     }
 }

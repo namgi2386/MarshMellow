@@ -24,29 +24,29 @@ public class HouseholdController {
 
     @GetMapping("/list")
     public ResponseFindHouseholdList findHouseholdList(
-        @RequestBody RequestFindHouseholdList request,
-        @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @RequestBody RequestFindHouseholdList request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         ResponseFindHouseholdList response = householdService
-            .findHouseholdList(request, customUserDetails);
+                .findHouseholdList(request, customUserDetails);
 
         return response;
     }
 
     @PostMapping
     public ResponseCreateHousehold createHousehold(
-        @RequestBody RequestCreateHousehold request,
-        @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @RequestBody RequestCreateHousehold request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         ResponseCreateHousehold response = householdService
-            .createHousehold(request, customUserDetails);
+                .createHousehold(request, customUserDetails);
 
         return response;
     }
 
     @GetMapping
     public ResponseFindHousehold findHousehold(
-        @RequestBody RequestFindHousehold request
+            @RequestBody RequestFindHousehold request
     ) {
         ResponseFindHousehold response = householdService.findHousehold(request);
 
@@ -55,7 +55,7 @@ public class HouseholdController {
 
     @PatchMapping
     public ResponseUpdateHousehold updateHousehold(
-        @RequestBody RequestUpdateHousehold request
+            @RequestBody RequestUpdateHousehold request
     ) {
         ResponseUpdateHousehold response = householdService.updateHousehold(request);
 
@@ -64,7 +64,7 @@ public class HouseholdController {
 
     @DeleteMapping
     public ResponseDeleteHousehold deleteHousehold(
-        @RequestBody RequestDeleteHousehold request
+            @RequestBody RequestDeleteHousehold request
     ) {
         ResponseDeleteHousehold response = householdService.deleteHousehold(request);
 
@@ -73,17 +73,17 @@ public class HouseholdController {
 
     @GetMapping("/transaction-data")
     public ResponseFindTransactionDataList findTransactionDataList(
-        @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         ResponseFindTransactionDataList response = householdService
-            .findTransactionDataList(customUserDetails);
+                .findTransactionDataList(customUserDetails);
 
         return response;
     }
 
     @PostMapping("/household-list")
     public ResponseCreateHouseholdList createHouseholdList(
-        @RequestBody RequestCreateHouseholdList request
+            @RequestBody RequestCreateHouseholdList request
     ) {
         ResponseCreateHouseholdList response = householdService.createHouseholdList(request);
 
@@ -92,31 +92,37 @@ public class HouseholdController {
 
     @GetMapping("/search")
     public ResponseSearchHousehold searchHousehold(
-        @RequestBody RequestSearchHousehold request,
-        @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @RequestBody RequestSearchHousehold request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         ResponseSearchHousehold response = householdService
-            .searchHousehold(request, customUserDetails);
+                .searchHousehold(request, customUserDetails);
 
         return response;
     }
 
     @GetMapping("/filter")
     public ResponseFilterHousehold filterHousehold(
-        @RequestBody RequestFilterHousehold request,
-        @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @RequestBody RequestFilterHousehold request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         ResponseFilterHousehold response = householdService
-            .filterHousehold(request, customUserDetails);
+                .filterHousehold(request, customUserDetails);
 
         return response;
     }
 
-
     @GetMapping("/payment-method")
     public ResponsePaymentMethodList findPaymentMethodList(
-        @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         return householdService.findPaymentMethodList(customUserDetails);
+    }
+
+    @GetMapping("/ai-avg")
+    public ResponseAiAvg findAiAvg(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return householdService.findAiAvg(customUserDetails);
     }
 }

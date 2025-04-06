@@ -53,4 +53,6 @@ public interface HouseholdRepository extends JpaRepository<Household, Long> {
             @Param("aiCategory") String aiCategory
     );
 
+    List<Household> findAllByUser_UserPkAndHouseholdClassificationCategoryOrderByTradeDateAsc
+            (Long userPk, HouseholdClassificationEnum householdClassificationEnum);
 }

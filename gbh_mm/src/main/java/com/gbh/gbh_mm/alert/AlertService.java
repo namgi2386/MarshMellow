@@ -56,4 +56,21 @@ public class AlertService {
 
         System.out.println(fcmService.sendNotification(message));
     }
+
+    // 오늘의 지출 퍼센트 알림
+    public void sendExpendNotification(String token, String category, float expendPercent) throws InterruptedException, ExecutionException {
+
+        Notification noti = Notification.builder()
+                .setTitle("예산 초과 경고!!")
+                .setBody("조심하세요! 이번 달 " + category + " 예산의 " + expendPercent + " % " + "이상을 지출 했어요!")
+//                .setImage()
+                .build();
+
+        Message message = Message.builder()
+                .setToken(token)
+                .setNotification(noti)
+                .build();
+
+        System.out.println(fcmService.sendNotification(message));
+    }
 }

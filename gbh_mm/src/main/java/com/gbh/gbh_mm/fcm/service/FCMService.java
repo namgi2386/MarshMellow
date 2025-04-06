@@ -27,6 +27,7 @@ public class FCMService {
         return response;
 
     }
+
     // AlertService -> fcmService
     public String sendNotification(Message message) throws InterruptedException, ExecutionException {
         String response = FirebaseMessaging.getInstance().sendAsync(message).get();

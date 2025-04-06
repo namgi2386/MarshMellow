@@ -69,6 +69,7 @@ final dioProvider = Provider<Dio>((ref) {
         try {
           // 요청 데이터가 있는 경우만 처리
           if (options.data != null) {
+            print('암호화 전 요청 데이터: ${options.data}');
             Map<String, dynamic> requestData;
 
             // 문자열인 경우 JSON으로 파싱
@@ -88,6 +89,7 @@ final dioProvider = Provider<Dio>((ref) {
             final encryptedData =
                 await encryptionUtil.encryptRequest(requestData);
             options.data = encryptedData;
+            print('암호화 후 요청 데이터: ${options.data}');
           }
         } catch (e) {
           print('요청 암호화 오류: $e');

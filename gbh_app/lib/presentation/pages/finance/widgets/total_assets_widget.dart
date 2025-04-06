@@ -157,22 +157,26 @@ class _TotalAssetsWidgetState extends ConsumerState<TotalAssetsWidget> {
         ),
         
         // 오른쪽 영역: 캐릭터 이미지
-        Expanded(
-          flex: 2, // 오른쪽 영역 비율
-          child: Container(
-            height: double.infinity,
-            alignment: Alignment.bottomRight,
-            child: GestureDetector(
-              onTap: () {
-                context.push(FinanceRoutes.getAnalysisPath());
-              },
-              child: Image.asset(
-                'assets/images/characters/char_hat.png',
-                fit: BoxFit.contain,
-              ),
-            ),
+Expanded(
+  flex: 2, // 오른쪽 영역 비율
+  child: Container(
+    height: double.infinity,
+    alignment: Alignment.bottomRight,
+    child: Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            context.push(FinanceRoutes.getAnalysisPath());
+          },
+          child: Image.asset(
+            'assets/images/characters/char_hat.png',
+            fit: BoxFit.contain,
           ),
         ),
+      ],
+    ),
+  ),
+),
       ],
     ),
   );

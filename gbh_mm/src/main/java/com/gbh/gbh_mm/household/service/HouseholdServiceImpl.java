@@ -722,9 +722,11 @@ public class HouseholdServiceImpl implements HouseholdService {
         User user = userRepository.findByUserPk(customUserDetails.getUserPk())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+//        List<Household> householdList = householdRepository
+//                .findAllByUser_UserPkAndHouseholdClassificationCategoryOrderByTradeDateAsc
+//                        (customUserDetails.getUserPk(), HouseholdClassificationEnum.WITHDRAWAL);
         List<Household> householdList = householdRepository
-                .findAllByUser_UserPkAndHouseholdClassificationCategoryOrderByTradeDateAsc
-                        (customUserDetails.getUserPk(), HouseholdClassificationEnum.WITHDRAWAL);
+                .findAllWithDetailAndAiCategoryAndHouseholdCategory(customUserDetails.getUserPk(), HouseholdClassificationEnum.WITHDRAWAL);
 
         long fixedAvg = 0;
         long foodAvg = 0;

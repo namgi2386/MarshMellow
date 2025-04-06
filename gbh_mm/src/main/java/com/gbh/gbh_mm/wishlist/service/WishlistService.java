@@ -201,9 +201,10 @@ public class WishlistService {
         WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new"); // headless 모드
+        options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--remote-allow-origins=*");
 
         // Chrome 브라우저 실행
         WebDriver driver = new ChromeDriver(options);

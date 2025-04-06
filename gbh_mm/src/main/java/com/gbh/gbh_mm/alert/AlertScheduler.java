@@ -87,14 +87,14 @@ public class AlertScheduler {
                     List<BudgetCategory> budgetCategoryList = budgetCategoryRepository.findById(budget.getBudgetPk()).stream().toList();
                     for (BudgetCategory budgetCategory : budgetCategoryList) {
                         String budgetCategoryName = budgetCategory.getBudgetCategoryName();
-                        float budgetCategoryExpendPercent = budgetCategory.getBudgetExpendAmount() / budgetCategory.getBudgetCategoryPrice();
-
+                        float budgetCategoryExpendPercent = (float) budgetCategory.getBudgetExpendAmount() / (float) budgetCategory.getBudgetCategoryPrice();
+                        int percent = 0;
                         if (budgetCategoryExpendPercent < 0.3f) continue;
-                        else if (budgetCategoryExpendPercent < 0.5f) budgetCategoryExpendPercent = 0.3f;
-                        else if (budgetCategoryExpendPercent < 0.5f) budgetCategoryExpendPercent = 0.5f;
-                        else budgetCategoryExpendPercent = 0.7f;
+                        else if (budgetCategoryExpendPercent < 0.5f) percent = 30;
+                        else if (budgetCategoryExpendPercent < 0.5f) percent = 50;
+                        else percent = 70;
 
-                        alertService.sendExpendNotification(user.getFcmToken(), budgetCategoryName, budgetCategoryExpendPercent);
+                        alertService.sendExpendNotification(user.getFcmToken(), budgetCategoryName, percent);
                     }
                 }
             }

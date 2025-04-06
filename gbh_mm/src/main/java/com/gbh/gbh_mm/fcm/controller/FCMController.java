@@ -26,8 +26,13 @@ public class FCMController {
         return fcmService.sendNotification(requestFCMSend);
     }
 
-    @GetMapping("/test/dailybudget")
+    @GetMapping("/test/daily-budget")
     public void testDailyBudget(@AuthenticationPrincipal CustomUserDetails userDetails) throws ExecutionException, InterruptedException {
         alertService.sendBudgetNotification(userRepository.findByUserPk(userDetails.getUserPk()).get());
+    }
+
+    @GetMapping("/test/expend-percent")
+    public void testExpendPercent(@AuthenticationPrincipal CustomUserDetails userDetails) throws ExecutionException, InterruptedException {
+        alertService.expendNotificationProcess();
     }
 }

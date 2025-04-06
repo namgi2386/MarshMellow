@@ -1,9 +1,14 @@
 package com.gbh.gbh_mm.alert;
 
+import com.gbh.gbh_mm.budget.model.entity.Budget;
+import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
 import com.gbh.gbh_mm.budget.model.response.ResponseFindDailyBudget;
+import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
+import com.gbh.gbh_mm.budget.repo.BudgetRepository;
 import com.gbh.gbh_mm.budget.service.BudgetService;
 import com.gbh.gbh_mm.fcm.service.FCMService;
 import com.gbh.gbh_mm.user.model.entity.User;
+import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -11,6 +16,7 @@ import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -19,6 +25,9 @@ public class AlertService {
 
     private final BudgetService budgetService;
     private final FCMService fcmService;
+    private final UserRepository userRepository;
+    private final BudgetCategoryRepository budgetCategoryRepository;
+    private final BudgetRepository budgetRepository;
 
     public void sendNotification(String token, String title, String body) {
         Notification noti = Notification.builder()
@@ -58,7 +67,7 @@ public class AlertService {
     }
 
     // 오늘의 지출 퍼센트 알림
-    public void sendExpendNotification(String token, String category, float expendPercent) throws InterruptedException, ExecutionException {
+    public void sendExpendNotification(String token, String category, int expendPercent) throws InterruptedException, ExecutionException {
 
         Notification noti = Notification.builder()
                 .setTitle("예산 초과 경고!!")
@@ -72,5 +81,28 @@ public class AlertService {
                 .build();
 
         System.out.println(fcmService.sendNotification(message));
+    }
+
+    public void expendNotificationProcess() throws InterruptedException, ExecutionException {
+        List<User> userList = userRepository.findAll();
+        for (User user : userList) {
+            if (user.getFcmToken() != null && !user.getFcmToken().isEmpty()) {
+                Budget budget = budgetRepository.findAllByUser_UserPkOrderByBudgetPkDesc(user.getUserPk()).get(0);
+                if (budget != null) {
+                    List<BudgetCategory> budgetCategoryList = budgetCategoryRepository.findAllByBudget_BudgetPk(budget.getBudgetPk()).stream().toList();
+                    for (BudgetCategory budgetCategory : budgetCategoryList) {
+                        String budgetCategoryName = budgetCategory.getBudgetCategoryName();
+                        float budgetCategoryExpendPercent = (float) budgetCategory.getBudgetExpendAmount() / (float) budgetCategory.getBudgetCategoryPrice();
+                        int percent = 0;
+                        if (budgetCategoryExpendPercent < 0.3f) continue;
+                        else if (budgetCategoryExpendPercent < 0.5f) percent = 30;
+                        else if (budgetCategoryExpendPercent < 0.5f) percent = 50;
+                        else percent = 70;
+
+                        sendExpendNotification(user.getFcmToken(), budgetCategoryName, percent);
+                    }
+                }
+            }
+        }
     }
 }

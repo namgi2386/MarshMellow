@@ -79,14 +79,17 @@ class AccountAuthResponse {
 
 // 계좌 인증 데이터 모델
 class AccountAuthData {
+  final String iv;
   final String authCode;
 
   AccountAuthData({
+    required this.iv,
     required this.authCode,
   });
 
   factory AccountAuthData.fromJson(Map<String, dynamic> json) {
     return AccountAuthData(
+      iv: json['iv'],
       authCode: json['authCode'],
     );
   }

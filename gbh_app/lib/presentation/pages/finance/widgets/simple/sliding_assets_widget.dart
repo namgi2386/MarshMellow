@@ -120,7 +120,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                               _selectedWalletType = '입출금';
                               _selectedWalletData = {
                                 'list': widget.data.data.demandDepositData.demandDepositList,
-                                'totalAmount': widget.data.data.demandDepositData.totalAmount,
+                                'totalAmount': int.tryParse(widget.data.data.demandDepositData.totalAmount) ?? 0,
                               };
                             });
                             if (!_isSliding) {
@@ -136,7 +136,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                                 accountBalance: item.accountBalance,
                               )
                             ).toList().cast<DemandDepositItem>(),
-                            totalAmount: widget.data.data.demandDepositData.totalAmount,
+                            totalAmount: int.tryParse(widget.data.data.demandDepositData.totalAmount) ?? 0,
                             type: '입출금',
                           ),
                         ),
@@ -149,7 +149,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                               _selectedWalletType = '예금';
                               _selectedWalletData = {
                                 'list': widget.data.data.depositData.depositList,
-                                'totalAmount': widget.data.data.depositData.totalAmount,
+                                'totalAmount': int.tryParse(widget.data.data.depositData.totalAmount) ?? 0,
                               };
                             });
                             if (!_isSliding) {
@@ -165,7 +165,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                                 accountBalance: item.depositBalance,
                               )
                             ).toList().cast<DemandDepositItem>(),
-                            totalAmount: widget.data.data.depositData.totalAmount,
+                            totalAmount: int.tryParse(widget.data.data.depositData.totalAmount) ?? 0,
                             type: '예금',
                           ),
                         ),
@@ -178,7 +178,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                               _selectedWalletType = '대출';
                               _selectedWalletData = {
                                 'list': widget.data.data.loanData.loanList,
-                                'totalAmount': widget.data.data.loanData.totalAmount,
+                                'totalAmount': int.tryParse(widget.data.data.loanData.totalAmount) ?? 0,
                               };
                             });
                             if (!_isSliding) {
@@ -194,7 +194,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                                 accountBalance: item.loanBalance,
                               )
                             ).toList().cast<DemandDepositItem>(),
-                            totalAmount: widget.data.data.loanData.totalAmount,
+                            totalAmount: int.tryParse(widget.data.data.loanData.totalAmount) ?? 0,
                             type: '대출',
                           ),
                         ),
@@ -219,7 +219,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                               _selectedWalletType = '카드';
                               _selectedWalletData = {
                                 'list': widget.data.data.cardData.cardList,
-                                'totalAmount': widget.data.data.cardData.totalAmount,
+                                'totalAmount': int.tryParse(widget.data.data.cardData.totalAmount) ?? 0,
                               };
                             });
                             if (!_isSliding) {
@@ -235,7 +235,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                                 accountBalance: item.cardBalance != null ? int.tryParse(item.cardBalance!) ?? 0 : 0,
                               )
                             ).toList().cast<DemandDepositItem>(),
-                            totalAmount: widget.data.data.cardData.totalAmount,
+                            totalAmount: int.tryParse(widget.data.data.cardData.totalAmount) ?? 0,
                             type: '카드',
                           ),
                         ),
@@ -248,7 +248,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                               _selectedWalletType = '적금';
                               _selectedWalletData = {
                                 'list': widget.data.data.savingsData.savingsList,
-                                'totalAmount': widget.data.data.savingsData.totalAmount,
+                                'totalAmount': int.tryParse(widget.data.data.savingsData.totalAmount ) ?? 10,
                               };
                             });
                             if (!_isSliding) {
@@ -264,7 +264,7 @@ class _SlidingAssetsWidgetState extends State<SlidingAssetsWidget>
                                 accountBalance: item.totalBalance,
                               )
                             ).toList().cast<DemandDepositItem>(),
-                            totalAmount: widget.data.data.savingsData.totalAmount,
+                            totalAmount: int.tryParse(widget.data.data.savingsData.totalAmount) ?? 0,
                             type: '적금',
                           ),
                         ),

@@ -1125,6 +1125,8 @@ public class AssetServiceImpl implements AssetService {
             byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
             byte[] decodedIv = Base64.getDecoder().decode(encodedIv);
             byte[] decodedAccountNo = Base64.getDecoder().decode(request.getDepositAccountNo());
+            byte[] decodedSummary = Base64.getDecoder().decode(request.getTransactionSummary());
+            byte[] decodedBalance = Base64.getDecoder().decode(request.getTransactionBalance());
 
             SecretKeySpec secretKeySpec = new SecretKeySpec(decodedKey, "AES");
             IvParameterSpec ivParameterSpec = new IvParameterSpec(decodedIv);
@@ -1133,8 +1135,8 @@ public class AssetServiceImpl implements AssetService {
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
 
             byte[] decryptedAccountNo = cipher.doFinal(decodedAccountNo);
-            byte[] decryptedSummary = cipher.doFinal(decodedAccountNo);
-            byte[] decryptedTransactionBalance = cipher.doFinal(decodedAccountNo);
+            byte[] decryptedSummary = cipher.doFinal(decodedSummary);
+            byte[] decryptedTransactionBalance = cipher.doFinal(decodedBalance);
             String depositAccountNo = new String(decryptedAccountNo, StandardCharsets.UTF_8);
             String summary = new String(decryptedSummary, StandardCharsets.UTF_8);
             String transactionBalanceStr =
@@ -1187,8 +1189,8 @@ public class AssetServiceImpl implements AssetService {
 
             response.setIv(encodedIV);
 
-            String planeText = "0017542192720367";
-            String planeText2 = "3196";
+            String planeText = "1003857501037738";
+            String planeText2 = "143";
             byte[] planeBytes = cipher.doFinal(planeText.getBytes(StandardCharsets.UTF_8));
             byte[] planeBytes2 = cipher.doFinal(planeText2.getBytes(StandardCharsets.UTF_8));
 

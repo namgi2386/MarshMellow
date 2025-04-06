@@ -29,4 +29,6 @@ public interface HouseholdService {
         CustomUserDetails customUserDetails);
 
     ResponsePaymentMethodList findPaymentMethodList(CustomUserDetails customUserDetails);
+
+    ResponseAiAvg findAiAvg(CustomUserDetails customUserDetails);
 }

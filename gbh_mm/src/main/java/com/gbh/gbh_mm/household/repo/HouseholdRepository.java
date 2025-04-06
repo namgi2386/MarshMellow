@@ -53,4 +53,17 @@ public interface HouseholdRepository extends JpaRepository<Household, Long> {
             @Param("aiCategory") String aiCategory
     );
 
+    List<Household> findAllByUser_UserPkAndHouseholdClassificationCategoryOrderByTradeDateAsc
+            (Long userPk, HouseholdClassificationEnum householdClassificationEnum);
+
+    @Query("SELECT h FROM Household h " +
+            "JOIN FETCH h.householdDetailCategory dc " +
+            "JOIN FETCH dc.aiCategory ac " +
+            "JOIN FETCH dc.householdCategory hc " +
+            "WHERE h.user.userPk = :userPk AND h.householdClassificationCategory = :classification " +
+            "ORDER BY h.tradeDate ASC")
+    List<Household> findAllWithDetailAndAiCategoryAndHouseholdCategory(@Param("userPk") Long userPk,
+                                                                       @Param("classification") HouseholdClassificationEnum classification);
+
+
 }

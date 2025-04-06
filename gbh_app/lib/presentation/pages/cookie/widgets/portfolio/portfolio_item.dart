@@ -5,6 +5,8 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_model.dart';
+import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_detail_modal.dart';
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 
 class PortfolioItem extends StatefulWidget {
   final Portfolio portfolio;

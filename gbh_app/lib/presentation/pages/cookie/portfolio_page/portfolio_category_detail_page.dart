@@ -12,6 +12,7 @@ import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_form.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_model.dart';
 import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
+import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_detail_modal.dart';
 
 class PortfolioCategoryDetailPage extends ConsumerStatefulWidget {
   final int categoryPk;
@@ -65,6 +66,16 @@ class _PortfolioCategoryDetailPageState
         CompletionMessage.show(context, message: '오류가 발생했습니다: $e');
       }
     }
+  }
+
+  // 포트폴리오 상세 모달을 표시하는 메서드
+  void _showPortfolioDetailModal(Portfolio portfolio) {
+    showCustomModal(
+      context: context,
+      ref: ref,
+      backgroundColor: AppColors.background,
+      child: PortfolioDetailModal(portfolio: portfolio),
+    );
   }
 
   @override
@@ -141,9 +152,7 @@ class _PortfolioCategoryDetailPageState
                 final portfolio = portfolios[index];
                 return PortfolioItem(
                   portfolio: portfolio,
-                  onTap: () {
-                    // 포트폴리오 상세보기 로직 추가 가능
-                  },
+                  onTap: () => _showPortfolioDetailModal(portfolio),
                   onDelete: (portfolio) => _deletePortfolio(portfolio),
                 );
               },

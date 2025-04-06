@@ -17,6 +17,8 @@ import 'package:marshmellow/router/routes/cookie_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
 import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_delete_confirm.dart';
+import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_detail_modal.dart';
+import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 
 class PortfolioPage extends ConsumerStatefulWidget {
   const PortfolioPage({super.key});
@@ -196,6 +198,16 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
       _selectedCategories.clear();
       _selectedPortfolios.clear();
     });
+  }
+
+  // 포트폴리오 상세 모달을 표시하는 메서드
+  void _showPortfolioDetailModal(Portfolio portfolio) {
+    showCustomModal(
+      context: context,
+      ref: ref,
+      backgroundColor: AppColors.background,
+      child: PortfolioDetailModal(portfolio: portfolio),
+    );
   }
 
   @override
@@ -440,9 +452,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
                             onTap: _isSelectionMode
                                 ? () => _togglePortfolioSelection(
                                     portfolio.portfolioPk ?? 0)
-                                : () {
-                                    // TODO: 포트폴리오 상세보기 로직 추가
-                                  },
+                                : () => _showPortfolioDetailModal(portfolio),
                             onSelectionToggle: () => _togglePortfolioSelection(
                                 portfolio.portfolioPk ?? 0),
                             onLongPress: () {

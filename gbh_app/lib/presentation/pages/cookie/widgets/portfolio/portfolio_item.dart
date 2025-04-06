@@ -11,6 +11,10 @@ class PortfolioItem extends StatefulWidget {
   final VoidCallback? onTap;
   final Function(Portfolio)? onDelete;
   final SlidableController? controller;
+  final bool isSelectionMode;
+  final bool isSelected;
+  final VoidCallback? onSelectionToggle;
+  final VoidCallback? onLongPress;
 
   const PortfolioItem({
     Key? key,
@@ -18,6 +22,10 @@ class PortfolioItem extends StatefulWidget {
     this.onTap,
     this.onDelete,
     this.controller,
+    this.isSelectionMode = false,
+    this.isSelected = false,
+    this.onSelectionToggle,
+    this.onLongPress,
   }) : super(key: key);
 
   @override
@@ -67,110 +75,118 @@ class _PortfolioItemState extends State<PortfolioItem> {
       return const SizedBox.shrink();
     }
 
-    // Slidable 위젯으로 감싸기
-    return Slidable(
-      key: ValueKey(widget.portfolio.portfolioPk),
-      // 컨트롤러 연결
-      controller: widget.controller,
+    // 아이템 본문
+    final itemContent = GestureDetector(
+      onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
+      onLongPress: widget.onLongPress,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Row(
+          children: [
+            SvgPicture.asset(
+              _selectFileIcon(widget.portfolio.originFileName),
+              width: 30,
+              height: 30,
+              fit: BoxFit.contain,
+              colorFilter: const ColorFilter.mode(
+                AppColors.textPrimary,
+                BlendMode.srcIn,
+              ),
+            ),
+            const SizedBox(width: 12),
 
-      // 왼쪽에서 오른쪽으로만 스와이프 가능하도록 설정
-      endActionPane: ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.2,
-        dismissible: DismissiblePane(
-          key: ValueKey('dismiss-${widget.portfolio.portfolioPk}'),
-          onDismissed: () {
-            // 상태 변경을 먼저 해서 위젯을 UI에서 제거
-            setState(() {
-              _isDeleting = true;
-            });
+            // 파일 정보
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 파일명
+                  Text(
+                    widget.portfolio.fileName,
+                    style: AppTextStyles.bodyMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  // 파일 메모
+                  Text(
+                    widget.portfolio.portfolioMemo,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w300,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
 
-            // 약간의 지연 후 삭제 콜백 실행
-            Future.microtask(() {
-              if (widget.onDelete != null) {
-                widget.onDelete!(widget.portfolio);
-              }
-            });
-          },
-          closeOnCancel: true,
-          confirmDismiss: () async {
-            return true;
-          },
+            // 선택 모드일 때 체크 아이콘 표시
+            if (widget.isSelectionMode)
+              SvgPicture.asset(
+                widget.isSelected ? IconPath.checked : IconPath.unchecked,
+                width: 20,
+                height: 20,
+              ),
+          ],
         ),
-        children: [
-          CustomSlidableAction(
-            onPressed: (context) {
-              // 상태 변경하여 위젯을 UI에서 제거
+      ),
+    );
+
+    // 선택 모드가 아닐 때만 Slidable 사용
+    if (!widget.isSelectionMode) {
+      return Slidable(
+        key: ValueKey(widget.portfolio.portfolioPk),
+        controller: widget.controller,
+        endActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          extentRatio: 0.2,
+          dismissible: DismissiblePane(
+            key: ValueKey('dismiss-${widget.portfolio.portfolioPk}'),
+            onDismissed: () {
               setState(() {
                 _isDeleting = true;
               });
 
-              // 삭제 콜백 실행
               Future.microtask(() {
                 if (widget.onDelete != null) {
                   widget.onDelete!(widget.portfolio);
                 }
               });
             },
-            backgroundColor: AppColors.warnning,
-            flex: 1,
-            child: Icon(
-              Icons.delete,
-              color: AppColors.background,
+            closeOnCancel: true,
+            confirmDismiss: () async {
+              return true;
+            },
+          ),
+          children: [
+            CustomSlidableAction(
+              onPressed: (context) {
+                setState(() {
+                  _isDeleting = true;
+                });
+
+                Future.microtask(() {
+                  if (widget.onDelete != null) {
+                    widget.onDelete!(widget.portfolio);
+                  }
+                });
+              },
+              backgroundColor: AppColors.warnning,
+              flex: 1,
+              child: Icon(
+                Icons.delete,
+                color: AppColors.background,
+              ),
             ),
-          ),
-        ],
-      ),
-
-      // 원래 컨텐츠
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          child: Row(
-            children: [
-              SvgPicture.asset(
-                _selectFileIcon(widget.portfolio.originFileName),
-                width: 30,
-                height: 30,
-                fit: BoxFit.contain,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.textPrimary,
-                  BlendMode.srcIn,
-                ),
-              ),
-              const SizedBox(width: 12),
-
-              // 파일 정보
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 파일명
-                    Text(
-                      widget.portfolio.fileName,
-                      style: AppTextStyles.bodyMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    // 파일 메모
-                    Text(
-                      widget.portfolio.portfolioMemo,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w300,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
-      ),
-    );
+        child: itemContent,
+      );
+    }
+
+    // 선택 모드일 때
+    return itemContent;
   }
 }

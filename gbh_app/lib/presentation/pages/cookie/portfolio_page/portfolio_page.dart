@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
@@ -17,7 +16,7 @@ import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfoli
 import 'package:marshmellow/router/routes/cookie_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
-
+import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_delete_confirm.dart';
 
 class PortfolioPage extends ConsumerStatefulWidget {
   const PortfolioPage({super.key});
@@ -29,6 +28,11 @@ class PortfolioPage extends ConsumerStatefulWidget {
 class _PortfolioPageState extends ConsumerState<PortfolioPage>
     with AutomaticKeepAliveClientMixin {
   final TextEditingController _searchController = TextEditingController();
+
+  // 선택 모드 관련 상태 변수
+  bool _isSelectionMode = false;
+  Set<int> _selectedCategories = {};
+  Set<int> _selectedPortfolios = {};
 
   @override
   bool get wantKeepAlive => true;
@@ -54,13 +58,9 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
 
       if (context.mounted) {
         if (success) {
-          // 성공 메시지 표시
           CompletionMessage.show(context, message: '삭제 완료');
-
-          // 데이터 새로고침
           ref.read(portfolioViewModelProvider.notifier).loadData();
         } else {
-          // 실패 메시지 표시
           CompletionMessage.show(context,
               message:
                   ref.read(portfolioViewModelProvider).errorMessage ?? '삭제 실패');
@@ -68,9 +68,134 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
       }
     } catch (e) {
       if (context.mounted) {
-        CompletionMessage.show(context, message: '오류가 발생했습니다: $e');
+        CompletionMessage.show(context, message: '오류 발생');
       }
     }
+  }
+
+  // 선택한 항목 모두 삭제
+  Future<void> _deleteSelected() async {
+    if (!mounted) return;
+
+    // 확인 대화상자 표시
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => ConfirmModal(
+        title: '알림',
+        subtitle: '정말 삭제하시겠습니까?',
+        description: '선택한 항목이 영구적으로 삭제되며 \n 복구할 수 없습니다.',
+        cancelText: '취소',
+        confirmText: '삭제',
+      ),
+    );
+
+    if (confirm != true || !mounted) return;
+
+    try {
+      bool hasErrors = false;
+
+      // 선택된 카테고리 삭제
+      for (final categoryPk in _selectedCategories) {
+        if (!mounted) return;
+        final success = await ref
+            .read(portfolioViewModelProvider.notifier)
+            .deletePortfolioCategory(categoryPk);
+
+        if (!success) hasErrors = true;
+      }
+
+      // 선택된 포트폴리오 삭제
+      for (final portfolioPk in _selectedPortfolios) {
+        if (!mounted) return;
+        final success = await ref
+            .read(portfolioViewModelProvider.notifier)
+            .deletePortfolio(portfolioPk);
+
+        if (!success) hasErrors = true;
+      }
+
+      if (!mounted) return;
+
+      if (hasErrors) {
+        CompletionMessage.show(context, message: '삭제 실패');
+      } else {
+        CompletionMessage.show(context, message: '삭제 완료');
+      }
+
+      // 선택 모드 종료 및 데이터 새로고침
+      setState(() {
+        _isSelectionMode = false;
+        _selectedCategories.clear();
+        _selectedPortfolios.clear();
+      });
+
+      ref.read(portfolioViewModelProvider.notifier).loadData();
+    } catch (e) {
+      if (!mounted) return;
+      CompletionMessage.show(context, message: '오류가 발생했습니다: $e');
+    }
+  }
+
+  // 카테고리 아이템 선택/해제 토글
+  void _toggleCategorySelection(int categoryPk) {
+    setState(() {
+      if (_selectedCategories.contains(categoryPk)) {
+        _selectedCategories.remove(categoryPk);
+      } else {
+        _selectedCategories.add(categoryPk);
+      }
+    });
+  }
+
+  // 포트폴리오 아이템 선택/해제 토글
+  void _togglePortfolioSelection(int portfolioPk) {
+    setState(() {
+      if (_selectedPortfolios.contains(portfolioPk)) {
+        _selectedPortfolios.remove(portfolioPk);
+      } else {
+        _selectedPortfolios.add(portfolioPk);
+      }
+    });
+  }
+
+  // 선택 모드 시작
+  void _startSelectionMode() {
+    setState(() {
+      _isSelectionMode = true;
+    });
+  }
+
+  // 선택 모드 종료
+  void _endSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedCategories.clear();
+      _selectedPortfolios.clear();
+    });
+  }
+
+  // 모든 항목 선택
+  void _selectAll(
+      List<PortfolioCategory> categories, List<Portfolio> portfolios) {
+    setState(() {
+      _selectedCategories = categories
+          .where((c) => c.portfolioCategoryName != '미분류')
+          .map((c) => c.portfolioCategoryPk)
+          .toSet();
+
+      _selectedPortfolios = portfolios
+          .where((p) => p.portfolioCategory?.portfolioCategoryName == '미분류')
+          .map((p) => p.portfolioPk ?? 0)
+          .toSet();
+    });
+  }
+
+  // 모든 항목 선택 해제
+  void _deselectAll() {
+    setState(() {
+      _selectedCategories.clear();
+      _selectedPortfolios.clear();
+    });
   }
 
   @override
@@ -83,7 +208,6 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
   Widget build(BuildContext context) {
     super.build(context);
     final portfolioState = ref.watch(portfolioViewModelProvider);
-    final categories = portfolioState.categories;
     final isLoading = portfolioState.isLoading;
     final errorMessage = portfolioState.errorMessage;
 
@@ -128,105 +252,217 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage>
       appBar: CustomAppbar(
         title: '포트폴리오',
         actions: [
-          IconButton(
-            onPressed: () {
-              showCustomModal(
-                context: context,
-                ref: ref,
-                backgroundColor: AppColors.background,
-                child: PortfolioForm(),
-              );
-            },
-            icon: SvgPicture.asset(IconPath.add),
-          ),
+          if (!_isSelectionMode)
+            IconButton(
+              onPressed: () {
+                showCustomModal(
+                  context: context,
+                  ref: ref,
+                  backgroundColor: AppColors.background,
+                  child: PortfolioForm(),
+                );
+              },
+              icon: SvgPicture.asset(IconPath.add),
+            ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: CustomSearchBar(
-                  controller: _searchController,
-                  onChanged: (value) {
-                    // TODO: 검색 기능 구현
-                  },
-                  onSubmitted: (value) {
-                    // TODO: 검색 제출 처리
-                  },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Column(
+              children: [
+                // 검색바
+                if (!_isSelectionMode)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: CustomSearchBar(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        // TODO: 검색 기능 구현
+                      },
+                      onSubmitted: (value) {
+                        // TODO: 검색 제출 처리
+                      },
+                    ),
+                  ),
+
+                // 선택 모드 컨트롤바
+                if (_isSelectionMode)
+                  Container(
+                    height: 60,
+                    color: AppColors.background,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // 닫기 버튼
+                        TextButton(
+                          onPressed: _endSelectionMode,
+                          child: Text(
+                            '닫기',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+
+                        // 전체 선택 버튼
+                        TextButton(
+                          onPressed: () => _selectAll(
+                              filteredCategories, unclassifiedPortfolios),
+                          child: Text(
+                            '전체 선택',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+
+                        // 전체 해제 버튼
+                        TextButton(
+                          onPressed: _deselectAll,
+                          child: Text(
+                            '전체 해제',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+
+                        // 삭제 버튼
+                        IconButton(
+                          onPressed: _selectedCategories.isNotEmpty ||
+                                  _selectedPortfolios.isNotEmpty
+                              ? _deleteSelected
+                              : null,
+                          icon: SvgPicture.asset(
+                            IconPath.trash,
+                            width: 20,
+                            height: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          // 스크롤 가능한 콘텐츠 영역
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (filteredCategories.isNotEmpty)
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 5,
+                          mainAxisSpacing: 5,
+                          childAspectRatio: 300 / 260,
+                        ),
+                        itemCount: filteredCategories.length,
+                        itemBuilder: (context, index) {
+                          final category = filteredCategories[index];
+                          final isSelected = _selectedCategories
+                              .contains(category.portfolioCategoryPk);
+
+                          return CategoryItem(
+                            category: category,
+                            isSelected: isSelected,
+                            isSelectionMode: _isSelectionMode,
+                            onTap: _isSelectionMode
+                                ? () => _toggleCategorySelection(
+                                    category.portfolioCategoryPk)
+                                : () {
+                                    context
+                                        .push(CookieRoutes
+                                            .getPortfolioCategoryDetailPath(
+                                                category.portfolioCategoryPk))
+                                        .then((_) {
+                                      ref
+                                          .read(portfolioViewModelProvider
+                                              .notifier)
+                                          .loadData();
+                                    });
+                                  },
+                            onLongPress: () {
+                              if (!_isSelectionMode) {
+                                _startSelectionMode();
+                                _toggleCategorySelection(
+                                    category.portfolioCategoryPk);
+                              }
+                            },
+                          );
+                        },
+                      ),
+
+                    // 포트폴리오 목록 섹션
+                    if (unclassifiedPortfolios.isEmpty && !_isSelectionMode)
+                      Center(
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/images/characters/char_melong.png',
+                              width: 120,
+                              height: 120,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '우측 상단의 + 버튼을 눌러\n포트폴리오를 추가해보세요.',
+                              style: AppTextStyles.bodyMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      )
+                    else if (unclassifiedPortfolios.isNotEmpty)
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: unclassifiedPortfolios.length,
+                        itemBuilder: (context, index) {
+                          final portfolio = unclassifiedPortfolios[index];
+                          final isSelected = _selectedPortfolios
+                              .contains(portfolio.portfolioPk);
+
+                          return PortfolioItem(
+                            portfolio: portfolio,
+                            isSelected: isSelected,
+                            isSelectionMode: _isSelectionMode,
+                            onTap: _isSelectionMode
+                                ? () => _togglePortfolioSelection(
+                                    portfolio.portfolioPk ?? 0)
+                                : () {
+                                    // TODO: 포트폴리오 상세보기 로직 추가
+                                  },
+                            onSelectionToggle: () => _togglePortfolioSelection(
+                                portfolio.portfolioPk ?? 0),
+                            onLongPress: () {
+                              if (!_isSelectionMode) {
+                                _startSelectionMode();
+                                _togglePortfolioSelection(
+                                    portfolio.portfolioPk ?? 0);
+                              }
+                            },
+                            onDelete: (portfolio) =>
+                                _deletePortfolio(portfolio),
+                          );
+                        },
+                      ),
+                  ],
                 ),
               ),
-              if (filteredCategories.isNotEmpty)
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                    childAspectRatio: 300 / 260,
-                  ),
-                  itemCount: filteredCategories.length,
-                  itemBuilder: (context, index) {
-                    final category = filteredCategories[index];
-                    return CategoryItem(
-                      category: category,
-                      onTap: () {
-                        context
-                            .push(CookieRoutes.getPortfolioCategoryDetailPath(
-                                category.portfolioCategoryPk))
-                            .then((_) {
-                          // 상세 페이지에서 돌아왔을 때 데이터 새로고침
-                          ref
-                              .read(portfolioViewModelProvider.notifier)
-                              .loadData();
-                        });
-                      },
-                    );
-                  },
-                ),
-
-              // 포트폴리오 목록 섹션
-              if (unclassifiedPortfolios.isEmpty)
-                Center(
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/characters/char_melong.png',
-                        width: 120,
-                        height: 120,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '우측 상단의 + 버튼을 눌러\n포트폴리오를 추가해보세요.',
-                        style: AppTextStyles.bodyMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: unclassifiedPortfolios.length,
-                  itemBuilder: (context, index) {
-                    final portfolio = unclassifiedPortfolios[index];
-                    return PortfolioItem(
-                      portfolio: portfolio,
-                      onTap: () {
-                        // TODO: 포트폴리오 상세보기 로직 추가
-                      },
-                      onDelete: (portfolio) => _deletePortfolio(portfolio),
-                    );
-                  },
-                ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

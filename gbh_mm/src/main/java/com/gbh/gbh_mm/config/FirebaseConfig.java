@@ -20,8 +20,8 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void initialize() {
-//        try (InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream(firebaseServiceAccountPath)) {
-        try (FileInputStream serviceAccount = new FileInputStream(firebaseServiceAccountPath)) {
+        try (InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream(firebaseServiceAccountPath)) {
+//        try (FileInputStream serviceAccount = new FileInputStream(firebaseServiceAccountPath)) {
             if (serviceAccount == null) {
                 throw new IOException("Resource not found: " + firebaseServiceAccountPath);
             }

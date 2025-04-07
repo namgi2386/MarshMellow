@@ -25,6 +25,7 @@ import 'package:marshmellow/presentation/pages/ledger/widgets/main/ledger_transa
 import 'package:marshmellow/presentation/pages/ledger/widgets/main/ledger_calendar.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/main/date_range_selector.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/transaction_form.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/picker/filter.dart';
 
 class LedgerPage extends ConsumerStatefulWidget {
   const LedgerPage({super.key});
@@ -36,6 +37,7 @@ class LedgerPage extends ConsumerStatefulWidget {
 class _LedgerPageState extends ConsumerState<LedgerPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  final GlobalKey _filterDropdownKey = GlobalKey();
 
   @override
   void initState() {
@@ -147,7 +149,19 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
                               style: AppTextStyles.bodyMedium
                                   .copyWith(fontWeight: FontWeight.w300)),
                           SizedBox(width: screenWidth * 0.03),
-                          SvgPicture.asset(IconPath.caretDown),
+                          GestureDetector(
+                            key: _filterDropdownKey,
+                            onTap: () {
+                              context.showTransactionFilterDropdown(
+                                dropdownKey: _filterDropdownKey,
+                                onFilterSelected: (filter) {
+                                  print('선택된 필터: $filter');
+                                  // TODO: 필터링 로직 구현
+                                },
+                              );
+                            },
+                            child: SvgPicture.asset(IconPath.caretDown),
+                          ),
                         ],
                       ),
                       Row(
@@ -188,7 +202,7 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
                     ],
                   ),
 
-                  const SizedBox(height: 16), // 이 줄 추가
+                  const SizedBox(height: 16),
 
                   // 페이지 인디케이터
                   Center(

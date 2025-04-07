@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/constants/storage_keys.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/auth/pin_state.dart';
 import 'package:marshmellow/di/providers/auth/pin_provider.dart';
 import 'package:marshmellow/di/providers/auth/user_provider.dart';
+import 'package:marshmellow/di/providers/core_providers.dart';
 import 'package:marshmellow/presentation/widgets/dots_input/dots_input.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 
 class AuthPinnumLoginPage extends ConsumerWidget{
   const AuthPinnumLoginPage({Key? key}) : super(key: key);
@@ -124,8 +127,20 @@ class AuthPinnumLoginPage extends ConsumerWidget{
     Navigator.of(context).pop();
 
     if (success) {
-      // 로그인 성공 - 메인 페이지로 이동
-      context.go('/budget');
+      // 로그인 성공
+      // 인증서와 USERKEY 있는지 확인하고 이동해야해요~~
+      final secureStorage = ref.read(secureStorageProvider);
+      final certificatePem = await secureStorage.read(key: StorageKeys.certificatePem);
+      final userkey = await secureStorage.read(key: StorageKeys.userkey);
+      
+      if (context.mounted) Navigator.of(context).pop();
+
+      // 인증서와 userkey 유무 확인
+      if (certificatePem != null && userkey != null) {
+        if (context.mounted) context.go('/budget');
+      } else {
+        if (context.mounted) context.go(SignupRoutes.getMyDataSplashPath());
+      }
     } else {
       // 로그인 실패 - 에러 메시지 표시
       ScaffoldMessenger.of(context).showSnackBar(

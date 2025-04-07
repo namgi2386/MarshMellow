@@ -104,6 +104,7 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
 
   Future<void> _validateToken() async {
     final authRepository = ref.read(authRepositoryProvider);
+    final secureStorage = ref.read(secureStorageProvider);
 
     try {
       // 토큰 재발급 시도
@@ -113,9 +114,24 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
 
       if (mounted) {
         if (isValid) {
+          // 토큰이 유효하면 인증서와 userkey 확인
+          final certificatePem = await secureStorage.read(key: StorageKeys.certificatePem);
+          final userkey = await secureStorage.read(key: StorageKeys.userkey);
+
+        print('🪪🪪인증서 확인: ${certificatePem != null ? '있음' : '없음'}');
+        print('🪪🪪유저키 확인: ${userkey != null ? '있음' : '없음'}');
+
+        if (certificatePem != null && userkey != null) {
+          print('인증서와 유저키 모두 있음: budget 페이지로 이동');
+          context.go('/budget');
+        } else {
+          // 토큰 유효하고
+          // 인증서나 유저키가 없으면 인증서 만들러 가기
+          // : splash page 에서 한 번 더 조건 필터링 합니다
           print('토큰 유효: 인증서 만들러 가기');
-          // 토큰 유효하면 메인 페이지로 이동
           context.go(SignupRoutes.getMyDataSplashPath());
+        }
+
         } else {
           // 유효하지 않으면 로그인 페이지로 이동
           print('토큰 유효하지 않음: PIN 로그인 페이지로 이동');

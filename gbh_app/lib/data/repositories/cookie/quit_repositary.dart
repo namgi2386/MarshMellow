@@ -10,4 +10,9 @@ class QuitRepository {
     final response = await _quitApi.getAverageSpending();
     return response.data;
   }
+
+   Future<DelusionData> getAvailableAmount() async {
+    final response = await _quitApi.getAvailableAmount();
+    return response.data;
+  }
 }

@@ -36,4 +36,24 @@ class QuitApi {
       throw Exception('평균 지출 데이터를 불러오는데 실패했습니다: $e');
     }
   }
+
+  // 퇴사 망상 - 사용 가능 금액 조회
+  Future<DelusionResponse> getAvailableAmount() async {
+    try {
+      final response = await _apiClient.get('/delusion');
+      
+      if (response.data is String) {
+        try {
+          final Map<String, dynamic> jsonData = json.decode(response.data);
+          return DelusionResponse.fromJson(jsonData);
+        } catch (e) {
+          throw Exception('응답을 JSON으로 파싱할 수 없습니다: $e');
+        }
+      }
+      
+      return DelusionResponse.fromJson(response.data);
+    } catch (e) {
+      throw Exception('사용 가능 금액 데이터를 불러오는데 실패했습니다: $e');
+    }
+  }
 }

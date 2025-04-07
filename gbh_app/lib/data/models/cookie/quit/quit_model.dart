@@ -43,3 +43,54 @@ class AverageSpendingData {
     );
   }
 }
+
+
+
+class DelusionResponse {
+  final int code;
+  final String message;
+  final DelusionData data;
+
+  DelusionResponse({
+    required this.code,
+    required this.message,
+    required this.data,
+  });
+
+  factory DelusionResponse.fromJson(Map<String, dynamic> json) {
+    // 응답이 배열이면 빈 데이터로 처리
+    if (json['data'] is List) {
+      return DelusionResponse(
+        code: json['code'] as int,
+        message: json['message'] as String,
+        data: DelusionData(availableAmount: 0),
+      );
+    }
+    
+    return DelusionResponse(
+      code: json['code'] as int,
+      message: json['message'] as String,
+      data: DelusionData.fromJson(json['data']),
+    );
+  }
+}
+
+class DelusionData {
+  final int availableAmount;
+
+  DelusionData({
+    required this.availableAmount,
+  });
+
+  factory DelusionData.fromJson(Map<String, dynamic> json) {
+    final dynamic amount = json['availableAmount'];
+    // String이나 다른 형태로 올 수 있으므로 변환 처리
+    final int availableAmount = amount is int 
+        ? amount 
+        : int.parse(amount.toString());
+    
+    return DelusionData(
+      availableAmount: availableAmount,
+    );
+  }
+}

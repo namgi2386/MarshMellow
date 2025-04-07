@@ -69,7 +69,12 @@ class DatePickerNotifier extends StateNotifier<DatePickerState> {
 
   // DatePicker 숨기기
   void hideDatePicker() {
-    state = state.copyWith(isVisible: false);
+    // 이미 숨겨진 상태라면 상태 변경하지 않음
+    if (!state.isVisible) return;
+
+    state = state.copyWith(
+        isVisible: false,
+        isConfirmed: state.selectedRange != null || state.selectedDate != null);
   }
 
   // 선택된 날짜 범위 업데이트
@@ -112,6 +117,19 @@ class DatePickerNotifier extends StateNotifier<DatePickerState> {
       selectedDates: null,
       isConfirmed: false,
     );
+  }
+
+  // 마지막 선택 내용 초기화
+  void clearLastSelection() {
+    state = state.copyWith(
+        selectedRange: null,
+        selectedDate: null,
+        selectedDates: null,
+        isConfirmed: false);
+  }
+
+  void cancelSelection() {
+    state = state.copyWith(isVisible: false, isConfirmed: false);
   }
 }
 

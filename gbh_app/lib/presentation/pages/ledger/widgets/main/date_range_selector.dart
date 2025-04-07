@@ -16,6 +16,7 @@ class DateRangeSelector extends ConsumerWidget {
   final VoidCallback? onNextPressed;
   final double? width;
   final VoidCallback? onTap;
+  final bool enableDatePicker;
 
   const DateRangeSelector({
     Key? key,
@@ -24,6 +25,7 @@ class DateRangeSelector extends ConsumerWidget {
     this.onNextPressed,
     this.width,
     this.onTap,
+    this.enableDatePicker = true,
   }) : super(key: key);
 
   @override
@@ -187,22 +189,25 @@ class DateRangeSelector extends ConsumerWidget {
     }
 
     return GestureDetector(
-      onTap: () {
-        // 현재 위젯의 위치 정보를 가져와서 DatePicker를 표시
-        final RenderBox renderBox = context.findRenderObject() as RenderBox;
-        final position = renderBox.localToGlobal(Offset.zero);
-        final size = renderBox.size;
+      onTap: enableDatePicker
+          ? () {
+              // 현재 위젯의 위치 정보를 가져와서 DatePicker를 표시
+              final RenderBox renderBox =
+                  context.findRenderObject() as RenderBox;
+              final position = renderBox.localToGlobal(Offset.zero);
+              final size = renderBox.size;
 
-        // DatePicker 오버레이 표시 요청
-        ref.read(datePickerProvider.notifier).showDatePicker(
-              position: Offset(position.dx, position.dy + size.height),
-              selectionMode: DateRangePickerSelectionMode.range,
-            );
+              // DatePicker 오버레이 표시 요청
+              ref.read(datePickerProvider.notifier).showDatePicker(
+                    position: Offset(position.dx, position.dy + size.height),
+                    selectionMode: DateRangePickerSelectionMode.range,
+                  );
 
-        if (onTap != null) {
-          onTap!();
-        }
-      },
+              if (onTap != null) {
+                onTap!();
+              }
+            }
+          : null,
       child: Container(
         height: 50,
         width: containerWidth,

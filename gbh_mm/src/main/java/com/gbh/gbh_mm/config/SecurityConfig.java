@@ -94,7 +94,7 @@ public class SecurityConfig {
                                         "/api/mm/auth/identity-verify", "/api/mm/auth/sign-up",
                                         "/api/mm/auth/login/**", "/api/mm/auth/subscribe/**",
                                         "/api/mm/auth/webhook", "/health-check",
-                                        "/api/mm/auth/reissue", "/actuator/**", "/api/gmail/webhook"
+                                        "/api/mm/auth/reissue", "/actuator/**", "/gmail/webhook"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )
@@ -103,7 +103,7 @@ public class SecurityConfig {
                     @Override
                     protected boolean shouldNotFilter(HttpServletRequest request) {
                         String path = request.getRequestURI();
-                        return path.equals("/api/gmail/webhook"); // ✅ 여기서 webhook은 필터 통과
+                        return path.equals("/gmail/webhook"); // ✅ 여기서 webhook은 필터 통과
         }
     },
                         UsernamePasswordAuthenticationFilter.class);

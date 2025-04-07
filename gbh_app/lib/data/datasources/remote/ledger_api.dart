@@ -296,7 +296,6 @@ class LedgerApi {
   }
 
 // 거래 내역 일괄 등록
-  // 거래 내역 일괄 등록
   Future<Map<String, dynamic>> registerTransactions(
       Map<String, dynamic> transactionData) async {
     try {

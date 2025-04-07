@@ -25,7 +25,7 @@ final encryptionUtilProvider = Provider<EncryptionUtil>((ref) {
 });
 
 // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0Mzk1MTY0NywiZXhwIjoxNzQzOTY5NjQ3fQ.gCLYndDcGi_jcRNelJFD8ULtn40HZM6f6H6-7Cwa3g_jJaFX85iyrbDN7oi1CzVG022eWG1qGw2E8MnvbwsB4w';
+const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDAwNDUxMCwiZXhwIjoxNzQ0MDIyNTEwfQ.XS9EcZnJAMTp8SmWM-L4LYXqYLO_6UXCC5ZCn4Xw5sG9YWPfZ_jvUc85sS7Oio9NzGfa2ilqwxy6WRL4VsSgzA';
 
 // Dio 프로바이더
 final dioProvider = Provider<Dio>((ref) {
@@ -38,7 +38,7 @@ final dioProvider = Provider<Dio>((ref) {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-      'Authorization': TEST_TOKEN,
+      // 'Authorization': TEST_TOKEN,\\
       // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     },
     validateStatus: (status) {

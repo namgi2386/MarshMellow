@@ -121,4 +121,16 @@ class BudgetTypeViewModel extends StateNotifier<BudgetTypeState> {
     if (state.analysisResult == null || state.selectedType == null) return null;
     return state.analysisResult!.allData[state.selectedType];
   }
+
+  // 내 예산 유형의 비율 가져오기
+  double getMyTypeRatio() {
+    if (state.analysisResult == null || state.myBudgetType == null) return 0.0;
+
+    final myTypeData = getMyTypeData();
+    if (myTypeData == null) return 0.0;
+
+    // 내 유형에 해당하는 지출 비율 가져오기
+    final Map<String, double> expenseMap = myTypeData.toMap();
+    return expenseMap[state.myBudgetType!] ?? 0.0;
+  }
 }

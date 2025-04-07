@@ -25,7 +25,7 @@ public class AlertScheduler {
 
     /* 매일 10시 */
     @Scheduled(cron = "0 0 10 * * ?")
-    public void sendSalaryNotification() {
+    public void sendSalaryNotification() throws ExecutionException, InterruptedException {
         LocalDate todayDate = LocalDate.now();
         int today = todayDate.getDayOfMonth();
         YearMonth currentMonth = YearMonth.from(todayDate);
@@ -44,7 +44,7 @@ public class AlertScheduler {
         }
     }
 
-    private void sendNotification(User user) {
+    private void sendNotification(User user) throws ExecutionException, InterruptedException {
         if (user.getFcmToken() != null && !user.getFcmToken().isEmpty()) {
             String title = "월급 알림";
             String body = "오늘은 월급날이에요! 예산을 짜드릴게요 :)";

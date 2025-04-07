@@ -105,20 +105,25 @@ public class GmailService {
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> map = objectMapper.readValue(json, Map.class);
 
-            String historyIdStr = (String) map.get("historyId");
+            String historyIdStr = String.valueOf(map.get("historyId"));
 
             // 📌 1. Redis에서 마지막 처리한 historyId 가져오기
             String savedHistoryId = (String) redisTemplate.opsForValue().get("gmail:lastHistoryId");
             BigInteger startHistoryId = savedHistoryId != null
-                    ? new BigInteger(savedHistoryId)
+                    ? new BigInteger(savedHistoryId).subtract(BigInteger.ONE)
                     : new BigInteger(historyIdStr);
 
             // 📌 2. Gmail 히스토리 조회
             ListHistoryResponse response = gmail.users().history().list("me")
                     .setStartHistoryId(startHistoryId)
                     .execute();
+            log.info("📒 Gmail history 조회 결과: historyId={}, size={}",
+                    response.getHistoryId(), response.getHistory() != null ? response.getHistory().size() : 0);
 
-            if (response.getHistory() == null) return;
+            if (response.getHistory() == null || response.getHistory().isEmpty()) {
+                log.warn("📭 Gmail 히스토리에 새로운 메시지 없음. startHistoryId={}", startHistoryId);
+                return;
+            }
 
             for (History h : response.getHistory()) {
                 List<HistoryMessageAdded> added = h.getMessagesAdded();

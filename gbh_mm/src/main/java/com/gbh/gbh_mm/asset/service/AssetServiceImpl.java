@@ -1,6 +1,7 @@
 package com.gbh.gbh_mm.asset.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gbh.gbh_mm.alert.AlertService;
 import com.gbh.gbh_mm.api.*;
 import com.gbh.gbh_mm.asset.RequestDecodeTest;
 import com.gbh.gbh_mm.asset.ResponseAuthTest;
@@ -85,6 +86,8 @@ public class AssetServiceImpl implements AssetService {
 
     private final UserRepository userRepository;
     private final WithdrawalAccountRepository withdrawalAccountRepository;
+
+    private final AlertService alertService;
 
     @Override
     public ResponseFindAssetList findAssetList(CustomUserDetails customUserDetails) {
@@ -1069,6 +1072,9 @@ public class AssetServiceImpl implements AssetService {
         RequestOpenAccountAuth request,
         CustomUserDetails customUserDetails) {
         try {
+            User user = userRepository.findByUserPk(customUserDetails.getUserPk())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원"));
+
             String encodedKey = customUserDetails.getAesKey();
             String encodedIv = request.getIv();
 
@@ -1126,6 +1132,12 @@ public class AssetServiceImpl implements AssetService {
             String encodedNewIv = Base64.getEncoder().encodeToString(newIv);
 
             String authCode = authCodeSplit[1];
+
+            String fcmToken = user.getFcmToken();
+            String title = "1원 송금";
+            String message = "[MarshMellow] 인증번호 [" + authCode + "]를 입력해주세요 사칭/전화사기에 주의하세요";
+            alertService.sendNotification(fcmToken, title, message);
+
             byte[] authCodeByte = newCipher.doFinal(authCode.getBytes(StandardCharsets.UTF_8));
 
             response.setAuthCode(Base64.getEncoder().encodeToString(authCodeByte));

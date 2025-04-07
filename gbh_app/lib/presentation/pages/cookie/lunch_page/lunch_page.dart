@@ -5,10 +5,12 @@ import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/constants/lunch_menu_data.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
+import 'package:marshmellow/presentation/pages/finance/widgets/TopTriangleBubbleWidget.dart';
 import 'package:marshmellow/presentation/viewmodels/lunch/lunch_view_model.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/router/routes/cookie_routes.dart';
+import 'package:path/path.dart';
 
 class LunchPage extends ConsumerWidget {
   const LunchPage({super.key});
@@ -21,15 +23,6 @@ class LunchPage extends ConsumerWidget {
     return Scaffold(
       appBar: CustomAppbar(
         title: '점심 메뉴 추천',
-        actions: [
-          // Button(
-          //   width: 50,
-          //   onPressed: (){
-          //     context.replace(CookieRoutes.getLunchTutorialPath());
-          //   },
-          //   text: 'test',
-          // ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -37,27 +30,18 @@ class LunchPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 상단 타이틀
-
             const Text(
               'Jump Mea Choo',
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w400,
               ),
             ),
-            const SizedBox(height: 4),
-            const Text(
-              '점심 메뉴 추천',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 16),
+            // const SizedBox(height: 24),
             
             // 선택된 메뉴 표시 영역
             _buildSelectedMenusSection(lunchViewModel),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             
             // 메뉴 그리드 영역
             Expanded(
@@ -87,42 +71,72 @@ class LunchPage extends ConsumerWidget {
     const int totalSlots = rows * columns; // 8개 슬롯
     
     return Container(
-      height: 120, // 그리드 높이 조정
+      height: 140, // 그리드 높이 조정
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 그리드 설명 텍스트
           Container(
-            // color: AppColors.pinkPrimary,
-            width: 140, // 왼쪽 영역 너비 고정
-            height: 120, // 높이 고정
-            alignment: Alignment.centerLeft,
-            child: 
-            // Lottie.asset(
-            //   'assets/images/loading/pot.json', fit: BoxFit.contain,),
-            Image.asset(
-              'assets/images/characters/char_jump.png',
-              fit: BoxFit.contain,
-            )
+            // color: Colors.amber,
+            width: 140,
+            height: 150,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  right: 10,
+                  bottom: 30,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    alignment: Alignment.centerLeft,
+                    child: Image.asset(
+                      'assets/images/characters/char_hat.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  left: 30,
+                  top: 33,
+                  child: Transform.scale(
+                    scale: 4,
+                    child: Lottie.asset(
+                      'assets/images/loading/mypot.json',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           // 그리드 영역
           Expanded(
-            child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(), // 스크롤 비활성화
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: columns, // 4열
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 1, // 정사각형
+            child: Align(
+              alignment: Alignment.bottomCenter, // 하단 중앙 정렬
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(), // 스크롤 비활성화
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns, // 4열
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 1, // 정사각형
+                ),
+                itemCount: totalSlots, // 총 8개 슬롯
+                itemBuilder: (context, index) {
+                  // 선택된 메뉴가 있는 경우 메뉴 표시, 없는 경우 빈 슬롯 표시
+                  if (index < viewModel.selectedMenus.length) {
+                    return _buildFilledMenuSlot(viewModel, index);
+                  } else {
+                    return _buildEmptyMenuSlot();
+                  }
+                },
               ),
-              itemCount: totalSlots, // 총 8개 슬롯
-              itemBuilder: (context, index) {
-                // 선택된 메뉴가 있는 경우 메뉴 표시, 없는 경우 빈 슬롯 표시
-                if (index < viewModel.selectedMenus.length) {
-                  return _buildFilledMenuSlot(viewModel, index);
-                } else {
-                  return _buildEmptyMenuSlot();
-                }
-              },
             ),
           ),
         ],
@@ -201,26 +215,84 @@ class LunchPage extends ConsumerWidget {
     );
   }
 
-  // 개별 메뉴 버튼 위젯
-  Widget _buildMenuButton(
-    BuildContext context,
-    LunchMenu menu,
-    LunchViewModel viewModel,
-  ) {
+// 개별 메뉴 버튼 위젯
+Widget _buildMenuButton(
+  BuildContext context,
+  LunchMenu menu,
+  LunchViewModel viewModel,
+) {
+  return _AnimatedMenuButton(
+    menu: menu,
+    viewModel: viewModel,
+    onTap: () {
+      if (!viewModel.isMaxSelected) {
+        viewModel.selectMenu(menu);
+      } else {
+        // 최대 선택 개수에 도달하면 알림 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('최대 8개까지 선택 가능합니다'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+    },
+  );
+}
+}
+
+// 애니메이션이 적용된 메뉴 버튼
+class _AnimatedMenuButton extends StatefulWidget {
+  final LunchMenu menu;
+  final LunchViewModel viewModel;
+  final VoidCallback onTap;
+
+  const _AnimatedMenuButton({
+    required this.menu,
+    required this.viewModel,
+    required this.onTap,
+  });
+
+  @override
+  State<_AnimatedMenuButton> createState() => _AnimatedMenuButtonState();
+}
+
+class _AnimatedMenuButtonState extends State<_AnimatedMenuButton> 
+    with SingleTickerProviderStateMixin {
+  bool _isPressed = false;
+  
+  // 애니메이션 완료 여부를 추적하기 위한 변수
+  bool _animationComplete = true;
+  
+  // 탭 애니메이션 실행 함수
+  void _playTapAnimation() {
+    if (_animationComplete) {
+      setState(() {
+        _animationComplete = false;
+      });
+      
+      // 짧게 확대했다가 축소하는 애니메이션 시퀀스
+      Future.delayed(const Duration(milliseconds: 150), () {
+        if (mounted) {
+          setState(() {
+            _animationComplete = true;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (!viewModel.isMaxSelected) {
-          viewModel.selectMenu(menu);
-        } else {
-          // 최대 선택 개수에 도달하면 알림 표시
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('최대 8개까지 선택 가능합니다'),
-              duration: Duration(seconds: 1),
-            ),
-          );
-        }
+        // 탭 시 애니메이션 시퀀스 실행
+        _playTapAnimation();
+        widget.onTap();
       },
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.black,
@@ -232,20 +304,16 @@ class LunchPage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-                child: Image.asset(
-                  menu.imagePath,
-                  fit: BoxFit.contain,
+                child: AnimatedScale(
+                  scale: _isPressed || !_animationComplete ? 1.2 : 1.0, // 눌렀을 때 또는 애니메이션 진행 중일 때 1.2배로 확대
+                  duration: const Duration(milliseconds: 150), // 애니메이션 지속 시간
+                  curve: Curves.easeInOut, // 애니메이션 곡선
+                  child: Image.asset(
+                    widget.menu.imagePath,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
-              // const SizedBox(height: 4),
-              // Text(
-              //   menu.name,
-              //   style: const TextStyle(
-              //     color: Colors.white,
-              //     fontSize: 12,
-              //   ),
-              //   textAlign: TextAlign.center,
-              // ),
             ],
           ),
         ),

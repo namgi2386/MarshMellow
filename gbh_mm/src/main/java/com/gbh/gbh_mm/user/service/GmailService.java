@@ -105,7 +105,7 @@ public class GmailService {
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> map = objectMapper.readValue(json, Map.class);
 
-            String historyIdStr = (String) map.get("historyId");
+            String historyIdStr = String.valueOf(map.get("historyId"));
 
             // 📌 1. Redis에서 마지막 처리한 historyId 가져오기
             String savedHistoryId = (String) redisTemplate.opsForValue().get("gmail:lastHistoryId");

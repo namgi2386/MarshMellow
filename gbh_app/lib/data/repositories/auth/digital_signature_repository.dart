@@ -5,6 +5,7 @@ import 'package:marshmellow/core/constants/storage_keys.dart';
 import 'package:marshmellow/core/services/certificate_service.dart';
 import 'package:marshmellow/core/services/digital_signatures_service.dart';
 import 'package:marshmellow/di/providers/core_providers.dart';
+import 'package:marshmellow/presentation/viewmodels/encryption/encryption_viewmodel.dart';
 
 /*
   전자서명 생성 및 검증 레포지토리
@@ -13,8 +14,9 @@ class DigitalSignatureRepository {
   final Dio _dio;
   final DigitalSignatureService _signatureService;
   final FlutterSecureStorage _secureStorage;
+  final Ref _ref;
 
-  DigitalSignatureRepository(this._dio, this._signatureService, this._secureStorage);
+  DigitalSignatureRepository(this._dio, this._signatureService, this._secureStorage, this._ref);
 
   // 전자서명 검증 API 호출
   Future<Map<String, dynamic>> verifyDigitalSignature(String originalText) async {
@@ -49,7 +51,14 @@ class DigitalSignatureRepository {
         );
       }
 
+      // AES 키 가져오기
+      await _ref.read(aesKeyNotifierProvider.notifier).fetchAesKey();
+
+      final aesKey = await _ref.read(encryptionServiceProvider).getAesKey();
+
       print('🍀🍀🍀유저키 발급 성공! : ${response.data['data']['userKey']}');
+      print('🍀🍀🍀aes키 발급 성공! : $aesKey');
+
       
       return response.data;
     } catch (e) {
@@ -68,7 +77,7 @@ final digitalSignatureRepositoryProvider = Provider<DigitalSignatureRepository>(
   final certificateService = CertificateService(secureStorage);
   final signatureService = DigitalSignatureService(certificateService, secureStorage);
   
-  return DigitalSignatureRepository(dio, signatureService, secureStorage);
+  return DigitalSignatureRepository(dio, signatureService, secureStorage, ref);
 });
 
 /*

@@ -33,13 +33,13 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
     // 개발용 자동 로그인 코드 (출시 전 제거)
     // TODO: 출시 전 이 부분 삭제
     final secureStorage = ref.read(secureStorageProvider);
-    // await secureStorage.write(key: StorageKeys.phoneNumber, value: '01012345678'); 
-    // await secureStorage.write(key: StorageKeys.userName, value: '윤잰큰'); 
-    // // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
-    // await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDAxMDg1NCwiZXhwIjoxNzQ0MDI4ODU0fQ.a9a0uyWmyw6cD2j-lYQbkn2336HuByFmJZjJFx7_dMpp77yW-8SIYFVVABsSwXyiZc1jBhVRi6ktu2yNncdEiw'); 
-    // await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0MDEwMzc1LCJleHAiOjE3Njk5MzAzNzV9.OFoLZXmJASZZtM4TFB4PnQ3o9FMmfMUgAtrtaqgxHQ1BEkq5aFDXMB3VluIhuIa-6r-WCteGIucCoQxs1LEKSw'); 
-    // await secureStorage.write(key: StorageKeys.certificatePem, value: '-----BEGIN CERTIFICATE-----MIIC4DCCAcigAwIBAgIGAZYOtqPzMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcwNTI2MTJaFw0yNjA0MDcwNTI2MTJaMDYxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxGTAXBgNVBAMTEGhhcHB5MUBnbWFpbC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCBhA73b93l5Ymt4eDYuklKDCmU8C38vba/GUNT4E0M5B99jQZASCc/9wghPqEXdy/8REREl1n3hKxOR/1/u9MMFJ8aLuUfCtZzEtyQqIKsoChQ6ZwxrzoyLvEUG5QyCLy9rFWsM/cvW3cxGA/N3li3Z2XeBrON+YZvtXwsyzVlazXMOsTz1CSrcPVnDA0zQtqmHFvvgMpzWOhIoiYwq9hsJq+tyya0/eBbHEQG59DI8K5AeXKG4Pg1jO4kKBX8zRrL+Wwk98lLO2OUeDgFr6sIyT32MwfGETiuBuBclTbjYx3AXk+/ktlTBGApMSC56pNVypq5e7uMwWQIZ53TeHWDAgMBAAEwDQYJKoZIhvcNAQENBQADggEBAAPqdfZ5/9pJWKkOyr3EOUoSCaUIDpSP4Gx32ptcGiB8cRLrmAzX8ZPQ1nVOZvO8X8gxvyskxW4AH7gH0rrAdhXXyp6o0eT/nrv/ONYEDFNixy5P/ws7lBykZJkaTmzQtZL2ow4PVX9KfzWSMNF4geljBi7xPNxCLOGOORl7PyI49FjURMH1pZV3BxV4439YzPLlPCcs/+cTzaO/KECAPt2Tgj4HtEu1P4OaKjVvIeAH/WcNgnN377V1UTKfd1RJQo4zT/gbyLX5r3vXqk5IikXh05U8VN9Ht60UzYDtvOof1RgXNnnc7Uv/yaufdtjG16Ty0r3BxdXIWuTprZQQWl8=-----END CERTIFICATE-----'); 
-    // await secureStorage.write(key: StorageKeys.userkey, value: '2c2fd595-4118-4b6c-9fd7-fc811910bb75');
+    await secureStorage.write(key: StorageKeys.phoneNumber, value: '01012345678'); 
+    await secureStorage.write(key: StorageKeys.userName, value: '윤잰큰'); 
+    // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
+    await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDAyOTg2MCwiZXhwIjoxNzQ0MDQ3ODYwfQ.kl9oCzo3bbyeHCG_Qrdb14PqCyvxvgVJJn505s0Cm85j4HRbDHRMOjh2GlSiClFTtzwNpg3RAKg2VZSJu2QiYA'); 
+    await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0MDEwMzc1LCJleHAiOjE3Njk5MzAzNzV9.OFoLZXmJASZZtM4TFB4PnQ3o9FMmfMUgAtrtaqgxHQ1BEkq5aFDXMB3VluIhuIa-6r-WCteGIucCoQxs1LEKSw'); 
+    await secureStorage.write(key: StorageKeys.certificatePem, value: '-----BEGIN CERTIFICATE-----MIIC4DCCAcigAwIBAgIGAZYOtqPzMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcwNTI2MTJaFw0yNjA0MDcwNTI2MTJaMDYxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxGTAXBgNVBAMTEGhhcHB5MUBnbWFpbC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCBhA73b93l5Ymt4eDYuklKDCmU8C38vba/GUNT4E0M5B99jQZASCc/9wghPqEXdy/8REREl1n3hKxOR/1/u9MMFJ8aLuUfCtZzEtyQqIKsoChQ6ZwxrzoyLvEUG5QyCLy9rFWsM/cvW3cxGA/N3li3Z2XeBrON+YZvtXwsyzVlazXMOsTz1CSrcPVnDA0zQtqmHFvvgMpzWOhIoiYwq9hsJq+tyya0/eBbHEQG59DI8K5AeXKG4Pg1jO4kKBX8zRrL+Wwk98lLO2OUeDgFr6sIyT32MwfGETiuBuBclTbjYx3AXk+/ktlTBGApMSC56pNVypq5e7uMwWQIZ53TeHWDAgMBAAEwDQYJKoZIhvcNAQENBQADggEBAAPqdfZ5/9pJWKkOyr3EOUoSCaUIDpSP4Gx32ptcGiB8cRLrmAzX8ZPQ1nVOZvO8X8gxvyskxW4AH7gH0rrAdhXXyp6o0eT/nrv/ONYEDFNixy5P/ws7lBykZJkaTmzQtZL2ow4PVX9KfzWSMNF4geljBi7xPNxCLOGOORl7PyI49FjURMH1pZV3BxV4439YzPLlPCcs/+cTzaO/KECAPt2Tgj4HtEu1P4OaKjVvIeAH/WcNgnN377V1UTKfd1RJQo4zT/gbyLX5r3vXqk5IikXh05U8VN9Ht60UzYDtvOof1RgXNnnc7Uv/yaufdtjG16Ty0r3BxdXIWuTprZQQWl8=-----END CERTIFICATE-----'); 
+    await secureStorage.write(key: StorageKeys.userkey, value: '2c2fd595-4118-4b6c-9fd7-fc811910bb75');
                                                                                                                                                                                                                                             
     // secure storage에서 필요한 정보 불러오기
     // final secureStorage = ref.read(secureStorageProvider);
@@ -122,8 +122,8 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
       print('토큰 재발급 시도');
 
       // 개발용 자동 로그인 코드 (출시 전 제거)
-      final isValid = await authRepository.reissueToken();
-      // final isValid = true;
+      // final isValid = await authRepository.reissueToken();
+      final isValid = true;
       print('토큰 재발급 결과: $isValid');
 
       if (mounted) {

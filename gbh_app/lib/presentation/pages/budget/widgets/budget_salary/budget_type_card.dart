@@ -21,6 +21,8 @@ class BudgetTypeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+
     print('🖌️ BudgetTypePage 빌드 시작');
     final budgetTypeState = ref.watch(budgetTypeProvider);
     print('🖌️ 현재 상태: isLoading=${budgetTypeState.isLoading}, hasError=${budgetTypeState.errorMessage != null}, myType=${budgetTypeState.myBudgetType}');
@@ -80,7 +82,7 @@ class BudgetTypeCard extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 30),
+          SizedBox(height: 20),
 
           // 유형 이름
           Text(
@@ -103,14 +105,6 @@ class BudgetTypeCard extends ConsumerWidget {
                 width: 200,
                 height: 200,
               ),
-            /*
-            Image.asset(
-              myTypeInfo.assetPath,
-              height: 100,
-              width: 100,
-              fit: BoxFit.contain,
-            ),
-            */
           ),
 
           const SizedBox(height: 30),
@@ -141,6 +135,7 @@ class BudgetTypeCard extends ConsumerWidget {
                 fontWeight: FontWeight.w200,
                 color: Colors.white,
               ),
+            width: 240,
             ),
 
         ],

@@ -94,6 +94,16 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
     return Scaffold(
       appBar: CustomAppbar(
         title: 'my little 자산',
+        // actions: [
+        //             IconButton(
+        //     icon: const Icon(Icons.refresh),
+        //     color: AppColors.backgroundBlack,
+        //     onPressed: () {
+        //       ref.read(financeViewModelProvider.notifier).refreshAssetInfo();
+        //     },
+        //     tooltip: '새로고침',
+        //   ),
+        // ],
       ),
       body: Column(
         children: [
@@ -112,6 +122,7 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
     );
   }
 
+  //헤더 
   Widget _buildAccountHeader() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -120,24 +131,25 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
         children: [
           Text(
             widget.accountName,
-            style: AppTextStyles.appBar
+            style: AppTextStyles.modalTitle
           ),
+          SizedBox(height: 4,),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // 은행아이콘
-              BankIcon(bankName: widget.bankName, size: 30),
+              // BankIcon(bankName: widget.bankName, size: 30),
               // 은행명 
               Text(
                 widget.bankName,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.divider)
               ),
               const SizedBox(width: 4,),
               //계좌번호 
               Text(
                 widget.accountNo,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.divider)
               ),
               //복사버튼 
               InkWell(
@@ -179,65 +191,66 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
     );
   }
 
-
-Widget _buildFilterButtons() {
-  final transactionType = ref.watch(transactionFilterProvider);
-  final viewModel = ref.read(demandDetailViewModelProvider);
-  
-  // 드롭다운 옵션 매핑
-  final Map<String, String> filterOptions = {
-    'A': '전체', 
-    'M': '입금',
-    'D': '출금'
-  };
-  
-  // 현재 선택된 필터 텍스트
-  final String currentFilterText = filterOptions[transactionType] ?? '전체';
-  
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // PopupMenuButton을 Material로 감싸서 너비 설정
-        Text('이용내역' , style: AppTextStyles.bodyMediumLight,),
-        Material(
-          color: Colors.transparent,
-          child: PopupMenuButton<String>(
-            padding: EdgeInsets.zero,
-            offset: const Offset(0, 20),
-            constraints: const BoxConstraints(
-              minWidth: 60, // 최소 너비
-              maxWidth: 60, // 최대 너비
+  // 전체 입금 출금 필터 
+  Widget _buildFilterButtons() {
+    final transactionType = ref.watch(transactionFilterProvider);
+    final viewModel = ref.read(demandDetailViewModelProvider);
+    
+    // 드롭다운 옵션 매핑
+    final Map<String, String> filterOptions = {
+      'A': '전체', 
+      'M': '입금',
+      'D': '출금'
+    };
+    
+    // 현재 선택된 필터 텍스트
+    final String currentFilterText = filterOptions[transactionType] ?? '전체';
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // PopupMenuButton을 Material로 감싸서 너비 설정
+          Text('이용내역' , style: AppTextStyles.bodyMediumLight,),
+          Material(
+            color: Colors.transparent,
+            child: PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              offset: const Offset(0, 20),
+              constraints: const BoxConstraints(
+                minWidth: 60, // 최소 너비
+                maxWidth: 60, // 최대 너비
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(currentFilterText),
+                  const Icon(Icons.arrow_drop_down, size: 20),
+                ],
+              ),
+              itemBuilder: (context) => filterOptions.entries.map((entry) {
+                return PopupMenuItem<String>(
+                  value: entry.key,
+                  height: 36, // 작은 높이값
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), // 작은 패딩
+                  child: Text(entry.value),
+                );
+              }).toList(),
+              onSelected: (String value) {
+                viewModel.changeTransactionFilter(value);
+              },
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(currentFilterText),
-                const Icon(Icons.arrow_drop_down, size: 20),
-              ],
-            ),
-            itemBuilder: (context) => filterOptions.entries.map((entry) {
-              return PopupMenuItem<String>(
-                value: entry.key,
-                height: 36, // 작은 높이값
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), // 작은 패딩
-                child: Text(entry.value),
-              );
-            }).toList(),
-            onSelected: (String value) {
-              viewModel.changeTransactionFilter(value);
-            },
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
+  // 데이트피커 
   Widget _buildDateSelector() {
     // 기간 선택 UI 구현 (간단한 버튼 형태로 구현)
     return Padding(
@@ -276,7 +289,7 @@ Widget _buildFilterButtons() {
       ),
     );
   }
-
+  // 데이트피커 2
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final initialDate = _parseDate(isStartDate ? startDate : endDate);
     final DateTime? picked = await showDatePicker(
@@ -298,14 +311,14 @@ Widget _buildFilterButtons() {
       });
     }
   }
-
+  // 데이트피커 3
   DateTime _parseDate(String dateStr) {
     final year = int.parse(dateStr.substring(0, 4));
     final month = int.parse(dateStr.substring(4, 6));
     final day = int.parse(dateStr.substring(6, 8));
     return DateTime(year, month, day);
   }
-
+  // 데이트피커 4
   String _formatDateForDisplay(String dateStr) {
     final year = dateStr.substring(0, 4);
     final month = dateStr.substring(4, 6);
@@ -313,7 +326,8 @@ Widget _buildFilterButtons() {
     return '$year.$month.$day';
   }
 
-Widget _buildTransactionList(List<TransactionItem> transactions) {
+  // 내역
+  Widget _buildTransactionList(List<TransactionItem> transactions) {
   if (transactions.isEmpty) {
     return const Center(
       child: Text('거래 내역이 없습니다.'),
@@ -350,19 +364,24 @@ Widget _buildTransactionList(List<TransactionItem> transactions) {
         children: [
           // 날짜 헤더
           Padding(
-            padding: const EdgeInsets.only(top: 16, bottom: 16),
+            padding: const EdgeInsets.only(top: 8, bottom: 6),
             child: Text(
               _formatTransactionDate(date),
               style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
             ),
           ),
-          
+          Divider(
+            color: Colors.grey[300],
+            thickness: 1.0,
+            height: 1.0,
+          ),
+          SizedBox(height: 10,),
           // 해당 날짜의 거래 항목들
           ...dateItems.map((item) {
             final isDeposit = item.transactionType == '1';
             
             return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: 20), // 내역간 간격
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -427,37 +446,31 @@ Widget _buildTransactionList(List<TransactionItem> transactions) {
     },
   );
 }
-
-String _formatTransactionDate(String dateStr) {
-  final year = int.parse(dateStr.substring(0, 4));
-  final month = int.parse(dateStr.substring(4, 6));
-  final day = int.parse(dateStr.substring(6, 8));
-  
-  final date = DateTime(year, month, day);
-  final weekdayName = _getWeekdayName(date.weekday);
-  
-  return '$month월 $day일 $weekdayName';
-}
-
-String _getWeekdayName(int weekday) {
-  switch (weekday) {
-    case 1: return '월요일';
-    case 2: return '화요일';
-    case 3: return '수요일';
-    case 4: return '목요일';
-    case 5: return '금요일';
-    case 6: return '토요일';
-    case 7: return '일요일';
-    default: return '';
+  // 내역2
+  String _formatTransactionDate(String dateStr) {
+    final year = int.parse(dateStr.substring(0, 4));
+    final month = int.parse(dateStr.substring(4, 6));
+    final day = int.parse(dateStr.substring(6, 8));
+    
+    final date = DateTime(year, month, day);
+    final weekdayName = _getWeekdayName(date.weekday);
+    
+    return '$month월 $day일 $weekdayName';
   }
-}
-  // String _formatTransactionDate(String dateStr) {
-  //   final year = dateStr.substring(0, 4);
-  //   final month = dateStr.substring(4, 6);
-  //   final day = dateStr.substring(6, 8);
-  //   return '$year.$month.$day';
-  // }
-
+  //내역3
+  String _getWeekdayName(int weekday) {
+    switch (weekday) {
+      case 1: return '월요일';
+      case 2: return '화요일';
+      case 3: return '수요일';
+      case 4: return '목요일';
+      case 5: return '금요일';
+      case 6: return '토요일';
+      case 7: return '일요일';
+      default: return '';
+    }
+  }
+  //내역4
   String _formatTransactionTime(String timeStr) {
     final hour = timeStr.substring(0, 2);
     final minute = timeStr.substring(2, 4);

@@ -14,4 +14,8 @@ public class IdentityVerificationResponseDto {
     private String code;
     private int expiresIn;
     private boolean verified;
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
 }

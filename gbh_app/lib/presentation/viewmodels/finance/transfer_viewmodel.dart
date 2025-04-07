@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/data/datasources/remote/finance_api.dart';
 import 'package:marshmellow/data/models/finance/transfer_model.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
+import 'package:marshmellow/presentation/viewmodels/finance/demand_detail_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
 
 // 송금 단계 정의
@@ -69,7 +70,7 @@ class TransferState {
   bool get isAccountInputComplete => 
     selectedBankCode != null && 
     selectedBankName != null && 
-    depositAccountNo.isNotEmpty;
+    depositAccountNo.length == 16;
 
   // 송금 금액이 유효한지 확인 (0보다 커야함)
   bool get isAmountValid => amount > 0;
@@ -161,6 +162,7 @@ class TransferViewModel extends StateNotifier<TransferState> {
       if (response.code == 200) {
         final financeViewModel = _ref.read(financeViewModelProvider.notifier);
         await financeViewModel.refreshAssetInfo();
+        _ref.invalidate(demandTransactionsProvider);
 
         state = state.copyWith(
           isLoading: false,

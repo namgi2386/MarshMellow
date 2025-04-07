@@ -3,6 +3,7 @@ package com.gbh.gbh_mm.wishlist.controller;
 import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
 import com.gbh.gbh_mm.wishlist.model.request.RequestJsoupLink;
+import com.gbh.gbh_mm.wishlist.model.request.RequestSelectWish;
 import com.gbh.gbh_mm.wishlist.model.request.RequestUpdateWishlist;
 import com.gbh.gbh_mm.wishlist.model.response.*;
 import com.gbh.gbh_mm.wishlist.service.WishlistService;
@@ -59,6 +60,12 @@ public class WishlistController {
     ) {
         return wishlistService.updateWishlist(wishlistPk, productNickname, productName,
                 productPrice, productUrl, file);
+    }
+
+    // 위시 선택
+    @PostMapping("/detail/{wishlistPk}")
+    public ResponseSelectWish selectWish(@PathVariable Long wishlistPk, @RequestBody RequestSelectWish requestSelectWish) {
+        return wishlistService.selectWish(wishlistPk, requestSelectWish);
     }
 
     // 위시리스트 삭제

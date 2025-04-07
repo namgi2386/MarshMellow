@@ -110,6 +110,11 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
 
     // 사용자 이름 불러오기
     _loadUserName();
+
+    // 페이지 진입시 인증서 상태 확인
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoCheckCertificatePemStatus();
+    });
   }
 
   @override
@@ -131,7 +136,47 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
     }
   }
 
-  // 인증서 상태 확인 및 처리
+  Future<void> _autoCheckCertificatePemStatus() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // 인증서상태 확인 api호출
+      await ref.read(certificateProvider.notifier).checkCertificateStatus();
+
+      // 위젯마운팅확인
+      if (!mounted) return;
+
+      final certState = ref.read(certificateProvider);
+
+      // 로딩 상태 업데이트
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (certState.hasCertificate) {
+        context.showAuthMydataCertSelect(_userName);
+      } else {
+        // context.go(SignupRoutes.getMyDataEmailPath());
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      // 오류 처리
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('인증서 확인 중 오류가 발생했습니다: $e'))
+      );
+    }
+  }
+
+
+
+  // 사용자가 버튼을 누른 경우 호출 메서드 : 인증서 상태 확인 및 처리
   Future<void> _checkCertificateStatus() async {
     setState(() {
       _isLoading = true;

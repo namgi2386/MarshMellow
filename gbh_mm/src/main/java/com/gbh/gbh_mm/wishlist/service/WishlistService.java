@@ -6,6 +6,7 @@ import com.gbh.gbh_mm.s3.S3Component;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
+import com.gbh.gbh_mm.wishlist.model.request.RequestSelectWish;
 import com.gbh.gbh_mm.wishlist.model.request.RequestUpdateWishlist;
 import com.gbh.gbh_mm.wishlist.model.response.*;
 import com.gbh.gbh_mm.wishlist.repo.WishlistRepository;
@@ -148,6 +149,18 @@ public class WishlistService {
 
 
         return mapper.map(updatedWishList, ResponseUpdateWishlist.class);
+    }
+
+    // 위시 선택
+    public ResponseSelectWish selectWish(Long wishlistPk , RequestSelectWish requestSelectWish) {
+        Wishlist wish = wishlistRepository.findById(wishlistPk).orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        wish.setIsSelected(requestSelectWish.getIsSelected());
+        wishlistRepository.save(wish);
+        return ResponseSelectWish.builder()
+                .message("위시 pk " + wishlistPk +" 수정 완료" )
+                .isSelected(requestSelectWish.getIsSelected())
+                .build();
     }
 
     // 위시리스트 삭제

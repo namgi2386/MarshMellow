@@ -4,6 +4,7 @@ import com.gbh.gbh_mm.config.filter.JwtAuthenticationFilter;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.user.service.CustomUserDetailService;
 import com.gbh.gbh_mm.user.util.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +99,13 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 )
                 // JWT 필터
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, redisTemplate),
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, redisTemplate) {
+                    @Override
+                    protected boolean shouldNotFilter(HttpServletRequest request) {
+                        String path = request.getRequestURI();
+                        return path.equals("/gmail/webhook"); // ✅ 여기서 webhook은 필터 통과
+        }
+    },
                         UsernamePasswordAuthenticationFilter.class);
         return http.build();
 

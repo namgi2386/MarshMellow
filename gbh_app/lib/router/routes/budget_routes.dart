@@ -8,7 +8,7 @@ import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/budg
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/category_expense_list_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_selection_page.dart';
-import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/salary_celebrate.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/salary_celebrate_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/wish/wishlist_creation_page.dart';
 import 'package:marshmellow/app.dart';
 

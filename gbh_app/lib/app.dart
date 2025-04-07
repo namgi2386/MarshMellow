@@ -49,7 +49,7 @@ class _AppState extends ConsumerState<App> {
     ref.read(paydayFetchProvider);
   }
 
-  // 메서드 채널 리스너 설정
+  // 위시 크롤링 자동생성 : 메서드 채널 리스너 설정
   void _setupMethodChannelListener() {
     _channel.setMethodCallHandler((MethodCall call) async {
       if (call.method == 'sharedText') {
@@ -67,7 +67,7 @@ class _AppState extends ConsumerState<App> {
     });
   }
   
-  // 초기 공유 텍스트 확인
+  // 위시 크롤링 자동생성 : 초기 공유 텍스트 확인
   Future<void> _getInitialSharedText() async {
     try {
       final String? sharedText = await _channel.invokeMethod('getSharedText');

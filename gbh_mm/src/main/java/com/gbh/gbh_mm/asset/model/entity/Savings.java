@@ -10,4 +10,8 @@ public class Savings {
     private String accountName;
     private long totalBalance;
     private String encodedTotalBalance;
+    private String subscriptionPeriod;
+    private String installmentNumber;
+    private String depositBalance;
+    private String accountExpiryDate;
 }

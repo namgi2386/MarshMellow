@@ -8,17 +8,24 @@ import 'package:marshmellow/data/models/cookie/portfolio/portfolio_category_mode
 class CategoryItem extends StatelessWidget {
   final PortfolioCategory category;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  final bool isSelected;
+  final bool isSelectionMode;
 
   const CategoryItem({
     Key? key,
     required this.category,
     required this.onTap,
+    this.onLongPress,
+    this.isSelected = false,
+    this.isSelectionMode = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         width: 300,
         height: 260,
@@ -31,7 +38,7 @@ class CategoryItem extends StatelessWidget {
               width: 300,
               height: 260,
               fit: BoxFit.contain,
-              colorFilter: const ColorFilter.mode(
+              colorFilter: ColorFilter.mode(
                 AppColors.textPrimary,
                 BlendMode.srcIn,
               ),
@@ -67,6 +74,22 @@ class CategoryItem extends StatelessWidget {
                 ],
               ),
             ),
+
+            // 체크 아이콘 (선택 모드일 때만 표시)
+            if (isSelectionMode)
+              Positioned(
+                bottom: 35,
+                right: 25,
+                child: Center(
+                  child: SvgPicture.asset(
+                    isSelected
+                        ? IconPath.checkedFolder
+                        : IconPath.uncheckedFolder,
+                    width: 24,
+                    height: 24,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

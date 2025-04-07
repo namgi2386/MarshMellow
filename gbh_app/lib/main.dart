@@ -51,15 +51,18 @@ Future<void> main() async {
   // 초기화 단계
   WidgetsFlutterBinding.ensureInitialized();
   
+
   // Firebase 초기화
   await Firebase.initializeApp();
   await initLocalNotification(); // 로컬 알림 초기화
   setupFCM(); // FCM 설정 함수 호출
+ 
+
 
   // 환경 설정 및 서비스 초기화
   await Future.wait([EnvironmentLoader.load(), HiveService.init()]);
 
-  // SharedPreferences 초기화 (옵셔널)
+  // SharedPrefer33es 초기화 (옵셔널)
   SharedPreferences? sharedPreferences = await _initSharedPreferences();
 
   // 백 제스처 및 라우터 설정

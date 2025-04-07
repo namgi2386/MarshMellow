@@ -54,6 +54,7 @@ Future<void> main() async {
 
   // Firebase 초기화
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await initLocalNotification(); // 로컬 알림 초기화
   setupFCM(); // FCM 설정 함수 호출
  
@@ -153,6 +154,7 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
 );
 
 /// 📦 백그라운드 메시지 핸들러
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   _showLocalNotification(message);

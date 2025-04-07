@@ -9,6 +9,7 @@ import com.gbh.gbh_mm.portfolio.model.entity.PortfolioCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolio;
+import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolioCategoryList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolioList;
@@ -17,6 +18,7 @@ import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolio;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolioCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
@@ -39,11 +41,13 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @AllArgsConstructor
 public class PortfolioServiceImpl implements PortfolioService {
+
     private final PortfolioRepository portfolioRepository;
     private final PortfolioCategoryRepository portfolioCategoryRepository;
     private final UserRepository userRepository;
@@ -97,7 +101,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     public ResponseDeleteCategory deleteCategory(RequestDeleteCategory request) {
         try {
             List<Portfolio> portfolioList =
-                    portfolioRepository.findByPortfolioCategory_PortfolioCategoryPk(request.getCategoryPk());
+                portfolioRepository.findByPortfolioCategory_PortfolioCategoryPk(
+                    request.getCategoryPk());
 
             portfolioRepository.deleteAll(portfolioList);
 
@@ -134,7 +139,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         portfolioCategoryRepository.save(portfolioCategory);
 
-        ResponseUpdateCategory response = mapper.map(portfolioCategory, ResponseUpdateCategory.class);
+        ResponseUpdateCategory response = mapper.map(portfolioCategory,
+            ResponseUpdateCategory.class);
 
         return response;
     }
@@ -145,7 +151,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         User user = userRepository.findByUserPk(customUserDetails.getUserPk())
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-
         String fileUrl = s3Component.uploadFile(file);
 
         LocalDateTime now = LocalDateTime.now();
@@ -153,31 +158,31 @@ public class PortfolioServiceImpl implements PortfolioService {
         String time = now.format(DateTimeFormatter.ofPattern("HHmm"));
 
         Portfolio portfolio = Portfolio.builder()
-                .fileUrl(fileUrl)
-                .fileName(fileName)
-                .createDate(date)
-                .createTime(time)
-                .originFileName(file.getOriginalFilename())
-                .fileName(fileName)
-                .portfolioMemo(portfolioMemo)
-                .user(user)
-                .build();
+            .fileUrl(fileUrl)
+            .fileName(fileName)
+            .createDate(date)
+            .createTime(time)
+            .originFileName(file.getOriginalFilename())
+            .fileName(fileName)
+            .portfolioMemo(portfolioMemo)
+            .user(user)
+            .build();
 
         try {
             PortfolioCategory portfolioCategory = portfolioCategoryRepository
-                    .findById(portfolioCategoryPk)
-                    .orElseThrow(() -> new EntityNotFoundException());
+                .findById(portfolioCategoryPk)
+                .orElseThrow(() -> new EntityNotFoundException());
             portfolio.setPortfolioCategory(portfolioCategory);
         } catch (EntityNotFoundException e) {
             PortfolioCategory portfolioCategory = portfolioCategoryRepository
-                    .findByUser_UserPkAndPortfolioCategoryName(customUserDetails.getUserPk(),"미분류");
+                .findByUser_UserPkAndPortfolioCategoryName(customUserDetails.getUserPk(), "미분류");
 
             if (portfolioCategory == null) {
                 PortfolioCategory newCategory = PortfolioCategory.builder()
-                        .portfolioCategoryMemo("")
-                        .portfolioCategoryName("미분류")
-                        .user(user)
-                        .build();
+                    .portfolioCategoryMemo("")
+                    .portfolioCategoryName("미분류")
+                    .user(user)
+                    .build();
                 PortfolioCategory savedCategory = portfolioCategoryRepository.save(newCategory);
                 portfolio.setPortfolioCategory(savedCategory);
             } else {
@@ -190,7 +195,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         PortfolioCategoryDto portfolioCategoryDto =
             mapper.map(savedPortfolio.getPortfolioCategory(), PortfolioCategoryDto.class);
 
-        ResponseCreatePortfolio response = mapper.map(savedPortfolio, ResponseCreatePortfolio.class);
+        ResponseCreatePortfolio response = mapper.map(savedPortfolio,
+            ResponseCreatePortfolio.class);
         response.setPortfolioCategory(portfolioCategoryDto);
 
         return response;
@@ -299,4 +305,32 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         return response;
     }
+
+    @Override
+    @Transactional
+    public ResponseDeletePortfolioCategoryList deleteCategoryList(
+        CustomUserDetails customUserDetails, RequestDeletePortfolioCategoryList request) {
+
+        List<Integer> categoryPkList = request.getPortfolioCategoryPkList();
+        try {
+            for (Integer i : categoryPkList) {
+                PortfolioCategory portfolioCategory = portfolioCategoryRepository.findById(i)
+                    .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 카테고리"));
+
+                portfolioRepository.deleteAllByPortfolioCategory_PortfolioCategoryPk(i);
+
+                portfolioCategoryRepository.delete(portfolioCategory);
+            }
+
+            ResponseDeletePortfolioCategoryList response = ResponseDeletePortfolioCategoryList.builder()
+                .message("SUCCESS")
+                .build();
+
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }

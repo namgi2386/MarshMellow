@@ -93,7 +93,7 @@ class DefaultWalletWidget extends ConsumerWidget {
       width: MediaQuery.of(context).size.width * 0.4,
       height: MediaQuery.of(context).size.width * 0.4,
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: AppColors.blackPrimary,
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
@@ -119,13 +119,13 @@ class DefaultWalletWidget extends ConsumerWidget {
                 children: [
                   Text(
                     accountType,
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.whiteLight)
+                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.whiteLight)
                   ),
                   if (balance != -1)
                   Text(isHidden ? '금액보기' :
                     '${_formatCurrency(balance)}원',
                     style: isHidden ?  AppTextStyles.bodyMediumLight.copyWith(color: AppColors.divider , fontWeight: FontWeight.w400) :
-                        AppTextStyles.bodyMedium.copyWith(color: AppColors.whiteLight)
+                        AppTextStyles.bodySmall.copyWith(color: AppColors.whiteLight)
                   ),
                 ],
               ),
@@ -145,20 +145,20 @@ class DefaultWalletWidget extends ConsumerWidget {
         // 첫 번째 카드 (뒤에 있는 카드)
         Transform.translate(
           offset: const Offset(0, 10),
-          child: _buildCard(cards[0], isFirst: true, parentWidth: parentWidth),
+          child: _buildCard(cards[1], isFirst: true, parentWidth: parentWidth),
         ),
         
         // 두 번째 카드 (앞에 있는 카드)
         Transform.translate(
           offset: const Offset(0, 40),
-          child: _buildCard(cards[1], isFirst: false, parentWidth: parentWidth),
+          child: _buildCard(cards[0], isFirst: false, parentWidth: parentWidth),
         ),
         Transform.translate(
           offset: const Offset(0, 55),
           child: CustomShapeBox(
             width: parentWidth * 0.65,
             height: parentWidth * 0.25,
-            color: AppColors.blackDark
+            color: AppColors.blackPrimary
           ),
         ),
       ],
@@ -192,16 +192,30 @@ class DefaultWalletWidget extends ConsumerWidget {
             ),
           )
         : accountType == "대출"
-            ? Container(
-                padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0),
-                alignment: Alignment.topCenter,
-                child: Text(
-                  card.cardName,
-                  style: AppTextStyles.bodySmall,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: BankIcon(bankName: '싸피은행', size: 40),
+                  onPressed: () {
+                    // _onAccountItemTap(context);
+                  },
                 ),
-              )
+                Expanded(
+                  child: Container(
+                      padding: const EdgeInsets.fromLTRB(0.0, 11.0, 0.0, 0.0),
+                      alignment: Alignment.topCenter,
+                      child: Text(
+                        card.cardName,
+                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.blackPrimary),
+                        overflow: TextOverflow.clip,
+                        maxLines: 1,
+                      ),
+                    ),
+                ),
+              ],
+            )
             : accountType == "카드" ? Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -215,11 +229,11 @@ class DefaultWalletWidget extends ConsumerWidget {
                   Expanded(  // 여기가 중요한 변경점입니다
                     child: Container(
                       alignment: Alignment.topCenter,
-                      padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0),
+                      padding: const EdgeInsets.fromLTRB(0.0, 11.0, 0.0, 0.0),
                       child: Text(
                         card.cardName,
-                        style: AppTextStyles.bodySmall,
-                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.blackPrimary),
+                        overflow: TextOverflow.clip,
                         maxLines: 1,
                       ),
                     ),
@@ -238,11 +252,11 @@ class DefaultWalletWidget extends ConsumerWidget {
                   Expanded(  // 여기가 중요한 변경점입니다
                     child: Container(
                       alignment: Alignment.topCenter,
-                      padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0),
+                      padding: const EdgeInsets.fromLTRB(0.0, 11.0, 0.0, 0.0),
                       child: Text(
                         card.cardName,
-                        style: AppTextStyles.bodySmall,
-                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.blackPrimary),
+                        overflow: TextOverflow.clip,
                         maxLines: 1,
                       ),
                     ),

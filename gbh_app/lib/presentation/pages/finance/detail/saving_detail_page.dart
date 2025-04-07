@@ -73,7 +73,7 @@ class SavingDetailPage extends ConsumerWidget {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(width: 2.0, color: AppColors.divider),
+        border: Border.all(width: 1.0, color: AppColors.divider),
         borderRadius: const BorderRadius.all(Radius.circular(10.0))
       ),
       child: Column(
@@ -81,7 +81,7 @@ class SavingDetailPage extends ConsumerWidget {
         children: [
           Row(
             children: [
-              BankIcon(bankName: bankName, size: 24),
+              BankIcon(bankName: bankName, size: 46),
               const SizedBox(width: 8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +132,7 @@ class SavingDetailPage extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: AppColors.background,
-        border: Border.all(width: 2.0, color: AppColors.divider),
+        border: Border.all(width: 1.0, color: AppColors.divider),
         borderRadius: const BorderRadius.all(Radius.circular(10.0))
       ),
       child: Column(
@@ -156,8 +156,8 @@ class SavingDetailPage extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
-          Text(value, style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+          Text(label, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+          Text(value, style: AppTextStyles.bodyMedium),
         ],
       ),
     );
@@ -201,13 +201,14 @@ class SavingDetailPage extends ConsumerWidget {
           children: [
             // 날짜 헤더
             Padding(
-              padding: const EdgeInsets.only(top: 16, bottom: 16),
+              padding: const EdgeInsets.only(top: 16),
               child: Text(
                 _formatTransactionDate(date),
                 style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
               ),
             ),
-            
+            Divider(color: AppColors.disabled,),
+            SizedBox(height: 16,),
             // 해당 날짜의 납입 항목들
             ...dateItems.map((item) {
               final isSuccess = item.status == 'SUCCESS';

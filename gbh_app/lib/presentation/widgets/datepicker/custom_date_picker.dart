@@ -8,6 +8,8 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
+import 'package:marshmellow/di/providers/my/salary_provider.dart';
+import 'package:marshmellow/di/providers/calendar_providers.dart';
 
 /// 커스텀 날짜 선택 위젯
 /// 여러 날짜 선택 모드를 지원하는 재사용 가능한 날짜 선택 컴포넌트
@@ -237,49 +239,102 @@ class CustomDatePickerState extends ConsumerState<CustomDatePicker> {
           Container(
             width: double.infinity,
             height: 40,
-            padding: EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
+            padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0), // 패딩 수정
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, // 정렬 수정
               children: [
+                // 초기화 버튼 추가
                 TextButton(
                   onPressed: () {
-                    // 취소 버튼 클릭 시
-                    ref.read(datePickerProvider.notifier).hideDatePicker();
-                    if (widget.onCancel != null) {
-                      widget.onCancel!();
+                    // 초기화 버튼 클릭 시
+                    ref.read(datePickerProvider.notifier).clearLastSelection();
+
+                    // 월급날 기준으로 설정
+                    final payday = ref.read(paydayProvider);
+                    final now = DateTime.now();
+
+                    DateTime startDate;
+                    DateTime endDate;
+
+                    // 현재 날짜가 월급일 이전이면 전 달의 월급일부터
+                    if (now.day < payday) {
+                      startDate = DateTime(now.year, now.month - 1, payday);
+                      endDate = DateTime(now.year, now.month, payday - 1);
+                    } else {
+                      // 현재 날짜가 월급일 이후면 현재 달의 월급일부터
+                      startDate = DateTime(now.year, now.month, payday);
+
+                      // 다음 달의 월급일 이전 날까지
+                      if (startDate.month == 12) {
+                        endDate = DateTime(startDate.year + 1, 1, payday - 1);
+                      } else {
+                        endDate = DateTime(now.year, now.month + 1, payday - 1);
+                      }
                     }
+
+                    // 새 범위 설정 및 picker 닫기
+                    ref.read(datePickerProvider.notifier).updateSelectedRange(
+                        PickerDateRange(startDate, endDate));
                   },
                   style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      overlayColor: AppColors.buttonBlack),
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    overlayColor: AppColors.buttonBlack,
+                  ),
                   child: Text(
-                    '취소',
+                    '초기화',
                     style:
                         TextStyle(fontSize: 14.0, color: AppColors.buttonBlack),
                   ),
                 ),
-                SizedBox(width: 30), // 버튼 사이의 간격 추가
-                TextButton(
-                  onPressed: () {
-                    // 확인 버튼 클릭 시
-                    ref.read(datePickerProvider.notifier).hideDatePicker();
-                    if (widget.onConfirm != null && _currentRange != null) {
-                      widget.onConfirm!(_currentRange!);
-                    }
-                  },
-                  style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      overlayColor: AppColors.buttonBlack),
-                  child: Text(
-                    '확인',
-                    style:
-                        TextStyle(fontSize: 14.0, color: AppColors.buttonBlack),
-                  ),
-                )
+
+                // 오른쪽 버튼들
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        // 취소 버튼 클릭 시
+                        ref.read(datePickerProvider.notifier).hideDatePicker();
+                        if (widget.onCancel != null) {
+                          widget.onCancel!();
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        overlayColor: AppColors.buttonBlack,
+                      ),
+                      child: Text(
+                        '취소',
+                        style: TextStyle(
+                            fontSize: 14.0, color: AppColors.buttonBlack),
+                      ),
+                    ),
+                    SizedBox(width: 30),
+                    TextButton(
+                      onPressed: () {
+                        // 확인 버튼 클릭 시
+                        ref.read(datePickerProvider.notifier).hideDatePicker();
+                        if (widget.onConfirm != null && _currentRange != null) {
+                          widget.onConfirm!(_currentRange!);
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        overlayColor: AppColors.buttonBlack,
+                      ),
+                      child: Text(
+                        '확인',
+                        style: TextStyle(
+                            fontSize: 14.0, color: AppColors.buttonBlack),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

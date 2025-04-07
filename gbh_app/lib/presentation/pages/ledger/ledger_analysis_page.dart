@@ -116,8 +116,10 @@ class _LedgerAnalysisPageState extends ConsumerState<LedgerAnalysisPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // 날짜 선택 컴포넌트
+                              // 날짜 선택 컴포넌트
                               DateRangeSelector(
                                 dateRange: dateRangeText,
+                                enableDatePicker: false, // 날짜 선택기 비활성화
                                 onPreviousPressed: () async {
                                   setState(() {
                                     _localLoading =
@@ -160,16 +162,7 @@ class _LedgerAnalysisPageState extends ConsumerState<LedgerAnalysisPage> {
                                     }
                                   }
                                 },
-                                onTap: () {
-                                  // DatePicker가 닫힌 후 분석 데이터 새로고침
-                                  ref.listen(datePickerProvider,
-                                      (previous, next) {
-                                    if (previous?.isConfirmed == false &&
-                                        next.isConfirmed == true) {
-                                      _loadAnalysisData();
-                                    }
-                                  });
-                                },
+                                // onTap 속성 제거 (필요 없음)
                               ),
 
                               // 섹션 제목

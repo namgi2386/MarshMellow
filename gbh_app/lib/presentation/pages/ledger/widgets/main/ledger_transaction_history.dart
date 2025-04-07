@@ -11,6 +11,7 @@ import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart
 import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
+import 'package:marshmellow/di/providers/transaction_filter_provider.dart';
 
 class LedgerTransactionHistory extends ConsumerStatefulWidget {
   const LedgerTransactionHistory({super.key});
@@ -30,10 +31,10 @@ class _LedgerTransactionHistoryState
 
   @override
   Widget build(BuildContext context) {
-    // 트랜잭션 데이터 구독
-    final transactionsAsync = ref.watch(transactionsProvider);
+    // 필터링된 트랜잭션 데이터 구독
+    final filteredTransactionsAsync = ref.watch(filteredTransactionsProvider);
 
-    return transactionsAsync.when(
+    return filteredTransactionsAsync.when(
       data: (transactions) {
         if (transactions.isEmpty) {
           return Center(
@@ -151,8 +152,8 @@ class _LedgerTransactionHistoryState
                                   CompletionMessage.show(context,
                                       message: '삭제 완료');
 
-                                  // 트랜잭션 목록 새로고침 (transactionProvider 강제 새로고침)
-                                  ref.refresh(transactionsProvider);
+                                  // 필터된 트랜잭션 다시 로드
+                                  ref.refresh(filteredTransactionsProvider);
 
                                   // 또한 ledgerViewModel 새로고침 (수입/지출 카드 업데이트를 위해)
                                   final datePickerState =

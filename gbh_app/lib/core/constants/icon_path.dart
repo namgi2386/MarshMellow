@@ -156,6 +156,9 @@ class IconPath {
   static const String shareNetwork = 'assets/icons/body/ShareNetwork.svg';
   static const String paperclip = 'assets/icons/body/Paperclip.svg';
 
+  static const String filtered = 'assets/icons/body/filtered.svg';
+  static const String unfiltered = 'assets/icons/body/unfiltered.svg';
+
   // 카드 이미지
   static const String testCard = 'assets/icons/card/testCard.svg';
 

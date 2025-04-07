@@ -1,4 +1,4 @@
-import 'package:marshmellow/data/datasources/remote/budget_api.dart';
+import 'package:marshmellow/data/datasources/remote/budget/budget_api.dart';
 import 'package:marshmellow/data/models/budget/budget_model.dart';
 
 class BudgetRepository {

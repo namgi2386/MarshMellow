@@ -15,6 +15,7 @@ import com.gbh.gbh_cert.model.entity.Certificate;
 import com.gbh.gbh_cert.model.repository.CertficateRepository;
 import com.gbh.gbh_cert.util.CIGenerator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -37,11 +38,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CertService {
 
     private final CIGenerator ciGenerator;
@@ -56,7 +59,6 @@ public class CertService {
     @Transactional
     public CIResponseDto getConnectionInformation(CIRequestDto ciRequestDto) {
         String ci = ciGenerator.generateCi(ciRequestDto);
-
         userService.registerUserIfNotExist(ciRequestDto, ci);
 
         return CIResponseDto.builder()
@@ -71,8 +73,7 @@ public class CertService {
         byte[] decodedBytes = Base64.getDecoder().decode(base64Data);
         PKCS10CertificationRequest csr = new PKCS10CertificationRequest(decodedBytes);
 
-        // 보안 프로바이더 설정
-        Security.addProvider(new BouncyCastleProvider());
+
 
         // 2. 발급자 (CA) 정보 설정
         //인증 기관(CA)의 세부 정보를 설정합니다.
@@ -196,14 +197,43 @@ public class CertService {
                         .exist(false)
                         .build());
     }
+    private boolean isCertificateMatching(String pem1, String pem2) {
+        try {
+            X509Certificate cert1 = convertToX509(pem1);
+            X509Certificate cert2 = convertToX509(pem2);
 
+            // 🔍 DER 바이트 배열로 직접 비교
+            byte[] der1 = cert1.getEncoded();
+            byte[] der2 = cert2.getEncoded();
+
+            boolean isEqual = Arrays.equals(der1, der2);
+
+            if (!isEqual) {
+                log.warn("❗ 인증서 DER 비교 결과 다름!");
+                log.warn("📄 서버 인증서(Base64 DER): " + Base64.getEncoder().encodeToString(der1));
+                log.warn("📄 클라 인증서(Base64 DER): " + Base64.getEncoder().encodeToString(der2));
+            }
+
+            return isEqual;
+        } catch (Exception e) {
+            log.error("❌ 인증서 비교 중 오류 발생: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+
+    private X509Certificate convertToX509(String pem) throws Exception {
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        ByteArrayInputStream stream = new ByteArrayInputStream(pem.getBytes(StandardCharsets.UTF_8));
+        return (X509Certificate) factory.generateCertificate(stream);
+    }
     public DigitalSignatureIssueResponseDto createDigitalSignature(DigitalSignatureIssueRequestDto request) {
 
         User user = userService.lookUpUserByCI(request.getConnectionInformation());
 
         Certificate certificate = certficateRepository.findByUserAndCertStatus(user, Certificate.CertStatus.VALID)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHILD_NOT_FOUND));
-        if(!certificate.getCertData().trim().equals(request.getCertificatePem().trim())){
+        if (!isCertificateMatching(certificate.getCertData(), request.getCertificatePem())) {
             throw new CustomException(ErrorCode.CERTFICATE_NOT_EQUALS);
         }
 
@@ -237,30 +267,60 @@ public class CertService {
 
     private boolean verifySignature(String originalText, String signedData, String certificatePem) {
         try {
-            // 1. PEM 형식 인증서를 X.509 인증서 객체로 파싱
-            Security.addProvider(new BouncyCastleProvider());
+            log.info("🔐 전자서명 검증 시작");
 
-            CertificateFactory certFactory = CertificateFactory.getInstance("X.509", "BC");
+            // 1. 인증서 파싱
+            log.info("📜 인증서 PEM 길이: " + certificatePem.length());
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
             ByteArrayInputStream certStream = new ByteArrayInputStream(certificatePem.getBytes(StandardCharsets.UTF_8));
             X509Certificate cert = (X509Certificate) certFactory.generateCertificate(certStream);
+            log.info("✅ 인증서 파싱 성공");
+            log.info("🧾 인증서 DER(Base64): {}", Base64.getEncoder().encodeToString(cert.getEncoded()));
+            log.info("🧾 인증서 SubjectDN: {}", cert.getSubjectDN());
+            log.info("🧾 인증서 IssuerDN: {}", cert.getIssuerDN());
+            log.info("🧾 인증서 Serial Number: {}", cert.getSerialNumber());
+            log.info("🧾 인증서 NotBefore: {}", cert.getNotBefore());
+            log.info("🧾 인증서 NotAfter: {}", cert.getNotAfter());
+            log.info("🧾 인증서 PublicKey: {}", cert.getPublicKey());
 
-            // 2. 인증서에서 공개키 추출
+            // 2. 공개키 추출
             PublicKey publicKey = cert.getPublicKey();
+            log.info("🔓 공개키 추출 성공: " + publicKey.getAlgorithm());
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+            log.info("🔐 서버 공개키 modulus: " + rsaPublicKey.getModulus());
+            log.info("🔐 서버 공개키 exponent: " + rsaPublicKey.getPublicExponent());
 
-            // 3. 서명 객체 초기화
-            Signature signature = Signature.getInstance("SHA512withRSA");
+            log.info("🧾 [서버 수신 원문] originalText: {}", originalText);
+            log.info("🧾 [서버 수신 원문 Base64]: {}", Base64.getEncoder().encodeToString(originalText.getBytes(StandardCharsets.UTF_8)));
+
+            // 3. 원문 정규화
+            log.info("서버 Base64 원문: {}", Base64.getEncoder().encodeToString(originalText.getBytes(StandardCharsets.UTF_8)));
+            MessageDigest digest = MessageDigest.getInstance("SHA-512");
+            byte[] hash = digest.digest(originalText.getBytes(StandardCharsets.UTF_8));
+            byte[] originalBytes = originalText.getBytes(StandardCharsets.UTF_8); // ← 여기에
+            log.info("📦 서버 원문 바이트: " + Arrays.toString(originalBytes));
+            log.info("🔑 검증용 원문(Base64): " + Base64.getEncoder().encodeToString(hash));
+
+            // 4. 서명 객체 초기화
+            Signature signature = Signature.getInstance("SHA512withRSA", "BC");
             signature.initVerify(publicKey);
-
-            // 4. 원본 데이터를 입력
             signature.update(originalText.getBytes(StandardCharsets.UTF_8));
+            log.info("✍ 원문 데이터 입력 완료");
 
-            // 5. 서명을 Base64 디코딩 후 검증
+            // 5. 서명 검증
             byte[] signedBytes = Base64.getDecoder().decode(signedData);
-            return signature.verify(signedBytes);
+            log.info("🧾 서명 Base64 디코딩 완료: 길이 " + signedBytes.length);
+            log.info("✅ 재인코딩된 서명(Base64): " + Base64.getEncoder().encodeToString(signedBytes));
+            log.info("🧾 서버에서 받은 서명 바이트: " + Arrays.toString(signedBytes));
+            log.info("서명 프로바이더: " + signature.getProvider());
+            boolean result = !signature.verify(signedBytes);
+            log.info("🎯 서명 검증 결과: " + result);
+            return result;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("❌ 전자서명 검증 중 예외 발생: " + e.getMessage(), e);
             return false;
         }
     }
+
 }

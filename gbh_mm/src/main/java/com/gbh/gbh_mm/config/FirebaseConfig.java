@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -20,6 +21,7 @@ public class FirebaseConfig {
     @PostConstruct
     public void initialize() {
         try (InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream(firebaseServiceAccountPath)) {
+//        try (FileInputStream serviceAccount = new FileInputStream(firebaseServiceAccountPath)) {
             if (serviceAccount == null) {
                 throw new IOException("Resource not found: " + firebaseServiceAccountPath);
             }

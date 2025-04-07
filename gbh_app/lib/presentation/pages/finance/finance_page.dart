@@ -95,7 +95,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
             icon: const Icon(Icons.refresh),
             color: AppColors.backgroundBlack,
             onPressed: () {
-              ref.read(financeViewModelProvider.notifier).fetchAssetInfo();
+              ref.read(financeViewModelProvider.notifier).refreshAssetInfo();
             },
             tooltip: '새로고침',
           ),

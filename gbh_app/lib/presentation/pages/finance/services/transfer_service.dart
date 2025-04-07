@@ -29,6 +29,7 @@ class TransferService {
       
       // 로딩 숨기기
       LoadingManager.hide();
+      print('@@출출@@ : ${result} + ${isRegistered} + ${withdrawalAccountId}');
       
       if (isRegistered && withdrawalAccountId != null) {
         // 이미 등록된 출금계좌라면 2초 후 인증서 로그인 모달 표시

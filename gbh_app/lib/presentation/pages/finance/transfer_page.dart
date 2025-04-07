@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/utils/format_utils.dart';
 import 'package:marshmellow/data/models/finance/transfer_model.dart';
+import 'package:marshmellow/presentation/viewmodels/finance/demand_detail_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/finance/finance_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/transfer_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/index.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
+import 'package:flutter/services.dart';
 
 class TransferPage extends ConsumerStatefulWidget {
   final String accountNo;
@@ -33,7 +39,6 @@ class _TransferPageState extends ConsumerState<TransferPage> {
   @override
   void initState() {
     super.initState();
-    // 출금계좌 설정 (임시로 ID는 1로 고정)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(transferProvider.notifier).setWithdrawalAccount(widget.withdrawalAccountId, widget.accountNo);
     });
@@ -73,11 +78,17 @@ class _TransferPageState extends ConsumerState<TransferPage> {
                   itemBuilder: (context, index) {
                     final bank = bankList[index];
                     return ListTile(
-                      leading: SvgPicture.asset(
-                        bank.iconPath,
-                        width: 30,
-                        height: 30,
-                      ),
+                      leading: bank.code == '001' || bank.code == '999' ? 
+                        Image.asset(
+                          bank.code == '001' ? 'assets/icons/bank/001_korea_2.png' : 'assets/icons/bank/999_ssafy_2.png',
+                          width: 30,
+                          height: 30,
+                        ) : 
+                        SvgPicture.asset(
+                          bank.iconPath,
+                          width: 30,
+                          height: 30,
+                        ),
                       title: Text(bank.name),
                       onTap: () {
                         ref.read(transferProvider.notifier).selectBank(
@@ -88,7 +99,7 @@ class _TransferPageState extends ConsumerState<TransferPage> {
                         Navigator.pop(context);
                       },
                     );
-                  },
+                  }
                 ),
               ),
             ],
@@ -143,128 +154,139 @@ class _TransferPageState extends ConsumerState<TransferPage> {
   }
 
   // 계좌 정보 입력 단계
+// 계좌 정보 입력 단계
   Widget _buildAccountInputStep(BuildContext context, TransferState state, TransferViewModel viewModel) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
-            '입금 계좌 정보 입력',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
           const SizedBox(height: 20),
           
           // 출금계좌 정보 (변경 불가)
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(8),
+              color:AppColors.whiteDark,
+              borderRadius: BorderRadius.circular(5),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '출금계좌',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-                const SizedBox(height: 4),
+            child:                 
                 Text(
-                  widget.accountNo,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  '출금계좌 : ${widget.accountNo}',
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)
                 ),
-              ],
-            ),
           ),
           const SizedBox(height: 20),
           
           // 은행 선택
-          TextField(
-            controller: _bankController,
-            readOnly: true,
-            decoration: const InputDecoration(
-              labelText: '은행 선택',
-              suffixIcon: Icon(Icons.arrow_drop_down),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(5),
             ),
-            onTap: () => _showBankSelectionModal(context),
+            child: TextField(
+              controller: _bankController,
+              style: AppTextStyles.bodyMedium,
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: '은행/기관',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                border: InputBorder.none,
+                suffixIcon: const Icon(Icons.keyboard_arrow_down , color: AppColors.blackPrimary,),
+              ),
+              onTap: () => _showBankSelectionModal(context),
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           
           // 계좌번호 입력
-          TextField(
-            controller: _accountController,
-            decoration: const InputDecoration(
-              labelText: '계좌번호',
-              hintText: '- 없이 입력',
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(5),
             ),
-            keyboardType: TextInputType.number,
-            onChanged: viewModel.setDepositAccountNo,
+            child: TextField(
+              controller: _accountController,
+              style: AppTextStyles.bodyMedium,
+              decoration: InputDecoration(
+                labelText: '입금 계좌번호',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                border: InputBorder.none,
+              ),
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                AccountNumberFormatter(),
+              ],
+              onChanged: (value) {
+                // 하이픈을 제거한 실제 계좌번호를 뷰모델에 전달
+                viewModel.setDepositAccountNo(value.replaceAll('-', ''));
+              },
+            ),
           ),
           
           const Spacer(),
           
-          // 다음 버튼
-          ElevatedButton(
-            onPressed: state.isAccountInputComplete 
-              ? viewModel.moveToAmountInput 
-              : null,
-            child: const Text('다음'),
+          // 버튼
+          Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            child: 
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: ElevatedButton(
+                  onPressed: state.isAccountInputComplete 
+                    ? viewModel.moveToAmountInput 
+                    : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonBlack,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                  child: const Text(
+                    '다음', 
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+            ),
           ),
         ],
       ),
     );
   }
-
   // 금액 입력 단계
   Widget _buildAmountInputStep(BuildContext context, TransferState state, TransferViewModel viewModel) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
-            '보낼 금액 입력',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          const SizedBox(height: 20),
+          
+          // 출금계좌 정보 (변경 불가)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+            decoration: BoxDecoration(
+              color:AppColors.whiteDark,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child:                 
+              Text(
+                '출금계좌 : ${widget.accountNo}',
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)
+              ),
           ),
           const SizedBox(height: 20),
           
-          // 계좌 정보 요약
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Text('보내는 계좌: ', style: TextStyle(color: Colors.grey)),
-                    Text(widget.accountNo),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Text('받는 계좌: ', style: TextStyle(color: Colors.grey)),
-                    Text('${state.selectedBankName} ${state.depositAccountNo}'),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 30),
-
-          // 금액 입력 필드
-          TextField(
-            controller: _amountController,
-            decoration: const InputDecoration(
-              labelText: '보낼 금액',
-              suffixText: '원',
-            ),
-            readOnly: true,
+          // 보낼 금액 표시 또는 입력된 금액 표시
+          GestureDetector(
             onTap: () async {
               await KeyboardModal.showNumericKeyboard(
                 context: context,
@@ -283,14 +305,34 @@ class _TransferPageState extends ConsumerState<TransferPage> {
                 initialValue: _amountController.text.isEmpty ? '' : _amountController.text,
               );
             },
+            child: Text(
+              _amountController.text.isEmpty ? '보낼 금액' : NumberFormat.formatWithComma(_amountController.text.replaceAll(',', '')) + '원',
+              style: AppTextStyles.bodyExtraLarge,
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // 입금계좌 정보 (변경 불가)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+            decoration: BoxDecoration(
+              color:AppColors.whiteDark,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child:                 
+              Text(
+                '입금계좌 : ${state.selectedBankName} ${state.depositAccountNo}',
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)
+              ),
           ),
           
           const Spacer(),
           
           // 송금 버튼
-          ElevatedButton(
+          Button(
             onPressed: state.isAmountValid ? viewModel.executeTransfer : null,
-            child: const Text('송금하기'),
+            text: '송금하기',
+            color: state.isAmountValid ? AppColors.blackPrimary : AppColors.whiteDark,
           ),
         ],
       ),
@@ -305,38 +347,41 @@ class _TransferPageState extends ConsumerState<TransferPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.check_circle_outline,
-            size: 80,
-            color: Colors.green,
+          Lottie.asset(
+            'assets/images/loading/success.json',
+            width: 140,  // 원하는 크기로 조정
+            height: 140,
+            fit: BoxFit.contain,
           ),
           const SizedBox(height: 20),
+          Text('${NumberFormat.formatWithComma(state.amount.toString())}원',style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
           const Text(
             '송금이 완료되었습니다',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: AppTextStyles.bodyLarge
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 30),
           
           // 송금 정보 요약
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              // color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(width: 1.0 ,color: AppColors.blackLight)
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('송금 정보', style: TextStyle(fontWeight: FontWeight.bold)),
-                const Divider(),
-                const SizedBox(height: 10),
+                // const Text('송금 정보', style: TextStyle(fontWeight: FontWeight.bold)),
+                // const Divider(),
+                // const SizedBox(height: 10),
                 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('보낸 계좌'),
-                    Text(state.withdrawalAccountNo),
+                    Text('출금 계좌', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.disabled, fontWeight:  FontWeight.w400),),
+                    Text(formatAccountNumber(state.withdrawalAccountNo) , style: AppTextStyles.bodyMedium),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -344,8 +389,8 @@ class _TransferPageState extends ConsumerState<TransferPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('받는 계좌'),
-                    Text('${state.selectedBankName} ${state.depositAccountNo}'),
+                    Text('입금 계좌', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.disabled, fontWeight:  FontWeight.w400),),
+                    Text(formatAccountNumber(state.depositAccountNo), style: AppTextStyles.bodyMedium),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -353,8 +398,8 @@ class _TransferPageState extends ConsumerState<TransferPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('금액'),
-                    Text('${NumberFormat.formatWithComma(state.amount.toString())}원'),
+                    Text('보낸 금액', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.disabled, fontWeight:  FontWeight.w400),),
+                    Text('${NumberFormat.formatWithComma(state.amount.toString())}원', style: AppTextStyles.bodyMedium),
                   ],
                 ),
               ],
@@ -364,16 +409,77 @@ class _TransferPageState extends ConsumerState<TransferPage> {
           const Spacer(),
           
           // 확인 버튼
-          ElevatedButton(
+          Button(
             onPressed: () {
-              viewModel.reset();
-              // 계좌 상세 페이지로 이동
-              context.go(FinanceRoutes.getDemandDetailPath(state.withdrawalAccountNo));
+              // 페이지로 이동하기 전에 최신 계좌 정보를 가져옴
+              final financeViewModel = ref.read(financeViewModelProvider.notifier);
+              
+              // 계좌 정보 새로고침 (이미 refreshAssetInfo가 호출되었지만 확실히 하기 위해)
+              financeViewModel.refreshAssetInfo().then((_) {
+                // Provider 캐시 무효화 다시 한번 확인
+                ref.invalidate(demandTransactionsProvider);
+                
+                viewModel.reset();
+                // 계좌 상세 페이지로 이동
+                context.go(FinanceRoutes.root);
+              });
             },
-            child: const Text('확인'),
+            text: '확인',
           ),
+          SizedBox(height: 10,)
         ],
       ),
     );
   }
+}
+
+// 계좌번호 4자리씩 "-"
+class AccountNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // 숫자만 추출
+    String numbersOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    
+    // 결과 문자열을 저장할 변수
+    String formatted = '';
+    
+    // 4자리씩 하이픈 추가
+    for (int i = 0; i < numbersOnly.length; i++) {
+      // 4자리마다 하이픈 추가 (맨 앞은 제외)
+      if (i > 0 && i % 4 == 0) {
+        formatted += '-';
+      }
+      formatted += numbersOnly[i];
+    }
+    
+    // 새로운 선택 위치 계산
+    int newCursorPosition = newValue.selection.baseOffset + (formatted.length - newValue.text.length);
+    // 유효하지 않은 커서 위치 보정
+    if (newCursorPosition < 0) {
+      newCursorPosition = 0;
+    } else if (newCursorPosition > formatted.length) {
+      newCursorPosition = formatted.length;
+    }
+    
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: newCursorPosition),
+    );
+  }
+}
+String formatAccountNumber(String accountNo) {
+  String numbersOnly = accountNo.replaceAll(RegExp(r'[^0-9]'), '');
+  String formatted = '';
+  
+  for (int i = 0; i < numbersOnly.length; i++) {
+    if (i > 0 && i % 4 == 0) {
+      formatted += '-';
+    }
+    formatted += numbersOnly[i];
+  }
+  
+  return formatted;
 }

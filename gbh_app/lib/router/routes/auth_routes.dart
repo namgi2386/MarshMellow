@@ -9,11 +9,12 @@ import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_c
 import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_cert_login_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_cert_pw_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_splash_page.dart';
-import 'package:marshmellow/presentation/pages/auth/widgets/pinnum/auth_pinnum_complete_page.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/pinnum/auth_pinnum_create_complete_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/message/auth_message_page.dart';
-import 'package:marshmellow/presentation/pages/auth/widgets/pinnum/auth_pinnum_page.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/pinnum/auth_pinnum_create_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/message/auth_message_verification_loading_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/message/auth_message_complete_page.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/pinnum/auth_pinnum_login_page.dart';
 
 /*
   회원가입 routes
@@ -26,6 +27,8 @@ class SignupRoutes {
   static const String authcomplete = 'authcomplete';
   static const String pinsetup = 'pinsetup';
   static const String pincomplete = 'pincomplete';
+  static const String pinlogin = 'pinlogin';
+  static const String pinlogincomplete = 'pinlogincomplete';
   static const String mydatasetup = 'mydatasetup';
   static const String mydataemail = 'mydataaemail';
   static const String mydatapassword = 'mydatapassword';
@@ -41,6 +44,8 @@ class SignupRoutes {
   static String getAuthCompletePath() => '$root/$authcomplete';
   static String getPinSetupPath() => '$root/$pinsetup';
   static String getPinCompletePath() => '$root/$pincomplete';
+  static String getPinLoginPath() => '$root/$pinlogin';
+  static String getPinLoginCompletePath() => '$root/$pinlogincomplete';
   static String getMyDataSplashPath() => '$root/$mydatasetup';
   static String getMyDataEmailPath() => '$root/$mydataemail';
   static String getMyDataPasswordPath() => '$root/$mydatapassword';
@@ -87,6 +92,12 @@ List<RouteBase> signupRoutes = [
       GoRoute(
         path: SignupRoutes.pincomplete,
         builder: (context, state) => const AuthPinnumCompletePage(),
+      ),
+
+      // 핀번호 로그인 페이지
+      GoRoute(
+        path: SignupRoutes.pinlogin,
+        builder: (context, state) => const AuthPinnumLoginPage(),
       ),
 
       // 마이데이터 신규 생성 페이지

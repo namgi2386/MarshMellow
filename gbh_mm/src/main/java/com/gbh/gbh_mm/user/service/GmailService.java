@@ -81,7 +81,10 @@ public class GmailService {
 
         WatchResponse response = gmail.users().watch("me", watchRequest).execute();
 
-        System.out.println("✅ Gmail watch started! History ID: " + response.getHistoryId());
+        // ✅ 여기에 추가
+        redisTemplate.opsForValue().set("gmail:lastHistoryId", response.getHistoryId().toString());
+
+        log.info("✅ Gmail watch started! History ID: {}", response.getHistoryId());
     }
 
     public void restartWatch() {

@@ -117,6 +117,7 @@ public class UserService {
             .gender(gender)
             .connectionInformation(connectionInformation.getConnectionInformation())
             .pin(bCryptPasswordEncoder.encode(signUpRequestDto.getPin()))
+            .fcmToken(signUpRequestDto.getFcmToken())
             .build();
         userRepository.save(user);
         String accessToken = jwtTokenProvider.createAccessToken(user.getUserPk());

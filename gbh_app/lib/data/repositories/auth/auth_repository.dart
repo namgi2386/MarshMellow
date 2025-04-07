@@ -17,20 +17,23 @@ class AuthRepository {
     required String userName,
     required String phoneNumber,
     required String userCode,
-    required String pin
+    required String pin,
+    required String fcmToken
   }) async {
     print('회원가입 시도');
     print('userName: $userName');
     print('phoneNumber: $phoneNumber');
     print('userCode: $userCode');
     print('pin: $pin');
+    print('fcm: $fcmToken');
 
     try {
       final response = await _authApi.signUp(
         userName: userName, 
         phoneNumber: phoneNumber, 
         userCode: userCode, 
-        pin: pin
+        pin: pin,
+        fcmToken: fcmToken
       );
 
       print('API 응답: $response');

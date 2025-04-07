@@ -29,7 +29,8 @@ class AuthApi {
     required String userName,
     required String phoneNumber,
     required String userCode,
-    required String pin
+    required String pin,
+    required String fcmToken
   }) async {
     final response = await _apiClient.post(
       '/api/mm/auth/sign-up',
@@ -38,7 +39,8 @@ class AuthApi {
       'userName': userName,
       'phoneNumber': phoneNumber,
       'userCode': userCode,
-      'pin': pin  
+      'pin': pin,
+      'fcmToken' : fcmToken,  
       },
       options: Options(
         headers: {

@@ -11,4 +11,5 @@ public class SignUpRequestDto {
     private String phoneNumber;
     private String userCode;
     private String pin;
+    private String fcmToken;
 }

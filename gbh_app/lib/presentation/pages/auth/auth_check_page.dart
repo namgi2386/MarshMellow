@@ -137,8 +137,8 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
       print('토큰 재발급 시도');
 
       // 개발용 자동 로그인 코드 (출시 전 제거)
-      // final isValid = await authRepository.reissueToken();
-      final isValid = true;
+      final isValid = await authRepository.reissueToken();
+      // final isValid = true;
       print('토큰 재발급 결과: $isValid');
 
       if (mounted) {

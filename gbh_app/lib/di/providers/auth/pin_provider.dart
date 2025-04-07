@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
@@ -85,6 +86,13 @@ class PinStateNotifier extends StateNotifier<PinState> {
 
   // PIN 저장 및 회원가입 API 호출
   Future<bool> savePin(String previousPin) async {
+    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+    final String? fcmToken = await _firebaseMessaging.getToken();
+
+    if (fcmToken == null) {
+      print('FCM token is null, using empty string');
+    }
+
     // PIN 일치 검사
     if (state.pin != previousPin) {
       resetPin();
@@ -111,7 +119,8 @@ class PinStateNotifier extends StateNotifier<PinState> {
       userName: userInfo['userName'] ?? '',
       phoneNumber: userInfo['phoneNumber'] ?? '',
       userCode: userCode,
-      pin: state.pin
+      pin: state.pin,
+      fcmToken: fcmToken ?? '',
     );
 
     if (success) {

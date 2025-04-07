@@ -28,6 +28,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
     private final RedisTemplate<String, Object> redisTemplate;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.equals("/gmail/webhook"); // ✅ Pub/Sub webhook은 필터 제외
+    }
+
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,

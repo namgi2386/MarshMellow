@@ -99,13 +99,7 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 )
                 // JWT 필터
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, redisTemplate) {
-                    @Override
-                    protected boolean shouldNotFilter(HttpServletRequest request) {
-                        String path = request.getRequestURI();
-                        return path.equals("/gmail/webhook"); // ✅ 여기서 webhook은 필터 통과
-        }
-    },
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, redisTemplate),
                         UsernamePasswordAuthenticationFilter.class);
         return http.build();
 

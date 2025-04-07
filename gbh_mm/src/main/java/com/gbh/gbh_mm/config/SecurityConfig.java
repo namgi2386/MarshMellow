@@ -93,7 +93,7 @@ public class SecurityConfig {
                                         "/api/mm/auth/identity-verify", "/api/mm/auth/sign-up",
                                         "/api/mm/auth/login/**", "/api/mm/auth/subscribe/**",
                                         "/api/mm/auth/webhook", "/health-check",
-                                        "/api/mm/auth/reissue", "/actuator/**"
+                                        "/api/mm/auth/reissue", "/actuator/**", "/gmail/webhook"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )

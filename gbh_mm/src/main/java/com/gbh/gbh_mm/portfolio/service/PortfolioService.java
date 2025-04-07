@@ -4,6 +4,7 @@ import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolioCategoryList;
+import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolioList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolioList;
@@ -13,6 +14,7 @@ import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolioCategoryList;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
@@ -47,4 +49,6 @@ public interface PortfolioService {
 
     ResponseDeletePortfolioCategoryList deleteCategoryList
         (CustomUserDetails customUserDetails, RequestDeletePortfolioCategoryList request);
+
+    ResponseDeletePortfolioList deletePortfolioList(CustomUserDetails customUserDetails, RequestDeletePortfolioList request);
 }

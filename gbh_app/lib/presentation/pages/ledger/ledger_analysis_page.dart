@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:intl/intl.dart';
+import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 
 // 위젯
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
@@ -116,7 +117,6 @@ class _LedgerAnalysisPageState extends ConsumerState<LedgerAnalysisPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // 날짜 선택 컴포넌트
-                              // 날짜 선택 컴포넌트
                               DateRangeSelector(
                                 dateRange: dateRangeText,
                                 enableDatePicker: false, // 날짜 선택기 비활성화
@@ -172,7 +172,7 @@ class _LedgerAnalysisPageState extends ConsumerState<LedgerAnalysisPage> {
                                 child: Row(
                                   children: [
                                     Text(
-                                      '카테고리별 총 지출:',
+                                      '총 지출:',
                                       style: AppTextStyles.bodyMedium,
                                     ),
                                     const SizedBox(width: 10),
@@ -188,6 +188,8 @@ class _LedgerAnalysisPageState extends ConsumerState<LedgerAnalysisPage> {
                               DoughnutChartWithLegend(
                                 data: analysisState.categoryChartData,
                                 height: screenHeight * 0.35,
+                                isLoading: isLoading,
+                                ref: ref,
                               ),
 
                               const SizedBox(height: 24),
@@ -218,15 +220,6 @@ class _LedgerAnalysisPageState extends ConsumerState<LedgerAnalysisPage> {
                     ),
                   ),
           ),
-
-          // 커스텀 로딩 인디케이터 (로딩 중일 때만 표시)
-          if (isLoading)
-            // 전체화면을 덮는 로딩 인디케이터
-            const CustomLoadingIndicator(
-              text: "데이터를 분석 중입니다...",
-              opacity: 0.7,
-              backgroundColor: Colors.black,
-            ),
         ],
       ),
     );

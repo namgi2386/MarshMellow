@@ -1,33 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
+import 'package:intl/intl.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/chart/category_bottom_sheet_modal.dart';
+import 'package:marshmellow/data/models/ledger/category/transactions.dart';
 
 class ChartData {
   final String title;
-  final double value;
+  final double value; // %값
+  final double? amount; // 금액
   final Color color;
+  final List<Transaction>? transactions;
 
-  ChartData({required this.title, required this.value, required this.color});
+  ChartData({
+    required this.title,
+    required this.value,
+    this.amount,
+    required this.color,
+    this.transactions,
+  });
 }
 
 class DoughnutChartWithLegend extends StatelessWidget {
   final List<ChartData> data;
   final double? height;
+  final bool isLoading;
+  final List<Transaction>? transactions;
+  final WidgetRef ref;
 
   const DoughnutChartWithLegend({
     super.key,
     required this.data,
     this.height,
+    this.isLoading = false,
+    this.transactions,
+    required this.ref,
   });
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final chartHeight = height ?? screenHeight * 0.35;
+
+    // 로딩 중인 경우 로딩 인디케이터 표시
+    if (isLoading) {
+      return SizedBox(
+        height: chartHeight,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: AppColors.textPrimary,
+          ),
+        ),
+      );
+    }
 
     // 데이터가 없는 경우 처리
     if (data.isEmpty) {
@@ -102,21 +132,45 @@ class DoughnutChartWithLegend extends StatelessWidget {
                         ),
                       ],
                     ),
-
-                    // 오른쪽 영역: 화살표 아이콘
-                    SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () {},
-                        icon: SvgPicture.asset(
-                          IconPath.caretRight,
+                    const SizedBox(width: 10),
+                    // 금액 표시 추가
+                    Row(
+                      children: [
+                        if (item.amount != null) ...[
+                          const SizedBox(width: 10),
+                          Text(
+                            '${NumberFormat('#,###').format(item.amount!.toInt())}원',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(width: 10),
+                        // 오른쪽 영역: 화살표 아이콘
+                        SizedBox(
                           width: 14,
-                          height: 14,
+                          height: 30,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              // item.transactions를 직접 사용
+                              showCategoryBottomSheetModal(
+                                context: context,
+                                ref: ref,
+                                categoryName: item.title,
+                                transactions: item.transactions ?? [],
+                              );
+                            },
+                            icon: SvgPicture.asset(
+                              IconPath.caretRight,
+                              width: 14,
+                              height: 14,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),

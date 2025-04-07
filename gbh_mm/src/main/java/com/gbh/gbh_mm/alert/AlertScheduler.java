@@ -94,7 +94,7 @@ public class AlertScheduler {
                         else if (budgetCategoryExpendPercent < 0.5f) percent = 50;
                         else percent = 70;
 
-                        alertService.sendExpendNotification(user.getFcmToken(), budgetCategoryName, percent);
+                        alertService.sendExpendNotification(String.valueOf(user.getUserPk()), user.getFcmToken(), budgetCategoryName, percent);
                     }
                 }
             }

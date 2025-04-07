@@ -27,7 +27,7 @@ public class EmitterController {
     public boolean receiveEmail(@RequestParam String phoneNumber, @RequestParam String code, @RequestParam int currentTime){
         return emitterService.verifyEmail(phoneNumber, code, currentTime);
     }
-    @PostMapping("gmail/webhook")
+    @PostMapping("/gmail/webhook")
     public ResponseEntity<String> receivePubSub(@RequestBody Map<String, Object> body) {
         try {
             Map<String, Object> message = (Map<String, Object>) body.get("message");

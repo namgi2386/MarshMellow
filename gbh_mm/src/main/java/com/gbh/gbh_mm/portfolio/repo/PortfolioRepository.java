@@ -11,4 +11,6 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Integer> {
     List<Portfolio> findAllByUser_UserPk(Long userUserPk);
 
     List<Portfolio> findByPortfolioCategory_PortfolioCategoryPk(int categoryPk);
+
+    void deleteAllByPortfolioCategory_PortfolioCategoryPk(int portfolioCategoryPortfolioCategoryPk);
 }

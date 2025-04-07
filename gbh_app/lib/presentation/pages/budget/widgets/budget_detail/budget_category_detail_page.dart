@@ -8,7 +8,7 @@ import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 
 /*
-  예산 카테고리별 상세 페이지
+  예산 카테고리 리스트 페이지
   : 버블 차트의 배경을 탭하면 랜딩
 */
 class BudgetCategoryDetailPage extends ConsumerWidget {
@@ -67,6 +67,7 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
       appBar: const CustomAppbar(title: '예산 상세'),
       body: Column(
         children: [
+          const SizedBox(height: 6),
           // 예산 종합
           // 카테고리 목록 타이틀
           Padding(
@@ -89,7 +90,7 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.disabled),
+              border: Border.all(color: AppColors.backgroundBlack, width: 0.5),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +119,7 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 25),
 
           // 카테고리 목록 타이틀
           Padding(
@@ -172,7 +173,7 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.whiteDark),
+                      border: Border.all(color: AppColors.backgroundBlack, width: 0.5),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

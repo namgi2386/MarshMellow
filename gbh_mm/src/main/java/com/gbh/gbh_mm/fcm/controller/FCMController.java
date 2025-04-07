@@ -22,8 +22,8 @@ public class FCMController {
     private final UserRepository userRepository;
 
     @PostMapping("/send")
-    public String senoNotification(@RequestBody RequestFCMSend requestFCMSend) throws ExecutionException, InterruptedException {
-        return fcmService.sendNotification(requestFCMSend);
+    public String senoNotification(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody RequestFCMSend requestFCMSend) throws ExecutionException, InterruptedException {
+        return fcmService.sendNotification(userDetails.getUserPk(), requestFCMSend);
     }
 
     @GetMapping("/test/daily-budget")
@@ -32,7 +32,7 @@ public class FCMController {
     }
 
     @GetMapping("/test/expend-percent")
-    public void testExpendPercent(@AuthenticationPrincipal CustomUserDetails userDetails) throws ExecutionException, InterruptedException {
+    public void testExpendPercent() throws ExecutionException, InterruptedException {
         alertService.expendNotificationProcess();
     }
 }

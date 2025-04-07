@@ -85,7 +85,7 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
         
         // 완료 페이지로 이동
         // 여기가 어디야..?
-        context.go('/signup/mydatacomplete');
+        context.go('/budget');
       } else if (context.mounted) {
         // 실패 시 에러 메시지 표시
         ScaffoldMessenger.of(context).showSnackBar(

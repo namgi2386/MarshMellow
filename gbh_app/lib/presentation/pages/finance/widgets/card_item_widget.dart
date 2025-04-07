@@ -75,7 +75,7 @@ class CardItemWidget extends ConsumerWidget {
                 children: [
                   Text(
                     card.cardName,
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.buttonBlack),
+                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.buttonBlack),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

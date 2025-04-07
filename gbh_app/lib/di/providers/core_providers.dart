@@ -28,6 +28,7 @@ final encryptionUtilProvider = Provider<EncryptionUtil>((ref) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+
 // Dio 프로바이더
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(

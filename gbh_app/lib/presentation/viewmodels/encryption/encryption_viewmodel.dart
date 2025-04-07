@@ -63,7 +63,25 @@ class EncryptionService {
   Future<String?> getAesKey() async {
     return await _secureStorage.read(key: StorageKeys.aesKey);
   }
-  
+
+  // Future<String?> getAesKey() async {
+  //   final keyByteee = await _secureStorage.read(key: StorageKeys.certificatePem);
+  //   print('@@@@@@@@@@@@dd@@@@@@');
+    
+  //   // 긴 문자열을 여러 부분으로 나누어 출력
+  //   if (keyByteee != null) {
+  //     const int chunkSize = 500; // 한 번에 출력할 문자 수
+  //     for (int i = 0; i < keyByteee.length; i += chunkSize) {
+  //       int end = (i + chunkSize < keyByteee.length) ? i + chunkSize : keyByteee.length;
+  //       print('Part ${i ~/ chunkSize + 1}: ${keyByteee.substring(i, end)}');
+  //     }
+  //   } else {
+  //     print('keyByteee is null');
+  //   }
+    
+  //   return keyByteee;
+  // }
+
   // AES 암호화 메서드 (향후 사용)
   Future<String> encryptWithAes(String plainText) async {
     final aesKeyBase64 = await getAesKey();

@@ -36,7 +36,8 @@ public class SecurityConfig {
     private final CustomUserDetailService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-    private final RedisTemplate<String,Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -51,55 +52,62 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+        throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // CORS 설정
-                // CSRF 비활성화
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // Form 로그인 비활성화
-                // Basic 인증도 비활성화
-                // 세션 사용 안 함(STATELESS)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            log.warn("🔴 [401 Unauthorized] 인증되지 않은 사용자 접근 - 요청 경로: {}", request.getRequestURI());
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-                        })
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            log.warn("🟠 [403 Forbidden] 권한 부족 - 요청 경로: {}, 사용자: {}",
-                                    request.getRequestURI(), request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "Anonymous");
-                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
-                        })
-                )
-                // 인증/인가 설정
-                .authorizeHttpRequests(auth -> auth
-                                // Swagger UI 경로 인증 없이 허용
-                                .requestMatchers(
-                                        "/v3/api-docs/**",  // OpenAPI 문서 JSON
-                                        "/swagger-ui/**",   // Swagger UI 리소스
-                                        "/swagger-ui.html", // Swagger UI 접속 페이지
-                                        "/webjars/**",      // Swagger가 사용하는 정적 리소스
-                                        "/swagger-resources/**"
-                                ).permitAll()
-                                .requestMatchers(
-                                        "/api/mm/auth/identity-verify", "/api/mm/auth/sign-up",
-                                        "/api/mm/auth/login/**", "/api/mm/auth/subscribe/**",
-                                        "/api/mm/auth/webhook", "/health-check",
-                                        "/api/mm/auth/reissue", "/actuator/**", "/gmail/webhook"
-                                ).permitAll()
-                                .anyRequest().authenticated()
-                )
-                // JWT 필터
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, redisTemplate),
-                        UsernamePasswordAuthenticationFilter.class);
+            // CORS 설정
+            // CSRF 비활성화
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // Form 로그인 비활성화
+            // Basic 인증도 비활성화
+            // 세션 사용 안 함(STATELESS)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .sessionManagement(
+                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    log.warn("🔴 [401 Unauthorized] 인증되지 않은 사용자 접근 - 요청 경로: {}",
+                        request.getRequestURI());
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    log.warn("🟠 [403 Forbidden] 권한 부족 - 요청 경로: {}, 사용자: {}",
+                        request.getRequestURI(),
+                        request.getUserPrincipal() != null ? request.getUserPrincipal().getName()
+                            : "Anonymous");
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+                })
+            )
+            // 인증/인가 설정
+            .authorizeHttpRequests(auth -> auth
+                // Swagger UI 경로 인증 없이 허용
+                .requestMatchers(
+                    "/v3/api-docs/**",  // OpenAPI 문서 JSON
+                    "/swagger-ui/**",   // Swagger UI 리소스
+                    "/swagger-ui.html", // Swagger UI 접속 페이지
+                    "/webjars/**",      // Swagger가 사용하는 정적 리소스
+                    "/swagger-resources/**"
+                ).permitAll()
+                .requestMatchers(
+                    "/api/mm/auth/identity-verify", "/api/mm/auth/sign-up",
+                    "/api/mm/auth/login/**", "/api/mm/auth/subscribe/**",
+                    "/api/mm/auth/webhook", "/health-check",
+                    "/api/mm/auth/reissue", "/actuator/**", "/gmail/webhook",
+                    "/presentation/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+            )
+            // JWT 필터
+            .addFilterBefore(
+                new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, redisTemplate),
+                UsernamePasswordAuthenticationFilter.class);
         return http.build();
 
 

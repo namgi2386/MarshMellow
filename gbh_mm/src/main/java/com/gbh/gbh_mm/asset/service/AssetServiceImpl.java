@@ -1135,7 +1135,7 @@ public class AssetServiceImpl implements AssetService {
 
             String fcmToken = user.getFcmToken();
             String title = "1원 송금";
-            String message = fcmToken;
+            String message = "[MarshMellow] 인증번호 [" + authCode + "]를 입력해주세요 사칭/전화사기에 주의하세요";
             alertService.sendNotification(fcmToken, title, message);
 
             byte[] authCodeByte = newCipher.doFinal(authCode.getBytes(StandardCharsets.UTF_8));

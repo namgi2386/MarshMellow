@@ -1,5 +1,6 @@
 package com.gbh.gbh_mm.user.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gbh.gbh_mm.user.model.response.IdentityVerificationResponseDto;
 import com.gbh.gbh_mm.user.repo.EmitterRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class EmitterService {
 
     private final EmitterRepository emitterRepository;
     private final RedisTemplate<String, Object> redisTemplate;
-
+    private final ObjectMapper objectMapper;
     // SSE 연결 지속 시간 설정
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 4;
 
@@ -82,24 +83,28 @@ public class EmitterService {
     }
 
     public boolean verifyEmail(String phoneNumber, String code, int currentTime) {
-        // 1) 현재 Redis에 저장된 code 비교
-        IdentityVerificationResponseDto identityVerificationResponseDto =
-                (IdentityVerificationResponseDto) redisTemplate.opsForValue().get(phoneNumber);
-        if (Objects.nonNull(identityVerificationResponseDto)) {
-            int expiresIn = identityVerificationResponseDto.getExpiresIn();
-            if (identityVerificationResponseDto.getCode().equals(code)) {
-                if (currentTime > expiresIn) {
-                    send(phoneNumber, "인증 코드가 만료되었습니다. 새로운 코드를 요청해주세요.");
-                    return false;
-                }
-                redisTemplate.opsForValue().set(phoneNumber + ":verified", true);
-                // 3) 인증 성공 SSE 알림
-                send(phoneNumber, "인증이 완료되었습니다.");
-                return true;
-            }
+        Object raw = redisTemplate.opsForValue().get(phoneNumber);
+        if (raw == null) {
+            send(phoneNumber, "인증 정보가 존재하지 않습니다.");
+            return false;
         }
+
+        IdentityVerificationResponseDto identityVerificationResponseDto =
+                objectMapper.convertValue(raw, IdentityVerificationResponseDto.class);
+
+        int expiresIn = identityVerificationResponseDto.getExpiresIn();
+        if (identityVerificationResponseDto.getCode().equals(code)) {
+            if (currentTime > expiresIn) {
+                send(phoneNumber, "인증 코드가 만료되었습니다. 새로운 코드를 요청해주세요.");
+                return false;
+            }
+
+            redisTemplate.opsForValue().set(phoneNumber + ":verified", true);
+            send(phoneNumber, "인증이 완료되었습니다.");
+            return true;
+        }
+
         send(phoneNumber, "인증이 실패되었습니다.");
         return false;
-
     }
 }

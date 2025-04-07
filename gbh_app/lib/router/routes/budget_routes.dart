@@ -6,6 +6,9 @@ import 'package:marshmellow/data/models/budget/budget_model.dart';
 import 'package:marshmellow/presentation/pages/budget/budget_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/budget_category_detail_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/category_expense_list_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_selection_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/salary_celebrate.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/wish/wishlist_creation_page.dart';
 import 'package:marshmellow/app.dart';
 
@@ -17,16 +20,26 @@ class BudgetRoutes {
   static const String root = '/budget';
   static const String budgetdetail = 'detail/:budgetPk';
   static const String budgetcategoryexpense = 'category/expenses/:categoryPk';
+  static const String budgetevent = 'event';
 
   // 위시 관련 경로 정의
   static const String wishlistcreate = 'wishlist/create';
 
+  // 예산 분배 유형 선택 경로 정의
+  static const String budgettype = 'type';
+  static const String budgettypeselection = 'type/selection';
+
   // 예산 경로 생성 헬퍼 메서드
   static String getBudgetDetailPath() => '$root/$budgetdetail';
   static String getBudgetCategoryExpensePath() => '$root/$budgetcategoryexpense';
+  static String getBudgetEventPath() => '$root/$budgetevent';
 
   // 위시 경로 생성 헬퍼 메서드
   static String getWishlistCreatePath() => '$root/$wishlistcreate';
+
+  // 예산 분배 경로 생성 헬퍼 메서드
+  static String getBudgetTypePath() => '$root/$budgettype';
+  static String getBudgetTypeSelectionPath() => '$root/$budgettypeselection';
 }
 
 List<RouteBase> budgetRoutes = [
@@ -34,6 +47,14 @@ List<RouteBase> budgetRoutes = [
     path: BudgetRoutes.root,
     builder: (context, state) => const BudgetPage(),
     routes: [
+      // 예산 상세 페이지 : 모든 카테고리
+      GoRoute(
+        path: BudgetRoutes.budgetevent,
+        builder: (context, state) {
+          return SalaryCelebratePage();
+        },
+      ),
+
       // 예산 상세 페이지 : 모든 카테고리
       GoRoute(
         path: BudgetRoutes.budgetdetail,
@@ -77,6 +98,22 @@ List<RouteBase> budgetRoutes = [
               return WishlistCreationPage(sharedUrl: sharedUrl);
             },
           );
+        },
+      ),
+
+      // 예산 분배 유형 출력 페이지
+      GoRoute(
+        path: BudgetRoutes.budgettype,
+        builder: (context, state) {
+          return BudgetTypePage();
+        },
+      ),
+
+      // 예산 분배 유형 선택 페이지
+      GoRoute(
+        path: BudgetRoutes.budgettypeselection,
+        builder: (context, state) {
+          return BudgetTypeSelectionPage();
         },
       ),
 

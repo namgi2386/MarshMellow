@@ -4,6 +4,8 @@ import com.gbh.gbh_mm.portfolio.model.entity.Portfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolio;
+import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolioCategoryList;
+import com.gbh.gbh_mm.portfolio.model.request.RequestDeletePortfolioList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.request.RequestFindPortfolioList;
@@ -12,6 +14,8 @@ import com.gbh.gbh_mm.portfolio.model.response.ResponseCreateCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseCreatePortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeleteCategory;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolio;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolioCategoryList;
+import com.gbh.gbh_mm.portfolio.model.response.ResponseDeletePortfolioList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindCategoryList;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolio;
 import com.gbh.gbh_mm.portfolio.model.response.ResponseFindPortfolioList;
@@ -113,6 +117,22 @@ public class PortfolioController {
     ) {
         return portfolioService.updatePortfolio
             (file, portfolioMemo, fileName, portfolioPk, portfolioCategoryPk);
+    }
+
+    @DeleteMapping("/category-list")
+    public ResponseDeletePortfolioCategoryList deleteCategoryList(
+        @AuthenticationPrincipal CustomUserDetails customUserDetails,
+        @RequestBody RequestDeletePortfolioCategoryList request
+    ) {
+        return portfolioService.deleteCategoryList(customUserDetails, request);
+    }
+
+    @DeleteMapping("/list")
+    public ResponseDeletePortfolioList deletePortfolioList(
+        @AuthenticationPrincipal CustomUserDetails customUserDetails,
+        @RequestBody RequestDeletePortfolioList request
+    ) {
+        return portfolioService.deletePortfolioList(customUserDetails, request);
     }
 
 }

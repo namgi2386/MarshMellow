@@ -108,27 +108,6 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
     _urlController.dispose();
     super.dispose();
   }
-  
-  // URL 열기 함수
-  Future<void> _launchURL(String url) async {
-    if (url.isEmpty) return;
-    
-    // URL에 프로토콜이 없으면 추가
-    String launchUrl = url;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      launchUrl = 'https://$url';
-    }
-    
-    try {
-      await launch(launchUrl);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('URL을 열 수 없습니다: $launchUrl')),
-        );
-      }
-    }
-  }
 
   // 탭 변경 처리
   void _changeTab(WishListTab tab) {
@@ -356,7 +335,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: filteredWishes.length,
-            separatorBuilder: (context, index) => const Divider(thickness: 0.5),
+            separatorBuilder: (context, index) => Divider(thickness: 0.5, color: AppColors.greyLight),
             itemBuilder: (context, index) {
               final wish = filteredWishes[index];
               return _buildWishItem(wish);
@@ -563,7 +542,7 @@ class _WishDetailModalState extends ConsumerState<WishDetailModal> {
                     child: Button(
                       text: '삭제',
                       textStyle: TextStyle(
-                        color: AppColors.buttonDelete,
+                        color: AppColors.whiteLight,
                         fontWeight: FontWeight.w200,
                         fontSize: 16
                       ),

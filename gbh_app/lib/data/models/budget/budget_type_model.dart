@@ -170,7 +170,7 @@ class BudgetTypeInfo {
           type: type,
           typeName: '아기 돼지 삼형제 형',
           selectionName: '미식가 형',
-          description: '오늘도 밥심으로 하루를 버티는 당신, 맛집 리스트는 이미 완성 단계!',
+          description: '🍚오늘도 밥심으로 하루를 버티는 당신, 맛집 리스트는 이미 완성 단계!',
           assetPath: 'assets/images/budget/type_food.png',
           color: const Color(0xFFFFC107),
         );
@@ -179,7 +179,7 @@ class BudgetTypeInfo {
           type: type,
           typeName: '바쁘다 바빠 현대사회 형',
           selectionName: '시간은 돈이다 형',
-          description: '당신의 출퇴근길은 F1 급! 붕붕이 없인 못 살아~',
+          description: '🚗당신의 출퇴근길은 F1 급! 붕붕이 없인 못 살아~',
           assetPath: 'assets/images/budget/type_transportation.png',
           color: const Color(0xFF2196F3),
         );
@@ -188,7 +188,7 @@ class BudgetTypeInfo {
           type: type,
           typeName: '만능소비 형',
           selectionName: '생활의 지혜 형',
-          description: '편의점 앞에만 가면 텐션업! 소소하지만 강력한 소비자~',
+          description: '🎈편의점 앞에만 가면 텐션업! 소소하지만 강력한 소비자~',
           assetPath: 'assets/images/budget/type_market.png',
           color: const Color(0xFFE91E63),
         );
@@ -197,7 +197,7 @@ class BudgetTypeInfo {
           type: type,
           typeName: '월급스쳐간 형',
           selectionName: '재테크 실험가 형',
-          description: '월급은 통장을 스치고, 카드 명세서는 소설처럼 흥미진진!',
+          description: '💳월급은 통장을 스치고, 카드 명세서는 소설처럼 흥미진진!',
           assetPath: 'assets/images/budget/type_finance.png',
           color: const Color(0xFF0D47A1),
         );
@@ -206,7 +206,7 @@ class BudgetTypeInfo {
           type: type,
           typeName: '워라밸 챙기는 유형',
           selectionName: '문화 감성 충전 형',
-          description: '삶은 즐기라고 있는 것! 취미와 여가로 완성되는 나만의 일상',
+          description: '🍀삶은 즐기라고 있는 것! 취미와 여가로 완성되는 나만의 일상',
           assetPath: 'assets/images/budget/type_leisure.png',
           color: const Color(0xFF4CAF50),
         );
@@ -215,7 +215,7 @@ class BudgetTypeInfo {
           type: type,
           typeName: '디저트배는 따로있어 형',
           selectionName: '소확행 실천 형',
-          description: '당이 떨어지면 나도 떨어진다! 카페는 제2의 집!',
+          description: '☕당이 떨어지면 나도 떨어진다! 카페는 제2의 집!',
           assetPath: 'assets/images/budget/type_coffee.png',
           color: const Color(0xFF795548),
         );
@@ -224,7 +224,7 @@ class BudgetTypeInfo {
           type: type,
           typeName: '지름신 형',
           selectionName: '셀프 보상 전문가 형',
-          description: '배송 중독자 등판! \'결제완료\'는 당신의 힐링 키워드~',
+          description: '🛒배송 중독자 등판! \'결제완료\'는 당신의 힐링 키워드~',
           assetPath: 'assets/images/budget/type_shopping.png',
           color: const Color(0xFFFF4081),
         );
@@ -233,7 +233,7 @@ class BudgetTypeInfo {
           type: type,
           typeName: '지출은 갑자기 형',
           selectionName: '의리충만 배려왕 형',
-          description: '달마다 찾아오는 예상 못한 펀치! 하지만 의리 있게 처리 완료~',
+          description: '💥달마다 찾아오는 예상 못한 펀치! 하지만 의리 있게 처리 완료~',
           assetPath: 'assets/images/budget/type_emergency.png',
           color: const Color(0xFF607D8B),
         );
@@ -242,7 +242,7 @@ class BudgetTypeInfo {
           type: type,
           typeName: '밸런스 게임 승자 형',
           selectionName: '현명한 소비자 형',
-          description: '모든 영역에서 균형 잡힌 소비를 추구하는 완벽주의자',
+          description: '✨모든 영역에서 균형 잡힌 소비를 추구하는 완벽주의자',
           assetPath: 'assets/images/budget/type_average.png',
           color: const Color(0xFF9E9E9E),
         );
@@ -252,7 +252,7 @@ class BudgetTypeInfo {
           type: '평균',
           typeName: '밸런스 게임 승자 형',
           selectionName: '현명한 소비자 형',
-          description: '모든 영역에서 균형 잡힌 소비를 추구하는 완벽주의자',
+          description: '✨모든 영역에서 균형 잡힌 소비를 추구하는 완벽주의자',
           assetPath: 'assets/images/budget/type_average.png',
           color: const Color(0xFF9E9E9E),
         );

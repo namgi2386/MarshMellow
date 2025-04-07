@@ -2,6 +2,7 @@ package com.gbh.gbh_mm.config.filter;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import com.gbh.gbh_mm.user.util.JwtTokenProvider;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -76,8 +77,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             // JWT 처리 중 예외 발생 시 401 Unauthorized 반환
             log.error("Authentication error: {}", e.getMessage());
+
+            // 문제의 토큰을 블랙리스트에 등록
+            if (authHeader != null && authHeader.startsWith(JWT_PREFIX)) {
+                String jwt = authHeader.substring(JWT_PREFIX.length());
+                redisTemplate.opsForValue().set("BL:" + jwt, "invalid", 1, TimeUnit.HOURS);
+            }
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Token Expired");
+            response.getWriter().write("Invalid or unsupported token");
             return;
         }
 

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/utils/back_gesture/controller.dart';
+import 'package:marshmellow/presentation/pages/auth/auth_check_page.dart';
 // 메인 레이아웃을 관리할 위젯 import
 import 'package:marshmellow/router/scaffold_with_nav_bar.dart';
 // 각 탭 라우트 파일 import
@@ -50,18 +51,23 @@ GoRouter createRouter(BackGestureController? backgestureController) {
   }
 
   return GoRouter(
-    initialLocation: BudgetRoutes.root,
+    initialLocation: '/',
     debugLogDiagnostics: true, // 개발 중에는 디버그 모드 활성화
     // 루트 경로에 대한 리다이렉트 추가
-    redirect: (context, state) {
-      if (state.matchedLocation == '/') {
-        return BudgetRoutes.root; 
-      }
-      return null;
-    },
+    // redirect: (context, state) {
+    //   if (state.matchedLocation == '/') {
+    //     return BudgetRoutes.root; 
+    //   }
+    //   return null;
+    // },
     // 라우트 변경 감지를 위한 observer 추가
     observers: observers,
     routes: [
+      // 인증 체크 페이지 (초기 라우트)
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const AuthCheckPage(),
+      ),
       // 하단 네브바를 포함한 레이아웃
       ShellRoute(
         builder: (context, state, child) {

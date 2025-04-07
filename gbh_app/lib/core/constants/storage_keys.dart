@@ -15,12 +15,13 @@ class StorageKeys {
   static const String certificate = 'certificate';
   static const String useBiometrics = 'use_biometrics';
   static const String userName = 'user_name';
-  static const String phoneNumber = 'phone_number';
-  static const String userCode = 'user_code';
-  static const String carrier = 'user_carrier';
+  static const String phoneNumber = 'phone_number'; 
+  static const String userCode = 'user_code'; // 주민번호앞7자리
+  static const String carrier = 'user_carrier'; // 통신사정보
   static const String halfUserKey = 'half_user_key';
   static const String aesKey = 'aes_key';
   static const String aesIv = 'aes_iv';
+  static const String userkey = 'user_key';
 
   // mm 인증서 관련 키
   static const String certificatePassword = 'certificate_password';

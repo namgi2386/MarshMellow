@@ -6,6 +6,7 @@ import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_field.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/editable_memo_filed.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/picker/date_time_wheel_picker.dart';
+import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_category_picker.dart';
 
 // PortfolioFields 클래스
 class PortfolioFields {
@@ -55,8 +56,9 @@ class PortfolioFields {
   // 카테고리 필드
   static PortfolioField categoryField({
     required BuildContext context,
+    required WidgetRef ref, // ref 필요
     String? selectedCategory,
-    required Function(String) onCategorySelected,
+    required Function(String, int) onCategorySelected, // 두 매개변수 필요
     bool enabled = true,
   }) {
     return PortfolioField(
@@ -64,15 +66,13 @@ class PortfolioFields {
       value: selectedCategory,
       onTap: enabled
           ? () {
-              // 여기에 카테고리 선택 모달 표시 로직 구현
-              // 예: 포트폴리오 카테고리 목록을 보여주는 바텀시트 표시
               showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
-                builder: (context) => _buildCategoryPicker(
-                  context, 
-                  onCategorySelected
+                builder: (context) => PortfolioCategoryPicker(
+                  selectedCategory: selectedCategory ?? "",
+                  onCategorySelected: onCategorySelected,
                 ),
               );
             }
@@ -108,101 +108,6 @@ class PortfolioFields {
       initialValue: memo,
       onChanged: onMemoChanged,
       enabled: enabled,
-    );
-  }
-
-  // 카테고리 선택 피커 구현
-  static Widget _buildCategoryPicker(
-    BuildContext context,
-    Function(String) onCategorySelected,
-  ) {
-    // 샘플 카테고리 목록
-    final categories = [
-      "커뮤니케이션 플랫폼",
-      "금융 서비스",
-      "쇼핑몰",
-      "게임",
-      "교육",
-      "건강/의료",
-      "여행",
-      "소셜 미디어",
-      "엔터테인먼트",
-      "기타"
-    ];
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 핸들바
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          
-          // 헤더
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.shade200,
-                  width: 1,
-                ),
-              ),
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 20),
-                Text(
-                  "카테고리 선택",
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // 카테고리 목록
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(
-                    categories[index],
-                    style: AppTextStyles.bodyMedium,
-                  ),
-                  onTap: () {
-                    onCategorySelected(categories[index]);
-                    Navigator.pop(context);
-                  },
-                );
-              },
-            ),
-          ),
-          
-          // 하단 여백
-          const SizedBox(height: 16),
-        ],
-      ),
     );
   }
 }

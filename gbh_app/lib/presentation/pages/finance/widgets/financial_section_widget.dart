@@ -30,41 +30,49 @@ class FinancialSectionWidget extends ConsumerWidget {
     return formatter.format(amount);
   }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isHidden = ref.watch(isFinanceHideProvider);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 0.0 , left: 8.0),
-          child: Text(
-            title,
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.blackLight),
-          ),
-        ),
-        if (isEmpty)
+@override
+Widget build(BuildContext context, WidgetRef ref) {
+  final isHidden = ref.watch(isFinanceHideProvider);
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const SizedBox(height: 20),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 0.0, left: 8.0),
-            child: Text(emptyMessage),
-          )
-        else
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              title,
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.blackLight),
+            ),
+          ),
+          const SizedBox(width: 6),
+          if (!isEmpty)
             Padding(
-              padding: const EdgeInsets.only(left: 8.0),
+              padding: const EdgeInsets.only(right: 8.0),
               child: Text(
                 isHidden ? '금액보기' : '${formatAmount(totalAmount)}원',
                 style: AppTextStyles.bodySmall.copyWith(color: AppColors.blackLight),
               ),
             ),
+        ],
+      ),
+      if (isEmpty)
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(emptyMessage),
+        )
+      else
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             const SizedBox(height: 4),
             ...itemList,
           ],
         ),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
+      const SizedBox(height: 16),
+    ],
+  );
+}
 }

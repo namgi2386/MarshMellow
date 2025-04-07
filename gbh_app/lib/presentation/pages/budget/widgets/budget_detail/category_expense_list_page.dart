@@ -11,7 +11,9 @@ import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/
 import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
 import 'package:marshmellow/data/repositories/budget/category_repository.dart';
 
-// Provider for fetching category transactions
+/*
+  예산 카테고리별 지출 프로바이더더
+*/
 final categoryTransactionsProvider = FutureProvider.family<List<Transaction>, CategoryExpensePageParams>(
   (ref, params) async {
     ref.keepAlive();
@@ -65,7 +67,7 @@ class CategoryExpensePageParams {
 
 /*
   예산 카테고리 지출 내역 페이지
-  : 예산 카테고리의 지출 내역을 보여주는 페이지입니다.
+  : 예산 카테고리의 상세 지출 내역을 보여주는 페이지입니다.
 */
 class CategoryExpensePage extends ConsumerWidget {
   final int categoryPk;

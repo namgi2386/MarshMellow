@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:marshmellow/data/datasources/remote/wishlist_api.dart';
+import 'package:marshmellow/data/datasources/remote/budget/wishlist_api.dart';
 import 'package:marshmellow/data/models/wishlist/wishlist_model.dart';
 
 class WishlistRepository {

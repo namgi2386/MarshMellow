@@ -186,4 +186,21 @@ class IconPath {
 
   // 폴더
   static const String folderSimple = 'assets/icons/files/folderSimple.svg';
+
+  // 포트폴리오 체크
+  static const String uncheckedFolder =
+      'assets/icons/files/unchecked_folder.svg';
+  static const String checkedFolder = 'assets/icons/files/checked_folder.svg';
+  static const String checked = 'assets/icons/files/checked.svg';
+  static const String unchecked = 'assets/icons/files/unchecked.svg';
+  static const String trash = 'assets/icons/files/trash.svg';
+
+  // 퇴사 망상
+  static const String card1 = 'assets/images/quit/card1.png';
+  static const String card2 = 'assets/images/quit/card2.png';
+  static const String card3 = 'assets/images/quit/card3.png';
+  static const String card4 = 'assets/images/quit/card4.png';
+  static const String card5 = 'assets/images/quit/card5.png';
+  static const String card6 = 'assets/images/quit/card6.png';
+  static const String card7 = 'assets/images/quit/card7.png';
 }

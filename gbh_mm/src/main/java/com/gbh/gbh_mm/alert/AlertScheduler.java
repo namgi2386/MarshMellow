@@ -1,5 +1,9 @@
 package com.gbh.gbh_mm.alert;
 
+import com.gbh.gbh_mm.budget.model.entity.Budget;
+import com.gbh.gbh_mm.budget.model.entity.BudgetCategory;
+import com.gbh.gbh_mm.budget.repo.BudgetCategoryRepository;
+import com.gbh.gbh_mm.budget.repo.BudgetRepository;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import lombok.AllArgsConstructor;
@@ -9,12 +13,15 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Component
 @AllArgsConstructor
 public class AlertScheduler {
     private AlertService alertService;
     private UserRepository userRepository;
+    private BudgetRepository budgetRepository;
+    private BudgetCategoryRepository budgetCategoryRepository;
 
     /* 매일 10시 */
     @Scheduled(cron = "0 0 10 * * ?")
@@ -47,15 +54,51 @@ public class AlertScheduler {
 
     // 오늘의 예산 알림
     /* 매일 9시 */
-    @Scheduled(cron = "0 0 9 * * ?")
-    public void sendBudgetNotification() {
+    @Scheduled(cron = "0 0 9 * * ?", zone = "Asia/Seoul")
+    public void sendBudgetNotification() throws InterruptedException, ExecutionException {
 
         List<User> userList = userRepository.findAll();
 
         for (User user : userList) {
-            if (user.getFcmToken() != null) {
+            if (user.getFcmToken() != null && !user.getFcmToken().isEmpty()) {
                 alertService.sendBudgetNotification(user);
             }
         }
     }
+
+    // 지출 퍼센트 알림
+    /* 매일 9시 6시 */
+    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
+    public void sendExpendNotificationAtNine() throws InterruptedException, ExecutionException {
+        expendNotificationProcess();
+    }
+
+    @Scheduled(cron = "0 0 18 * * *", zone = "Asia/Seoul")
+    public void sendExpendNotificationAtEighteen() throws InterruptedException, ExecutionException {
+        expendNotificationProcess();
+    }
+
+    private void expendNotificationProcess() throws InterruptedException, ExecutionException {
+        List<User> userList = userRepository.findAll();
+        for (User user : userList) {
+            if (user.getFcmToken() != null && !user.getFcmToken().isEmpty()) {
+                Budget budget = budgetRepository.findById(user.getUserPk()).orElseThrow();
+                if (budget != null) {
+                    List<BudgetCategory> budgetCategoryList = budgetCategoryRepository.findById(budget.getBudgetPk()).stream().toList();
+                    for (BudgetCategory budgetCategory : budgetCategoryList) {
+                        String budgetCategoryName = budgetCategory.getBudgetCategoryName();
+                        float budgetCategoryExpendPercent = (float) budgetCategory.getBudgetExpendAmount() / (float) budgetCategory.getBudgetCategoryPrice();
+                        int percent = 0;
+                        if (budgetCategoryExpendPercent < 0.3f) continue;
+                        else if (budgetCategoryExpendPercent < 0.5f) percent = 30;
+                        else if (budgetCategoryExpendPercent < 0.5f) percent = 50;
+                        else percent = 70;
+
+                        alertService.sendExpendNotification(String.valueOf(user.getUserPk()), user.getFcmToken(), budgetCategoryName, percent);
+                    }
+                }
+            }
+        }
+    }
+
 }

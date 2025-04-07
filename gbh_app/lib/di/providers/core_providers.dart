@@ -25,7 +25,8 @@ final encryptionUtilProvider = Provider<EncryptionUtil>((ref) {
 });
 
 // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-const String TEST_TOKEN = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0Mzg5NzAzOSwiZXhwIjoxNzQzOTE1MDM5fQ.egYhz027CDeKGnhasJsuYVvYSdTobE7jNIURHJ3QPaQobR3fWWMkr_IiuVMQTbUhBOyZZwGsBBT5bm5yE-JUYg';
+const String TEST_TOKEN =
+    'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0Mzk4OTcwNCwiZXhwIjoxNzQ0MDA3NzA0fQ.SMifYxsooOjenrlHFJ6S9wLWizBczi9_TLf3x01D3gkfsiQ2hVomZ59jurzDVmphkYui32jGTgoB40_bU4I0PA';
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // Dio 프로바이더
@@ -39,7 +40,7 @@ final dioProvider = Provider<Dio>((ref) {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       // <<<<<<<<<<<< [ T E S T - Token 4월2일 만료 ] <<<<<<<<<<<<<<<<<<<<<<<<
-      // 'Authorization': TEST_TOKEN,
+      'Authorization': TEST_TOKEN,
       // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     },
     validateStatus: (status) {
@@ -68,12 +69,13 @@ final dioProvider = Provider<Dio>((ref) {
         try {
           // 요청 데이터가 있는 경우만 처리
           if (options.data != null) {
+            print('암호화 전 요청 데이터: ${options.data}');
             Map<String, dynamic> requestData;
-            
+
             // 문자열인 경우 JSON으로 파싱
             if (options.data is String) {
               requestData = jsonDecode(options.data);
-            } 
+            }
             // Map인 경우 그대로 사용
             else if (options.data is Map) {
               requestData = Map<String, dynamic>.from(options.data);
@@ -82,10 +84,12 @@ final dioProvider = Provider<Dio>((ref) {
             else {
               requestData = Map<String, dynamic>.from(options.data);
             }
-            
+
             // 요청 데이터 암호화
-            final encryptedData = await encryptionUtil.encryptRequest(requestData);
+            final encryptedData =
+                await encryptionUtil.encryptRequest(requestData);
             options.data = encryptedData;
+            print('암호화 후 요청 데이터: ${options.data}');
           }
         } catch (e) {
           print('요청 암호화 오류: $e');
@@ -95,7 +99,7 @@ final dioProvider = Provider<Dio>((ref) {
           ));
         }
       }
-      
+
       return handler.next(options);
     },
 
@@ -106,8 +110,10 @@ final dioProvider = Provider<Dio>((ref) {
         try {
           // 응답 데이터가 Map인 경우 복호화 시도
           if (response.data is Map) {
-            final Map<String, dynamic> responseData = Map<String, dynamic>.from(response.data);
-            final decryptedData = await encryptionUtil.decryptResponse(responseData);
+            final Map<String, dynamic> responseData =
+                Map<String, dynamic>.from(response.data);
+            final decryptedData =
+                await encryptionUtil.decryptResponse(responseData);
             response.data = decryptedData;
           }
         } catch (e) {

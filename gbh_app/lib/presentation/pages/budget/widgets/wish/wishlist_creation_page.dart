@@ -195,7 +195,7 @@ class _WishlistCreationPageState extends ConsumerState<WishlistCreationPage> {
         // 위시리스트 생성 요청
         await ref.read(wishlistCreationProvider.notifier).createWishlist(
           productNickname: _nickNameController.text,
-          productName: _productNameController.text.isEmpty ? _nickNameController.text : _productNameController.text,
+          productName: _productNameController.text,
           productPrice: price,
           productUrl: formattedUrl,
           imageFile: _selectedImage,              
@@ -255,7 +255,6 @@ class _WishlistCreationPageState extends ConsumerState<WishlistCreationPage> {
     );
   }
   
-  // 모든 입력 필드 위젯
   Widget _buildInputFields() {
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -291,7 +290,7 @@ class _WishlistCreationPageState extends ConsumerState<WishlistCreationPage> {
           
           // 이름 입력
           WishlistInput(
-            controller: _nickNameController,
+            controller: _productNameController,
             label: '상품명',
             hintText: '상품명을 입력하세요',
             validator: (value) {
@@ -350,7 +349,7 @@ class _WishlistCreationPageState extends ConsumerState<WishlistCreationPage> {
             children: [
               Expanded(
                 child: WishlistInput(
-                  controller: _productNameController,
+                  controller: _nickNameController,
                   label: '위시 닉네임',
                   hintText: '상세 설명 (선택)',
                 ),

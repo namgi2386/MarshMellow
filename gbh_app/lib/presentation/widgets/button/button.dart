@@ -13,6 +13,8 @@ class Button extends StatefulWidget {
   final Color? borderColor;
   final Color? textColor;
   final bool isDisabled;
+  final bool isLoading; // 추가된 매개변수
+  final Color? loadingColor; // 로딩 인디케이터 색상
   final TextStyle? textStyle;
   final double? borderRadius;
 
@@ -27,6 +29,8 @@ class Button extends StatefulWidget {
     this.borderColor,
     this.textColor = AppColors.whitePrimary,
     this.isDisabled = false,
+    this.isLoading = false, // 기본값 설정
+    this.loadingColor, // 로딩 인디케이터 색상 (기본값은 textColor와 동일)
     this.textStyle,
     this.borderRadius = 5,
   });
@@ -39,7 +43,7 @@ class _ButtonState extends State<Button> {
   bool _isPressed = false;
 
   void _handleHighlightChanged(bool isHighlighted) {
-    if (ButtonLogic.shouldHandleInteraction(widget.isDisabled)) {
+    if (ButtonLogic.shouldHandleInteraction(widget.isDisabled || widget.isLoading)) {
       setState(() {
         _isPressed = isHighlighted;
       });
@@ -48,10 +52,13 @@ class _ButtonState extends State<Button> {
 
   @override
   Widget build(BuildContext context) {
+    // 로딩 중이거나 비활성화 상태인 경우
+    final bool isEffectivelyDisabled = widget.isDisabled || widget.isLoading;
+
     // Button Logic에서 가져오기기
     final buttonState = ButtonLogic.getButtonState(
       isPressed: _isPressed,
-      isDisabled: widget.isDisabled,
+      isDisabled: isEffectivelyDisabled,
       color: widget.color,
       disabledColor: widget.disabledColor,
       textColor: widget.textColor,
@@ -67,14 +74,17 @@ class _ButtonState extends State<Button> {
         AppTextStyles.bodyMedium.copyWith(
           color: buttonState.textColor,
         );
+    
+    // 로딩 인디케이터 색상 (textColor와 같게 설정)
+    final loadingColor = widget.loadingColor ?? buttonState.textColor;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
-        onTap: widget.isDisabled ? null : widget.onPressed,
-        onHighlightChanged: widget.isDisabled ? null : _handleHighlightChanged,
+        onTap: isEffectivelyDisabled ? null : widget.onPressed,
+        onHighlightChanged: isEffectivelyDisabled ? null : _handleHighlightChanged,
         borderRadius: BorderRadius.circular(buttonState.borderRadius),
         child: Ink(
           width: buttonState.width,
@@ -85,10 +95,21 @@ class _ButtonState extends State<Button> {
             borderRadius: BorderRadius.circular(buttonState.borderRadius),
           ),
           child: Center(
-            child: Text(
-              widget.text,
-              style: effectiveTextStyle,
-            ),
+            child: widget.isLoading
+                // 로딩 중인 경우 로딩 인디케이터 표시
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(loadingColor),
+                    ),
+                  )
+                // 로딩 중이 아닌 경우 텍스트 표시
+                : Text(
+                    widget.text,
+                    style: effectiveTextStyle,
+                  ),
           ),
         ),
       ),
@@ -165,7 +186,25 @@ Button(
   },
 )
 
-// 7. 두 개의 버튼을 가로로 나란히 배치
+// 7. 로딩 상태 버튼
+Button(
+  text: '저장',
+  isLoading: true, // 로딩 중 상태 설정
+  onPressed: () {
+    // 로딩 중일 때는 호출되지 않음
+  },
+)
+
+// 8. 로딩 상태 버튼 (커스텀 로딩 색상)
+Button(
+  text: '로그인',
+  isLoading: isAuthenticating, // 상태 변수에 따라 로딩 표시
+  loadingColor: Colors.white, // 로딩 인디케이터 색상 설정
+  color: AppColors.bluePrimary,
+  onPressed: () => _login(),
+)
+
+// 9. 두 개의 버튼을 가로로 나란히 배치
 Row(
   mainAxisAlignment: MainAxisAlignment.center,
   children: [
@@ -187,31 +226,6 @@ Row(
       textColor: AppColors.textPrimary,
       onPressed: () {
         print('아니오 선택됨');
-      },
-    ),
-  ],
-)
-
-// 8. 확인/취소 스타일의 버튼 쌍
-Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    Button(
-      text: '확인',
-      width: MediaQuery.of(context).size.width * 0.43,
-      onPressed: () {
-        // 확인 처리 로직
-      },
-    ),
-    const SizedBox(width: 10),
-    Button(
-      text: '취소',
-      width: MediaQuery.of(context).size.width * 0.43,
-      color: Colors.transparent,
-      borderColor: Colors.grey,
-      textColor: Colors.grey,
-      onPressed: () {
-        // 취소 처리 로직
       },
     ),
   ],

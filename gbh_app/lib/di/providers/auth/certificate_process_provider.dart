@@ -83,6 +83,19 @@ class CertificateProcessNotifier extends StateNotifier<CertificateProcessState> 
     _password = '';
   }
 
+    /// 🔐 키쌍이 없을 경우에만 생성
+  Future<void> ensureKeyPairExists() async {
+    final hasKey = await _certificateService.hasKeyPair();
+    if (!hasKey) {
+      print('🔐 키쌍 없음 → 생성 시작');
+      final keyPair = await _certificateService.generateRSAKeyPair();
+      await _certificateService.storeKeyPair(keyPair);
+      print('✅ 키쌍 생성 완료');
+    } else {
+      print('🔐 기존 키쌍 존재 → 재사용');
+    }
+  }
+
    // 인증서 발급 요청
   Future<bool> issueCertificate() async {
     print("======== 인증서 발급 프로세스 시작 ========");
@@ -101,38 +114,32 @@ class CertificateProcessNotifier extends StateNotifier<CertificateProcessState> 
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      print("1. CSR 생성 시작");
-      if (!(await _certificateService.hasKeyPair())) {
-        print('1. 키페어 없으면 그거 먼저 만들고 있겠습니다');
-        final keyPair = await _certificateService.generateRSAKeyPair();
-        print('혹시 여기가?');
-        await _certificateService.storeKeyPair(keyPair);
-      }
+      // 1. 키쌍 확인
+      await ensureKeyPairExists();
 
-      // 1. CSR 생성
+      // 2. CSR 생성
+      print("📄 CSR 생성 시작");
       final csrPem = await _certificateService.generateCSR(
         commonName: state.email,
         organization: 'GBH',
-        country: 'KR'
+        country: 'KR',
       );
-      print("1. CSR 생성 결과: ${csrPem.substring(0, 30)}...");
+      print("📄 CSR 생성 결과 (앞): ${csrPem.substring(0, 30)}...");
 
-      // 2. mm인증서 발급 API 호출
-      print("2. 인증서 발급 API 호출 시작: ${state.email}");
+      // 3. 서버로 인증서 발급 요청
+      print("🚀 인증서 발급 요청: ${state.email}");
       final certificatePem = await _repository.issueCertificate(
         csrPem: csrPem,
         userEmail: state.email,
       );
-      print("2. 인증서 발급 API 응답: ${certificatePem != null}");
+      print("✅ 인증서 발급 응답 수신: ${certificatePem != null}");
 
       if (certificatePem != null) {
-        // 인증서 발급 성공시 비밀번호 저장
         await saveCertificatePassword();
 
-        // 인증서 PEM 저장
         await _secureStorage.write(
-          key: StorageKeys.certificatePem, 
-          value: certificatePem
+          key: StorageKeys.certificatePem,
+          value: certificatePem,
         );
 
         state = state.copyWith(
@@ -144,11 +151,13 @@ class CertificateProcessNotifier extends StateNotifier<CertificateProcessState> 
       } else {
         state = state.copyWith(
           isLoading: false,
-          error: '인증서 발급에 실패했습니다.'
+          error: '인증서 발급에 실패했습니다.',
         );
         return false;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print("❌ 인증서 발급 중 예외: $e");
+      print("🧵 스택트레이스: $stackTrace");
       state = state.copyWith(
         isLoading: false,
         error: '인증서 발급 중 오류가 발생했습니다: $e',
@@ -160,6 +169,12 @@ class CertificateProcessNotifier extends StateNotifier<CertificateProcessState> 
   // 저장된 인증서 비밀번호 가져오기
   Future<String?> getSaveCertificatePassword() async {
     return await _secureStorage.read(key: StorageKeys.certificatePassword);
+  }
+    /// 전자서명 또는 기능 사용 가능 여부 체크
+  Future<bool> isReadyForSigning() async {
+    final hasKey = await _certificateService.hasKeyPair();
+    final cert = await _secureStorage.read(key: StorageKeys.certificatePem);
+    return hasKey && cert != null;
   }
 }
 

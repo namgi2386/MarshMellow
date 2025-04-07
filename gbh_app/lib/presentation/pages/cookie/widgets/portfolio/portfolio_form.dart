@@ -16,7 +16,7 @@ class PortfolioForm extends ConsumerStatefulWidget {
 
   const PortfolioForm({
     super.key,
-    this.fileName = "파일명", // 기본 파일명
+    this.fileName = "", // 기본 파일명
   });
 
   @override
@@ -26,25 +26,31 @@ class PortfolioForm extends ConsumerStatefulWidget {
 class _PortfolioFormState extends ConsumerState<PortfolioForm> {
   // 상태 변수
   String _category = "";
-  String _fileName = "";
+  String _fileName = ""; // 사용자가 수정 가능한 파일명
+  String _originalFileName = ""; // 선택된 파일의 원본 이름
   String _memo = "";
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
   File? _selectedFile;
-  int? _categoryPk; // 카테고리 PK 추가
+  int? _categoryPk;
 
   @override
   void initState() {
     super.initState();
     // 파일명 초기화
     _fileName = widget.fileName;
+    _originalFileName = widget.fileName;
     // 포트폴리오 카테고리 목록 불러오기
     _loadCategories();
   }
 
   // 카테고리 목록 불러오기
   Future<void> _loadCategories() async {
-    await ref.read(portfolioViewModelProvider.notifier).loadCategories();
+    // 중복 로드 방지를 위한 조건 추가
+    if (!ref.read(portfolioViewModelProvider).isLoading &&
+        ref.read(portfolioViewModelProvider).categories.isEmpty) {
+      await ref.read(portfolioViewModelProvider.notifier).loadCategories();
+    }
   }
 
   // 카테고리 업데이트
@@ -98,7 +104,8 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
       // 파일 객체 생성 및 파일명 업데이트
       setState(() {
         _selectedFile = File(filePath);
-        _fileName = result.files.single.name;
+        _originalFileName = result.files.single.name; // 헤더에 표시할 원본 파일명
+        _fileName = result.files.single.name; // 사용자가 수정할 수 있는 필드에도 초기값 설정
       });
 
       // 디버그용 로그
@@ -110,15 +117,17 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
   Future<void> _savePortfolio() async {
     // 필수 필드 검증
     if (_selectedFile == null) {
-      CompletionMessage.show(context, message: '파일 선택.');
+      CompletionMessage.show(context, message: '파일 선택');
       return;
     }
-
 
     if (_fileName.isEmpty) {
       CompletionMessage.show(context, message: '파일명');
       return;
     }
+
+    // 카테고리가 선택되지 않은 경우 -1로 설정 (미분류)
+    final categoryPk = _categoryPk ?? -1;
 
     // 로딩 상태 설정
     setState(() {
@@ -132,21 +141,20 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
                 file: _selectedFile!,
                 portfolioMemo: _memo,
                 fileName: _fileName,
-                portfolioCategoryPk: _categoryPk!,
+                portfolioCategoryPk: categoryPk,
               );
 
       // 성공적으로 등록된 경우
       if (portfolio != null) {
-        CompletionMessage.show(context, message: '파일이 등록되었습니다.');
+        CompletionMessage.show(context, message: '등록 성공');
         // 화면 닫기
         Navigator.of(context).pop(true);
       } else {
-        // 에러 메시지는 뷰모델에서 state.errorMessage에 설정됨
         final errorMessage = ref.read(portfolioViewModelProvider).errorMessage;
-        CompletionMessage.show(context, message: errorMessage ?? '등록에 실패했습니다.');
+        CompletionMessage.show(context, message: errorMessage ?? '등록 실패');
       }
     } catch (e) {
-      CompletionMessage.show(context, message: '오류가 발생했습니다: $e');
+      CompletionMessage.show(context, message: '오류 발생: $e');
     } finally {
       // 로딩 상태 해제
       if (mounted) {
@@ -196,47 +204,36 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 파일 아이콘과 이름을 구성하는 Row
           Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 파일명과 아이콘을 Stack으로 배치하여 바로 붙이기
+              // 원본 파일명 텍스트 (헤더에 표시)
               Expanded(
-                child: Stack(
-                  children: [
-                    // 파일명 텍스트 - 더 짧게 줄여 아이콘 공간 확보
-                    Padding(
-                      padding: const EdgeInsets.only(right: 24), // 아이콘 공간 확보
-                      child: Text(
-                        _fileName,
-                        style: AppTextStyles.modalTitle.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                    // 파일 아이콘 - Positioned로 텍스트 길이에 상관없이 오른쪽에 배치
-                    Positioned(
-                      right: 0,
-                      top: 4, // 아이콘 위치 미세 조정
-                      child: GestureDetector(
-                        onTap: _selectFile, // 파일 선택 메서드 연결
-                        child: SvgPicture.asset(
-                          IconPath.paperclip,
-                          width: 20,
-                          height: 20,
-                          colorFilter: ColorFilter.mode(
-                            AppColors.textPrimary,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  _originalFileName.isEmpty ? "파일 선택" : _originalFileName,
+                  style: AppTextStyles.modalTitle.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
+              // 파일 선택 아이콘
+              GestureDetector(
+                onTap: _selectFile,
+                child: SvgPicture.asset(
+                  IconPath.paperclip,
+                  width: 20,
+                  height: 20,
+                  colorFilter: ColorFilter.mode(
+                    AppColors.textPrimary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
             ],
           ),
         ],
@@ -256,11 +253,17 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
           // 카테고리 필드
           PortfolioFields.categoryField(
             context: context,
-            selectedCategory: _category,
-            onCategorySelected: _updateCategory,
+            ref: ref,
+            selectedCategory: _category, // 이미 선택된 카테고리
+            onCategorySelected: (categoryName, categoryPk) {
+              // setState를 통해 상태만 업데이트하고, 다른 메서드 호출은 피합니다
+              setState(() {
+                _category = categoryName;
+                _categoryPk = categoryPk;
+              });
+            },
             enabled: !_isSaving && !portfolioState.isLoading,
           ),
-
           // 파일명 필드
           PortfolioFields.editableFileNameField(
             fileName: _fileName,
@@ -281,7 +284,6 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
             ref: ref,
             selectedDate: _selectedDate,
             onDateChanged: _updateDate,
-            includeTime: false, // 날짜만 사용 (시간 제외)
             enabled: !_isSaving,
           ),
         ],

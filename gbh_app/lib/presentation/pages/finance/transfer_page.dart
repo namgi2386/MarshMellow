@@ -273,6 +273,7 @@ class _TransferPageState extends ConsumerState<TransferPage> {
                     _amountController.text = value;
                     // 예외 처리 추가
                     if (value.isNotEmpty && value != ',') {
+                      print('설정할 금액: $value');
                       viewModel.setAmount(int.tryParse(value.replaceAll(',', '')) ?? 0);
                     } else {
                       viewModel.setAmount(0);

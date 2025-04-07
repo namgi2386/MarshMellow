@@ -265,7 +265,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
     final Map<String, List<CardTransactionItem>> groupedTransactions = {};
     
     for (var item in transactions) {
-      final date = item.transactionDate;
+      // ****************************************
+      // 수정: null 체크 추가 - transactionDate가 null이면 '알 수 없음'으로 처리
+      // ****************************************
+      final date = item.transactionDate ?? '알 수 없음';
       if (!groupedTransactions.containsKey(date)) {
         groupedTransactions[date] = [];
       }
@@ -284,7 +287,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
         final dateItems = groupedTransactions[date]!;
         
         // 같은 날짜의 항목들을 시간순으로 정렬
-        dateItems.sort((a, b) => b.transactionTime.compareTo(a.transactionTime));
+        // ****************************************
+        // 수정: null 체크 추가 - transactionTime이 null인 경우 빈 문자열로 처리
+        // ****************************************
+        dateItems.sort((a, b) => (b.transactionTime ?? '').compareTo(a.transactionTime ?? ''));
         
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,7 +306,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
             
             // 해당 날짜의 거래 항목들
             ...dateItems.map((item) {
-              final isApproved = item.cardStatus == '승인';
+              // ****************************************
+              // 수정: null 체크 추가 - cardStatus가 null인 경우 기본값 제공
+              // ****************************************
+              final isApproved = (item.cardStatus ?? '') == '승인';
               
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
@@ -314,7 +323,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            item.merchantName,
+                            // ****************************************
+                            // 수정: null 체크 추가 - merchantName이 null인 경우 '상호명 없음' 표시
+                            // ****************************************
+                            item.merchantName ?? '상호명 없음',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w400,
@@ -328,13 +340,19 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
                               SizedBox(
                                 // width: 50,
                                 child: Text(
-                                  _formatTransactionTime(item.transactionTime),
+                                  // ****************************************
+                                  // 수정: null 체크 추가 - transactionTime이 null인 경우 빈 문자열로 처리
+                                  // ****************************************
+                                  _formatTransactionTime(item.transactionTime ?? ''),
                                   style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
                                 ),
                               ),
                               Text(' | ',style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),),
                               Text(
-                                item.categoryName,
+                                // ****************************************
+                                // 수정: null 체크 추가 - categoryName이 null인 경우 '분류 없음' 표시
+                                // ****************************************
+                                item.categoryName ?? '분류 없음',
                                 style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
                               ),
                             ],
@@ -348,7 +366,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '${NumberFormat('#,###').format(int.parse(item.transactionBalance))}원',
+                          // ****************************************
+                          // 수정: null 체크 및 예외 처리 추가 - transactionBalance가 null이거나 파싱 실패 시 '0'으로 처리
+                          // ****************************************
+                          '${NumberFormat('#,###').format(int.tryParse(item.transactionBalance ?? '0') ?? 0)}원',
                           style: AppTextStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: isApproved ? AppColors.warnningLight : AppColors.blueDark,
@@ -357,7 +378,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
                         Row(
                           children: [
                             Text(
-                              item.billStatementsStatus,
+                              // ****************************************
+                              // 수정: null 체크 추가 - billStatementsStatus가 null인 경우 빈 문자열로 처리
+                              // ****************************************
+                              item.billStatementsStatus ?? '',
                               style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
                             ),
                             const SizedBox(width: 4),
@@ -370,7 +394,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                item.cardStatus,
+                                // ****************************************
+                                // 수정: null 체크 추가 - cardStatus가 null인 경우 '상태 없음' 표시
+                                // ****************************************
+                                item.cardStatus ?? '상태 없음',
                                 style: AppTextStyles.bodySmall.copyWith(
                                   color: isApproved ? AppColors.warnningLight : AppColors.blueDark,
                                 ),
@@ -392,7 +419,7 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
       },
     );
   }
-
+  
   String _formatTransactionDate(String dateStr) {
     final year = int.parse(dateStr.substring(0, 4));
     final month = int.parse(dateStr.substring(4, 6));

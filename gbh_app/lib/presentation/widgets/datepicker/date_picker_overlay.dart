@@ -1,4 +1,4 @@
-// lib/presentation/widgets/date_picker_overlay.dart
+// lib/presentation/widgets/datepicker/date_picker_overlay.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
@@ -22,23 +22,41 @@ class DatePickerOverlay extends ConsumerWidget {
 
         // DatePicker가 표시되어야 할 때만 오버레이 표시
         if (datePickerState.isVisible && datePickerState.position != null)
+          Positioned.fill(
+            child: GestureDetector(
+              // 배경 터치 시 DatePicker 닫기
+              onTap: () =>
+                  ref.read(datePickerProvider.notifier).hideDatePicker(),
+              // 반투명 배경
+              child: Container(
+                color: Colors.black.withOpacity(0.1), // 반투명 검정 배경
+              ),
+            ),
+          ),
+
+        // DatePicker 컴포넌트
+        if (datePickerState.isVisible && datePickerState.position != null)
           Positioned(
-            // 위치 계산 (기준점 + 오프셋)
-            // left: datePickerState.position!.dx - (MediaQuery.of(context).size.width * 0.9 / 2),
-            // left: datePickerState.position!.dx,
             left: MediaQuery.of(context).size.width * 0.05,
-            top: datePickerState.position!.dy - 2, // 버튼 바로 아래에 표시 (간격 10)
-            child: CustomDatePicker(
-              selectionMode: datePickerState.selectionMode,
-              initialSelectedRange: datePickerState.selectedRange,
-              initialSelectedDate: datePickerState.selectedDate,
-              initialSelectedDates: datePickerState.selectedDates,
-              onConfirm: (range) {
-                // 확인 버튼 클릭 시 선택된 범위 업데이트
-                ref
-                    .read(datePickerProvider.notifier)
-                    .updateSelectedRange(range);
-              },
+            top: datePickerState.position!.dy - 2,
+            child: GestureDetector(
+              // DatePicker 내부 터치 시 이벤트 전파 중단 (배경 터치 이벤트 방지)
+              onTap: () {},
+              child: Material(
+                borderRadius: BorderRadius.circular(5),
+                child: CustomDatePicker(
+                  selectionMode: datePickerState.selectionMode,
+                  initialSelectedRange: datePickerState.selectedRange,
+                  initialSelectedDate: datePickerState.selectedDate,
+                  initialSelectedDates: datePickerState.selectedDates,
+                  onConfirm: (range) {
+                    // 확인 버튼 클릭 시 선택된 범위 업데이트
+                    ref
+                        .read(datePickerProvider.notifier)
+                        .updateSelectedRange(range);
+                  },
+                ),
+              ),
             ),
           ),
       ],

@@ -1,5 +1,6 @@
 package com.gbh.gbh_mm.presentation.controller;
 
+import com.gbh.gbh_mm.presentation.request.RequestHouseholdForPre;
 import com.gbh.gbh_mm.presentation.request.RequestSendAlert;
 import com.gbh.gbh_mm.presentation.service.PresentationService;
 import lombok.AllArgsConstructor;
@@ -18,15 +19,17 @@ public class PresentationController {
     /* 월급 알림 */
     @GetMapping("/salary-alert")
     public String sendSalaryAlert(
-        @RequestBody RequestSendAlert request
+            @RequestBody RequestSendAlert request
     ) {
         return presentationService.sendAlert(request);
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "Test";
-    }
-
     /* 가계부 데이터 등록 */
+
+    @PostMapping("/household")
+    public String craeteHousehold(
+            @RequestBody RequestHouseholdForPre request
+    ) {
+        return presentationService.createHousehold(request);
+    }
 }

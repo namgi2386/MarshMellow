@@ -23,6 +23,9 @@ class CelebrationPopup extends StatefulWidget {
   /// 컨페티 개수
   final int confettiCount;
 
+  /// 배경 투명도 (0.0 ~ 1.0)
+  final double backgroundOpacity;
+
   /// 위젯 닫기 콜백
   final VoidCallback? onClose;
 
@@ -32,7 +35,8 @@ class CelebrationPopup extends StatefulWidget {
     this.subtitleText = '퇴사 질러~~~',
     this.characterImagePath = 'assets/images/characters/char_jump.png',
     this.confettiDuration = 4000,
-    this.confettiCount = 10, //
+    this.confettiCount = 10,
+    this.backgroundOpacity = 0.5, // 기본 투명도
     this.onClose,
   }) : super(key: key);
 
@@ -157,7 +161,8 @@ class _CelebrationPopupState extends State<CelebrationPopup>
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          color: AppColors.whiteDark.withOpacity(0.5), // 반투명 배경
+          color: AppColors.whiteDark
+              .withOpacity(widget.backgroundOpacity), // 투명도 조절 가능
           child: Stack(
             children: [
               // 각 컨페티 아이템 렌더링
@@ -307,6 +312,7 @@ void showCelebrationPopup(
   String characterImagePath = 'assets/images/characters/char_jump.png',
   int confettiDuration = 4000,
   int confettiCount = 20,
+  double backgroundOpacity = 0.5, // 새로 추가된 매개변수
 }) {
   showDialog(
     context: context,
@@ -318,6 +324,7 @@ void showCelebrationPopup(
       characterImagePath: characterImagePath,
       confettiDuration: confettiDuration,
       confettiCount: confettiCount,
+      backgroundOpacity: backgroundOpacity, // 추가된 매개변수
       onClose: () => Navigator.of(context).pop(),
     ),
   );
@@ -325,12 +332,11 @@ void showCelebrationPopup(
 
 /// 퇴사 축하 팝업을 보여주는 편의 함수 (원래 함수명 유지)
 void showRetirementCelebration(BuildContext context) {
-  showCelebrationPopup(
-    context,
-    titleText: '야호!',
-    subtitleText: '퇴사 질러~~~',
-    characterImagePath: 'assets/images/characters/char_jump.png',
-  );
+  showCelebrationPopup(context,
+      titleText: '야호!',
+      subtitleText: '퇴사 질러~~~',
+      characterImagePath: 'assets/images/characters/char_jump.png',
+      backgroundOpacity: 0.7);
 }
 
 /*
@@ -346,6 +352,7 @@ showCelebrationPopup(
   characterImagePath: 'assets/images/characters/char_happy.png',
   confettiCount: 20, // 컨페티 개수수
   confettiDuration: 4000, // 애니메이션 지속 시간
+  backgroundOpacity: 0.7, // 배경 투명도 조절 (0.0 ~ 1.0)
 );
 
 */

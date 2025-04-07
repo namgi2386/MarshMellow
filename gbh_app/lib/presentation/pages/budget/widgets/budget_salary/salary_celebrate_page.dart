@@ -24,13 +24,14 @@ class SalaryCelebratePage extends StatefulWidget {
 class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
   final storage = FlutterSecureStorage();
   String userName = '';
+  bool showCelebration = true;
   bool showBudgetTypeOVerlay = false;
 
   @override
   void initState() {
     super.initState();
 
-    _loadSHowCelebration();
+    _loadSHowCelebration();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
   }
 
   Future<void> _loadSHowCelebration() async {
@@ -45,17 +46,18 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
 
       print('🥕🥕User name: $userName');
 
+      // 마운트되면 이후에 축하 표시
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showCelebrationPopup(
-          context,
-          titleText: '야호!',
-          subtitleText: '${userName.isNotEmpty ? userName : '사용자'} 님의\n월급날입니다!',
-        );
+        setState(() {
+          showCelebration = true;
+        });
 
+        // 축하 5초 대기 후 카드 표시
         Future.delayed(const Duration(seconds: 5), () {
           if (mounted) {
             setState(() {
               showBudgetTypeOVerlay = true;
+
             });
           }
         });
@@ -64,7 +66,6 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
       // 에러 처리
       print('Error loading user name: $e');
     }
-
   }
 
   void _navigateToBudgetTypePage() {
@@ -79,6 +80,7 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
     return Scaffold(
       body: Stack(
         children: [
+
           // BudgetTypeCard를 오버레이로 표시
           if (showBudgetTypeOVerlay)
             Positioned.fill(
@@ -110,6 +112,17 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
                 ),
               ),
             ),
+
+            // celebration 위젯
+            if (showCelebration)
+              CelebrationPopup(
+                titleText: '야호!',
+                subtitleText: 
+                  '${userName.isNotEmpty ? userName : '사용자'} 님의\n월급날입니다!',
+                characterImagePath: 'assets/images/characters/char_jump.png',
+                confettiCount: 20,
+                confettiDuration: 4000,
+              )
         ],
       ),
     );

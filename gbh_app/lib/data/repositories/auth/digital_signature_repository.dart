@@ -40,14 +40,16 @@ class DigitalSignatureRepository {
       );
       
       // 검증 성공 시 전체 userKey 저장
-      // if (response.data['code'] == 200 && 
-      //     response.data['data']['verified'] == true && 
-      //     response.data['data']['userKey'] != null) {
-      //   await _secureStorage.write(
-      //     key: StorageKeys.userKey, 
-      //     value: response.data['data']['userKey']
-      //   );
-      // }
+      if (response.data['code'] == 200 && 
+          response.data['data']['verified'] == true && 
+          response.data['data']['userKey'] != null) {
+        await _secureStorage.write(
+          key: StorageKeys.userkey, 
+          value: response.data['data']['userKey']
+        );
+      }
+
+      print('🍀🍀🍀유저키 발급 성공! : ${response.data['data']['userKey']}');
       
       return response.data;
     } catch (e) {

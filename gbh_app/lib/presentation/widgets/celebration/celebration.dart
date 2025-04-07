@@ -26,13 +26,19 @@ class CelebrationPopup extends StatefulWidget {
   /// 위젯 닫기 콜백
   final VoidCallback? onClose;
 
+  /// 유한슬 커스텀
+  final bool showTexts;
+  final bool showConfetti;
+
   const CelebrationPopup({
     Key? key,
     this.titleText = '야호!',
     this.subtitleText = '퇴사 질러~~~',
     this.characterImagePath = 'assets/images/characters/char_jump.png',
     this.confettiDuration = 4000,
-    this.confettiCount = 10, //
+    this.confettiCount = 10, 
+    this.showTexts = true,
+    this.showConfetti = true,
     this.onClose,
   }) : super(key: key);
 

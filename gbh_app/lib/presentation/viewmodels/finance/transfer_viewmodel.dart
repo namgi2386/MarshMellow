@@ -25,6 +25,7 @@ class TransferState {
   final bool isLoading;
   final String? error;
   final bool isSuccess;  // 송금 성공 여부
+  final String withdrawalBankName;  // 추가
 
   const TransferState({
     this.step = TransferStep.accountInput,
@@ -37,6 +38,7 @@ class TransferState {
     this.isLoading = false,
     this.error,
     this.isSuccess = false,
+    this.withdrawalBankName = '',  // 추가
   });
 
   // 복사 생성자
@@ -51,6 +53,7 @@ class TransferState {
     bool? isLoading,
     String? error,
     bool? isSuccess,
+    String? withdrawalBankName,  // 추가
   }) {
     return TransferState(
       step: step ?? this.step,
@@ -63,6 +66,7 @@ class TransferState {
       isLoading: isLoading ?? this.isLoading,
       error: error,  // null 허용을 위해 ?? this.error 패턴 사용 안함
       isSuccess: isSuccess ?? this.isSuccess,
+      withdrawalBankName: withdrawalBankName ?? this.withdrawalBankName,  // 추가
     );
   }
 
@@ -112,6 +116,10 @@ class TransferViewModel extends StateNotifier<TransferState> {
     );
   }
 
+  void setWithdrawalBankName(String bankName) {
+    state = state.copyWith(withdrawalBankName: bankName);
+  }
+
   // 은행 선택
   void selectBank(String code, String name) {
     state = state.copyWith(
@@ -137,15 +145,14 @@ class TransferViewModel extends StateNotifier<TransferState> {
     state = state.copyWith(amount: amount);
   }
 
-  // 송금 실행
-  Future<void> executeTransfer() async {
-    if (!state.isAmountValid) return;
+  // 송금 실행 - bool 반환하도록 수정
+  Future<bool> executeTransfer() async {
+    if (!state.isAmountValid) return false;
 
     try {
       state = state.copyWith(
         isLoading: true, 
         error: null,
-        step: TransferStep.loading,
       );
 
       final request = TransferRequest(
@@ -167,19 +174,21 @@ class TransferViewModel extends StateNotifier<TransferState> {
         state = state.copyWith(
           isLoading: false,
           isSuccess: true,
-          step: TransferStep.complete,
         );
+        return true;
       } else {
         state = state.copyWith(
           isLoading: false,
           error: response.message,
         );
+        return false;
       }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         error: '송금 중 오류가 발생했습니다: ${e.toString()}',
       );
+      return false;
     }
   }
 

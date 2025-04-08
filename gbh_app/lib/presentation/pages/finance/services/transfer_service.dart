@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_select_content.dart';
+import 'package:marshmellow/presentation/viewmodels/finance/transfer_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/withdrawal_account_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_secure_info_viewmodel.dart';
@@ -14,7 +15,7 @@ import 'package:marshmellow/router/routes/finance_routes.dart';
 class TransferService {
   // 송금 버튼 클릭 핸들러
   
-  static Future<void> handleTransfer(BuildContext context, WidgetRef ref, String accountNo) async {
+  static Future<void> handleTransfer(BuildContext context, WidgetRef ref, String accountNo, String bankName) async {
     // 로딩 표시
     final userInfoState = ref.watch(userInfoProvider);
     final userSecureInfoState = ref.watch(userSecureInfoProvider);
@@ -51,9 +52,10 @@ class TransferService {
                 // 서버에 개인키해싱값 전달 응답 받기
                 // 모달 닫고 인증 페이지로 이동
                 // Navigator.pop(context);
+                ref.read(transferProvider.notifier).setWithdrawalBankName(bankName);
                 context.push(
-                  FinanceRoutes.getAuthPath(), 
-                  extra: {'accountNo': accountNo, 'withdrawalAccountId': withdrawalAccountId,}
+                  FinanceRoutes.getTransferPath(), 
+                  extra: {'accountNo': accountNo, 'withdrawalAccountId': withdrawalAccountId,'bankName': bankName}
                 );
               }
             );

@@ -20,11 +20,13 @@ import 'package:flutter/services.dart';
 class TransferPage extends ConsumerStatefulWidget {
   final String accountNo;
   final int withdrawalAccountId; // 추가된 필드
+  final String bankName;  // 추가
   
   const TransferPage({
     Key? key,
     required this.accountNo,
     required this.withdrawalAccountId, // 생성자 매개변수 추가
+    required this.bankName,  // 추가
   }) : super(key: key);
 
   @override
@@ -40,6 +42,7 @@ class _TransferPageState extends ConsumerState<TransferPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(transferProvider.notifier).reset();
       ref.read(transferProvider.notifier).setWithdrawalAccount(widget.withdrawalAccountId, widget.accountNo);
     });
   }
@@ -172,7 +175,7 @@ class _TransferPageState extends ConsumerState<TransferPage> {
             ),
             child:                 
                 Text(
-                  '출금계좌 : ${widget.accountNo}',
+                  '출금계좌 : ${widget.bankName} ${widget.accountNo}',
                   style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)
                 ),
           ),
@@ -279,7 +282,7 @@ class _TransferPageState extends ConsumerState<TransferPage> {
             ),
             child:                 
               Text(
-                '출금계좌 : ${widget.accountNo}',
+                '출금계좌 : ${widget.bankName} ${widget.accountNo}',
                 style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)
               ),
           ),
@@ -330,7 +333,15 @@ class _TransferPageState extends ConsumerState<TransferPage> {
           
           // 송금 버튼
           Button(
-            onPressed: state.isAmountValid ? viewModel.executeTransfer : null,
+            onPressed: state.isAmountValid 
+              ? () => context.push(
+                  FinanceRoutes.getAuthPath(), 
+                  extra: {
+                    'accountNo': widget.accountNo, 
+                    'withdrawalAccountId': widget.withdrawalAccountId,
+                  }
+                )
+              : null,
             text: '송금하기',
             color: state.isAmountValid ? AppColors.blackPrimary : AppColors.whiteDark,
           ),

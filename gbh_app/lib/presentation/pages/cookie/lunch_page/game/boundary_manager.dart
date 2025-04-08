@@ -1,5 +1,6 @@
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
+import 'package:marshmellow/core/theme/app_colors.dart';
 import 'dart:math' as math;
 
 import 'entities/wall.dart';
@@ -50,9 +51,17 @@ void addDefaultBoundaries() {
   game.add(Wall(
     position: Vector2(worldSize.x / 2, rotatingBarY*1.55),
     size: Vector2(rotatingBarWidth*2, rotatingBarHeight),
-    color: const Color.fromARGB(255, 226, 53, 229),
+    color: AppColors.warnningLight,
     isRotating: true, // Wall 클래스에 isRotating 속성 추가 필요
-    rotationSpeed: 1.0, // 회전 속도 설정 (라디안/초)
+    rotationSpeed: 2.0, // 회전 속도 설정 (라디안/초)
+  ));
+
+  game.add(Wall(
+    position: Vector2(worldSize.x *0.8, rotatingBarY*2.25),
+    size: Vector2(rotatingBarWidth*3, rotatingBarHeight),
+    color: AppColors.warnningLight,
+    isRotating: true, // Wall 클래스에 isRotating 속성 추가 필요
+    rotationSpeed: -3.0, // 회전 속도 설정 (라디안/초)
   ));
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -60,94 +69,164 @@ void addDefaultBoundaries() {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   final MyX = worldSize.x*0.1; // 장애물 높이 (화면 높이의 1/20)
   final MyY = worldSize.y*0.1; // 장애물 높이 (화면 높이의 1/20)
-  final MyWidth = worldSize.x * 0.01; // 장애물 너비 (화면 너비의 60%)
+  final MyWidth = worldSize.x * 0.02; // 장애물 너비 (화면 너비의 60%)
   final MyHeight = worldSize.y * 0.01; // 세로 간격 (화면 높이의 1/12)
   game.add(Wall(
-    position: Vector2(MyX  , MyY),
-    size: Vector2(MyWidth, MyHeight*10),
-    color: Colors.orange.shade700,
+    position: Vector2(MyX*1.3  , MyY*0.3),
+    size: Vector2(MyWidth, MyHeight*21),
+    color: AppColors.blueDark,
     // angle:  math.pi / 3.14
   ));
-  // game.add(Wall(
-  //   position: Vector2(worldSize.x * 0.2, worldSize.y / 20 * 3 ),
-  //   size: Vector2(MyX, worldSize.y / 8),
-  //   color: const Color.fromARGB(255, 101, 255, 240),
-  // ));
+  game.add(Wall(
+    position: Vector2(MyX*7.3  , MyY*0.3),
+    size: Vector2(MyWidth, MyHeight*21),
+    color: AppColors.blueDark,
+    // angle:  math.pi / 3.14
+  ));
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   // 지그재그 장애물 추가 (왼쪽 -> 오른쪽 방향)
   final obstacleHeight = worldSize.y / 20; // 장애물 높이 (화면 높이의 1/20)
   final obstacleWidth = worldSize.x * 0.6; // 장애물 너비 (화면 너비의 60%)
   final verticalSpacing = worldSize.y / 12; // 세로 간격 (화면 높이의 1/12)
-  
+
+    game.add(Wall(
+      position: Vector2(MyX*3.8, MyY*1.54),
+      size: Vector2(obstacleWidth, wallThickness * 2),
+      color: AppColors.blueDark,
+      angle:  math.pi / 11
+    ));
+    game.add(Wall(
+      position: Vector2(MyX*9.8, MyY*1.54),
+      size: Vector2(obstacleWidth, wallThickness * 2),
+      color: AppColors.blueDark,
+      angle:  math.pi / 11
+    ));
+    game.add(Wall(
+      position: Vector2(MyX*9.8, MyY*2.04),
+      size: Vector2(obstacleWidth, wallThickness * 2),
+      color: AppColors.blueDark,
+      angle:  -math.pi / 8
+    ));
+
+
+
+
   // 왼쪽에서 시작하는 장애물들
-  for (int i = 0; i < 20; i += 2) {
+  for (int i = 2; i < 10; i += 2) {
     final yPos = obstacleHeight * 3 + (i * verticalSpacing);
     
     // 왼쪽 시작, 오른쪽으로 뻗는 장애물
     game.add(Wall(
       position: Vector2(worldSize.x * 0.4, yPos),
       size: Vector2(obstacleWidth, wallThickness * 2),
-      color: Colors.orange.shade700,
+      color: AppColors.pinkPrimary,
       angle:  math.pi / 12
     ));
   }
   
   // 오른쪽에서 시작하는 장애물들
-  for (int i = 1; i < 20; i += 2) {
+  for (int i = 1; i < 10; i += 2) {
     final yPos = obstacleHeight * 3 + (i * verticalSpacing);
     
     // 오른쪽 시작, 왼쪽으로 뻗는 장애물
     game.add(Wall(
       position: Vector2(worldSize.x * 0.7, yPos),
       size: Vector2(obstacleWidth, wallThickness * 2),
-      color: Colors.orange.shade700,
+      color: AppColors.blueDark,
       angle:  -math.pi / 10
     ));
   }
-  
+
+
+    // game.add(Wall(
+    //   position: Vector2(worldSize.x * 0.4, worldSize.y *1  ),
+    //   size: Vector2(obstacleWidth, wallThickness * 2),
+    //   color: AppColors.buttonDelete,
+    //   angle:  math.pi / 12
+    // ));
+    game.add(Wall(
+      position: Vector2(worldSize.x * 0.1, worldSize.y *0.95  ),
+      size: Vector2(worldSize.x * 0.7, wallThickness * 2),
+      color: AppColors.buttonDelete,
+      angle:  math.pi / 11
+    ));
+    game.add(Wall(
+      position: Vector2(worldSize.x * 0.9, worldSize.y *0.95  ),
+      size: Vector2(worldSize.x * 0.7, wallThickness * 2),
+      color: AppColors.buttonDelete,
+      angle:  -math.pi / 11
+    ));
+    game.add(Wall(
+      position: Vector2(worldSize.x * 0.2, worldSize.y *0.96 ),
+      size: Vector2(rotatingBarWidth*2, rotatingBarHeight),
+      color: AppColors.warnningLight,
+      isRotating: true, // Wall 클래스에 isRotating 속성 추가 필요
+      rotationSpeed: -2.0, // 회전 속도 설정 (라디안/초)
+    ));
+    game.add(Wall(
+      position: Vector2(worldSize.x * 0.8, worldSize.y *0.96),
+      size: Vector2(rotatingBarWidth*2, rotatingBarHeight),
+      color: AppColors.warnningLight,
+      isRotating: true, // Wall 클래스에 isRotating 속성 추가 필요
+      rotationSpeed: 2.0, // 회전 속도 설정 (라디안/초)
+    ));
+
+
+
   // 세로 방향 짧은 장애물들 (양쪽에 지그재그로 배치)
   final verticalObstacleHeight = worldSize.y / 8; // 세로 장애물 높이
   final verticalObstacleWidth = wallThickness * 2; // 세로 장애물 너비
   
   // 왼쪽 세로 장애물들
-  for (int i = 0; i < 18; i += 3) {
+  for (int i = 0; i < 8; i += 3) {
     final yPos = obstacleHeight * 5 + (i * verticalSpacing);
     
     game.add(Wall(
       position: Vector2(worldSize.x * 0.2, yPos),
       size: Vector2(verticalObstacleWidth, verticalObstacleHeight),
-      color: Colors.teal,
+      color: AppColors.greenPrimary,
     ));
   }
   
   // 오른쪽 세로 장애물들
-  for (int i = 1; i < 18; i += 3) {
-    final yPos = obstacleHeight * 5 + (i * verticalSpacing);
+  // for (int i = 1; i < 10; i += 3) {
+  //   final yPos = obstacleHeight * 5 + (i * verticalSpacing);
     
-    game.add(Wall(
-      position: Vector2(worldSize.x * 0.8, yPos),
-      size: Vector2(verticalObstacleWidth, verticalObstacleHeight),
-      color: Colors.teal,
-    ));
-  }
-  
+  //   game.add(Wall(
+  //     position: Vector2(worldSize.x * 0.8, yPos),
+  //     size: Vector2(verticalObstacleWidth, verticalObstacleHeight),
+  //     color: AppColors.greenPrimary,
+  //   ));
+  // }
+  game.add(Wall(
+    position: Vector2(worldSize.x * 0.8, obstacleHeight * 5 + (1 * verticalSpacing)),
+    size: Vector2(verticalObstacleWidth, verticalObstacleHeight),
+    color: AppColors.greenPrimary,
+  ));
+  game.add(Wall(
+    position: Vector2(worldSize.x * 0.8, obstacleHeight * 5 + (7 * verticalSpacing)),
+    size: Vector2(verticalObstacleWidth, verticalObstacleHeight),
+    color: AppColors.greenPrimary,
+  ));
   
   
   // 중간에 작은 통로를 만드는 벽들
-  final tunnelY = worldSize.y * 0.7; // 통로 y좌표
+  final tunnelY = worldSize.y * 0.63; // 통로 y좌표
   
   // 왼쪽 벽
   game.add(Wall(
-    position: Vector2(worldSize.x * 0.25, tunnelY),
-    size: Vector2(worldSize.x * 0.3, wallThickness * 2),
+    position: Vector2(worldSize.x * 0.15, tunnelY),
+    size: Vector2(worldSize.x * 0.4, wallThickness * 2),
     color: Colors.deepPurple,
+    angle:  math.pi / 20
   ));
   
   // 오른쪽 벽
   game.add(Wall(
-    position: Vector2(worldSize.x * 0.75, tunnelY),
-    size: Vector2(worldSize.x * 0.3, wallThickness * 2),
+    position: Vector2(worldSize.x * 0.85, tunnelY),
+    size: Vector2(worldSize.x * 0.4, wallThickness * 2),
     color: Colors.deepPurple,
+    angle:  -math.pi / 20
   ));
 }}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

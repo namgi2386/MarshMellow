@@ -28,21 +28,7 @@ public class EmitterController {
         return emitterService.verifyEmail(phoneNumber, code, currentTime);
     }
     @PostMapping("/gmail/webhook")
-    public ResponseEntity<String> receivePubSub(@RequestBody Map<String, Object> body) {
-        try {
-            Map<String, Object> message = (Map<String, Object>) body.get("message");
-            String data = (String) message.get("data");
-
-            String decodedJson = new String(Base64.getDecoder().decode(data));
-            System.out.println("📨 받은 Pub/Sub 메시지: " + decodedJson);
-
-            gmailService.fetchLatestEmailFromHistory(decodedJson);
-
-            return ResponseEntity.ok("OK");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Webhook 처리 실패");
-        }
+    public ResponseEntity<String> receivePubSub(@RequestBody Map<String, Object> pubsubBody) {
+        return gmailService.handlePubSubMessage(pubsubBody);
     }
 }

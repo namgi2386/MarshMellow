@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
@@ -165,16 +166,7 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
                         borderRadius: BorderRadius.all(Radius.circular(30))
                     ),)
                   ),
-                  Positioned(
-                    bottom: 222,
-                    child: Column(
-                      children: [
-                        if(accountList.length != 1)
-                        SvgPicture.asset(IconPath.caretcircleup,
-                          colorFilter: ColorFilter.mode(AppColors.background, BlendMode.srcIn),),
-                      ],
-                    ),
-                  ),
+
                   // 스와이핑되는 카드들만 PageView로 처리
                   Positioned.fill(
                     child: PageView.builder(
@@ -292,29 +284,31 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
                   accountName: accountName,
                   accountNo: accountNo,
                   balance: balance,
+                  mainIndex : mainIndex,
+                  length : accountList.length.toString(),
                 ),
               );
             },
           ),
-          Positioned(
-            bottom: 245, // 위치 조정 필요할 수 있음
-            right: 50,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  "${mainIndex + 1}",
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 44, 44, 44), 
-                    fontWeight: FontWeight.w400,
-                    fontSize: 26,
-                  ),
-                ),
-                Text('/', style: AppTextStyles.appBar,),
-                Text(accountList.length.toString(), style: AppTextStyles.appBar,)
-              ],
-            ),
-          ),
+          // Positioned(
+          //   bottom: 245, // 위치 조정 필요할 수 있음
+          //   right: 50,
+          //   child: Row(
+          //     crossAxisAlignment: CrossAxisAlignment.end,
+          //     children: [
+          //       Text(
+          //         "${mainIndex + 1}",
+          //         style: TextStyle(
+          //           color: const Color.fromARGB(255, 44, 44, 44), 
+          //           fontWeight: FontWeight.w400,
+          //           fontSize: 26,
+          //         ),
+          //       ),
+          //       Text('/', style: AppTextStyles.appBar,),
+          //       Text(accountList.length.toString(), style: AppTextStyles.appBar,)
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
@@ -325,6 +319,8 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
     required String bankName,
     required String accountName,
     required String accountNo,
+    required int mainIndex,
+    required String length,
     required dynamic balance,
   }) {
     return Container(
@@ -342,44 +338,92 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // 은행 아이콘
+                    IconButton(
+                      icon: BankIcon(bankName: bankName, size: 40),
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        accountName,
+                        style: AppTextStyles.appBar.copyWith(color: const Color.fromARGB(255, 31, 30, 30))
+                        ,overflow: TextOverflow.clip,
+                      ),
+                    ),
+                    if (widget.walletType == '카드')
+                      Icon(Icons.copy_outlined, size: 16),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    accountNo,
+                    style: AppTextStyles.bodyMediumLight.copyWith(color: const Color.fromARGB(255, 91, 91, 91))
+                  ),
+                ),
+                Spacer(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    '${_formatCurrency(balance)}원',
+                    style: AppTextStyles.moneyBodyLarge.copyWith(color: const Color.fromARGB(255, 25, 25, 25))
+                  
+                    // style: TextStyle(
+                    //   fontSize: 24,
+                    //   fontWeight: FontWeight.bold,
+                    //   color: widget.walletType == '대출' ? Colors.red : Colors.black,
+                    // ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 은행 아이콘
-              IconButton(
-                icon: BankIcon(bankName: bankName, size: 40),
-                onPressed: () {},
-              ),
-              const SizedBox(width: 8),
-              Text(
-                accountName,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              Container(
+                child: Center(
+                  child: Transform.scale(
+                    scale: 5,
+                    child: Lottie.asset(
+                      'assets/images/loading/scrollup.json',
+                      width: 30,
+                      height: 60,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
               ),
-              if (widget.walletType == '카드')
-                Icon(Icons.copy_outlined, size: 16),
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      "${mainIndex + 1}",
+                      style: TextStyle(
+                        color: const Color.fromARGB(255, 44, 44, 44), 
+                        fontWeight: FontWeight.w400,
+                        fontSize: 26,
+                      ),
+                    ),
+                    Text('/', style: AppTextStyles.appBar,),
+                    Text(length, style: AppTextStyles.appBar,)
+                  ],
+                ),
+              ),
             ],
-          ),
-          Text(
-            accountNo,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          Spacer(),
-          Text(
-            '${_formatCurrency(balance)}원',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: widget.walletType == '대출' ? Colors.red : Colors.black,
-            ),
-          ),
+          )
         ],
       ),
     );

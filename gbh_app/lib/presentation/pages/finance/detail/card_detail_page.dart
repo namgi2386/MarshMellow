@@ -105,7 +105,7 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
       padding: const EdgeInsets.all(20),
       // color: Colors.white,
       decoration: BoxDecoration(
-        border: Border.all(width: 2.0 , color: AppColors.divider),
+        border: Border.all(width: 1.0 , color: AppColors.divider),
         borderRadius: BorderRadius.all(Radius.circular(10.0))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,7 +121,7 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
               Text(
                 '신용 | ${_formatCardNumber(widget.cardNo)}', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.divider)
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -150,7 +150,7 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
 
   Widget _buildDateSelector() {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(  
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -297,12 +297,14 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
           children: [
             // 날짜 헤더
             Padding(
-              padding: const EdgeInsets.only(top: 16, bottom: 16),
+              padding: const EdgeInsets.only(top: 16),
               child: Text(
                 _formatTransactionDate(date),
                 style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
               ),
             ),
+            Divider(color: AppColors.disabled,),
+            SizedBox(height: 16,),
             
             // 해당 날짜의 거래 항목들
             ...dateItems.map((item) {
@@ -312,7 +314,7 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
               final isApproved = (item.cardStatus ?? '') == '승인';
               
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 22),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -372,7 +374,7 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
                           '${NumberFormat('#,###').format(int.tryParse(item.transactionBalance ?? '0') ?? 0)}원',
                           style: AppTextStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: isApproved ? AppColors.warnningLight : AppColors.blueDark,
+                            color: isApproved ? AppColors.blueDark : AppColors.warnningLight,
                           ),
                         ),
                         Row(
@@ -389,8 +391,8 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: isApproved 
-                                  ? AppColors.warnningLight.withOpacity(0.1) 
-                                  : AppColors.blueDark.withOpacity(0.1),
+                                  ? AppColors.blueDark.withOpacity(0.1) 
+                                  : AppColors.warnningLight.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -399,7 +401,7 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
                                 // ****************************************
                                 item.cardStatus ?? '상태 없음',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: isApproved ? AppColors.warnningLight : AppColors.blueDark,
+                                  color: isApproved ? AppColors.blueDark : AppColors.warnningLight,
                                 ),
                               ),
                             ),

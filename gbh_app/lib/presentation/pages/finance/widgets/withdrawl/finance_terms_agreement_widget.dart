@@ -50,111 +50,108 @@ class FinanceTermsAgreementWidget extends StatelessWidget {
                   const SizedBox(height: 36),
                   
                   // 오픈뱅킹 약관 필수동의 (펼치기 가능)
-// 오픈뱅킹 약관 필수동의 (펼치기 가능)
-_buildExpandableTermsItem(
-  title: '오픈뱅킹 약관 필수동의',
-  isExpanded: state.isFirstTermExpanded,
-  isChecked: state.isFirstTermAgreed,
-  onCheckChanged: (_) => viewModel.toggleFirstTermAgreement(),
-  onExpandChanged: () => viewModel.toggleFirstTermExpanded(),
-  children: [
-    // 하위 약관들
-    _buildSubTermsItem(
-      title: '오픈뱅킹 서비스 이용약관',
-      isChecked: state.isFirstTermAgreed, // 상위 약관과 동일한 상태 사용
-      onCheckChanged: (_) => viewModel.toggleFirstTermAgreement(),
-      onNavigate: () {
-        context.push(FinanceRoutes.getAgreementPath('A001'));
-      },
-    ),
-    _buildSubTermsItem(
-      title: '고객본인확인',
-      isChecked: state.isFirstTermAgreed, // 상위 약관과 동일한 상태 사용
-      onCheckChanged: (_) => viewModel.toggleFirstTermAgreement(),
-      onNavigate: () {
-        context.push(FinanceRoutes.getAgreementPath('A002'));
-      },
-    ),
-  ],
-),
+                  _buildExpandableTermsItem(
+                    title: '오픈뱅킹 약관 필수동의',
+                    isExpanded: state.isFirstTermExpanded,
+                    isChecked: state.isFirstTermAgreed,
+                    onCheckChanged: (_) => viewModel.toggleFirstTermAgreement(),
+                    onExpandChanged: () => viewModel.toggleFirstTermExpanded(),
+                    children: [
+                      // 하위 약관들
+                      _buildSubTermsItem(
+                        title: '오픈뱅킹 서비스 이용약관',
+                        isChecked: state.isFirstTermAgreed, // 상위 약관과 동일한 상태 사용
+                        onCheckChanged: (_) => viewModel.toggleFirstTermAgreement(),
+                        onNavigate: () {
+                          context.push(FinanceRoutes.getAgreementPath('A001'));
+                        },
+                      ),
+                      _buildSubTermsItem(
+                        title: '고객본인확인',
+                        isChecked: state.isFirstTermAgreed, // 상위 약관과 동일한 상태 사용
+                        onCheckChanged: (_) => viewModel.toggleFirstTermAgreement(),
+                        onNavigate: () {
+                          context.push(FinanceRoutes.getAgreementPath('A002'));
+                        },
+                      ),
+                    ],
+                  ),
                   
                   const SizedBox(height: 12),
                   
                   // 개인(신용)정보 및 금융거래정보 필수동의
-// 개인(신용)정보 및 금융거래정보 필수동의
-_buildExpandableTermsItem(
-  title: '개인(신용)정보 및 금융거래정보 필수동의',
-  isExpanded: state.isSecondTermExpanded,
-  isChecked: state.isSecondTermAgreed,
-  onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
-  onExpandChanged: () => viewModel.toggleSecondTermExpanded(),
-  children: [
-    // 하위 약관들
-    _buildSubTermsItem(
-      title: '오픈뱅킹용 개인(신용)정보 수집.이용',
-      isChecked: state.isSecondTermAgreed,
-      onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
-      onNavigate: () {
-        context.push(FinanceRoutes.getAgreementPath('B001'));
-      },
-    ),
-    _buildSubTermsItem(
-      title: '오픈뱅킹용 개인(신용)정보 제공',
-      isChecked: state.isSecondTermAgreed,
-      onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
-      onNavigate: () {
-        context.push(FinanceRoutes.getAgreementPath('B002'));
-      },
-    ),
-    _buildSubTermsItem(
-      title: '오픈뱅킹용 금융거래정보 제공',
-      isChecked: state.isSecondTermAgreed,
-      onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
-      onNavigate: () {
-        context.push(FinanceRoutes.getAgreementPath('B003'));
-      },
-    ),
-    _buildSubTermsItem(
-      title: '오픈뱅킹용 기기정보 수집.이용',
-      isChecked: state.isSecondTermAgreed,
-      onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
-      onNavigate: () {
-        context.push(FinanceRoutes.getAgreementPath('B004'));
-      },
-    ),
-    _buildSubTermsItem(
-      title: '오픈뱅킹용 기기정보 제공',
-      isChecked: state.isSecondTermAgreed,
-      onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
-      onNavigate: () {
-        context.push(FinanceRoutes.getAgreementPath('B005'));
-      },
-    ),
-  ],
-),
+                  _buildExpandableTermsItem(
+                    title: '개인(신용)정보 및 금융거래정보 필수동의',
+                    isExpanded: state.isSecondTermExpanded,
+                    isChecked: state.isSecondTermAgreed,
+                    onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
+                    onExpandChanged: () => viewModel.toggleSecondTermExpanded(),
+                    children: [
+                      // 하위 약관들
+                      _buildSubTermsItem(
+                        title: '오픈뱅킹용 개인(신용)정보 수집.이용',
+                        isChecked: state.isSecondTermAgreed,
+                        onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
+                        onNavigate: () {
+                          context.push(FinanceRoutes.getAgreementPath('B001'));
+                        },
+                      ),
+                      _buildSubTermsItem(
+                        title: '오픈뱅킹용 개인(신용)정보 제공',
+                        isChecked: state.isSecondTermAgreed,
+                        onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
+                        onNavigate: () {
+                          context.push(FinanceRoutes.getAgreementPath('B002'));
+                        },
+                      ),
+                      _buildSubTermsItem(
+                        title: '오픈뱅킹용 금융거래정보 제공',
+                        isChecked: state.isSecondTermAgreed,
+                        onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
+                        onNavigate: () {
+                          context.push(FinanceRoutes.getAgreementPath('B003'));
+                        },
+                      ),
+                      _buildSubTermsItem(
+                        title: '오픈뱅킹용 기기정보 수집.이용',
+                        isChecked: state.isSecondTermAgreed,
+                        onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
+                        onNavigate: () {
+                          context.push(FinanceRoutes.getAgreementPath('B004'));
+                        },
+                      ),
+                      _buildSubTermsItem(
+                        title: '오픈뱅킹용 기기정보 제공',
+                        isChecked: state.isSecondTermAgreed,
+                        onCheckChanged: (_) => viewModel.toggleSecondTermAgreement(),
+                        onNavigate: () {
+                          context.push(FinanceRoutes.getAgreementPath('B005'));
+                        },
+                      ),
+                    ],
+                  ),
                   
                   const SizedBox(height: 12),
                   
                   // 개인(신용)정보 수집.이용 선택동의
-// 개인(신용)정보 수집.이용 선택동의
-_buildExpandableTermsItem(
-  title: '개인(신용)정보 수집.이용 선택동의',
-  isExpanded: state.isThirdTermExpanded,
-  isChecked: state.isThirdTermAgreed,
-  onCheckChanged: (_) => viewModel.toggleThirdTermAgreement(),
-  onExpandChanged: () => viewModel.toggleThirdTermExpanded(),
-  children: [
-    // 하위 약관
-    _buildSubTermsItem(
-      title: '회원의 신용도 평가',
-      isChecked: state.isThirdTermAgreed,
-      onCheckChanged: (_) => viewModel.toggleThirdTermAgreement(),
-      onNavigate: () {
-        context.push(FinanceRoutes.getAgreementPath('C001'));
-      },
-    ),
-  ],
-),
+                  _buildExpandableTermsItem(
+                    title: '개인(신용)정보 수집.이용 선택동의',
+                    isExpanded: state.isThirdTermExpanded,
+                    isChecked: state.isThirdTermAgreed,
+                    onCheckChanged: (_) => viewModel.toggleThirdTermAgreement(),
+                    onExpandChanged: () => viewModel.toggleThirdTermExpanded(),
+                    children: [
+                      // 하위 약관
+                      _buildSubTermsItem(
+                        title: '회원의 신용도 평가',
+                        isChecked: state.isThirdTermAgreed,
+                        onCheckChanged: (_) => viewModel.toggleThirdTermAgreement(),
+                        onNavigate: () {
+                          context.push(FinanceRoutes.getAgreementPath('C001'));
+                        },
+                      ),
+                    ],
+                  ),
                   
                   SizedBox(height: 20),
                 ],
@@ -230,7 +227,7 @@ _buildExpandableTermsItem(
         SizedBox(width: 10,),
             // 제목
             Expanded(
-              child: Text(title , style: AppTextStyles.bodyMedium),
+              child: Text(title , style: AppTextStyles.bodyMedium.copyWith(fontSize: 14)),
             ),
             // 펼치기/접기 아이콘 버튼
             IconButton(

@@ -156,6 +156,7 @@ class FinanceAnalysisViewModel extends StateNotifier<FinanceAnalysisState> {
     }
     
     return matchedTypes;
+    // return matchedTypes.isEmpty ? [] : [FinanceTypeConstants.getTypeById(6)];
   }
 
   // 랜덤하게 유형 선택 메서드

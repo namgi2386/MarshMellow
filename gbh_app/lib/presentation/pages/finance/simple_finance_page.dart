@@ -127,14 +127,14 @@ class _SimpleFinancePageState extends ConsumerState<SimpleFinancePage> {
 
           const SizedBox(height: 24),
 
-          if (_showAnalyticsWidget)
-            FinanceAnalyticsWidget(
-              onClose: () {
-                setState(() {
-                  _showAnalyticsWidget = false;
-                });
-              },
-            ),
+          // if (_showAnalyticsWidget)
+          //   FinanceAnalyticsWidget(
+          //     onClose: () {
+          //       setState(() {
+          //         _showAnalyticsWidget = false;
+          //       });
+          //     },
+          //   ),
         ],
       ),
     );

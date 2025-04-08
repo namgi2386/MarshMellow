@@ -32,7 +32,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(title, style: AppTextStyles.appBar),
       scrolledUnderElevation: 0, // 스크롤 시 그림자/색상 변화 비활성화
       elevation: 0, // 그림자 효과 제거
-      automaticallyImplyLeading: false, // 자동 뒤로가기 버튼 비활성화
+      automaticallyImplyLeading: true, // 자동 뒤로가기 버튼 비활성화
       actions: [
         // 아이콘을 추가할 거라면 여기에 넣으세요
         ...actions,

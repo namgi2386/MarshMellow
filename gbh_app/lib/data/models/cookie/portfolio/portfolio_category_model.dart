@@ -1,19 +1,19 @@
-class PortfolioCategory {
+class PortfolioCategoryModel {
   final int portfolioCategoryPk;
   final String portfolioCategoryName;
   final String portfolioCategoryMemo;
 
-  PortfolioCategory({
+  PortfolioCategoryModel({
     required this.portfolioCategoryPk,
     required this.portfolioCategoryName,
     required this.portfolioCategoryMemo,
   });
 
-  factory PortfolioCategory.fromJson(Map<String, dynamic> json) {
-    return PortfolioCategory(
+  factory PortfolioCategoryModel.fromJson(Map<String, dynamic> json) {
+    return PortfolioCategoryModel(
       portfolioCategoryPk: json['portfolioCategoryPk'] as int,
       portfolioCategoryName: json['portfolioCategoryName'] as String,
-      portfolioCategoryMemo: json['portfolioCategoryMemo'] as String,
+      portfolioCategoryMemo: json['portfolioCategoryMemo'] as String? ?? '',
     );
   }
 
@@ -26,7 +26,7 @@ class PortfolioCategory {
   }
 }
 
-// 포트폴리오 카테고리 목록 응답 클래스
+// 카테고리 목록 응답을 처리하기 위한 클래스
 class PortfolioCategoryListResponse {
   final int code;
   final String message;
@@ -48,17 +48,17 @@ class PortfolioCategoryListResponse {
 }
 
 class PortfolioCategoryListData {
-  final List<PortfolioCategory> portfolioCategoryList;
+  final List<PortfolioCategoryModel> portfolioCategoryList;
 
   PortfolioCategoryListData({
     required this.portfolioCategoryList,
   });
 
   factory PortfolioCategoryListData.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> categoryJson = json['portfolioCategoryList'] as List;
-    final categories = categoryJson
-        .map((item) => PortfolioCategory.fromJson(item as Map<String, dynamic>))
-        .toList();
-    return PortfolioCategoryListData(portfolioCategoryList: categories);
+    return PortfolioCategoryListData(
+      portfolioCategoryList: (json['portfolioCategoryList'] as List)
+          .map((item) => PortfolioCategoryModel.fromJson(item))
+          .toList(),
+    );
   }
 }

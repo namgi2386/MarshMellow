@@ -4,6 +4,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_category_model.dart';
 import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_category_viewmodel.dart';
 
 class PortfolioCategoryPicker extends ConsumerWidget {
   final String selectedCategory;
@@ -20,8 +21,8 @@ class PortfolioCategoryPicker extends ConsumerWidget {
     // 디버깅 로그 추가
     print('PortfolioCategoryPicker 빌드: 선택된 카테고리 = "$selectedCategory"');
 
-    final portfolioState = ref.watch(portfolioViewModelProvider);
-    final categories = portfolioState.categories;
+    final categoryState = ref.watch(portfolioCategoryViewModelProvider);
+    final categories = categoryState.categories;
 
     // 카테고리 목록 디버깅
     print('카테고리 개수: ${categories.length}');
@@ -46,7 +47,7 @@ class PortfolioCategoryPicker extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // 카테고리 목록 또는 로딩 표시기
-          portfolioState.isLoading
+          categoryState.isLoading
               ? const Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Center(child: CircularProgressIndicator()),
@@ -84,7 +85,7 @@ class PortfolioCategoryPicker extends ConsumerWidget {
 
   // 카테고리 목록 위젯
   Widget _buildCategoryList(
-      BuildContext context, List<PortfolioCategory> categories) {
+      BuildContext context, List<PortfolioCategoryModel> categories) {
     final filteredCategories = categories
         .where((category) => category.portfolioCategoryName != '미분류')
         .toList();

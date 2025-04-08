@@ -9,6 +9,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:marshmellow/core/utils/back_gesture/controller.dart';
 import 'package:marshmellow/core/services/transaction_classifier_service.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 
 // 환경설정 import
 import 'core/config/environment_loader.dart';
@@ -50,15 +51,18 @@ class HiveService {
 Future<void> main() async {
   // 초기화 단계
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // Flutter Downloader 초기화
+  await FlutterDownloader.initialize(
+    debug: true, // 디버그 모드 (로그 출력)
+    ignoreSsl: true, // SSL 검증 무시
+  );
 
   // Firebase 초기화
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await initLocalNotification(); // 로컬 알림 초기화
   setupFCM(); // FCM 설정 함수 호출
- 
-
 
   // 환경 설정 및 서비스 초기화
   await Future.wait([EnvironmentLoader.load(), HiveService.init()]);
@@ -142,7 +146,8 @@ Future<void> _performTransactionSync() async {
 /// ✅ FCM 설정 함수
 final _firebaseMessaging = FirebaseMessaging.instance;
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 /// 📱 알림 채널 설정 (Android)
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -187,7 +192,6 @@ void _showLocalNotification(RemoteMessage message) {
 
 // FCM
 void setupFCM() async {
-
   // 알림 권한 요청 (iOS & Android 13+)
   NotificationSettings settings = await _firebaseMessaging.requestPermission(
     alert: true,
@@ -205,8 +209,6 @@ void setupFCM() async {
   String? token = await _firebaseMessaging.getToken();
   if (kDebugMode) print("📱 FCM Token: $token");
 
-
-  
   // 토큰 새로 갱신될 때
   FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
     if (kDebugMode) print('🔄 토큰 갱신됨: $newToken');
@@ -216,7 +218,6 @@ void setupFCM() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     print('📩 Foreground message: ${message.notification?.title}');
     _showLocalNotification(message);
-    
   });
 
   // 백그라운드에서 앱을 열었을 때
@@ -224,7 +225,6 @@ void setupFCM() async {
     print('🔔 Background opened message: ${message.notification?.title}');
     // _showLocalNotification(message);
     // 원하는 페이지로 이동하는 코드 추가 // 예: Navigator.pushNamed(context, '/notificationPage');
-
   });
 }
 
@@ -240,7 +240,7 @@ Future<void> initLocalNotification() async {
   await flutterLocalNotificationsPlugin.initialize(initSettings);
 
   await flutterLocalNotificationsPlugin
-  .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-  ?.createNotificationChannel(channel);
-
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
 }

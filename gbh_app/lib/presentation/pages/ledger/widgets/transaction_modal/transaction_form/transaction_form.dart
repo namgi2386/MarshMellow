@@ -38,7 +38,7 @@ class TransactionForm extends ConsumerStatefulWidget {
 
 class _TransactionFormState extends ConsumerState<TransactionForm> {
   String _selectedType = '지출'; // 기본값을 지출로 설정
-  String _amount = '0'; // 금액 상태 추가
+  String _amount = ''; // 금액 상태 빈 문자열로 변경
   bool _isSaving = false; // 저장 중 상태
 
   // 폼 레퍼런스 관리
@@ -111,8 +111,8 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
 
   // 가계부 내역 저장 메서드
   Future<void> _saveTransaction() async {
-    // 금액이 0이면 저장하지 않음
-    if (_amount == '0' || _amount.isEmpty) {
+    // 금액이 0이거나 비어있으면 저장하지 않음
+    if (_amount.isEmpty || _amount == '0') {
       CompletionMessage.show(context, message: '금액 입력');
       return;
     }

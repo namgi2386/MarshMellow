@@ -181,7 +181,7 @@ class _DemandDetailPageState extends ConsumerState<DemandDetailPage> {
                 width: 60,
                 height: 40,
                 onPressed: () {
-                  TransferService.handleTransfer(context, ref, widget.accountNo);
+                  TransferService.handleTransfer(context, ref, widget.accountNo, widget.bankName);
                 },
               ),
             ],

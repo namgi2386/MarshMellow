@@ -31,8 +31,9 @@ class LunchPage extends ConsumerWidget {
           children: [
             // 상단 타이틀
             const Text(
-              'Jump Mea Choo',
+              '[ 여기에 Text 입력 ]',
               style: TextStyle(
+                color: AppColors.disabled,
                 fontSize: 24,
                 fontWeight: FontWeight.w400,
               ),

@@ -166,7 +166,7 @@ class AccountItemWidget extends ConsumerWidget {
                         return;
                       }
                       // 송금 버튼 핸들러 호출
-                      TransferService.handleTransfer(context, ref, accountNo);
+                      TransferService.handleTransfer(context, ref, accountNo, bankName);
                     },
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 상세페이지 테스트중 >>>>>>>>>>>>>>>>>>>>>>>>>>
                     child: Container(

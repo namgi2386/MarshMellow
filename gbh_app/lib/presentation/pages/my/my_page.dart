@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/config/app_config.dart';
@@ -354,21 +355,43 @@ Widget _buildEditField({
                             ),
                             // 편집 모드가 아닐 때만 편집 버튼 표시
                             if (!_isEditingSalary)
-                            GestureDetector(
-                              onTap: () => _startEditingSalary(
-                                userInfoState.userDetail.salaryAmount,
-                                userInfoState.userDetail.salaryDate,
-                                userInfoState.userDetail.salaryAccount,
-                              ),
-                              child: Container(
-                                padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
-                                // decoration: BoxDecoration(
-                                //   color: AppColors.backgroundBlack,
-                                //   borderRadius: BorderRadius.circular(5.0),
-                                // ),
-                                child: SvgPicture.asset(IconPath.pencilSimple, color: AppColors.backgroundBlack,)
-                              ),
-                            ) else
+                            Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    Clipboard.setData(ClipboardData(text: userInfoState.userDetail.salaryAccount ?? '정보 없음'));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('계좌번호가 복사되었습니다')),
+                                    );
+                                  },
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: SvgPicture.asset(
+                                      'assets/icons/body/CopySimple.svg',
+                                      height: 20,
+                                      color: AppColors.blackLight,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10,),
+                                GestureDetector(
+                                  onTap: () => _startEditingSalary(
+                                    userInfoState.userDetail.salaryAmount,
+                                    userInfoState.userDetail.salaryDate,
+                                    userInfoState.userDetail.salaryAccount,
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
+                                    // decoration: BoxDecoration(
+                                    //   color: AppColors.backgroundBlack,
+                                    //   borderRadius: BorderRadius.circular(5.0),
+                                    // ),
+                                    child: SvgPicture.asset(IconPath.pencilSimple, color: AppColors.backgroundBlack,)
+                                  ),
+                                ) 
+                              ],
+                            )else
                             Row(
                               children: [
                                 SizedBox(width: 12),

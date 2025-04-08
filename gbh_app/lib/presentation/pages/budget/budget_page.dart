@@ -70,12 +70,28 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
 
     if (state.budgets.isEmpty) {
       return Scaffold(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         appBar: CustomAppbar(
         title: '예산',
         ),
-        body: const Center(
-          child: Text('등록된 예산이 없습니다.'),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/characters/char_angry_notebook.png', // 실제 이미지 경로로 변경
+                width: 180,
+                height: 180,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '앗! 예산 데이터를 불러올 수 없어요',
+                style: AppTextStyles.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       );
     }
@@ -85,6 +101,47 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
       return const Scaffold(
         body: Center(
           child: Text('선택된 예산이 없습니다')
+        ),
+      );
+    }
+
+    if (state.errorMessage != null) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: CustomAppbar(
+          title: '예산',
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/characters/char_angry_notebook.png', // 실제 이미지 경로로 변경
+                width: 180,
+                height: 180,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '앗! 예산 데이터를 불러올 수 없어요',
+                style: AppTextStyles.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(budgetProvider.notifier).fetchBudgets();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.bluePrimary,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                child: const Text(
+                  '다시 시도하기',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }

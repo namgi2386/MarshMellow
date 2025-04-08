@@ -12,8 +12,27 @@ class BudgetApi {
       final response = await _apiClient.get('/mm/budget');
 
       if (response.statusCode == 200) {
+
+        // 데이터 null 체크 및 안전한 접근
+        final responseData = response.data;
+        if (responseData == null) {
+          print('예산 api 응답 데이터가 null 입니다.');
+          return [];
+        }
+
         final data = response.data['data'];
+
+        if (data == null) {
+          print('예산 api 응답의 data 필드가 null 입니다');
+          return [];
+        }
+
         final budgetList = data['budgetList'] as List;
+
+        if (budgetList == null) {
+          print('data의 budgetList 필드가 null 입니다.');
+          return [];
+        }
         return budgetList.map((budget) => BudgetModel.fromJson(budget)).toList();
       } else {
         throw Exception('Failed to load budgets: ${response.statusCode}');

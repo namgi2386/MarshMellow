@@ -29,6 +29,7 @@ class LedgerSearchPage extends ConsumerStatefulWidget {
 class _LedgerSearchPageState extends ConsumerState<LedgerSearchPage> {
   final TextEditingController _searchController = TextEditingController();
   List<String> _recentSearches = [];
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -39,6 +40,9 @@ class _LedgerSearchPageState extends ConsumerState<LedgerSearchPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(searchViewModelProvider.notifier).clearSearch();
       _searchController.clear();
+
+      // 자동으로 검색 입력 필드에 포커스 설정하여 키보드가 나타나도록 함
+      FocusScope.of(context).requestFocus(_searchFocusNode);
     });
   }
 
@@ -47,6 +51,7 @@ class _LedgerSearchPageState extends ConsumerState<LedgerSearchPage> {
     // 페이지를 떠날 때 검색 결과 초기화
     ref.read(searchViewModelProvider.notifier).clearSearch();
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -85,18 +90,9 @@ class _LedgerSearchPageState extends ConsumerState<LedgerSearchPage> {
     // 검색어 히스토리에 추가
     _addSearchTerm(term);
 
-    // 현재 날짜 범위 가져오기
-    final datePickerState = ref.read(datePickerProvider);
-    String startDate = '20250101'; // 기본값
-    String endDate = '20251231'; // 기본값
-
-    if (datePickerState.selectedRange != null &&
-        datePickerState.selectedRange!.startDate != null) {
-      final formatter = DateFormat('yyyyMMdd');
-      startDate = formatter.format(datePickerState.selectedRange!.startDate!);
-      endDate = formatter
-          .format(datePickerState.selectedRange!.endDate ?? DateTime.now());
-    }
+    // 시작일은 충분히 과거, 종료일은 오늘 날짜로 설정
+    String startDate = '20000101'; // 2000년 1월 1일부터
+    String endDate = DateFormat('yyyyMMdd').format(DateTime.now()); // 오늘까지
 
     // 검색 실행
     ref.read(searchViewModelProvider.notifier).search(
@@ -138,6 +134,7 @@ class _LedgerSearchPageState extends ConsumerState<LedgerSearchPage> {
             Center(
               child: CustomSearchBar(
                 controller: _searchController,
+                focusNode: _searchFocusNode,
                 onChanged: (value) {},
                 onSearchPressed: () => _performSearch(_searchController.text),
                 onSubmitted: (value) => _performSearch(value),

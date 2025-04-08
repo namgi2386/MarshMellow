@@ -20,7 +20,6 @@ class AuthCheckPage extends ConsumerStatefulWidget {
 }
 
 class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
-
   @override
   void initState() {
     super.initState();
@@ -33,8 +32,9 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
     // 개발용 자동 로그인 코드 (출시 전 제거)
     // TODO: 출시 전 이 부분 삭제
     final secureStorage = ref.read(secureStorageProvider);
-    await secureStorage.write(key: StorageKeys.phoneNumber, value: '01012345678'); 
-    await secureStorage.write(key: StorageKeys.userName, value: '윤잰큰'); 
+    await secureStorage.write(
+        key: StorageKeys.phoneNumber, value: '01012345678');
+    await secureStorage.write(key: StorageKeys.userName, value: '윤잰큰');
     // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
     await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDA0ODU3OSwiZXhwIjoxNzQ0MDY2NTc5fQ.mwAS6XqeyPGagdQB4PnG6i_josJ3_qZOYzYblOh1vuyxBaV1GuMSHCgVsxw8bk1qTVrqph0Zy1PqU0T3Mt-0ig'); 
     await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0MDQ4NTc5LCJleHAiOjE3Njk5Njg1Nzl9.ZlT3PR2b6EJn1w6T-SUbKRiR1_BkbIVJ70YcmQ0a9wTft7J1uq77TZzZsi5jhuu_G1k9hGltWR9nWEWi-ZBLRA'); 
@@ -45,7 +45,8 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
     // final secureStorage = ref.read(secureStorageProvider);
     final phoneNumber = await secureStorage.read(key: StorageKeys.phoneNumber);
     final accessToken = await secureStorage.read(key: StorageKeys.accessToken);
-    final refreshToken = await secureStorage.read(key: StorageKeys.refreshToken);
+    final refreshToken =
+        await secureStorage.read(key: StorageKeys.refreshToken);
 
     print('디버그 - 저장된 정보:');
     print('phoneNumber: $phoneNumber');
@@ -62,9 +63,12 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
         final userNotifier = ref.read(userStateProvider.notifier);
 
         // 기존 정보 가져와서 함께 설정
-        final userName = await secureStorage.read(key: StorageKeys.userName) ?? '';
-        final userCode = await secureStorage.read(key: StorageKeys.userCode) ?? '';
-        final carrier = await secureStorage.read(key: StorageKeys.carrier) ?? '';
+        final userName =
+            await secureStorage.read(key: StorageKeys.userName) ?? '';
+        final userCode =
+            await secureStorage.read(key: StorageKeys.userCode) ?? '';
+        final carrier =
+            await secureStorage.read(key: StorageKeys.carrier) ?? '';
 
         print('사용자 정보 설정:');
         print('userName: $userName');
@@ -72,11 +76,10 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
         print('carrier: $carrier');
 
         await userNotifier.setVerificationData(
-          userName: userName, 
-          phoneNumber: phoneNumber, 
-          userCode: userCode, 
-          carrier: carrier
-        );
+            userName: userName,
+            phoneNumber: phoneNumber,
+            userCode: userCode,
+            carrier: carrier);
 
         print('사용자 정보 설정 완료');
 
@@ -90,20 +93,21 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
         final userNotifier = ref.read(userStateProvider.notifier);
 
         // 기존 정보 가져와서 함께 설정
-        final userName = await secureStorage.read(key: StorageKeys.userName) ?? '';
-        final userCode = await secureStorage.read(key: StorageKeys.userCode) ?? '';
-        final carrier = await secureStorage.read(key: StorageKeys.carrier) ?? '';
+        final userName =
+            await secureStorage.read(key: StorageKeys.userName) ?? '';
+        final userCode =
+            await secureStorage.read(key: StorageKeys.userCode) ?? '';
+        final carrier =
+            await secureStorage.read(key: StorageKeys.carrier) ?? '';
 
         await userNotifier.setVerificationData(
-          userName: userName, 
-          phoneNumber: phoneNumber, 
-          userCode: userCode, 
-          carrier: carrier
-        );
+            userName: userName,
+            phoneNumber: phoneNumber,
+            userCode: userCode,
+            carrier: carrier);
 
         print('PIN 번호 생성 페이지로 이동: ${SignupRoutes.getPinSetupPath()}');
         context.go(SignupRoutes.getPinSetupPath());
-
       } else {
         print('케이스 3: 정보 없음');
         // 아무 정보도 없으면 회원가입 페이지로 이동
@@ -122,30 +126,30 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
       print('토큰 재발급 시도');
 
       // 개발용 자동 로그인 코드 (출시 전 제거)
-      // final isValid = await authRepository.reissueToken();
-      final isValid = true;
+      final isValid = await authRepository.reissueToken();
+      // final isValid = true;
       print('토큰 재발급 결과: $isValid');
 
       if (mounted) {
         if (isValid) {
           // 토큰이 유효하면 인증서와 userkey 확인
-          final certificatePem = await secureStorage.read(key: StorageKeys.certificatePem);
+          final certificatePem =
+              await secureStorage.read(key: StorageKeys.certificatePem);
           final userkey = await secureStorage.read(key: StorageKeys.userkey);
 
-        print('🪪🪪인증서 확인: ${certificatePem != null ? '있음' : '없음'}');
-        print('🪪🪪유저키 확인: ${userkey != null ? '있음' : '없음'}');
+          print('🪪🪪인증서 확인: ${certificatePem != null ? '있음' : '없음'}');
+          print('🪪🪪유저키 확인: ${userkey != null ? '있음' : '없음'}');
 
-        if (certificatePem != null && userkey != null) {
-          print('인증서와 유저키 모두 있음: budget 페이지로 이동');
-          context.go('/budget');
-        } else {
-          // 토큰 유효하고
-          // 인증서나 유저키가 없으면 인증서 만들러 가기
-          // : splash page 에서 한 번 더 조건 필터링 합니다
-          print('토큰 유효: 인증서 만들러 가기');
-          context.go(SignupRoutes.getMyDataSplashPath());
-        }
-
+          if (certificatePem != null && userkey != null) {
+            print('인증서와 유저키 모두 있음: budget 페이지로 이동');
+            context.go('/budget');
+          } else {
+            // 토큰 유효하고
+            // 인증서나 유저키가 없으면 인증서 만들러 가기
+            // : splash page 에서 한 번 더 조건 필터링 합니다
+            print('토큰 유효: 인증서 만들러 가기');
+            context.go(SignupRoutes.getMyDataSplashPath());
+          }
         } else {
           // 유효하지 않으면 로그인 페이지로 이동
           print('토큰 유효하지 않음: PIN 로그인 페이지로 이동');
@@ -166,8 +170,9 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
   Widget build(BuildContext context) {
     print('===== AuthCheckPage build 메서드 실행 =====');
     return Scaffold(
-      body: CustomLoadingIndicator(text: '안녕하세요?', backgroundColor: AppColors.whiteLight,)
-
-    );
+        body: CustomLoadingIndicator(
+      text: '안녕하세요?',
+      backgroundColor: AppColors.whiteLight,
+    ));
   }
 }

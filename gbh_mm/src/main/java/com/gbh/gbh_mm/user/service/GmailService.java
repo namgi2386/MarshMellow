@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -100,11 +101,18 @@ public class GmailService {
             log.error("❌ Gmail watch 재등록 실패", e);
         }
     }
-    public void fetchLatestEmailFromHistory(String json) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> map = objectMapper.readValue(json, Map.class);
 
+    public ResponseEntity<String> handlePubSubMessage(Map<String, Object> pubsubBody) {
+        try {
+            // Pub/Sub 메시지 디코딩
+            Map<String, Object> message = (Map<String, Object>) pubsubBody.get("message");
+            String data = (String) message.get("data");
+            String decodedJson = new String(Base64.getDecoder().decode(data));
+            log.info("📨 받은 Pub/Sub 메시지: {}", decodedJson);
+
+            // JSON 파싱 및 historyId 추출
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> map = objectMapper.readValue(decodedJson, Map.class);
             String historyIdStr = String.valueOf(map.get("historyId"));
 
             // 📌 1. Redis에서 마지막 처리한 historyId 가져오기
@@ -122,7 +130,7 @@ public class GmailService {
 
             if (response.getHistory() == null || response.getHistory().isEmpty()) {
                 log.warn("📭 Gmail 히스토리에 새로운 메시지 없음. startHistoryId={}", startHistoryId);
-                return;
+                return ResponseEntity.ok("OK - 새 메시지 없음");
             }
 
             for (History h : response.getHistory()) {
@@ -135,17 +143,17 @@ public class GmailService {
                         String phoneNumber = extractPhoneNumber(from);
 
                         String subject = getHeader(msg, "Subject");
-                        String body = extractPlainText(msg);
-                        log.info("💌 새 메일 수신: phone={} subject={} body={}", phoneNumber, subject, body);
+                        String emailBody = extractPlainText(msg);
+                        log.info("💌 새 메일 수신: phone={} subject={} body={}", phoneNumber, subject, emailBody);
                         Object raw = redisTemplate.opsForValue().get(phoneNumber);
                         IdentityVerificationResponseDto redisData = objectMapper.convertValue(raw, IdentityVerificationResponseDto.class);
 
                         if (Objects.nonNull(redisData) && !redisData.isVerified()) {
-                            if (body.contains(redisData.getCode())) {
+                            if (emailBody.contains(redisData.getCode())) {
                                 emitterService.verifyEmail(phoneNumber, redisData.getCode(), 0);
                                 log.info("✅ 인증 성공 및 SSE 전송 완료: {}", phoneNumber);
                             } else {
-                                log.warn("❌ 인증 실패: 코드 불일치. 입력={}, 저장={}", body, redisData.getCode());
+                                log.warn("❌ 인증 실패: 코드 불일치. 입력={}, 저장={}", emailBody, redisData.getCode());
                             }
                         } else {
                             log.warn("❌ 인증 정보 없음 or 이미 인증됨: {}", phoneNumber);
@@ -153,15 +161,29 @@ public class GmailService {
                     }
                 }
             }
+
             // 📌 3. 마지막 historyId 저장 (마지막에!)
             if (response.getHistoryId() != null) {
-                redisTemplate.opsForValue().set("gmail:lastHistoryId", response.getHistoryId().toString());
-                log.info("📦 마지막 historyId 저장 완료: {}", response.getHistoryId());
+                BigInteger newHistoryId = response.getHistoryId();
+                BigInteger previousId = savedHistoryId != null
+                        ? new BigInteger(savedHistoryId)
+                        : BigInteger.ZERO;
+
+                if (newHistoryId.compareTo(previousId) > 0) {
+                    redisTemplate.opsForValue().set("gmail:lastHistoryId", newHistoryId.toString());
+                    log.info("📦 마지막 historyId 갱신 완료: {}", newHistoryId);
+                } else {
+                    log.info("⚠️ 기존 historyId({})보다 작거나 같아서 갱신하지 않음", previousId);
+                }
             }
+
+            return ResponseEntity.ok("OK");
         } catch (Exception e) {
-            log.error("❌ 메일 조회 중 예외 발생", e);
+            log.error("❌ Webhook 처리 실패", e);
+            return ResponseEntity.status(500).body("Webhook 처리 실패");
         }
     }
+
     private String getHeader(Message message, String name) {
         return message.getPayload().getHeaders().stream()
                 .filter(h -> h.getName().equalsIgnoreCase(name))
@@ -169,11 +191,13 @@ public class GmailService {
                 .findFirst()
                 .orElse("(no header)");
     }
+
     private String extractPhoneNumber(String fromHeader) {
         // 이메일 주소 앞의 숫자만 추출 (정규식으로 010으로 시작하는 번호 찾기)
         if (fromHeader == null) return "";
         return fromHeader.replaceAll(".*?(\\d{11}).*", "$1");  // ex: "01012345678" 추출
     }
+
     private String extractPlainText(Message message) {
         try {
             MessagePart payload = message.getPayload();

@@ -35,10 +35,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -789,5 +786,38 @@ public class HouseholdServiceImpl implements HouseholdService {
                 .build();
 
         return response;
+    }
+
+    @Override
+    public Map<String, Long> findMonthlyWithdrawalMap(Long userPk, int salaryDate) {
+        Map<String, Long> monthlySpendingMap = new LinkedHashMap<>();
+        DateTimeFormatter yyyyMM = DateTimeFormatter.ofPattern("yyyyMM");
+        DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        LocalDate now = LocalDate.now();
+
+        for (int i = 11; i >= 0; i--) {
+            LocalDate base = now.minusMonths(i).withDayOfMonth(1);
+            int safeSalaryDate = Math.min(salaryDate, base.lengthOfMonth());
+
+            LocalDate start = base.withDayOfMonth(safeSalaryDate);
+            LocalDate end = start.plusMonths(1).minusDays(1);
+
+            String startStr = start.format(yyyyMMdd);
+            String endStr = end.format(yyyyMMdd);
+            String key = start.format(yyyyMM);
+
+            List<Household> list = householdRepository
+                    .findAllByTradeDateBetweenAndUser_UserPkOrderByTradeDateAsc(startStr, endStr, userPk);
+
+            long total = list.stream()
+                    .filter(h -> h.getHouseholdClassificationCategory() == HouseholdClassificationEnum.WITHDRAWAL)
+                    .mapToLong(Household::getHouseholdAmount)
+                    .sum();
+
+            monthlySpendingMap.put(key, total);
+        }
+
+        return monthlySpendingMap;
     }
 }

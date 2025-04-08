@@ -20,7 +20,7 @@ final List<LunchMenu> allLunchMenus = [
   ),
   const LunchMenu(
     id: 'japanese',
-    name: '초밥밥',
+    name: '초밥',
     imagePath: 'assets/images/food/japanese.png',
   ),
   const LunchMenu(

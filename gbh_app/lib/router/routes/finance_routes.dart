@@ -13,6 +13,7 @@ import 'package:marshmellow/presentation/pages/finance/finance_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_test_page.dart';
 import 'package:marshmellow/presentation/pages/finance/finance_transfer_page.dart';
 import 'package:marshmellow/presentation/pages/finance/simple_finance_page.dart';
+import 'package:marshmellow/presentation/pages/finance/transfer_complete_page.dart';
 import 'package:marshmellow/presentation/pages/finance/transfer_page.dart';
 import 'package:marshmellow/presentation/pages/finance/withdrawal_account_registration_page.dart';
 import 'package:marshmellow/presentation/pages/testpage/keyboard_test_page.dart';
@@ -32,6 +33,7 @@ class FinanceRoutes {
   static const String withdrawalAccountRegistration = 'account/withdrawal-registration/:accountNo'; // 출금계좌 등록
   static const String auth = 'auth'; // 송금전 인증페이지
   static const String agreement = 'agreement/:agreementNo'; // 약관동의 상세
+  static const String transferComplete = 'transfer-complete'; // 송금완료 페이지
   
   
   // 전체 경로 생성 헬퍼 메서드
@@ -48,6 +50,7 @@ class FinanceRoutes {
   static String getWithdrawalAccountRegistrationPath(String accountNo) => '$root/account/withdrawal-registration/$accountNo'; // 출금계좌 등록
   static String getAuthPath() => '$root/$auth'; // 송금전 인증페이지 
   static String getAgreementPath(String agreementNo) => '$root/agreement/$agreementNo'; // 약관동의 상세
+  static String getTransferCompletePath() => '$root/$transferComplete'; // 송금완료 페이지 경로
 }
 
 List<RouteBase> financeRoutes = [
@@ -69,19 +72,21 @@ List<RouteBase> financeRoutes = [
         builder: (context, state) => const SimpleFinancePage(),
       ),
       // 송금 페이지 라우트 수정
-      GoRoute(
-        path: FinanceRoutes.transfer,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final accountNo = extra?['accountNo'] as String? ?? '';
-          final withdrawalAccountId = extra?['withdrawalAccountId'] as int? ?? 0;
-          
-          return TransferPage(
-            accountNo: accountNo,
-            withdrawalAccountId: withdrawalAccountId,
-          );
-        },
-      ),
+GoRoute(
+  path: FinanceRoutes.transfer,
+  builder: (context, state) {
+    final extra = state.extra as Map<String, dynamic>?;
+    final accountNo = extra?['accountNo'] as String? ?? '';
+    final withdrawalAccountId = extra?['withdrawalAccountId'] as int? ?? 0;
+    final bankName = extra?['bankName'] as String? ?? '';  // 추가
+    
+    return TransferPage(
+      accountNo: accountNo,
+      withdrawalAccountId: withdrawalAccountId,
+      bankName: bankName,  // 이 부분이 추가되어야 함
+    );
+  },
+),
       // GoRoute(
       //   path: FinanceRoutes.transfer,
       //   builder: (context, state) => const FinanceTransferPage(), //////// 송금 테스트 페이지 였던것
@@ -197,6 +202,22 @@ List<RouteBase> financeRoutes = [
             agreementNo : agreementNo,
           );
         }
+      ),
+      GoRoute(
+        path: FinanceRoutes.transferComplete,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final withdrawalAccountNo = extra?['withdrawalAccountNo'] as String? ?? '';
+          final depositAccountNo = extra?['depositAccountNo'] as String? ?? '';
+          final amount = extra?['amount'] as int? ?? 0;
+          
+          
+          return TransferCompletePage(
+            withdrawalAccountNo: withdrawalAccountNo,
+            depositAccountNo: depositAccountNo,
+            amount: amount,
+          );
+        },
       ),
     ],
   ),

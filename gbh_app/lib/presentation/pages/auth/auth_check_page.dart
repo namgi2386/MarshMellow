@@ -28,7 +28,8 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
   }
 
   // 인증 상태 확인
-  Future<void> _checkAuthStatus() async {
+  Future<void> _checkAuthStatus() async {;
+  
     // 개발용 자동 로그인 코드 (출시 전 제거)
     // TODO: 출시 전 이 부분 삭제
     final secureStorage = ref.read(secureStorageProvider);

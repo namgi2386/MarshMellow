@@ -160,13 +160,33 @@ class FinanceAnalysisViewModel extends StateNotifier<FinanceAnalysisState> {
   }
 
   // 랜덤하게 유형 선택 메서드
-  FinanceTypeModel _selectRandomType(List<FinanceTypeModel> types) {
-    if (types.isEmpty) {
-      throw Exception("매칭된 유형이 없습니다.");
-    }
-    // 무작위로 유형 하나 선택
-    return types[_random.nextInt(types.length)];
+  // FinanceTypeModel _selectRandomType(List<FinanceTypeModel> types) {
+  //   if (types.isEmpty) {
+  //     throw Exception("매칭된 유형이 없습니다.");
+  //   }
+  //   // 무작위로 유형 하나 선택
+  //   return types[_random.nextInt(types.length)];
+  // }
+FinanceTypeModel _selectRandomType(List<FinanceTypeModel> types) {
+  if (types.isEmpty) {
+    throw Exception("매칭된 유형이 없습니다.");
   }
+  
+  // 우선순위 순서 정의
+  List<int> priorityOrder = [5, 4, 6, 3, 1, 2];
+  
+  // 우선순위 순서대로 타입 찾기
+  for (int priority in priorityOrder) {
+    for (var type in types) {
+      if (type.id == priority) { // 여기서 id는 FinanceTypeModel의 식별자라고 가정합니다
+        return type;
+      }
+    }
+  }
+  
+  // 우선순위에 해당하는 타입이 없으면 첫 번째 타입 반환
+  return types[0];
+}
 
   // 분석 초기화 메서드
   void resetAnalysis() {

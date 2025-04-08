@@ -91,7 +91,7 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
               height: 70,
               alignment: Alignment.center,
               child: Text(
-                'Jump Mea Choo', 
+                '[ 여기에 Text 입력 ]', 
                 style: AppTextStyles.mainMoneyTitle.copyWith(color: AppColors.background),
               ),
             ),

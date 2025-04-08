@@ -164,7 +164,8 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                             now.isBefore(endDate.subtract(const Duration(days: 1)));
 
     final startMonth = startDate.month;
-    final appTitle = '$startMonth월 예산';
+    final appTitle = '$startMonth원 교통 자동차';
+    // final appTitle = '$startMonth월 예산';
 
     return Scaffold(
       appBar: CustomAppbar(

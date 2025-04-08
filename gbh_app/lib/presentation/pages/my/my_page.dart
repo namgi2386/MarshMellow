@@ -7,6 +7,7 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_select_content.dart';
+import 'package:marshmellow/presentation/viewmodels/encryption/encryption_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_secure_info_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
@@ -510,16 +511,22 @@ Widget _buildEditField({
                         _buildInfoButton(
                           label: '인증서',
                           value: '내 금융인증서 관리',
-                          onPressed: () => showCertificateModal(
-                            context: context, 
-                            ref: ref, 
-                            userName: userSecureInfoState.userName ?? '사용자', 
-                            title: '금융인증서 관리',
-                            expiryDate: '2028.03.14.', 
-                            onConfirm: () {
-                              // 인증서 확인 후 처리할 로직
-                            }
-                          ),
+                          onPressed: () {
+                            // 먼저 AES 키를 가져옴
+                            ref.read(aesKeyNotifierProvider.notifier).fetchAesKey();
+                            
+                            // 그 다음 인증서 모달 표시
+                            showCertificateModal(
+                              context: context, 
+                              ref: ref, 
+                              userName: userSecureInfoState.userName ?? '사용자', 
+                              title: '금융인증서 관리',
+                              expiryDate: '2028.03.14.', 
+                              onConfirm: () {
+                                // 인증서 확인 후 처리할 로직
+                              }
+                            );
+                          },
                           showIcon: true,
                           isHighlighted: true,
                         ),

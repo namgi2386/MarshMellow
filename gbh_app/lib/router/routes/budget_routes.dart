@@ -23,6 +23,7 @@ class BudgetRoutes {
   static const String budgetcategoryexpense = 'category/expenses/:categoryPk';
   static const String budgetevent = 'event';
   static const String budgetcreate = 'create';
+  static const String budgetcelebrate = 'celebrate';
 
   // 위시 관련 경로 정의
   static const String wishlistcreate = 'wishlist/create';
@@ -36,6 +37,7 @@ class BudgetRoutes {
   static String getBudgetCategoryExpensePath() => '$root/$budgetcategoryexpense';
   static String getBudgetEventPath() => '$root/$budgetevent';
   static String getBudgetCreatePath() => '$root/$budgetcreate';
+  static String getBudgetCelebratePath() => '$root/$budgetcelebrate';
 
   // 위시 경로 생성 헬퍼 메서드
   static String getWishlistCreatePath() => '$root/$wishlistcreate';
@@ -127,6 +129,14 @@ List<RouteBase> budgetRoutes = [
       //     return BudgetCreationPage();
       //   },
       // ),
+
+      // 예산 월급날 축하 페이지
+      GoRoute(
+        path: BudgetRoutes.budgetcelebrate,
+        builder: (context, state) {
+          return SalaryCelebratePage();
+        },
+      ),
 
     ],
   ),

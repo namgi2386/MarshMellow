@@ -56,7 +56,7 @@ class DepositDetailPage extends ConsumerWidget {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(width: 2.0, color: AppColors.divider),
+        border: Border.all(width: 1.0, color: AppColors.divider),
         borderRadius: BorderRadius.circular(10.0)
       ),
       child: Column(
@@ -134,7 +134,7 @@ class DepositDetailPage extends ConsumerWidget {
         children: [
           Text(
             '예금 상세 정보',
-            style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+            style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w400),
           ),
           const SizedBox(height: 16),
           _buildInfoCard('예금 정보', [
@@ -147,7 +147,7 @@ class DepositDetailPage extends ConsumerWidget {
           const SizedBox(height: 16),
           _buildInfoCard('납입 정보', [
             _buildDetailRow('최근 납입액', '${NumberFormat('#,###').format(int.parse(payment.paymentBalance))}원'),
-            _buildDetailRow('납입 횟수', '${payment.paymentUniqueNo}회'),
+            // _buildDetailRow('납입 횟수', '${payment.paymentUniqueNo}회'),
             _buildDetailRow('납입 일시', _formatDateTime(payment.paymentDate, payment.paymentTime)),
             _buildDetailRow('연 이자율', '3.5%'),  // 예시 데이터
           ]),
@@ -170,7 +170,7 @@ class DepositDetailPage extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider.withOpacity(0.5)),
+        border: Border.all(color: AppColors.divider.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -215,7 +215,7 @@ class DepositDetailPage extends ConsumerWidget {
         ),
         Text(
           value, 
-          style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+          style: AppTextStyles.bodyMedium,
         ),
       ],
     );

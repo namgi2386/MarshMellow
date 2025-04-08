@@ -39,25 +39,25 @@ class BannerAdWidget extends StatelessWidget {
           ),
           child: Row(
             children: [
-Container(
-  decoration: BoxDecoration(
-    color: AppColors.whiteLight,
-    borderRadius: BorderRadius.all(Radius.circular(4.0))
-  ),
-  width: 60,
-  height: 60,
-  child: ClipRRect(
-    borderRadius: BorderRadius.all(Radius.circular(4.0)),
-    child: Transform.scale(
-      scale: 1.5, // 2배 확대
-      alignment: Alignment(0, 0), // 살짝 오른쪽 중앙 부분이 보이도록
-      child: Lottie.asset(
-        'assets/images/loading/test_lottie.json',
-        fit: BoxFit.contain, // 여기서는 contain으로 돌려놓음
-      ),
-    ),
-  ),
-),   
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.whiteLight,
+                  borderRadius: BorderRadius.all(Radius.circular(4.0))
+                ),
+                width: 60,
+                height: 60,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                  child: Transform.scale(
+                    scale: 1.5, // 2배 확대
+                    alignment: Alignment(0, 0), // 살짝 오른쪽 중앙 부분이 보이도록
+                    child: Lottie.asset(
+                      'assets/images/loading/test_lottie.json',
+                      fit: BoxFit.contain, // 여기서는 contain으로 돌려놓음
+                    ),
+                  ),
+                ),
+              ),   
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

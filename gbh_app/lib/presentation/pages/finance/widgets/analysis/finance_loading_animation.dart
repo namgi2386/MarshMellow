@@ -202,7 +202,7 @@ class _FinanceLoadingAnimationState extends State<FinanceLoadingAnimation>
         // 상태에 따른 텍스트 표시
         if (widget.state == LoadingAnimationState.analyzing)
           Button(
-            text: '분석 중...${ widget.resultTypeId}',
+            text: '분석 중...',
             width: MediaQuery.of(context).size.width * 0.35,
             onPressed: () {
             },
@@ -213,7 +213,7 @@ class _FinanceLoadingAnimationState extends State<FinanceLoadingAnimation>
         // 상태에 따라 버튼 표시 여부 결정
         if (widget.state == LoadingAnimationState.ready)
           Button(
-            text: '분석시작${ widget.resultTypeId}',
+            text: '분석시작',
             width: MediaQuery.of(context).size.width * 0.35,
             onPressed: widget.onStartPressed,
           ),

@@ -72,7 +72,7 @@ class LoanDetailPage extends ConsumerWidget {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(width: 2.0, color: AppColors.divider),
+        border: Border.all(width: 1.0, color: AppColors.divider),
         borderRadius: const BorderRadius.all(Radius.circular(10.0))
       ),
       child: Column(

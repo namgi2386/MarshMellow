@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
@@ -73,8 +74,14 @@ class _QuitPageState extends ConsumerState<QuitPage> {
             ),
           ],
         ),
-        body: const Center(
-          child: CircularProgressIndicator(),
+        body: Center(
+          child:           
+            Lottie.asset(
+            'assets/images/loading/loading_simple.json',
+            width: 140,  // 원하는 크기로 조정
+            height: 140,
+            fit: BoxFit.contain,
+            ),
         ),
       );
     }

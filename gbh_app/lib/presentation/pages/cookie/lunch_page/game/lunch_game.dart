@@ -54,7 +54,7 @@ class LunchGame extends Forge2DGame {
     await super.onLoad();
 
     // 월드 크기 설정 (화면 높이의 5배)
-    worldSize = Vector2(size.x, size.y * 5);
+    worldSize = Vector2(size.x, size.y * 4);
     
     // BoundaryManager 초기화
     boundaryManager = BoundaryManager(game: this, worldSize: worldSize);

@@ -43,17 +43,17 @@ class _FinanceResultDetailState extends State<FinanceResultDetail> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 타이틀 헤더 추가
-                Center(
-                  child: Text(
-                    'Marshmellow 자산유형 분석',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.disabled,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
+                // Center(
+                //   child: Text(
+                //     'Marshmellow 자산유형 분석',
+                //     style: const TextStyle(
+                //       fontSize: 12,
+                //       fontWeight: FontWeight.w400,
+                //       color: AppColors.disabled,
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 32),
                 
                 // 유형 및 닉네임
                 Text(
@@ -104,7 +104,12 @@ class _FinanceResultDetailState extends State<FinanceResultDetail> {
                 
                 Text(
                   widget.financeType.longDescription,
-                  style: AppTextStyles.bodyMediumLight,
+                  style: AppTextStyles.bodyMediumLight.copyWith(
+                    letterSpacing: 0.5,
+                    height: 1.6,
+                  ),
+                  softWrap: true,
+                  textAlign: TextAlign.left,
                 ),
               ],
             ),
@@ -117,41 +122,10 @@ class _FinanceResultDetailState extends State<FinanceResultDetail> {
           onTap: () => _shareScreenshot(context),
           child: Button(
             text: '공유하기',
-              // textStyle: TextStyle(
-              //   fontSize: 12,
-              //   // fontWeight: FontWeight.bold,
-              //   // color: Colors.white,
-              // ),
-            // color: Colors.transparent,
-            // borderColor: AppColors.textPrimary,
-            // textColor: AppColors.textPrimary,
-            borderRadius: 30,
+            borderRadius: 10,
             width: MediaQuery.of(context).size.width * 0.25,
-            height: MediaQuery.of(context).size.width * 0.1,
+            height: MediaQuery.of(context).size.width * 0.12,
           ),
-          // child: Container(
-          //   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-          //   decoration: BoxDecoration(
-          //     color: AppColors.greenPrimary,
-          //     borderRadius: BorderRadius.circular(30),
-          //   ),
-          //   child: Row(
-          //     mainAxisSize: MainAxisSize.min,
-          //     children: const [
-          //       Icon(Icons.share, color: Colors.white, size: 16),
-          //       SizedBox(width: 8),
-          //       Text(
-          //         '결과 공유하기',
-          //         style: TextStyle(
-          //           color: Colors.white,
-          //           fontWeight: FontWeight.bold,
-          //           fontSize: 12,
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-
         ),
       ],
     );

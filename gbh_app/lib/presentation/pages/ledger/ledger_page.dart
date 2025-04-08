@@ -160,7 +160,6 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
                                 dropdownKey: _filterDropdownKey,
                                 onFilterSelected: (filter) {
                                   print('선택된 필터: $filter');
-                                  // TODO: 필터링 로직 구현
                                   ref
                                       .read(transactionFilterProvider.notifier)
                                       .state = filter;

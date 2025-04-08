@@ -40,7 +40,24 @@ class ColumnChart extends StatelessWidget {
           fontWeight: FontWeight.w300,
         ),
       ),
-      tooltipBehavior: TooltipBehavior(enable: true),
+      tooltipBehavior: TooltipBehavior(
+        enable: true,
+        header: '',
+        format: 'point.y',
+        builder: (dynamic data, dynamic point, dynamic series, int pointIndex,
+            int seriesIndex) {
+          final value = point.y as double;
+          return Container(
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              '${NumberFormat('#,###').format(value)}원',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.whiteLight,
+              ),
+            ),
+          );
+        },
+      ),
       series: <CartesianSeries>[
         ColumnSeries<ChartData, String>(
           // 애니메이션 효과
@@ -50,10 +67,10 @@ class ColumnChart extends StatelessWidget {
           yValueMapper: (ChartData data, _) => data.value,
           pointColorMapper: (ChartData data, _) => data.color,
           borderRadius: BorderRadius.circular(5),
-          width: 0.6, // 컬럼 너비
+          width: 0.7, // 컬럼 너비
           spacing: 0.2, // 컬럼 간격
           dataLabelSettings: DataLabelSettings(
-            isVisible: true,
+            isVisible: false,
             labelAlignment: ChartDataLabelAlignment.top,
             textStyle: AppTextStyles.moneyGraphMedium.copyWith(fontSize: 10),
           ),

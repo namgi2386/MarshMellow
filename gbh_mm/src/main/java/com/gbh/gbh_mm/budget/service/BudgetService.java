@@ -44,20 +44,34 @@ public class BudgetService {
         if (budgets.isEmpty()) {
             throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
         }
+
+        DateTimeFormatter dashFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter noDashFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
         List<ResponseFindBudgetList.BudgetData> budgetDataList = budgets.stream()
                 .map(budget -> {
                     List<BudgetCategory> budgetCategories = budgetCategoryRepository.findAllByBudget_BudgetPk(budget.getBudgetPk());
                     List<ResponseFindBudgetList.BudgetData.BudgetCategoryData> categoryDataList = budgetCategories.stream()
-                            .map(category -> ResponseFindBudgetList.BudgetData.BudgetCategoryData.builder()
+                            .map(category -> {
+                                String startDateFormatted = LocalDate.parse(budget.getStartDate(), dashFormatter).format(noDashFormatter);
+                                String endDateFormatted = LocalDate.parse(budget.getEndDate(), dashFormatter).format(noDashFormatter);
+
+                                long totalAmount = householdRepository.findHouseholdsByBudget(userPk, startDateFormatted, endDateFormatted, category.getBudgetCategoryName())
+                                        .stream().mapToLong(Household::getHouseholdAmount).sum();
+
+                                System.out.println(category.getBudgetCategoryName() + totalAmount);
+                                return ResponseFindBudgetList.BudgetData.BudgetCategoryData.builder()
                                     .budgetCategoryPk(category.getBudgetCategoryPk())
                                     .budgetCategoryName(category.getBudgetCategoryName())
                                     .budgetCategoryPrice(category.getBudgetCategoryPrice())
-                                    .budgetExpendAmount(category.getBudgetExpendAmount())
+                                    .budgetExpendAmount(totalAmount)
+//                                    .budgetExpendAmount(category.getBudgetExpendAmount())
                                     .budgetExpendPercent(
                                             (float) Math.round(
-                                                    (float) category.getBudgetExpendAmount() / (float) category.getBudgetCategoryPrice() * 100) / 100.0
+                                                    (float) totalAmount / (float) category.getBudgetCategoryPrice() * 100) / 100.0
                                     )
-                                    .build())
+                                    .build();
+                            })
                             .collect(Collectors.toList());
 
                     return ResponseFindBudgetList.BudgetData.builder()

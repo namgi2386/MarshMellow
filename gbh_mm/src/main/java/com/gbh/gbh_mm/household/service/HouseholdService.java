@@ -1,8 +1,12 @@
 package com.gbh.gbh_mm.household.service;
 
+import com.gbh.gbh_mm.household.model.entity.Household;
 import com.gbh.gbh_mm.household.model.vo.request.*;
 import com.gbh.gbh_mm.household.model.vo.response.*;
 import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
+
+import java.util.List;
+import java.util.Map;
 
 public interface HouseholdService {
 
@@ -31,4 +35,6 @@ public interface HouseholdService {
     ResponsePaymentMethodList findPaymentMethodList(CustomUserDetails customUserDetails);
 
     ResponseAiAvg findAiAvg(CustomUserDetails customUserDetails);
+
+    public Map<String, Long> findMonthlyWithdrawalMap(Long userPk, int salaryDate);
 }

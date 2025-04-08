@@ -24,6 +24,7 @@ public class CustomUserDetails implements UserDetails {
     private final LocalDateTime budgetAlarmTime;
     private final LocalDate createdAt;
     private final String aesKey;
+    private final Integer salaryDate;
 
     public CustomUserDetails(User user) {
         this.userPk = user.getUserPk();
@@ -38,6 +39,7 @@ public class CustomUserDetails implements UserDetails {
         this.budgetAlarmTime = user.getBudgetAlarmTime();
         this.createdAt = user.getCreatedAt();
         this.aesKey = user.getAesKey();
+        this.salaryDate = user.getSalaryDate();
     }
 
     @Override

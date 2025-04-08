@@ -143,6 +143,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           const SizedBox(height: 10),
           // Text('에러 발생: ${state.error}'),
           Button(
+            width: MediaQuery.of(context).size.width *0.5,
             onPressed: () {
                 ref.read(aesKeyNotifierProvider.notifier).fetchAesKey();
                 ref.read(financeViewModelProvider.notifier).refreshAssetInfo();},

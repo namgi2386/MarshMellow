@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
+import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_select_content.dart';
 import 'package:marshmellow/presentation/pages/finance/widgets/withdrawl/finance_terms_agreement_widget.dart';
 import 'package:marshmellow/presentation/viewmodels/finance/withdrawal_account_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_secure_info_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/finance/certificate_login_modal.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
@@ -155,17 +158,37 @@ class _WithdrawalAccountRegistrationPageState extends ConsumerState<WithdrawalAc
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            '1원 송금 계좌 인증',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          const SizedBox(height: 60),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                '계좌로',
+                style: AppTextStyles.appBar,
+              ),
+              Text(
+                '1원',
+                style: AppTextStyles.moneyBodyLarge.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const Text(
+                '을 입금했습니다.',
+                style: AppTextStyles.appBar,
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          
+                    const SizedBox(height: 6),
           const Text(
-            '입력하신 계좌로 1원이 송금되었습니다.\n계좌에서 입금내역을 확인하고 인증번호를 입력해주세요.',
-            style: TextStyle(fontSize: 14),
+            '계좌에서 입금내역을 확인하고',
+            style: AppTextStyles.bodyMediumLight,
+          ),
+                    const SizedBox(height: 6),
+          const Text(
+            '인증번호를 입력해주세요.',
+            style: AppTextStyles.bodyMediumLight,
           ),
           const SizedBox(height: 24),
           
@@ -181,25 +204,26 @@ class _WithdrawalAccountRegistrationPageState extends ConsumerState<WithdrawalAc
             controller: _authCodeController,
             decoration: InputDecoration(
               labelText: '인증번호 4자리',
-              hintText: '인증번호를 입력하세요',
+              // hintText: '인증번호를 입력하세요',
               errorText: state.wrongAttempts > 0
                   ? '인증번호가 일치하지 않습니다. (${state.wrongAttempts}/5)'
                   : null,
-              suffixText: '남은 시간: ${state.remainingSeconds}초',
+              suffixText: ' ${state.remainingSeconds}',
             ),
             keyboardType: TextInputType.number,
             maxLength: 4,
+            style: AppTextStyles.appBar,
             onChanged: viewModel.updateEnteredAuthCode,
           ),
           
           const Spacer(),
           
           // 확인 버튼
-          ElevatedButton(
+          Button(
             onPressed: state.enteredAuthCode.length == 4
                 ? () => viewModel.verifyAuthCode()
                 : null,
-            child: const Text('확인'),
+            text: '확인',
           ),
         ],
       ),
@@ -212,12 +236,13 @@ class _WithdrawalAccountRegistrationPageState extends ConsumerState<WithdrawalAc
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.check_circle_outline,
-            size: 80,
-            color: Colors.green,
+          Lottie.asset(
+            'assets/images/loading/success.json',
+            width: 140,  // 원하는 크기로 조정
+            height: 140,
+            fit: BoxFit.contain,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           const Text(
             '출금계좌 등록이 완료되었습니다',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

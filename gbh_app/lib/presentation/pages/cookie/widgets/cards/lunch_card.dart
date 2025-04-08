@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
@@ -62,6 +63,8 @@ class _LunchCardState extends State<LunchCard> {
 
   // 현재 선택된 메뉴
   late String currentFood;
+  bool _isLoading = false;
+  bool _showMenu = true;
 
   @override
   void initState() {
@@ -81,7 +84,17 @@ class _LunchCardState extends State<LunchCard> {
   // 메뉴 새로고침 함수
   void _refreshFood() {
     setState(() {
-      currentFood = _getRandomFood();
+      _showMenu = false;
+      _isLoading = true;
+    });
+    
+    // 2초 후에 새 메뉴 표시
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        currentFood = _getRandomFood();
+        _isLoading = false;
+        _showMenu = true;
+      });
     });
   }
 
@@ -156,13 +169,25 @@ class _LunchCardState extends State<LunchCard> {
                   // 랜덤 메뉴 텍스트 표시
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Text(
-                      currentFood,
-                      style: AppTextStyles.modalTitle.copyWith(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: _isLoading
+                      ? Transform.scale(
+                        scale: 3.0,
+                        child: Lottie.asset(
+                            'assets/images/loading/loading_lunch.json',
+                            width: 80,
+                            height: 40,
+                            fit: BoxFit.contain,
+                          ),
+                      )
+                      : _showMenu
+                        ? Text(
+                            currentFood,
+                            style: AppTextStyles.modalTitle.copyWith(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        : SizedBox(width: 100, height: 100), // 빈 공간 유지
                   ),
                   Transform.translate(
                     offset: Offset(0, -10), // Y축으로 -10 이동 (위로 올라감)

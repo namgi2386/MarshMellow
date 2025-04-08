@@ -739,22 +739,31 @@ public class HouseholdServiceImpl implements HouseholdService {
             switch (household.getHouseholdDetailCategory().getAiCategory().getAiCategoryPk()) {
                 case 1:
                     fixedAvg += household.getHouseholdAmount();
+                    break;
                 case 2:
                     foodAvg += household.getHouseholdAmount();
+                    break;
                 case 3:
                     trafficAvg += household.getHouseholdAmount();
+                    break;
                 case 4:
                     martAvg += household.getHouseholdAmount();
+                    break;
                 case 5:
                     bankAvg += household.getHouseholdAmount();
+                    break;
                 case 6:
                     leisureAvg += household.getHouseholdAmount();
+                    break;
                 case 7:
                     coffeeAvg += household.getHouseholdAmount();
+                    break;
                 case 8:
                     shoppingAvg += household.getHouseholdAmount();
+                    break;
                 case 9:
                     emergencyAvg += household.getHouseholdAmount();
+                    break;
             }
         }
 
@@ -770,6 +779,15 @@ public class HouseholdServiceImpl implements HouseholdService {
         double monthDiff = totalDays / 30.44;
 
         double totalSalary = user.getSalaryAmount() * monthDiff;
+
+        System.out.println(totalSalary);
+        System.out.println(totalSalary);
+
+        System.out.println(monthDiff);
+        System.out.println(monthDiff);
+
+        System.out.println(trafficAvg);
+        System.out.println(trafficAvg);
 
 
         ResponseAiAvg response = ResponseAiAvg.builder()

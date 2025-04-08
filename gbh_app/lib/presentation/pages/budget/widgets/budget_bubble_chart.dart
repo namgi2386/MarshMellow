@@ -342,9 +342,16 @@ class BubblesPainter extends CustomPainter {
     // 카테고리 텍스트 그리기
     final fontSize = math.max(radius * 0.3, 12.0);
     
-    final textStyle = AppTextStyles.bodyMediumLight.copyWith(
+    final textStyle = AppTextStyles.bodyMedium.copyWith(
       color: isOverBudget ? AppColors.buttonDelete : AppColors.whiteLight,
       fontSize: fontSize,
+      shadows: [
+        Shadow(
+          offset : Offset(-1, -1),
+          color : AppColors.backgroundBlack,
+        ),
+ 
+      ]
     );
     
     final textSpan = TextSpan(

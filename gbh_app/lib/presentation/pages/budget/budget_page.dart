@@ -214,20 +214,34 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  onPressed: () {
-                    ref.read(budgetProvider.notifier).navigateToNextBudget();
-                  }, 
-                  icon: const Icon(Icons.chevron_left),
+                  onPressed: state.currentBudgetIndex < state.budgets.length - 1
+                    ? () {
+                        ref.read(budgetProvider.notifier).navigateToNextBudget();
+                      }
+                    : null,
+                  icon: Icon(
+                    Icons.chevron_left,
+                    color: state.currentBudgetIndex < state.budgets.length - 1
+                      ? AppColors.backgroundBlack
+                      : AppColors.whiteDark
+                    ),
                 ),
                 Text(
                   state.dateRangeText,
                   style: AppTextStyles.bodySmall,
                 ),
                 IconButton(
-                  onPressed: () {
-                    ref.read(budgetProvider.notifier).navigateToPreviousBudget();
-                  }, 
-                  icon: const Icon(Icons.chevron_right)
+                  onPressed: state.currentBudgetIndex > 0 
+                    ? () {
+                        ref.read(budgetProvider.notifier).navigateToPreviousBudget();
+                      }
+                    : null,
+                  icon: Icon(
+                          Icons.chevron_right,
+                          color: state.currentBudgetIndex > 0 
+                            ? AppColors.backgroundBlack 
+                            : AppColors.whiteDark, // 조건에 따라 색상 변경
+                        ),
                 ),
               ],
             )

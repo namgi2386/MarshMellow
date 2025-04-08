@@ -137,8 +137,8 @@ public class GmailService {
                         String subject = getHeader(msg, "Subject");
                         String body = extractPlainText(msg);
                         log.info("💌 새 메일 수신: phone={} subject={} body={}", phoneNumber, subject, body);
-
-                        IdentityVerificationResponseDto redisData = (IdentityVerificationResponseDto) redisTemplate.opsForValue().get(phoneNumber);
+                        Object raw = redisTemplate.opsForValue().get(phoneNumber);
+                        IdentityVerificationResponseDto redisData = objectMapper.convertValue(raw, IdentityVerificationResponseDto.class);
 
                         if (Objects.nonNull(redisData) && !redisData.isVerified()) {
                             if (body.contains(redisData.getCode())) {

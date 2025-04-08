@@ -341,37 +341,64 @@ class BubblesPainter extends CustomPainter {
     
     // 카테고리 텍스트 그리기
     final fontSize = math.max(radius * 0.3, 12.0);
-    
-    final textStyle = AppTextStyles.bodyMedium.copyWith(
-      color: isOverBudget ? AppColors.buttonDelete : AppColors.whiteLight,
+
+    // 텍스트 색상 설정
+    final textColor = isOverBudget ? AppColors.buttonDelete : AppColors.whiteLight;
+
+    // 테두리용 텍스트 스타일
+    final outlineTextStyle = AppTextStyles.bodyMedium.copyWith(
+      foreground: Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0
+        ..color = AppColors.backgroundBlack,
       fontSize: fontSize,
-      shadows: [
-        Shadow(
-          offset : Offset(-1, -1),
-          color : AppColors.backgroundBlack,
-        ),
- 
-      ]
     );
-    
-    final textSpan = TextSpan(
+
+    // 테두리용 텍스트 스팬
+    final outlineTextSpan = TextSpan(
       text: category.budgetCategoryName,
-      style: textStyle,
+      style: outlineTextStyle,
     );
-    
-    final textPainter = TextPainter(
-      text: textSpan,
+
+    // 테두리용 텍스트 페인터
+    final outlineTextPainter = TextPainter(
+      text: outlineTextSpan,
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,
     );
-    
-    textPainter.layout();
-    
+
+    outlineTextPainter.layout();
+
+    // 내부 텍스트용 스타일
+    final fillTextStyle = AppTextStyles.bodyMedium.copyWith(
+      color: textColor,
+      fontSize: fontSize,
+    );
+
+    // 내부 텍스트용 스팬
+    final fillTextSpan = TextSpan(
+      text: category.budgetCategoryName,
+      style: fillTextStyle,
+    );
+
+    // 내부 텍스트용 페인터
+    final fillTextPainter = TextPainter(
+      text: fillTextSpan,
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+    );
+
+    fillTextPainter.layout();
+
     // 원 중앙에 텍스트 배치
-    final textX = position.dx - textPainter.width / 2;
-    final textY = position.dy - textPainter.height / 2;
-    
-    textPainter.paint(canvas, Offset(textX, textY));
+    final textX = position.dx - outlineTextPainter.width / 2;
+    final textY = position.dy - outlineTextPainter.height / 2;
+
+    // 먼저 테두리 텍스트를 그림
+    outlineTextPainter.paint(canvas, Offset(textX, textY));
+
+    // 그 다음에 내부 텍스트를 그림
+    fillTextPainter.paint(canvas, Offset(textX, textY));
   }
 
   // 버블 배치

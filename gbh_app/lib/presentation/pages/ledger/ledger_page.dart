@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:marshmellow/di/providers/transaction_filter_provider.dart';
+import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 
 // 위젯
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
@@ -98,146 +99,163 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
         )
       ]),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Center(
-            child: Container(
-              width: contentWidth,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 날짜 선택 컴포넌트
-                  DateRangeSelector(
-                    onPreviousPressed: () {
-                      print('이전 기간으로 이동했습니다');
-                    },
-                    onNextPressed: () {
-                      print('다음 기간으로 이동했습니다');
-                    },
-                  ),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            // 데이터 새로고침
+            ref.invalidate(transactionsProvider);
+            ref.invalidate(filteredTransactionsProvider);
 
-                  // 수입/지출 카드 영역
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: FinanceCard(
-                          title: '수입',
-                          amount: ledgerState.totalIncome,
-                          backgroundColor: AppColors.bluePrimary,
-                        ),
-                      ),
-                      SizedBox(width: screenWidth * 0.03),
-                      Expanded(
-                        child: FinanceCard(
-                          title: '지출',
-                          amount: ledgerState.totalExpenditure,
-                          backgroundColor: AppColors.pinkPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
+            // 현재 선택된 날짜 범위로 데이터 다시 로드
+            final datePickerState = ref.read(datePickerProvider);
+            if (datePickerState.selectedRange != null) {
+              await ref
+                  .read(ledgerViewModelProvider.notifier)
+                  .loadHouseholdData(datePickerState.selectedRange!);
+            }
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Center(
+              child: Container(
+                width: contentWidth,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 날짜 선택 컴포넌트
+                    DateRangeSelector(
+                      onPreviousPressed: () {
+                        print('이전 기간으로 이동했습니다');
+                      },
+                      onNextPressed: () {
+                        print('다음 기간으로 이동했습니다');
+                      },
+                    ),
 
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text('필터',
-                              style: AppTextStyles.bodyMedium
-                                  .copyWith(fontWeight: FontWeight.w300)),
-                          SizedBox(width: screenWidth * 0.03),
-                          GestureDetector(
-                            key: _filterDropdownKey,
-                            onTap: () {
-                              context.showTransactionFilterDropdown(
-                                dropdownKey: _filterDropdownKey,
-                                onFilterSelected: (filter) {
-                                  print('선택된 필터: $filter');
-                                  ref
-                                      .read(transactionFilterProvider.notifier)
-                                      .state = filter;
-                                },
-                              );
-                            },
-                            child: SvgPicture.asset(IconPath.caretDown),
+                    // 수입/지출 카드 영역
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: FinanceCard(
+                            title: '수입',
+                            amount: ledgerState.totalIncome,
+                            backgroundColor: AppColors.bluePrimary,
                           ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              // plus 버튼 액션
-                              showCustomModal(
-                                context: context,
-                                ref: ref,
-                                backgroundColor: AppColors.background,
-                                child: const TransactionForm(),
-                              );
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 10),
+                        ),
+                        SizedBox(width: screenWidth * 0.03),
+                        Expanded(
+                          child: FinanceCard(
+                            title: '지출',
+                            amount: ledgerState.totalExpenditure,
+                            backgroundColor: AppColors.pinkPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text('필터',
+                                style: AppTextStyles.bodyMedium
+                                    .copyWith(fontWeight: FontWeight.w300)),
+                            SizedBox(width: screenWidth * 0.03),
+                            GestureDetector(
+                              key: _filterDropdownKey,
+                              onTap: () {
+                                context.showTransactionFilterDropdown(
+                                  dropdownKey: _filterDropdownKey,
+                                  onFilterSelected: (filter) {
+                                    print('선택된 필터: $filter');
+                                    ref
+                                        .read(
+                                            transactionFilterProvider.notifier)
+                                        .state = filter;
+                                  },
+                                );
+                              },
+                              child: SvgPicture.asset(IconPath.caretDown),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                // plus 버튼 액션
+                                showCustomModal(
+                                  context: context,
+                                  ref: ref,
+                                  backgroundColor: AppColors.background,
+                                  child: const TransactionForm(),
+                                );
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: SvgPicture.asset(
+                                  IconPath.plus,
+                                  width: 23,
+                                  height: 23,
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                // 검색 페이지로 이동
+                                context.push(LedgerRoutes.getSearchPath());
+                              },
                               child: SvgPicture.asset(
-                                IconPath.plus,
+                                IconPath.searchOutlined,
                                 width: 23,
                                 height: 23,
                               ),
                             ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              // 검색 페이지로 이동
-                              context.push(LedgerRoutes.getSearchPath());
-                            },
-                            child: SvgPicture.asset(
-                              IconPath.searchOutlined,
-                              width: 23,
-                              height: 23,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // 페이지 인디케이터
-                  Center(
-                    child: PageDotIndicator(
-                      currentPage: _currentPage,
-                      totalPages: 2,
-                      pageController: _pageController,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
-                      },
-                    ),
-                  ),
-
-                  // 페이지 뷰 컨테이너
-                  SizedBox(
-                    height: 450, // 필요한 높이로 조정
-                    child: PageView(
-                      controller: _pageController,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
-                      },
-                      children: const [
-                        // 첫 번째 페이지 - 거래 내역
-                        LedgerTransactionHistory(),
-
-                        // 두 번째 페이지 - 캘린더
-                        LedgerCalendar(),
+                          ],
+                        ),
                       ],
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 16),
+
+                    // 페이지 인디케이터
+                    Center(
+                      child: PageDotIndicator(
+                        currentPage: _currentPage,
+                        totalPages: 2,
+                        pageController: _pageController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentPage = index;
+                          });
+                        },
+                      ),
+                    ),
+
+                    // 페이지 뷰 컨테이너
+                    SizedBox(
+                      height: 450, // 필요한 높이로 조정
+                      child: PageView(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentPage = index;
+                          });
+                        },
+                        children: const [
+                          // 첫 번째 페이지 - 거래 내역
+                          LedgerTransactionHistory(),
+
+                          // 두 번째 페이지 - 캘린더
+                          LedgerCalendar(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

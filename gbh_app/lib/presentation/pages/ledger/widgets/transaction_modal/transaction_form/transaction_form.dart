@@ -22,6 +22,7 @@ import 'package:marshmellow/presentation/widgets/completion_message/completion_m
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
+import 'package:marshmellow/di/providers/transaction_filter_provider.dart';
 
 // TransactionForm을 ConsumerStatefulWidget으로 변환
 class TransactionForm extends ConsumerStatefulWidget {
@@ -213,8 +214,9 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
       // 저장 성공
       CompletionMessage.show(context, message: '저장 완료');
 
-      // 트랜잭션 목록 새로고침
-      ref.refresh(transactionsProvider);
+      // 트랜잭션 목록 및 필터링된 트랜잭션 새로고침
+      ref.invalidate(transactionsProvider);
+      ref.invalidate(filteredTransactionsProvider);
 
       // 월별 통계 새로고침
       final datePickerState = ref.read(datePickerProvider);

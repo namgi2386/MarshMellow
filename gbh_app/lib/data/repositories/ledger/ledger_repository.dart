@@ -65,6 +65,11 @@ class LedgerRepository {
       result[date]!.add(transaction);
     }
 
+    // 각 날짜 그룹 내에서 시간 역순으로 정렬 (최신순)
+    result.forEach((date, items) {
+      items.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    });
+
     return result;
   }
 
@@ -194,30 +199,30 @@ class LedgerRepository {
 
   // 가계부 등록
   Future<Map<String, dynamic>> createHousehold({
-  required String tradeName,
-  required String tradeDate,
-  required String tradeTime,
-  required int householdAmount,
-  String? householdMemo,
-  required String paymentMethod,
-  required String exceptedBudgetYn,
-  required String householdClassification,
-  required int householdDetailCategoryPk,
-}) async {
-  try {
-    return await _ledgerApi.createHousehold(
-      tradeName: tradeName,
-      tradeDate: tradeDate,
-      tradeTime: tradeTime,
-      householdAmount: householdAmount,
-      householdMemo: householdMemo,
-      paymentMethod: paymentMethod,
-      exceptedBudgetYn: exceptedBudgetYn,
-      householdClassification: householdClassification,
-      householdDetailCategoryPk: householdDetailCategoryPk,
-    );
-  } catch (e) {
-    throw Exception('가계부 등록에 실패했습니다: $e');
+    required String tradeName,
+    required String tradeDate,
+    required String tradeTime,
+    required int householdAmount,
+    String? householdMemo,
+    required String paymentMethod,
+    required String exceptedBudgetYn,
+    required String householdClassification,
+    required int householdDetailCategoryPk,
+  }) async {
+    try {
+      return await _ledgerApi.createHousehold(
+        tradeName: tradeName,
+        tradeDate: tradeDate,
+        tradeTime: tradeTime,
+        householdAmount: householdAmount,
+        householdMemo: householdMemo,
+        paymentMethod: paymentMethod,
+        exceptedBudgetYn: exceptedBudgetYn,
+        householdClassification: householdClassification,
+        householdDetailCategoryPk: householdDetailCategoryPk,
+      );
+    } catch (e) {
+      throw Exception('가계부 등록에 실패했습니다: $e');
+    }
   }
-}
 }

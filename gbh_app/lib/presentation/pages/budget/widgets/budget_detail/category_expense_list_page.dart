@@ -111,8 +111,48 @@ class CategoryExpensePage extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // Category Summary
-          _buildCategorySummary(context, category),
+          // 가계 지출 데이터를 기반으로 카테고리 요약 정보 업데이트
+          transactionsAsync.when(
+            data: (transactions) {
+              // 지출 트랜잭션만 필터링하고 총 금액 계산
+              final filteredTransactions = transactions.where(
+                (transaction) => transaction.classification == TransactionClassification.WITHDRAWAL
+                  && transaction.exceptedBudgetYn != 'Y' // 예산 제외 아닌 것만 계산
+              ).toList();
+
+              // 총 지출액 계산
+              final totalSpent = filteredTransactions.fold<int>(
+                0, (sum, transaction) => sum + transaction.householdAmount
+              );
+
+              // 예산 대비 지출 비율 계산
+              final percentage = category.budgetCategoryPrice > 0
+                ? (totalSpent / category.budgetCategoryPrice * 100)
+                : 0.0;
+
+              return _buildCategorySummary(
+                context, 
+                category,
+                totalSpent,
+                percentage
+                );
+              },
+              loading: () => _buildCategorySummary(
+                context, 
+                category,
+                category.budgetExpendAmount ?? 0,
+                category.budgetExpendPercent ?? 0,
+              ),
+              error: (_, __) => _buildCategorySummary(
+                context, 
+                category, 
+                category.budgetExpendAmount ?? 0, 
+                category.budgetExpendPercent ?? 0
+              ),
+          ),
+
+          // // Category Summary
+          // _buildCategorySummary(context, category),
           
           // Transaction List
           Expanded(
@@ -157,10 +197,15 @@ class CategoryExpensePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCategorySummary(BuildContext context, BudgetCategoryModel category) {
+  Widget _buildCategorySummary(
+    BuildContext context, 
+    BudgetCategoryModel category,
+    int actualSpent, // 예산별 가계부 조회로부터 가지고 온 카테고리별 지출금액
+    double actualPercentage // 예산별 가계부 조회로부터 가지고 온 카테고리별 지출 비율(카테고리의 예산에 대한)
+  ) {
     final formattedBudget = _formatAmount(category.budgetCategoryPrice);
-    final formattedSpent = _formatAmount(category.budgetExpendAmount ?? 0);
-    final percentage = category.budgetExpendPercent ?? 0;
+    final formattedSpent = _formatAmount(actualSpent);
+    final percentage = actualPercentage;
 
     return Container(
       padding: const EdgeInsets.all(16),

@@ -64,7 +64,7 @@ class BudgetApi {
     try {
       final response = await _apiClient.put(
         '/mm/budget/detail/$budgetCategoryPk',
-        data: {'budgetAmount': budgetAmount}
+        data: {'budgetCategoryPrice': budgetAmount}
       );
       
       if (response.statusCode == 200) {

@@ -31,6 +31,7 @@ class BudgetCreationPage extends ConsumerStatefulWidget {
 
 class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
   bool _isLoading = true;
+  bool _isEditing = false;
   String? _errorMessage;
   BudgetModel? _createdBudget;
   
@@ -150,7 +151,7 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
     print('  - 변경 금액: $amount');
     
     setState(() {
-      _isLoading = true;
+      _isEditing = true;
     });
     
     try {
@@ -168,7 +169,7 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
       
       // 수정 모드 종료
       setState(() {
-        _isLoading = false;
+        _isEditing = false;
         _isEditingAmount = false;
         _selectedCategoryPk = null;
         _amountController.clear();
@@ -176,7 +177,7 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
       
     } catch (e) {
       setState(() {
-        _isLoading = false;
+        _isEditing = false;
         _errorMessage = '예산 수정 중 오류가 발생했습니다: $e';
       });
     }
@@ -204,6 +205,38 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
     );
   }
 
+  // 선택된 카테고리 이름 가져오기
+String _getSelectedCategoryName() {
+  if (_selectedCategoryPk == null || _createdBudget == null) return '';
+  
+  final selectedCategory = _createdBudget!.budgetCategoryList.firstWhere(
+    (category) => category.budgetCategoryPk == _selectedCategoryPk,
+    orElse: () => BudgetCategoryModel(
+      budgetCategoryPk: 0,
+      budgetCategoryName: '',
+      budgetCategoryPrice: 0,
+    ),
+  );
+  
+  return selectedCategory.budgetCategoryName;
+}
+
+// 선택된 카테고리 색상 가져오기
+Color _getSelectedCategoryColor() {
+  if (_selectedCategoryPk == null || _createdBudget == null) return Colors.grey;
+  
+  final selectedCategory = _createdBudget!.budgetCategoryList.firstWhere(
+    (category) => category.budgetCategoryPk == _selectedCategoryPk,
+    orElse: () => BudgetCategoryModel(
+      budgetCategoryPk: 0,
+      budgetCategoryName: '',
+      budgetCategoryPrice: 0,
+    ),
+  );
+  
+  // BudgetModel의 정적 메서드 사용
+  return BudgetModel.getCategoryColor(selectedCategory.budgetCategoryName);
+}
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -212,6 +245,17 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
           child: CustomLoadingIndicator(
             backgroundColor: AppColors.whiteLight,
             text: '예산 생성 중',
+          ),
+        ),
+      );
+    }
+
+    if (_isEditing) {
+      return Scaffold(
+        body: const Center(
+          child: CustomLoadingIndicator(
+            backgroundColor: AppColors.whiteLight,
+            text: '예산 수정 중',
           ),
         ),
       );
@@ -343,7 +387,7 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
                     height: 300, // 적절한 높이 지정
                     padding: const EdgeInsets.symmetric(horizontal: 22.0),
                     child: categories.isNotEmpty
-                        ? BudgetBubblechart(categories: categories)
+                        ? BudgetBubblechart(categories: categories, enableNavigation: false)
                         : const Center(child: Text('등록된 예산이 없습니다')),
                   ),
 
@@ -406,6 +450,30 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // 선택된 카테고리 정보 표시
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        color: AppColors.whiteLight,
+                        child: Row(
+                          children: [
+                            // 선택된 카테고리 색상 원
+                            Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: _getSelectedCategoryColor(),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            // 선택된 카테고리 이름
+                            Text(
+                              '${_getSelectedCategoryName()} 카테고리 금액 수정',
+                              style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w200),
+                            ),
+                          ],
+                        ),
+                      ),
                       // 금액 입력 필드
                       Padding(
                         padding: const EdgeInsets.all(16),
@@ -563,32 +631,6 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
             const SizedBox(width: 6),
           ],
         ),
-      ),
-    );
-  }
-  
-  // 확인 다이얼로그
-  void _showConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('예산 생성 완료'),
-        content: const Text('예산 생성이 완료되었습니다. 메인 화면으로 이동하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // 다이얼로그 닫기
-            },
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // 다이얼로그 닫기
-              context.go('/budget'); // 메인 예산 페이지로 이동
-            },
-            child: const Text('확인'),
-          ),
-        ],
       ),
     );
   }

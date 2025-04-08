@@ -141,10 +141,12 @@ class TransferFormState extends ConsumerState<TransferForm> {
       'tradeName': _merchant,
       'paymentMethod': _account,
       'memo': _memo,
-      'categoryPk': _selectedTransferCategory != null
-          ? CategoryPkMapping.getPkFromCategory(
-              transferCategory: _selectedTransferCategory)
-          : null,
+      'categoryPk':
+          (_selectedTransferCategory != null && _transferDirection != null)
+              ? CategoryPkMapping.getPkFromCategory(
+                  transferCategory: _selectedTransferCategory,
+                  transferDirection: _transferDirection)
+              : null,
     };
   }
 

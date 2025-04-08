@@ -124,9 +124,6 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
                           title: '수입',
                           amount: ledgerState.totalIncome,
                           backgroundColor: AppColors.bluePrimary,
-                          onTap: () {
-                            print('수입 카드가 탭됨');
-                          },
                         ),
                       ),
                       SizedBox(width: screenWidth * 0.03),
@@ -135,9 +132,6 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
                           title: '지출',
                           amount: ledgerState.totalExpenditure,
                           backgroundColor: AppColors.pinkPrimary,
-                          onTap: () {
-                            print('지출 카드가 탭됨');
-                          },
                         ),
                       ),
                     ],

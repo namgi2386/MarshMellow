@@ -231,7 +231,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
     } catch (e) {
       print('가계부 내역 저장 중 오류: $e');
       if (context.mounted) {
-        CompletionMessage.show(context, message: '저장 중 오류가 발생했습니다');
+        CompletionMessage.show(context, message: '저장 오류');
       }
     } finally {
       // 저장 중 상태 해제

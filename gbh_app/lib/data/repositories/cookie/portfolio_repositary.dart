@@ -8,96 +8,185 @@ class PortfolioRepository {
 
   PortfolioRepository(this._portfolioApi);
 
+  // 포트폴리오 목록 조회
+  Future<List<PortfolioModel>> getPortfolioList() async {
+    try {
+      final response = await _portfolioApi.getPortfolioList();
+
+      if (response['code'] == 200 && response['data'] != null) {
+        final data = response['data'];
+        final portfolioListData = (data['portfolioList'] as List)
+            .map((item) => PortfolioModel.fromJson(item))
+            .toList();
+
+        return portfolioListData;
+      }
+
+      throw Exception('API 응답 에러: ${response['message']}');
+    } catch (e) {
+      throw Exception('포트폴리오 목록을 가져오는데 실패했습니다: $e');
+    }
+  }
+
+  // 포트폴리오 카테고리 목록 조회
+  Future<List<PortfolioCategoryModel>> getPortfolioCategoryList() async {
+    try {
+      final response = await _portfolioApi.getPortfolioCategoryList();
+
+      if (response['code'] == 200 && response['data'] != null) {
+        final data = response['data'];
+        final categoryListData = (data['portfolioCategoryList'] as List)
+            .map((item) => PortfolioCategoryModel.fromJson(item))
+            .toList();
+
+        return categoryListData;
+      }
+
+      throw Exception('API 응답 에러: ${response['message']}');
+    } catch (e) {
+      throw Exception('포트폴리오 카테고리 목록을 가져오는데 실패했습니다: $e');
+    }
+  }
+
+  // 포트폴리오를 카테고리별로 그룹화
+  Map<PortfolioCategoryModel, List<PortfolioModel>> groupPortfoliosByCategory(
+      List<PortfolioModel> portfolios) {
+    final result = <PortfolioCategoryModel, List<PortfolioModel>>{};
+
+    for (var portfolio in portfolios) {
+      final category = portfolio.portfolioCategory;
+
+      if (!result.containsKey(category)) {
+        result[category] = [];
+      }
+
+      result[category]!.add(portfolio);
+    }
+
+    return result;
+  }
+
   // 포트폴리오 등록
-  Future<Portfolio> createPortfolio({
-    required File file,
+  Future<PortfolioModel> createPortfolio({
+    required dynamic file,
     required String portfolioMemo,
     required String fileName,
     required int portfolioCategoryPk,
   }) async {
-    return await _portfolioApi.createPortfolio(
-      file: file,
-      portfolioMemo: portfolioMemo,
-      fileName: fileName,
-      portfolioCategoryPk: portfolioCategoryPk,
-    );
-  }
+    try {
+      final response = await _portfolioApi.createPortfolio(
+        file: file,
+        portfolioMemo: portfolioMemo,
+        fileName: fileName,
+        portfolioCategoryPk: portfolioCategoryPk,
+      );
 
-  // 포트폴리오 카테고리 목록 조회
-  Future<List<PortfolioCategory>> getPortfolioCategoryList() async {
-    return await _portfolioApi.getPortfolioCategoryList();
-  }
+      if (response['code'] == 200 && response['data'] != null) {
+        return PortfolioModel.fromJson(response['data']);
+      }
 
-  // 포트폴리오 카테고리 등록
-  Future<List<PortfolioCategory>> createPortfolioCategory({
-    required String categoryMemo,
-    required String categoryName,
-  }) async {
-    return await _portfolioApi.createPortfolioCategory(
-      categoryMemo: categoryMemo,
-      categoryName: categoryName,
-    );
-  }
-
-// 포트폴리오 카테고리 수정
-  Future<PortfolioCategory> updatePortfolioCategory({
-    required int categoryPk,
-    String? categoryName,
-    String? categoryMemo,
-  }) async {
-    return await _portfolioApi.updatePortfolioCategory(
-      categoryPk: categoryPk,
-      categoryName: categoryName,
-      categoryMemo: categoryMemo,
-    );
-  }
-
-// 포트폴리오 카테고리 삭제
-  Future<bool> deletePortfolioCategory({
-    required int categoryPk,
-  }) async {
-    return await _portfolioApi.deletePortfolioCategory(
-      categoryPk: categoryPk,
-    );
-  }
-
-// 포트폴리오 목록 조회
-  Future<List<Portfolio>> getPortfolioList() async {
-    return await _portfolioApi.getPortfolioList();
-  }
-
-// 포트폴리오 상세 조회
-  Future<Portfolio> getPortfolioDetail({
-    required int portfolioPk,
-  }) async {
-    return await _portfolioApi.getPortfolioDetail(
-      portfolioPk: portfolioPk,
-    );
+      throw Exception('API 응답 에러: ${response['message']}');
+    } catch (e) {
+      throw Exception('포트폴리오 등록에 실패했습니다: $e');
+    }
   }
 
 // 포트폴리오 수정
-  Future<Portfolio> updatePortfolio({
+  Future<PortfolioModel> updatePortfolio({
     required int portfolioPk,
-    required int portfolioCategoryPk,
     File? file,
     String? portfolioMemo,
     String? fileName,
+    required int portfolioCategoryPk,
   }) async {
-    return await _portfolioApi.updatePortfolio(
-      portfolioPk: portfolioPk,
-      portfolioCategoryPk: portfolioCategoryPk,
-      file: file,
-      portfolioMemo: portfolioMemo,
-      fileName: fileName,
-    );
+    try {
+      final response = await _portfolioApi.updatePortfolio(
+        portfolioPk: portfolioPk,
+        file: file,
+        portfolioMemo: portfolioMemo,
+        fileName: fileName,
+        portfolioCategoryPk: portfolioCategoryPk,
+      );
+
+      print('Repository received response: $response');
+
+      if (response['code'] == 200 && response['data'] != null) {
+        return PortfolioModel.fromJson(response['data']);
+      }
+
+      final message = response['message'] != null &&
+              response['message'].toString().isNotEmpty
+          ? response['message']
+          : '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+
+      throw Exception('API 응답 에러: $message');
+    } catch (e) {
+      print('Repository update error: $e');
+      throw Exception('포트폴리오 수정에 실패했습니다: $e');
+    }
   }
 
-// 포트폴리오 삭제
-  Future<bool> deletePortfolio({
-    required int portfolioPk,
+// 포트폴리오 카테고리 등록
+  Future<List<PortfolioCategoryModel>> createPortfolioCategory({
+    required String categoryName,
+    required String categoryMemo,
   }) async {
-    return await _portfolioApi.deletePortfolio(
-      portfolioPk: portfolioPk,
-    );
+    try {
+      final response = await _portfolioApi.createPortfolioCategory(
+        categoryName: categoryName,
+        categoryMemo: categoryMemo,
+      );
+
+      if (response['code'] == 200 && response['data'] != null) {
+        final data = response['data'];
+        final categoryListData = (data['portfolioCategoryList'] as List)
+            .map((item) => PortfolioCategoryModel.fromJson(item))
+            .toList();
+
+        return categoryListData;
+      }
+
+      throw Exception('API 응답 에러: ${response['message']}');
+    } catch (e) {
+      throw Exception('포트폴리오 카테고리 등록에 실패했습니다: $e');
+    }
   }
+
+  // 포트폴리오 카테고리 삭제
+Future<bool> deletePortfolioCategories({
+  required List<int> portfolioCategoryPkList,
+}) async {
+  try {
+    final response = await _portfolioApi.deletePortfolioCategories(
+      portfolioCategoryPkList: portfolioCategoryPkList,
+    );
+
+    if (response['code'] == 200 && response['data']['message'] == 'SUCCESS') {
+      return true;
+    }
+
+    throw Exception('카테고리 삭제 실패: ${response['message']}');
+  } catch (e) {
+    throw Exception('포트폴리오 카테고리 삭제에 실패했습니다: $e');
+  }
+}
+
+// 포트폴리오 목록 삭제
+Future<bool> deletePortfolios({
+  required List<int> portfolioPkList,
+}) async {
+  try {
+    final response = await _portfolioApi.deletePortfolios(
+      portfolioPkList: portfolioPkList,
+    );
+
+    if (response['code'] == 200 && response['data']['message'] == 'SUCCESS') {
+      return true;
+    }
+
+    throw Exception('포트폴리오 삭제 실패: ${response['message']}');
+  } catch (e) {
+    throw Exception('포트폴리오 목록 삭제에 실패했습니다: $e');
+  }
+}
 }

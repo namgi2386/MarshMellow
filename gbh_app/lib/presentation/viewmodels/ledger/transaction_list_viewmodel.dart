@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:marshmellow/data/datasources/remote/ledger_api.dart';
 import 'package:marshmellow/di/providers/api_providers.dart';
+import 'package:marshmellow/di/providers/calendar_providers.dart';
 
 // 가계부 API 프로바이더
 final ledgerApiProvider = Provider<LedgerApi>((ref) {
@@ -27,15 +28,32 @@ final transactionRepositoryProvider = Provider<LedgerRepository>((ref) {
 // 현재 선택된 날짜 범위를 확인하는 프로바이더
 final selectedDateRangeProvider = Provider<PickerDateRange>((ref) {
   final datePickerState = ref.watch(datePickerProvider);
+  final payday = ref.watch(paydayProvider); // 월급일 정보 추가
 
-  // 선택된 날짜 범위가 없으면 현재 월 사용
+  // 선택된 날짜 범위가 없으면 월급일 기준으로 계산
   if (datePickerState.selectedRange == null ||
       datePickerState.selectedRange!.startDate == null) {
     final now = DateTime.now();
-    final firstDay = DateTime(now.year, now.month, 1);
-    final lastDay = DateTime(now.year, now.month + 1, 0);
+    DateTime startDate;
+    DateTime endDate;
 
-    return PickerDateRange(firstDay, lastDay);
+    // 현재 날짜가 월급일 이전이면 전 달의 월급일부터
+    if (now.day < payday) {
+      startDate = DateTime(now.year, now.month - 1, payday);
+      endDate = DateTime(now.year, now.month, payday - 1);
+    } else {
+      // 현재 날짜가 월급일 이후면 현재 달의 월급일부터
+      startDate = DateTime(now.year, now.month, payday);
+
+      // 다음 달의 월급일 이전 날까지
+      if (startDate.month == 12) {
+        endDate = DateTime(startDate.year + 1, 1, payday - 1);
+      } else {
+        endDate = DateTime(now.year, now.month + 1, payday - 1);
+      }
+    }
+
+    return PickerDateRange(startDate, endDate);
   }
 
   return datePickerState.selectedRange!;

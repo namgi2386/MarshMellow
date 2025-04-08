@@ -21,6 +21,8 @@ class BudgetTypeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+
     print('🖌️ BudgetTypePage 빌드 시작');
     final budgetTypeState = ref.watch(budgetTypeProvider);
     print('🖌️ 현재 상태: isLoading=${budgetTypeState.isLoading}, hasError=${budgetTypeState.errorMessage != null}, myType=${budgetTypeState.myBudgetType}');
@@ -80,14 +82,15 @@ class BudgetTypeCard extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 30),
+          SizedBox(height: 20),
 
           // 유형 이름
           Text(
             '${myTypeInfo.typeName}',
             style: AppTextStyles.mainTitle.copyWith(
               fontSize: 30,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
+              color: myTypeInfo.color
             ),
             textAlign: TextAlign.center,
           ),
@@ -100,20 +103,27 @@ class BudgetTypeCard extends ConsumerWidget {
             child: 
             Image.asset(
                 'assets/images/characters/char_jump.png',
-                width: 200,
-                height: 200,
+                width: 150,
+                height: 150,
               ),
-            /*
-            Image.asset(
-              myTypeInfo.assetPath,
-              height: 100,
-              width: 100,
-              fit: BoxFit.contain,
-            ),
-            */
           ),
 
-          const SizedBox(height: 30),
+          // const SizedBox(height: 10),
+
+          // 유형 소비 비율 설명
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+            child: Text(
+              '전체 예산 중\n${(ref.read(budgetTypeProvider.notifier).getMyTypeRatio() * 100).toStringAsFixed(0)}%를 '
+              '${myType}으로 사용하고 있습니다.',
+              style: AppTextStyles.bodyMediumLight.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: myTypeInfo.color,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
           
           // 유형 설명 (간략하게)
           Padding(
@@ -122,7 +132,7 @@ class BudgetTypeCard extends ConsumerWidget {
               myTypeInfo.description,
               style: AppTextStyles.bodyMediumLight.copyWith(
                 fontSize: 16,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w300,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
@@ -141,6 +151,7 @@ class BudgetTypeCard extends ConsumerWidget {
                 fontWeight: FontWeight.w200,
                 color: Colors.white,
               ),
+            width: 240,
             ),
 
         ],

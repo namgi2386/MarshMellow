@@ -73,34 +73,45 @@ class AuthMydataCertPwPage extends ConsumerWidget {
       maxLength: 6,
     );
   }
+  
   return Scaffold(
-    body: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 60),
-            Text(
-              passwordState.isConfirmingPassword
-                ? '인증서 비밀번호를 \n한 번 더 입력해 주세요'
-                : '인증서 비밀번호 설정\n비밀번호 6자리를 입력해 주세요',
-              style: AppTextStyles.bodyLarge,
-              textAlign: TextAlign.center,
+    body: Stack(
+      children: [
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 60),
+                Text(
+                  passwordState.isConfirmingPassword
+                    ? '인증서 비밀번호를 \n한 번 더 입력해 주세요'
+                    : '인증서 비밀번호 설정\n비밀번호 6자리를 입력해 주세요',
+                  style: AppTextStyles.bodyLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 50),
+                PinDotsRow(
+                  currentDigit: passwordState.currentDigit,
+                  onTap: showKeyboard,
+                ),
+                const Spacer(),
+              ],
             ),
-            const SizedBox(height: 50),
-            PinDotsRow(
-              currentDigit: passwordState.currentDigit,
-              onTap: showKeyboard,
-            ),
-            const Spacer(),
-
-            // 로딩 표시
-            if (passwordState.isLoading || ref.watch(certificateProcessProvider).isLoading)
-              CustomLoadingIndicator(text:'인증서 생성중',backgroundColor: AppColors.whiteLight, opacity: 0.9,),
-          ],
+          ),
         ),
-      )
+        
+        // 로딩 표시 - Stack의 자식으로 배치하여 전체 화면을 덮도록 함
+        if (passwordState.isLoading || ref.watch(certificateProcessProvider).isLoading)
+          Positioned.fill(
+            child: CustomLoadingIndicator(
+              text: '인증서 생성중',
+              backgroundColor: AppColors.whiteLight, 
+              opacity: 0.9,
+            ),
+          ),
+      ],
     ),
   );
  }

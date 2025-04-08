@@ -12,7 +12,7 @@ import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart
 import 'package:marshmellow/data/repositories/budget/category_repository.dart';
 
 /*
-  예산 카테고리별 지출 프로바이더더
+  예산 카테고리별 지출 프로바이더
 */
 final categoryTransactionsProvider = FutureProvider.family<List<Transaction>, CategoryExpensePageParams>(
   (ref, params) async {
@@ -43,10 +43,13 @@ class CategoryExpensePageParams {
   CategoryExpensePageParams({
     required this.budgetPk,
     required this.categoryPk,
-    required this.startDate,
-    required this.endDate,
+    required String rawStartDate,
+    required String rawEndDate,
     required this.categoryName,
-  });
+  }) :
+
+    startDate = rawStartDate.replaceAll('-', ''),
+    endDate = rawEndDate.replaceAll('-', '');
 
   @override
   bool operator ==(Object other) {
@@ -93,8 +96,8 @@ class CategoryExpensePage extends ConsumerWidget {
     final params = CategoryExpensePageParams(
       budgetPk: budgetPk,
       categoryPk: categoryPk,
-      startDate: selectedBudget.startDate,
-      endDate: selectedBudget.endDate,
+      rawStartDate: selectedBudget.startDate,
+      rawEndDate: selectedBudget.endDate,
       categoryName: category.budgetCategoryName,
     );
     // autoDispose 모디파이어 사용하여 불필요한 api 호출 방지

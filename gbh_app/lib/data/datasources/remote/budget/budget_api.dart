@@ -110,4 +110,22 @@ class BudgetApi {
       throw Exception('Failed to update budget alarm: $e');
     }
   }
+
+  // 예산 생성
+  Future<Map<String, dynamic>> createBudget(Map<String, dynamic> budgetData) async {
+    try {
+      final response = await _apiClient.post(
+        '/mm/budget',
+        data: budgetData,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'];
+      } else {
+        throw Exception('예산 생성에 실패하였습니다: ${response.statusCode}');
+      }
+     } catch (e) {
+      throw Exception('예산 생성에 실패! : $e');
+     }
+  }
 }

@@ -89,6 +89,7 @@ class BudgetTypeViewModel extends StateNotifier<BudgetTypeState> {
 
   // 유형 선택
   void selectBudgetType(String type) {
+    print('🔍 선택한 예산 유형: $type');
     state = state.copyWith(selectedType: type);
   }
 
@@ -119,7 +120,9 @@ class BudgetTypeViewModel extends StateNotifier<BudgetTypeState> {
   // 선택한 유형의 데이터 가져오기
   BudgetTypeData? getSelectedTypeData() {
     if (state.analysisResult == null || state.selectedType == null) return null;
-    return state.analysisResult!.allData[state.selectedType];
+    final typeData = state.analysisResult?.allData[state.selectedType];
+    print('🔍 선택된 유형 데이터: ${typeData?.toMap()}');
+    return typeData;
   }
 
   // 내 예산 유형의 비율 가져오기

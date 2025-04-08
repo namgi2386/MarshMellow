@@ -6,6 +6,7 @@ import 'package:marshmellow/data/models/budget/budget_model.dart';
 import 'package:marshmellow/presentation/pages/budget/budget_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/budget_category_detail_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/category_expense_list_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_creation_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_selection_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/salary_celebrate_page.dart';
@@ -21,6 +22,7 @@ class BudgetRoutes {
   static const String budgetdetail = 'detail/:budgetPk';
   static const String budgetcategoryexpense = 'category/expenses/:categoryPk';
   static const String budgetevent = 'event';
+  static const String budgetcreate = 'create';
 
   // 위시 관련 경로 정의
   static const String wishlistcreate = 'wishlist/create';
@@ -33,6 +35,7 @@ class BudgetRoutes {
   static String getBudgetDetailPath() => '$root/$budgetdetail';
   static String getBudgetCategoryExpensePath() => '$root/$budgetcategoryexpense';
   static String getBudgetEventPath() => '$root/$budgetevent';
+  static String getBudgetCreatePath() => '$root/$budgetcreate';
 
   // 위시 경로 생성 헬퍼 메서드
   static String getWishlistCreatePath() => '$root/$wishlistcreate';
@@ -116,6 +119,14 @@ List<RouteBase> budgetRoutes = [
           return BudgetTypeSelectionPage();
         },
       ),
+
+      // 예산 생성 페이지
+      // GoRoute(
+      //   path: BudgetRoutes.budgetcreate,
+      //   builder: (context, state) {
+      //     return BudgetCreationPage();
+      //   },
+      // ),
 
     ],
   ),

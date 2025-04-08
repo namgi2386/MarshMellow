@@ -350,7 +350,7 @@ class BubblesPainter extends CustomPainter {
       foreground: Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0
-        ..color = AppColors.backgroundBlack,
+        ..color = AppColors.blackLight,
       fontSize: fontSize,
     );
 

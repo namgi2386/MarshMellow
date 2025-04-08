@@ -70,50 +70,55 @@ class BudgetViewModel extends StateNotifier<BudgetState> {
 
   // 전체 예산 로드
   Future<void> fetchBudgets() async {
-  try {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-    final budgets = await _repository.getAllBudgets();
-    
-    // 예산이 있을 경우 첫 번째 예산을 선택
-    BudgetModel? selectedBudget;
-    
-    if (budgets.isNotEmpty) {
-      selectedBudget = budgets[0];
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+      final budgets = await _repository.getAllBudgets();
+      print('📋 전체 예산 목록 로드 완료: ${budgets.length}개');
       
-      state = state.copyWith(
-        budgets: budgets,
-        selectedBudget: selectedBudget,
-        isLoading: false,
-        currentBudgetIndex: 0,
-      );
+      // 예산이 있을 경우 첫 번째 예산을 선택
+      BudgetModel? selectedBudget;
       
-      await fetchDailyBudget();
-    } else {
-      // 예산이 없는 경우 오늘의 예산은 로드하지 않음
-      state = state.copyWith(
-        budgets: budgets,
-        selectedBudget: null,
-        isLoading: false,
-        currentBudgetIndex: 0,
-      );
-    }
-  } catch (e) {
-    // 404 오류는 예산이 없는 정상적인 상황
-    if (e.toString().contains("404")) {
-      state = state.copyWith(
-        budgets: [],
-        selectedBudget: null,
-        isLoading: false,
-        currentBudgetIndex: 0,
-      );
-    } else {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      if (budgets.isNotEmpty) {
+        selectedBudget = budgets[0];
+        
+        print('📋 첫 번째 예산:');
+        print('  - 예산 ID: ${budgets[0].budgetPk}');
+        print('  - 금액: ${budgets[0].budgetAmount}');
+        
+        state = state.copyWith(
+          budgets: budgets,
+          selectedBudget: selectedBudget,
+          isLoading: false,
+          currentBudgetIndex: 0,
+        );
+        
+        await fetchDailyBudget();
+      } else {
+        // 예산이 없는 경우 오늘의 예산은 로드하지 않음
+        state = state.copyWith(
+          budgets: budgets,
+          selectedBudget: null,
+          isLoading: false,
+          currentBudgetIndex: 0,
+        );
+      }
+    } catch (e) {
+      // 404 오류는 예산이 없는 정상적인 상황
+      if (e.toString().contains("404")) {
+        state = state.copyWith(
+          budgets: [],
+          selectedBudget: null,
+          isLoading: false,
+          currentBudgetIndex: 0,
+        );
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: e.toString(),
+        );
+      }
     }
   }
-}
 
   // 일일 예산 로드
   Future<void> fetchDailyBudget() async {
@@ -190,6 +195,49 @@ class BudgetViewModel extends StateNotifier<BudgetState> {
         isLoading: false,
         errorMessage: e.toString(),
       );
+    }
+  }
+
+  // 예산 생성
+  Future<Map<String, dynamic>> createBudget({
+    required int salary,
+    required double fixedExpense,
+    required double foodExpense,
+    required double transportationExpense,
+    required double marketExpense,
+    required double financialExpense,
+    required double leisureExpense,
+    required double coffeeExpense,
+    required double shoppingExpense,
+    required double emergencyExpense,
+  }) async {
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+      
+      final result = await _repository.createBudget(
+        salary: salary,
+        fixedExpense: fixedExpense,
+        foodExpense: foodExpense,
+        transportationExpense: transportationExpense,
+        marketExpense: marketExpense,
+        financialExpense: financialExpense,
+        leisureExpense: leisureExpense,
+        coffeeExpense: coffeeExpense,
+        shoppingExpense: shoppingExpense,
+        emergencyExpense: emergencyExpense,
+      );
+      
+      // 예산 생성 후 전체 예산 다시 로드
+      await fetchBudgets();
+      
+      state = state.copyWith(isLoading: false);
+      return result;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '예산 생성에 실패했습니다: $e',
+      );
+      rethrow;
     }
   }
 }

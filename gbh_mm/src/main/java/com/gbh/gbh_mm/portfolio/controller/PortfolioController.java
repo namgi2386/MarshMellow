@@ -109,7 +109,7 @@ public class PortfolioController {
 
     @PatchMapping
     public ResponseUpdatePortfolio updatePortfolio(
-        @RequestParam MultipartFile file,
+        @RequestParam(required = false) MultipartFile file,
         @RequestParam String portfolioMemo,
         @RequestParam String fileName,
         @RequestParam int portfolioPk,

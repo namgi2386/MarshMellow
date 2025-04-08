@@ -5,13 +5,13 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_model.dart';
-import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_detail_modal.dart';
+import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_edit_modal.dart';
 import 'package:marshmellow/presentation/widgets/modal/modal.dart';
 
-class PortfolioItem extends StatefulWidget {
-  final Portfolio portfolio;
+class PortfolioItem extends StatelessWidget {
+  final PortfolioModel portfolio;
   final VoidCallback? onTap;
-  final Function(Portfolio)? onDelete;
+  final Function(PortfolioModel)? onDelete;
   final SlidableController? controller;
   final bool isSelectionMode;
   final bool isSelected;
@@ -30,63 +30,71 @@ class PortfolioItem extends StatefulWidget {
     this.onLongPress,
   }) : super(key: key);
 
-  @override
-  State<PortfolioItem> createState() => _PortfolioItemState();
-}
-
-class _PortfolioItemState extends State<PortfolioItem> {
-  bool _isDeleting = false;
-
   // 파일 확장자에 따른 아이콘을 선택하는 메서드
   String _selectFileIcon(String fileName) {
-    // 파일명에서 확장자 추출 (대소문자 구분 없이)
     final extension = _extractFileExtension(fileName);
 
-    // 확장자에 따른 아이콘 매핑
-    return switch (extension) {
-      'pdf' => IconPath.filePdf,
-      'doc' || 'docx' => IconPath.fileDoc,
-      'xls' || 'xlsx' => IconPath.fileXls,
-      'ppt' || 'pptx' => IconPath.filePpt,
-      'jpg' || 'jpeg' => IconPath.fileJpg,
-      'png' => IconPath.filePng,
-      'svg' => IconPath.fileSvg,
-      'txt' => IconPath.fileTxt,
-      'zip' || 'rar' => IconPath.fileZip,
-      'csv' => IconPath.fileCsv,
-      _ => IconPath.fileText
-    };
+    switch (extension) {
+      case 'pdf':
+        return IconPath.filePdf;
+      case 'doc':
+      case 'docx':
+        return IconPath.fileDoc;
+      case 'xls':
+      case 'xlsx':
+        return IconPath.fileXls;
+      case 'ppt':
+      case 'pptx':
+        return IconPath.filePpt;
+      case 'jpg':
+      case 'jpeg':
+        return IconPath.fileJpg;
+      case 'png':
+        return IconPath.filePng;
+      case 'svg':
+        return IconPath.fileSvg;
+      case 'txt':
+        return IconPath.fileTxt;
+      case 'zip':
+      case 'rar':
+        return IconPath.fileZip;
+      case 'csv':
+        return IconPath.fileCsv;
+      default:
+        return IconPath.fileText;
+    }
   }
 
   // 안전하게 파일 확장자를 추출하는 메서드
   String _extractFileExtension(String fileName) {
     try {
-      // URL이나 전체 경로에서도 확장자 추출 가능
       final parts = fileName.split('.');
       return parts.isNotEmpty ? parts.last.toLowerCase() : '';
     } catch (e) {
-      // 예외 발생 시 기본값 반환
       return '';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 삭제 중이면 빈 컨테이너 반환
-    if (_isDeleting) {
-      return const SizedBox.shrink();
-    }
-
-    // 아이템 본문
     final itemContent = GestureDetector(
-      onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
-      onLongPress: widget.onLongPress,
+      onTap: () {
+        // 선택 모드일 때는 onSelectionToggle 호출
+        if (isSelectionMode && onSelectionToggle != null) {
+          onSelectionToggle!();
+        }
+        // 선택 모드가 아니고 onTap이 있을 때 호출
+        else if (!isSelectionMode && onTap != null) {
+          onTap!();
+        }
+      },
+      onLongPress: onLongPress,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Row(
           children: [
             SvgPicture.asset(
-              _selectFileIcon(widget.portfolio.originFileName),
+              _selectFileIcon(portfolio.originFileName),
               width: 30,
               height: 30,
               fit: BoxFit.contain,
@@ -96,23 +104,19 @@ class _PortfolioItemState extends State<PortfolioItem> {
               ),
             ),
             const SizedBox(width: 12),
-
-            // 파일 정보
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 파일명
                   Text(
-                    widget.portfolio.fileName,
+                    portfolio.fileName,
                     style: AppTextStyles.bodyMedium,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  // 파일 메모
                   Text(
-                    widget.portfolio.portfolioMemo,
+                    portfolio.portfolioMemo,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w300,
@@ -123,11 +127,10 @@ class _PortfolioItemState extends State<PortfolioItem> {
                 ],
               ),
             ),
-
             // 선택 모드일 때 체크 아이콘 표시
-            if (widget.isSelectionMode)
+            if (isSelectionMode)
               SvgPicture.asset(
-                widget.isSelected ? IconPath.checked : IconPath.unchecked,
+                isSelected ? IconPath.checked : IconPath.unchecked,
                 width: 20,
                 height: 20,
               ),
@@ -136,26 +139,19 @@ class _PortfolioItemState extends State<PortfolioItem> {
       ),
     );
 
-    // 선택 모드가 아닐 때만 Slidable 사용
-    if (!widget.isSelectionMode) {
+    if (!isSelectionMode) {
       return Slidable(
-        key: ValueKey(widget.portfolio.portfolioPk),
-        controller: widget.controller,
+        key: ValueKey(portfolio.portfolioPk),
+        controller: controller,
         endActionPane: ActionPane(
           motion: const ScrollMotion(),
           extentRatio: 0.2,
           dismissible: DismissiblePane(
-            key: ValueKey('dismiss-${widget.portfolio.portfolioPk}'),
+            key: ValueKey('dismiss-${portfolio.portfolioPk}'),
             onDismissed: () {
-              setState(() {
-                _isDeleting = true;
-              });
-
-              Future.microtask(() {
-                if (widget.onDelete != null) {
-                  widget.onDelete!(widget.portfolio);
-                }
-              });
+              if (onDelete != null) {
+                onDelete!(portfolio);
+              }
             },
             closeOnCancel: true,
             confirmDismiss: () async {
@@ -165,15 +161,9 @@ class _PortfolioItemState extends State<PortfolioItem> {
           children: [
             CustomSlidableAction(
               onPressed: (context) {
-                setState(() {
-                  _isDeleting = true;
-                });
-
-                Future.microtask(() {
-                  if (widget.onDelete != null) {
-                    widget.onDelete!(widget.portfolio);
-                  }
-                });
+                if (onDelete != null) {
+                  onDelete!(portfolio);
+                }
               },
               backgroundColor: AppColors.warnning,
               flex: 1,
@@ -188,7 +178,6 @@ class _PortfolioItemState extends State<PortfolioItem> {
       );
     }
 
-    // 선택 모드일 때
     return itemContent;
   }
 }

@@ -9,6 +9,7 @@ class CustomSearchBar extends StatelessWidget {
   final ValueChanged<String>? onSubmitted; // 타입 변경
   final String? hintText;
   final double? height;
+  final FocusNode? focusNode;
 
   const CustomSearchBar(
       {Key? key,
@@ -17,8 +18,8 @@ class CustomSearchBar extends StatelessWidget {
       this.onSearchPressed,
       this.hintText,
       this.height,
-      this.onSubmitted // 타입 변경
-      })
+      this.onSubmitted, // 타입 변경
+      this.focusNode})
       : super(key: key);
 
   @override
@@ -38,6 +39,7 @@ class CustomSearchBar extends StatelessWidget {
               width: containerWidth * 0.85,
               height: height ?? 40, // 높이 설정
               controller: controller,
+              focusNode: focusNode,
               onChanged: onChanged,
               onSubmitted: onSubmitted,
               hintText: hintText,

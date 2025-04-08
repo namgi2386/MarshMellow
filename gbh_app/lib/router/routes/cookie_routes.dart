@@ -63,7 +63,7 @@ List<RouteBase> cookieRoutes = [
             path: 'portfolio-category/:categoryPk',
             builder: (context, state) {
               final categoryPk = int.parse(state.pathParameters['categoryPk']!);
-              return PortfolioCategoryDetailPage(categoryPk: categoryPk);
+              return PortfolioDetailPage(categoryId: categoryPk);
             },
           ),
         ],

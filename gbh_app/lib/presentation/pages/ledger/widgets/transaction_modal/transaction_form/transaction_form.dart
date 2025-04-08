@@ -22,6 +22,7 @@ import 'package:marshmellow/presentation/widgets/completion_message/completion_m
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
+import 'package:marshmellow/di/providers/transaction_filter_provider.dart';
 
 // TransactionForm을 ConsumerStatefulWidget으로 변환
 class TransactionForm extends ConsumerStatefulWidget {
@@ -38,7 +39,7 @@ class TransactionForm extends ConsumerStatefulWidget {
 
 class _TransactionFormState extends ConsumerState<TransactionForm> {
   String _selectedType = '지출'; // 기본값을 지출로 설정
-  String _amount = '0'; // 금액 상태 추가
+  String _amount = ''; // 금액 상태 빈 문자열로 변경
   bool _isSaving = false; // 저장 중 상태
 
   // 폼 레퍼런스 관리
@@ -111,8 +112,8 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
 
   // 가계부 내역 저장 메서드
   Future<void> _saveTransaction() async {
-    // 금액이 0이면 저장하지 않음
-    if (_amount == '0' || _amount.isEmpty) {
+    // 금액이 0이거나 비어있으면 저장하지 않음
+    if (_amount.isEmpty || _amount == '0') {
       CompletionMessage.show(context, message: '금액 입력');
       return;
     }
@@ -213,8 +214,9 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
       // 저장 성공
       CompletionMessage.show(context, message: '저장 완료');
 
-      // 트랜잭션 목록 새로고침
-      ref.refresh(transactionsProvider);
+      // 트랜잭션 목록 및 필터링된 트랜잭션 새로고침
+      ref.invalidate(transactionsProvider);
+      ref.invalidate(filteredTransactionsProvider);
 
       // 월별 통계 새로고침
       final datePickerState = ref.read(datePickerProvider);
@@ -231,7 +233,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
     } catch (e) {
       print('가계부 내역 저장 중 오류: $e');
       if (context.mounted) {
-        CompletionMessage.show(context, message: '저장 중 오류가 발생했습니다');
+        CompletionMessage.show(context, message: '저장 오류');
       }
     } finally {
       // 저장 중 상태 해제

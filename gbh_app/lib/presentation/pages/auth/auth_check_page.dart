@@ -28,8 +28,9 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
   }
 
   // 인증 상태 확인
-  Future<void> _checkAuthStatus() async {;
-  
+  Future<void> _checkAuthStatus() async {
+    ;
+
     // 개발용 자동 로그인 코드 (출시 전 제거)
     // TODO: 출시 전 이 부분 삭제
     final secureStorage = ref.read(secureStorageProvider);
@@ -37,11 +38,22 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
         key: StorageKeys.phoneNumber, value: '01056297169');
     await secureStorage.write(key: StorageKeys.userName, value: '윤잰큰');
     // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
-    await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDEzNjcyNCwiZXhwIjoxNzQ0MTU0NzI0fQ.RtbdBg-N2ZrFd6TZIpedYuXDl7xz8NtXim4gbVBaXrKpTNO8-GPHM_6Zv1nC2WBeIYvQsXpf0GQGSWSHrh0tgg'); 
-    await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0MTM2NzI0LCJleHAiOjE3NzAwNTY3MjR9.RNu8WIajYZHmXQDB43o_3dJYkEro6ex-B6X9Ex9mIjGOevKSODeuc8rXd1fCdBf9lBmt4ztriyCTWJjWYYwQyw'); 
-    await secureStorage.write(key: StorageKeys.certificatePem, value: '-----BEGIN CERTIFICATE-----MIIC4DCCAcigAwIBAgIGAZYOtqPzMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcwNTI2MTJaFw0yNjA0MDcwNTI2MTJaMDYxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxGTAXBgNVBAMTEGhhcHB5MUBnbWFpbC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCBhA73b93l5Ymt4eDYuklKDCmU8C38vba/GUNT4E0M5B99jQZASCc/9wghPqEXdy/8REREl1n3hKxOR/1/u9MMFJ8aLuUfCtZzEtyQqIKsoChQ6ZwxrzoyLvEUG5QyCLy9rFWsM/cvW3cxGA/N3li3Z2XeBrON+YZvtXwsyzVlazXMOsTz1CSrcPVnDA0zQtqmHFvvgMpzWOhIoiYwq9hsJq+tyya0/eBbHEQG59DI8K5AeXKG4Pg1jO4kKBX8zRrL+Wwk98lLO2OUeDgFr6sIyT32MwfGETiuBuBclTbjYx3AXk+/ktlTBGApMSC56pNVypq5e7uMwWQIZ53TeHWDAgMBAAEwDQYJKoZIhvcNAQENBQADggEBAAPqdfZ5/9pJWKkOyr3EOUoSCaUIDpSP4Gx32ptcGiB8cRLrmAzX8ZPQ1nVOZvO8X8gxvyskxW4AH7gH0rrAdhXXyp6o0eT/nrv/ONYEDFNixy5P/ws7lBykZJkaTmzQtZL2ow4PVX9KfzWSMNF4geljBi7xPNxCLOGOORl7PyI49FjURMH1pZV3BxV4439YzPLlPCcs/+cTzaO/KECAPt2Tgj4HtEu1P4OaKjVvIeAH/WcNgnN377V1UTKfd1RJQo4zT/gbyLX5r3vXqk5IikXh05U8VN9Ht60UzYDtvOof1RgXNnnc7Uv/yaufdtjG16Ty0r3BxdXIWuTprZQQWl8=-----END CERTIFICATE-----'); 
-    await secureStorage.write(key: StorageKeys.userkey, value: '2c2fd595-4118-4b6c-9fd7-fc811910bb75');
-                                                                                                                                                                                                                                            
+    await secureStorage.write(
+        key: StorageKeys.accessToken,
+        value:
+            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDEzNjcyNCwiZXhwIjoxNzQ0MTU0NzI0fQ.RtbdBg-N2ZrFd6TZIpedYuXDl7xz8NtXim4gbVBaXrKpTNO8-GPHM_6Zv1nC2WBeIYvQsXpf0GQGSWSHrh0tgg');
+    await secureStorage.write(
+        key: StorageKeys.refreshToken,
+        value:
+            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0MTM2NzI0LCJleHAiOjE3NzAwNTY3MjR9.RNu8WIajYZHmXQDB43o_3dJYkEro6ex-B6X9Ex9mIjGOevKSODeuc8rXd1fCdBf9lBmt4ztriyCTWJjWYYwQyw');
+    await secureStorage.write(
+        key: StorageKeys.certificatePem,
+        value:
+            '-----BEGIN CERTIFICATE-----MIIC4DCCAcigAwIBAgIGAZYOtqPzMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcwNTI2MTJaFw0yNjA0MDcwNTI2MTJaMDYxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxGTAXBgNVBAMTEGhhcHB5MUBnbWFpbC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCBhA73b93l5Ymt4eDYuklKDCmU8C38vba/GUNT4E0M5B99jQZASCc/9wghPqEXdy/8REREl1n3hKxOR/1/u9MMFJ8aLuUfCtZzEtyQqIKsoChQ6ZwxrzoyLvEUG5QyCLy9rFWsM/cvW3cxGA/N3li3Z2XeBrON+YZvtXwsyzVlazXMOsTz1CSrcPVnDA0zQtqmHFvvgMpzWOhIoiYwq9hsJq+tyya0/eBbHEQG59DI8K5AeXKG4Pg1jO4kKBX8zRrL+Wwk98lLO2OUeDgFr6sIyT32MwfGETiuBuBclTbjYx3AXk+/ktlTBGApMSC56pNVypq5e7uMwWQIZ53TeHWDAgMBAAEwDQYJKoZIhvcNAQENBQADggEBAAPqdfZ5/9pJWKkOyr3EOUoSCaUIDpSP4Gx32ptcGiB8cRLrmAzX8ZPQ1nVOZvO8X8gxvyskxW4AH7gH0rrAdhXXyp6o0eT/nrv/ONYEDFNixy5P/ws7lBykZJkaTmzQtZL2ow4PVX9KfzWSMNF4geljBi7xPNxCLOGOORl7PyI49FjURMH1pZV3BxV4439YzPLlPCcs/+cTzaO/KECAPt2Tgj4HtEu1P4OaKjVvIeAH/WcNgnN377V1UTKfd1RJQo4zT/gbyLX5r3vXqk5IikXh05U8VN9Ht60UzYDtvOof1RgXNnnc7Uv/yaufdtjG16Ty0r3BxdXIWuTprZQQWl8=-----END CERTIFICATE-----');
+    await secureStorage.write(
+        key: StorageKeys.userkey,
+        value: '2c2fd595-4118-4b6c-9fd7-fc811910bb75');
+
     // secure storage에서 필요한 정보 불러오기
     // final secureStorage = ref.read(secureStorageProvider);
     final phoneNumber = await secureStorage.read(key: StorageKeys.phoneNumber);

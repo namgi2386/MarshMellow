@@ -6,27 +6,38 @@ import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_category_model.dart';
 
 class CategoryItem extends StatelessWidget {
-  final PortfolioCategory category;
-  final VoidCallback onTap;
+  final PortfolioCategoryModel category;
+  final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final bool isSelected;
   final bool isSelectionMode;
+  final VoidCallback? onSelectionToggle;
 
   const CategoryItem({
     Key? key,
     required this.category,
-    required this.onTap,
+    this.onTap,
     this.onLongPress,
     this.isSelected = false,
     this.isSelectionMode = false,
+    this.onSelectionToggle,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        // 선택 모드일 때는 onSelectionToggle 호출
+        if (isSelectionMode && onSelectionToggle != null) {
+          onSelectionToggle!();
+        }
+        // 선택 모드가 아니고 onTap이 있을 때 호출
+        else if (!isSelectionMode && onTap != null) {
+          onTap!();
+        }
+      },
       onLongPress: onLongPress,
-      child: Container(
+      child: SizedBox(
         width: 300,
         height: 260,
         child: Stack(
@@ -38,12 +49,11 @@ class CategoryItem extends StatelessWidget {
               width: 300,
               height: 260,
               fit: BoxFit.contain,
-              colorFilter: ColorFilter.mode(
+              colorFilter: const ColorFilter.mode(
                 AppColors.textPrimary,
                 BlendMode.srcIn,
               ),
             ),
-
             // 텍스트 오버레이
             Positioned(
               top: 50,
@@ -74,7 +84,6 @@ class CategoryItem extends StatelessWidget {
                 ],
               ),
             ),
-
             // 체크 아이콘 (선택 모드일 때만 표시)
             if (isSelectionMode)
               Positioned(

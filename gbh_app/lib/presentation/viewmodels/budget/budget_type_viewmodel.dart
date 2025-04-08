@@ -66,7 +66,7 @@ class BudgetTypeViewModel extends StateNotifier<BudgetTypeState> {
       state = state.copyWith(isLoading: true, errorMessage: null);
       
       // 실제 데이터가 없는 경우 더미 데이터 사용
-      final result = await _repository.analyzeWithDummyData();
+      final result = await _repository.anaylyzeWithApiData();
       print('✅ 분석 결과 수신: ${result.myData.keys}');
       
       // 내 유형 찾기 (my_data의 첫 번째 키)

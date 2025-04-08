@@ -1,31 +1,43 @@
+import 'package:marshmellow/data/datasources/remote/budget/budget_avg_api.dart';
 import 'package:marshmellow/data/datasources/remote/budget/budget_type_api.dart';
 import 'package:marshmellow/data/models/budget/budget_type_model.dart';
 
 class BudgetTypeRepository {
   final BudgetTypeApi _budgetTypeApi;
+  final BudgetAvgApi _budgetAvgApi;
 
-  BudgetTypeRepository(this._budgetTypeApi);
+  BudgetTypeRepository(this._budgetTypeApi, this._budgetAvgApi);
 
   // 예산 유형 분석
   Future<BudgetTypeAnalysisResponse> analyzeBudgetType(BudgetTypeAnalysisRequest request) async {
     return await _budgetTypeApi.analyzeBudgetType(request);
   }
 
-  // request body 더미
-  Future<BudgetTypeAnalysisResponse> analyzeWithDummyData() async {
-    final dummyRequest = BudgetTypeAnalysisRequest(
-      salary: 3000000,
-      fixedExpense: 0.2,
-      foodExpense: 0.7,
-      transportationExpense: 0.2,
-      marketExpense: 0.2,
-      financialExpense: 0.6,
-      leisureExpense: 0.2,
-      coffeeExpense: 0.1,
-      shoppingExpense: 0.2,
-      emergencyExpense: 0.1,
-    );
-    return await _budgetTypeApi.analyzeBudgetType(dummyRequest);
+  // 월급 대비 지출 평균 조회 후 예산 유형 분석 요청
+  Future<BudgetTypeAnalysisResponse> anaylyzeWithApiData() async {
+    try {
+      // 월급 대비 지출 평균 조회
+      final avgData = await _budgetAvgApi.getBudgetAverage();
+
+      // API 응답을 BudgetTypeAnlysisRequest로 반환
+      final request = BudgetTypeAnalysisRequest(
+        salary: avgData['salary'] ?? 0, 
+        fixedExpense: avgData['fixedAvg'] ?? 0, 
+        foodExpense: avgData['foodAvg'] ?? 0, 
+        transportationExpense: avgData['trafficAvg'] ?? 0, 
+        marketExpense: avgData['martAvg'] ?? 0, 
+        financialExpense: avgData['bankAvg'] ?? 0, 
+        leisureExpense: avgData['leisureAvg'] ?? 0, 
+        coffeeExpense: avgData['coffeeAvg'] ?? 0, 
+        shoppingExpense: avgData['shoppingAvg'] ?? 0, 
+        emergencyExpense: avgData['emergencyAvg'] ?? 0
+      );
+
+      // 예산 유형 분석 api 호출
+      return await _budgetTypeApi.analyzeBudgetType(request);
+    } catch (e) {
+      throw Exception('예산 유형 분석 정보를 불러오는데 실패했습니다: $e');
+    }
   }
 
   // 예산 유형 선택 저장

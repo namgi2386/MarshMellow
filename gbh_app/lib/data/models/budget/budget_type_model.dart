@@ -68,10 +68,8 @@ class BudgetTypeAnalysisResponse {
   });
 
   factory BudgetTypeAnalysisResponse.fromJson(Map<String, dynamic> json) {
-    print('📊 응답 파싱 시작: $json');
     // myData 파싱
     final myDataJson = json['my_data'] as Map<String, dynamic>;
-    print('📊 my_data: $myDataJson');
     final myDataMap = <String, BudgetTypeData>{};
     
     myDataJson.forEach((key, value) {
@@ -165,7 +163,6 @@ class BudgetTypeInfo {
     print('🔍 유형 정보 요청: $type');
     switch (type) {
       case '식비/외식':
-        print('🔍 식비/외식 유형 정보 반환'); 
         return BudgetTypeInfo(
           type: type,
           typeName: '아기 돼지 삼형제 형',

@@ -71,7 +71,6 @@ class BudgetCategoryModel {
   });
 
   factory BudgetCategoryModel.fromJson(Map<String, dynamic> json) {
-    print('BudgetCategory JSON: $json');
     return BudgetCategoryModel(
       budgetCategoryPk: json['budgetCategoryPk'], 
       budgetCategoryName: json['budgetCategoryName'], 

@@ -108,7 +108,6 @@ class BudgetTypeSelectionPage extends ConsumerWidget {
                           MaterialPageRoute(
                             builder: (context) => BudgetCreationPage(
                               selectedType: state.selectedType!,
-                              // salary: salary
                             )
                           )
                         );

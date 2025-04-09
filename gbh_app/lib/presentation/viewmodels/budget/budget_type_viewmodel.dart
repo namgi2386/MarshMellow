@@ -45,7 +45,7 @@ class BudgetTypeState {
 /*
   예산 유형별 분석 viewmodel provider
 */
-final budgetTypeProvider = StateNotifierProvider<BudgetTypeViewModel, BudgetTypeState>((ref) {
+final budgetTypeProvider = StateNotifierProvider.autoDispose<BudgetTypeViewModel, BudgetTypeState>((ref) {
   final repository = ref.watch(budgetTypeRepositoryProvider);
   return BudgetTypeViewModel(repository);
 });

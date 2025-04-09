@@ -37,7 +37,6 @@ class CategoryTransactionApi {
         'aiCategory': aiCategory,
       };
 
-      print('🍀🍀🍀api 요청 본문: $body');
 
       final response = await _apiClient.post(
         '/mm/budget/detail',

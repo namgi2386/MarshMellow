@@ -122,7 +122,7 @@ class WishSelectionNotifier extends StateNotifier<WishSelectionState> {
 }
 
 // Provider
-final wishSelectionProvider = StateNotifierProvider<WishSelectionNotifier, WishSelectionState>((ref) {
+final wishSelectionProvider = StateNotifierProvider.autoDispose<WishSelectionNotifier, WishSelectionState>((ref) {
   final repository = ref.watch(wishRepositoryProvider);
   return WishSelectionNotifier(repository);
 });

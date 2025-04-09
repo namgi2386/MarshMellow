@@ -18,7 +18,7 @@ final categoryTransactionsProvider = FutureProvider.autoDispose.family<List<Tran
   (ref, params) async {
     final repository = ref.watch(categoryTransactionRepositoryProvider);
 
-    print('Provider 호출: budgetPk=${params.budgetPk}, categoryPk=${params.categoryPk}, categoryName=${params.categoryName}');
+    // print('Provider 호출: budgetPk=${params.budgetPk}, categoryPk=${params.categoryPk}, categoryName=${params.categoryName}');
 
     // 카테고리 지출 내역 조회 API 호출
     return repository.getCategoryTransactions(

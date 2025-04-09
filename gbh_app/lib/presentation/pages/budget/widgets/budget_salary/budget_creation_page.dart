@@ -95,17 +95,17 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
       
       // 비율 데이터 변환
       final expenseData = selectedTypeData.toMap();
-      print('🚀 예산 생성 요청 데이터:');
-      print('  - 급여: $salary');
-      print('  - 식비/외식: ${expenseData['식비/외식']}');
-      print('  - 교통/자동차: ${expenseData['교통/자동차']}');
-      print('  - 고정지출: ${expenseData['고정지출']}');
-      print('  - 편의점/마트: ${expenseData['편의점/마트']}');
-      print('  - 금융: ${expenseData['금융']}');
-      print('  - 여가비: ${expenseData['여가비']}');
-      print('  - 커피/디저트: ${expenseData['커피/디저트']}');
-      print('  - 쇼핑: ${expenseData['쇼핑']}');
-      print('  - 비상금: ${expenseData['비상금']}');
+      // print('🚀 예산 생성 요청 데이터:');
+      // print('  - 급여: $salary');
+      // print('  - 식비/외식: ${expenseData['식비/외식']}');
+      // print('  - 교통/자동차: ${expenseData['교통/자동차']}');
+      // print('  - 고정지출: ${expenseData['고정지출']}');
+      // print('  - 편의점/마트: ${expenseData['편의점/마트']}');
+      // print('  - 금융: ${expenseData['금융']}');
+      // print('  - 여가비: ${expenseData['여가비']}');
+      // print('  - 커피/디저트: ${expenseData['커피/디저트']}');
+      // print('  - 쇼핑: ${expenseData['쇼핑']}');
+      // print('  - 비상금: ${expenseData['비상금']}');
 
       
       // 예산 생성 API 호출

@@ -24,7 +24,6 @@ class BudgetCreationPage extends ConsumerStatefulWidget {
   const BudgetCreationPage({
     Key? key,
     required this.selectedType,
-    // required this.salary,
   }) : super(key: key);
 
   @override
@@ -71,7 +70,7 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
       final userInfoState = ref.read(userInfoProvider);
       final salary = userInfoState.userDetail.salaryAmount;
 
-      print('✨✨✨✨내월급 : $salary');
+      print('✨✨✨✨내월급 : $salary✨✨✨✨');
 
       if (salary == null) {
         setState(() {
@@ -222,20 +221,20 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
   }
 
   // 선택된 카테고리 이름 가져오기
-String _getSelectedCategoryName() {
-  if (_selectedCategoryPk == null || _createdBudget == null) return '';
-  
-  final selectedCategory = _createdBudget!.budgetCategoryList.firstWhere(
-    (category) => category.budgetCategoryPk == _selectedCategoryPk,
-    orElse: () => BudgetCategoryModel(
-      budgetCategoryPk: 0,
-      budgetCategoryName: '',
-      budgetCategoryPrice: 0,
-    ),
-  );
-  
-  return selectedCategory.budgetCategoryName;
-}
+  String _getSelectedCategoryName() {
+    if (_selectedCategoryPk == null || _createdBudget == null) return '';
+    
+    final selectedCategory = _createdBudget!.budgetCategoryList.firstWhere(
+      (category) => category.budgetCategoryPk == _selectedCategoryPk,
+      orElse: () => BudgetCategoryModel(
+        budgetCategoryPk: 0,
+        budgetCategoryName: '',
+        budgetCategoryPrice: 0,
+      ),
+    );
+    
+    return selectedCategory.budgetCategoryName;
+  }
 
 // 선택된 카테고리 색상 가져오기
 Color _getSelectedCategoryColor() {

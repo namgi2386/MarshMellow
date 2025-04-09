@@ -12,6 +12,7 @@ import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart
 import 'package:marshmellow/presentation/viewmodels/wishlist/wish_provider.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/modal/modal.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BudgetPage extends ConsumerStatefulWidget {
   const BudgetPage({super.key});

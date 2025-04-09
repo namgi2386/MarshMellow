@@ -86,52 +86,52 @@ class _SalaryCelebratePageState extends ConsumerState<SalaryCelebratePage> {
 
     return Scaffold(
       body: Stack(
-  children: [
+      children: [
 
-    // celebration 위젯이 아래로 가도록 순서 바꿈!
-    if (showCelebration)
-      CelebrationPopup(
-        titleText: '야호!',
-        subtitleText: 
-          '${userName.isNotEmpty ? userName : '사용자'} 님의\n월급날입니다!',
-        characterImagePath: 'assets/images/characters/char_jump.png',
-        confettiCount: 20,
-        confettiDuration: 4000,
-      ),
+        // celebration 위젯이 아래로 가도록 순서 바꿈!
+        if (showCelebration)
+          CelebrationPopup(
+            titleText: '야호!',
+            subtitleText: 
+              '${userName.isNotEmpty ? userName : '윤재은'} 님의\n월급날입니다!',
+            characterImagePath: 'assets/images/characters/char_jump.png',
+            confettiCount: 20,
+            confettiDuration: 4000,
+          ),
 
-    // BudgetTypeCard를 오버레이로 표시
-    if (showBudgetTypeOVerlay)
-      Positioned.fill(
-        child: Container(
-          color: Colors.black.withOpacity(0.4),
-          child: Center(
-            child: AnimatedOpacity(
-              opacity: showBudgetTypeOVerlay ? 1.0 : 0.0,
-              duration: Duration(milliseconds: 500),
-              child: Container(
-                width: screenWidth * 0.85,
-                height: screenHeight * 0.65,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 15,
-                      spreadRadius: 5,
+        // BudgetTypeCard를 오버레이로 표시
+        if (showBudgetTypeOVerlay)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.4),
+              child: Center(
+                child: AnimatedOpacity(
+                  opacity: showBudgetTypeOVerlay ? 1.0 : 0.0,
+                  duration: Duration(milliseconds: 500),
+                  child: Container(
+                    width: screenWidth * 0.85,
+                    height: screenHeight * 0.65,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 15,
+                          spreadRadius: 5,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: BudgetTypeCard(
-                  onTapMoreDetails: _navigateToBudgetTypePage,
+                    child: BudgetTypeCard(
+                      onTapMoreDetails: _navigateToBudgetTypePage,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
-  ],
-)
+      ],
+    )
 
     );
   }

@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marshmellow/core/constants/storage_keys.dart';
 import 'package:marshmellow/data/models/my/user_detail_info.dart';
 import 'package:marshmellow/data/models/wishlist/wish_model.dart';
 import 'package:marshmellow/data/repositories/budget/wish_repository.dart';
+import 'package:marshmellow/di/providers/core_providers.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/wishlist/wish_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WishSelectionState {
   final bool isLoading;
@@ -87,7 +90,10 @@ class WishSelectionNotifier extends StateNotifier<WishSelectionState> {
       }
 
       // 2. 자동이체 등록 API 호출
-      final userPk = 1; // TODO: 실제 사용자 PK 가져오기 (인증 관련 provider에서 가져오는 것이 좋음)
+      final prefs = await SharedPreferences.getInstance();
+      final userPk =prefs.getString(StorageKeys.userId) ?? '2';
+      print('🍡🍡🍡저는 $userPk 번 사용자입니다');
+      // final userPk = 1; // TODO: 실제 사용자 PK 가져오기 (인증 관련 provider에서 가져오는 것이 좋음)
       
       final transferResponse = await _wishRepository.registerAutoTransfer(
         withdrawalAccountNo: withdrawalAccountNo,
@@ -95,7 +101,7 @@ class WishSelectionNotifier extends StateNotifier<WishSelectionState> {
         dueDate: dueDate,
         transactionBalance: transactionBalance,
         wishListPk: wishlistPk,
-        userPk: userPk,
+        userPk: int.parse(userPk),
       );
       
       if (transferResponse.code != 200) {

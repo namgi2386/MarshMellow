@@ -121,6 +121,10 @@ class BudgetTypeViewModel extends StateNotifier<BudgetTypeState> {
   BudgetTypeData? getSelectedTypeData() {
     if (state.analysisResult == null || state.selectedType == null) return null;
     final typeData = state.analysisResult?.allData[state.selectedType];
+    if (typeData == null && state.selectedType == state.myBudgetType) {
+      print('🔍 선택된 유형은 내 유형이므로 myData에서 데이터 가져옴');
+      return state.analysisResult?.myData[state.selectedType];
+    }
     print('🔍 선택된 유형 데이터: ${typeData?.toMap()}');
     return typeData;
   }

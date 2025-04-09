@@ -8,6 +8,7 @@ import 'package:marshmellow/presentation/viewmodels/wishlist/wishlist_providers.
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
 import 'package:marshmellow/presentation/widgets/modal/modal.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
 
 /*
   예산 분배 완료 후, 
@@ -228,7 +229,7 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        context.push('/wish/setup', extra: wishlist);
+                        context.go(BudgetRoutes.getWishSetUpPath(), extra: wishlist);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.blueDark,

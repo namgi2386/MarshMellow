@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:marshmellow/data/models/budget/budget_model.dart';
+import 'package:marshmellow/data/models/wishlist/wishlist_model.dart';
 import 'package:marshmellow/presentation/pages/budget/budget_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/budget_category_detail_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/category_expense_list_page.dart';
@@ -11,6 +12,7 @@ import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budg
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_selection_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/salary_celebrate_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/salary_to_wish/wish_selection_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/salary_to_wish/wish_setup_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/wish/wishlist_creation_page.dart';
 import 'package:marshmellow/app.dart';
 
@@ -35,6 +37,7 @@ class BudgetRoutes {
 
   // 위시 생성 경로 정의
   static const String wishcreate = 'wish/create';
+  static const String wishsetup = 'wish/setup';
 
   // 예산 경로 생성 헬퍼 메서드
   static String getBudgetDetailPath() => '$root/$budgetdetail';
@@ -52,6 +55,7 @@ class BudgetRoutes {
 
   // 위시 생성 경로 생성 헬퍼 메서드
   static String getWishCreatePath() => '$root/$wishcreate';
+  static String getWishSetUpPath() => '$root/$wishsetup';
 }
 
 List<RouteBase> budgetRoutes = [
@@ -150,6 +154,15 @@ List<RouteBase> budgetRoutes = [
         path: BudgetRoutes.wishcreate,
         builder: (context, state) {
           return WishSelectionPage();
+        },
+      ),
+
+      // 위시 생성 페이지
+      GoRoute(
+        path: BudgetRoutes.wishsetup,
+        builder: (context, state) {
+          final wishlist = state.extra as Wishlist;
+          return WishSetupPage(wishlist: wishlist);
         },
       ),
 

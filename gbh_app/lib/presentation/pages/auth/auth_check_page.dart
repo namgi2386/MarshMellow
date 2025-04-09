@@ -38,7 +38,6 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
         key: StorageKeys.phoneNumber, value: '01001080108');
     await secureStorage.write(key: StorageKeys.userName, value: '윤재은');
     await secureStorage.write(key: StorageKeys.certificatePassword, value: '123456');
-
     // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
     await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjc4LCJzdWIiOiJhY2Nlc3MtdG9rZW4iLCJpYXQiOjE3NDQxNTg4NDEsImV4cCI6MTc0NDE3Njg0MX0.3IORypr1QkzO-hvC_-u_Yo8fFDxTiFrQmbvjkXZFaOQ_nKnGQvXyWvZwFzITxuzKYGHp63k9rX2tDKfRRglO3Q'); 
     await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjo3OCwic3ViIjoicmVmcmVzaC10b2tlbiIsImlhdCI6MTc0NDE1ODg0MSwiZXhwIjoxNzcwMDc4ODQxfQ.EoAOIegADEuR6qr4V425pzWqL6lLR_91OoqEb-bLHayXDSDgRojAQt53lxLXj1dSwsNJWyZ7IV61ZfYJ0H5woA');

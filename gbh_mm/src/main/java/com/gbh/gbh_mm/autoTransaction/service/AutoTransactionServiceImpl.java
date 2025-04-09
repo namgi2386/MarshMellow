@@ -1,14 +1,20 @@
 package com.gbh.gbh_mm.autoTransaction.service;
 
+import com.gbh.gbh_mm.api.DemandDepositAPI;
+import com.gbh.gbh_mm.autoTransaction.model.dto.DemandDepositDto;
 import com.gbh.gbh_mm.autoTransaction.model.entity.AutoTransaction;
 import com.gbh.gbh_mm.autoTransaction.model.vo.request.RequestCreateAutoTransaction;
 import com.gbh.gbh_mm.autoTransaction.model.vo.response.ResponseCreateAutoTransaction;
+import com.gbh.gbh_mm.autoTransaction.model.vo.response.ResponseDemandDepositList;
 import com.gbh.gbh_mm.autoTransaction.repo.AutoTransactionRepository;
 import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.wishlist.model.entity.Wishlist;
 import com.gbh.gbh_mm.wishlist.repo.WishlistRepository;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +24,7 @@ public class AutoTransactionServiceImpl implements AutoTransactionService {
     private final AutoTransactionRepository autoTransactionRepository;
     private final UserRepository userRepository;
     private final WishlistRepository wishlistRepository;
+    private final DemandDepositAPI demandDepositAPI;
 
     @Override
     public ResponseCreateAutoTransaction createAutoTransaction(
@@ -62,5 +69,34 @@ public class AutoTransactionServiceImpl implements AutoTransactionService {
             .message("등록 성공")
             .build();
         return response;
+    }
+
+    @Override
+    public ResponseDemandDepositList findDemandDepositList(CustomUserDetails customUserDetails) {
+        String userKey = customUserDetails.getUserKey();
+
+        try {
+            Map<String, Object> responseData = demandDepositAPI.findDemandDepositAccountList(userKey);
+            Map<String, Object> apiData = (Map<String, Object>) responseData.get("apiResponse");
+            List<Map<String, Object>> recData = (List<Map<String, Object>>) apiData.get("REC");
+
+            List<DemandDepositDto> demandDepositDtos = new ArrayList<>();
+            for (Map<String, Object> recDatum : recData) {
+                DemandDepositDto demandDepositDto = DemandDepositDto.builder()
+                    .bankName((String) recDatum.get("bankName"))
+                    .accountNo((String) recDatum.get("accountNo"))
+                    .build();
+
+                demandDepositDtos.add(demandDepositDto);
+            }
+
+            return ResponseDemandDepositList.builder()
+                .demandDepositList(demandDepositDtos)
+                .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

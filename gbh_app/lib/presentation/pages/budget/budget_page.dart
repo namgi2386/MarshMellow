@@ -48,26 +48,6 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
       );
     }
 
-    if (state.errorMessage != null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('오류: ${state.errorMessage}'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  ref.read(budgetProvider.notifier).fetchBudgets();
-                },
-                child: const Text('다시 시도'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     if (state.budgets.isEmpty) {
       return Scaffold(
         // backgroundColor: Colors.white,
@@ -79,7 +59,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/characters/char_angry_notebook.png', // 실제 이미지 경로로 변경
+                'assets/images/characters/char_angry_notebook.png', 
                 width: 180,
                 height: 180,
               ),
@@ -116,7 +96,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/characters/char_angry_notebook.png', // 실제 이미지 경로로 변경
+                'assets/images/characters/char_angry_notebook.png', 
                 width: 180,
                 height: 180,
               ),

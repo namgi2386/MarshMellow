@@ -87,3 +87,127 @@ class WishDetail {
     );
   }
 }
+
+/*
+  위시 선택 api 응답 모델
+*/
+class WishSelectionResponse {
+  final int code;
+  final String message;
+  final WishSelectionData? data;
+
+WishSelectionResponse({
+  required this.code,
+  required this.message,
+  this.data,
+});
+
+  factory WishSelectionResponse.fromJson(Map<String, dynamic> json) {
+    return WishSelectionResponse(
+      code: json['code'],
+      message: json['message'],
+      data: json['data'] != null ? WishSelectionData.fromJson(json['data']) : null,
+    );
+  }
+}
+
+/*
+  위시 선택 api 요청 모델
+*/
+class WishSelectionData {
+  final String message;
+  final String isSelected;
+
+  WishSelectionData({
+    required this.message,
+    required this.isSelected,
+  });
+
+  factory WishSelectionData.fromJson(Map<String, dynamic> json) {
+    return WishSelectionData(
+      message: json['message'],
+      isSelected: json['isSelected'],
+    );
+  }
+}
+
+/*
+  자동이체 등록 api 응답 모델
+*/
+class AutoTransferResponse {
+  final int code;
+  final String message;
+  final dynamic data;
+
+  AutoTransferResponse({
+    required this.code,
+    required this.message,
+    this.data,
+  });
+
+  factory AutoTransferResponse.fromJson(Map<String, dynamic> json) {
+    return AutoTransferResponse(
+      code: json['code'],
+      message: json['message'],
+      data: json['data'],
+    );
+  }
+}
+
+/*
+  입출금 계좌 목록 api 응답 모델
+*/
+class DemandDepositResponse {
+  final int code;
+  final String message;
+  final DemDepData data;
+
+  DemandDepositResponse({
+    required this.code,
+    required this.message,
+    required this.data,
+  });
+
+  factory DemandDepositResponse.fromJson(Map<String, dynamic> json) {
+    return DemandDepositResponse(
+      code: json['code'],
+      message: json['message'],
+      data: DemDepData.fromJson(json['data']),
+    );
+  }
+}
+
+// 입출금 계좌 데이터 모델
+class DemDepData {
+  final List<DemDepItem> demandDepositList;
+
+  DemDepData({
+    required this.demandDepositList,
+  });
+
+  factory DemDepData.fromJson(Map<String, dynamic> json) {
+    return DemDepData(
+      demandDepositList: (json['demandDepositList'] as List)
+          .map((item) => DemDepItem.fromJson(item))
+          .toList(),
+    );
+  }
+}
+
+// 입출금 계좌 항목 모델
+class DemDepItem {
+  final String accountNo;
+  final String bankName;
+
+  DemDepItem({
+    required this.accountNo,
+    required this.bankName,
+  });
+
+  factory DemDepItem.fromJson(Map<String, dynamic> json) {
+    return DemDepItem(
+      accountNo: json['accountNo'],
+      bankName: json['bankName'],
+    );
+  }
+}

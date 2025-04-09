@@ -72,7 +72,7 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
 
   void _navigateToBudgetTypePage() async {
     // 이 플로우 봣다고 체크하자!
-    await UserPreferencesService.markBudgetFlowAsSeen();
+    // await UserPreferencesService.markBudgetFlowAsSeen();
     context.go(BudgetRoutes.getBudgetTypeSelectionPath());
   }
 

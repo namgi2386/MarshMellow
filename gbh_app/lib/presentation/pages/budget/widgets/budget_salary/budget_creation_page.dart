@@ -14,6 +14,7 @@ import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dar
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/numeric_keyboard.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
 
 class BudgetCreationPage extends ConsumerStatefulWidget {
   final String selectedType;
@@ -310,8 +311,10 @@ Color _getSelectedCategoryColor() {
     }
 
     return Scaffold(
+      backgroundColor: AppColors.whiteDark,
       appBar: CustomAppbar(
         title: title,
+        backgroundColor: AppColors.whiteDark
         // leading: IconButton(
         //   icon: Icon(Icons.close),
         //   onPressed: () {
@@ -419,8 +422,8 @@ Color _getSelectedCategoryColor() {
                               if (_isEditingAmount) {
                                 _updateCategoryBudget();
                               }
-                              // 메인 예산 페이지로 이동
-                              context.go('/budget');
+                              // 위시 생성 페이지로 이동
+                              context.go(BudgetRoutes.getWishCreatePath());
                             },
                           ),
                         ),// 키보드 공간 확보

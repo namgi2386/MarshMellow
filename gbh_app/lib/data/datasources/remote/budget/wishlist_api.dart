@@ -111,14 +111,7 @@ class WishlistApi {
     return response.data;
   }
 
-  // 링크 크롤링 메서드
-  // Future<Map<String, dynamic>> crawlProductUrl(String url) async {
-  //   final data = {'url': url};
-  //   final response = await _apiClient.post('/mm/wishlist/jsoup', data: data);
-  //   return response.data;
-  // }
-
-  // 디버깅용
+  // 위시리스트 크롤링
   Future<Map<String, dynamic>> crawlProductUrl(String url) async {
   try {
     print("🐥🐥크롤링 요청 URL: $url");
@@ -157,6 +150,41 @@ class WishApi {
   // 특정 wish 상세 조회
   Future<Map<String, dynamic>> getWishDetail(int wishPk) async {
     final response = await _apiClient.get('/mm/wish/detail/$wishPk');
+    return response.data;
+  }
+
+  // wish 생성
+  Future<Map<String, dynamic>> selectWish(int wishPk, String isSelected) async {
+    final data = {'isSelected' : isSelected};
+    final response = await _apiClient.post('/mm/wishlist/detail/$wishPk');
+    return response.data;
+  }
+
+  // 자동이체 등록
+  Future<Map<String, dynamic>> registerAutoTransaction({
+    required String withdrawalAccountNo, // 출금 계좌번호
+    required String depositAccountNo,    // 입금 계좌번호
+    required String dueDate,             // 자동이체 종료일
+    required int transactionBalance,  // 자동이체 금액
+    required int wishListPk,             // 위시리스트 고유 번호
+    required int userPk,                 // 회원 고유번호
+  }) async {
+    final data = {
+      'withdrawalAccountNo': withdrawalAccountNo,
+      'depositAccountNo': depositAccountNo,
+      'dueDate': dueDate,
+      'transactionBalance': transactionBalance,
+      'wishListPk': wishListPk,
+      'userPk': userPk,
+    };
+    
+    final response = await _apiClient.post('/household/transaction-data', data: data);
+    return response.data;
+  }
+
+  // 입출금 계좌 목록 조회
+  Future<Map<String, dynamic>> getDemDepList() async {
+    final response = await _apiClient.get('/auto-transaction/demand-deposit-list');
     return response.data;
   }
 }

@@ -30,4 +30,35 @@ class BudgetRepository {
   Future<Map<String, dynamic>> updateBudgetAlarm(String alarmTime) async {
     return await _budgetApi.updateBudgetAlarm(alarmTime);
   }
+
+  // 예산 생성
+  Future<Map<String, dynamic>> createBudget({
+    required int salary,
+    required double fixedExpense,
+    required double foodExpense,
+    required double transportationExpense,
+    required double marketExpense,
+    required double financialExpense,
+    required double leisureExpense,
+    required double coffeeExpense,
+    required double shoppingExpense,
+    required double emergencyExpense,
+  }) async {
+    print('📊 Repository: 예산 생성 요청');
+    final budgetData = {
+      'salary': salary,
+      'fixedExpense': fixedExpense,
+      'foodExpense': foodExpense,
+      'transportationExpense': transportationExpense,
+      'marketExpense': marketExpense,
+      'financialExpense': financialExpense,
+      'leisureExpense': leisureExpense,
+      'coffeeExpense': coffeeExpense,
+      'shoppingExpense': shoppingExpense,
+      'emergencyExpense': emergencyExpense,
+    };
+    print('📊 Request Body: $budgetData');
+
+    return await _budgetApi.createBudget(budgetData);
+  }
 }

@@ -1,20 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/services.dart'; 
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/services/user_preferences_service.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart'; // 텍스트 스타일 import 추가
 import 'package:marshmellow/core/theme/app_colors.dart'; // 테마 import 추가
 import 'package:marshmellow/core/config/app_config.dart';
 import 'package:marshmellow/core/utils/back_gesture/controller.dart';
 import 'package:marshmellow/core/utils/back_gesture/detector.dart';
+import 'package:marshmellow/data/models/my/user_detail_info.dart';
+import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/router/app_router.dart'; // 라우터 import
 import 'package:marshmellow/di/providers/lifecycle_provider.dart';
 import 'package:marshmellow/presentation/widgets/datepicker/date_picker_overlay.dart';
 import 'package:marshmellow/di/providers/calendar_providers.dart';
+import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart'; // 예산 뷰모델 추가
 
 // Flutter 로컬라이제이션 패키지 추가
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:marshmellow/router/routes/budget_routes.dart';
+
+import 'package:home_widget/home_widget.dart';
+import 'package:marshmellow/core/utils/widgets/widget_service.dart';
+
+// LifecycleEventHandler 클래스 구현
+class LifecycleEventHandler extends WidgetsBindingObserver {
+  final Future<void> Function() resumeCallBack;
+  final Future<void> Function() suspendingCallBack;
+
+  LifecycleEventHandler({
+    required this.resumeCallBack,
+    required this.suspendingCallBack,
+  });
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        await resumeCallBack();
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        await suspendingCallBack();
+        break;
+      default:
+        break;
+    }
+  }
+}
 
 // 공유된 URL을 저장할 전역 상태 제공자
 final sharedUrlProvider = StateProvider<String?>((ref) => null);
@@ -40,13 +74,84 @@ class _AppState extends ConsumerState<App> {
 
     // 메서드 채널 리스너 설정
     _setupMethodChannelListener();
-    
+
     // 초기 공유 텍스트 확인
     _getInitialSharedText();
 
     // 라이프사이클 매니저 초기화 - 프로바이더를 읽는 것만으로 초기화됨
     ref.read(appLifecycleManagerProvider);
     ref.read(paydayFetchProvider);
+
+    // 오늘이 월급날인지 확인
+    _checkSalaryDay();
+
+    // ✨ 위젯 업데이트 리스너 설정
+    _setupWidgetUpdateListener();
+  }
+
+  // ✨ 위젯 업데이트 리스너 설정
+  void _setupWidgetUpdateListener() {
+    // 앱 라이프사이클 상태 변화 감지
+    WidgetsBinding.instance.addObserver(LifecycleEventHandler(
+      resumeCallBack: () async {
+        // 앱이 포그라운드로 돌아왔을 때 위젯 데이터 새로고침
+        try {
+          final budgetProviderState = ref.read(budgetProvider.notifier);
+          await budgetProviderState.fetchBudgets();
+        } catch (e) {
+          print('위젯 업데이트 오류: $e');
+        }
+      },
+      suspendingCallBack: () async {
+        // 앱이 백그라운드로 갈 때 마지막으로 위젯 업데이트
+        try {
+          final state = ref.read(budgetProvider);
+          if (state.dailyBudget != null) {
+            await WidgetService.updateBudgetWidget(
+                state.dailyBudget!.dailyBudgetAmount);
+          }
+        } catch (e) {
+          print('백그라운드 위젯 업데이트 오류: $e');
+        }
+      },
+    ));
+  }
+
+  // 월급날 확인 메서드
+  Future<void> _checkSalaryDay() async {
+    print('Ⓜ️Ⓜ️월급일 확인 로직 시작');
+    // 이미 이번 달에 플로우를 봤으면 무시
+    if (await UserPreferencesService.hasSeenSalaryFlowThisMonth()) {
+      return;
+    }
+
+    // 사용자 정보 가져오기
+    await Future.delayed(const Duration(seconds: 1)); // 사용자 정보 로드 대기
+
+    final userInfostate = ref.read(userInfoProvider);
+    if (userInfostate is UserDetailInfo) {
+      final salaryDate = (userInfostate as UserDetailInfo).salaryDate;
+      print('Ⓜ️Ⓜ️오늘이 월급날인지 확인하겠습니다 사용자 월급날 = $salaryDate');
+
+      if (salaryDate != null) {
+        // 오늘이 월급날인지 확인
+        final now = DateTime.now();
+        if (now.day == salaryDate) {
+          print('오늘은 월급날입니다.: ${now.day} = $salaryDate');
+          // 월급날이면 플로우 시작
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _startSalaryFlow(context);
+          });
+        } else {
+          print('Ⓜ️Ⓜ️오늘은 월급날이 아닙니다! : ${now.day} != $salaryDate');
+        }
+      }
+    }
+  }
+
+  // 월급날에만 동작하는 월급 축하 및 예산 분배 플로우
+  void _startSalaryFlow(BuildContext context) {
+    widget.router.go(BudgetRoutes.getBudgetCelebratePath());
   }
 
   // 위시 크롤링 자동생성 : 메서드 채널 리스너 설정
@@ -55,10 +160,9 @@ class _AppState extends ConsumerState<App> {
       if (call.method == 'sharedText') {
         final String? sharedText = call.arguments as String?;
         if (sharedText != null && sharedText.isNotEmpty) {
-
           // 공유된 URL을 상태에 저장
           ref.read(sharedUrlProvider.notifier).state = sharedText;
-          
+
           // 위시리스트 생성 페이지로 이동
           widget.router.go(BudgetRoutes.getWishlistCreatePath());
         }
@@ -66,16 +170,15 @@ class _AppState extends ConsumerState<App> {
       return null;
     });
   }
-  
+
   // 위시 크롤링 자동생성 : 초기 공유 텍스트 확인
   Future<void> _getInitialSharedText() async {
     try {
       final String? sharedText = await _channel.invokeMethod('getSharedText');
       if (sharedText != null && sharedText.isNotEmpty) {
-
         // 공유된 URL을 상태에 저장
         ref.read(sharedUrlProvider.notifier).state = sharedText;
-        
+
         // 위시리스트 생성 페이지로 이동
         Future.microtask(() {
           widget.router.go(BudgetRoutes.getWishlistCreatePath());
@@ -88,7 +191,6 @@ class _AppState extends ConsumerState<App> {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp.router(
         title: 'MMApp',
         debugShowCheckedModeBanner: false,

@@ -14,12 +14,11 @@ import 'package:marshmellow/data/repositories/budget/category_repository.dart';
 /*
   예산 카테고리별 지출 프로바이더
 */
-final categoryTransactionsProvider = FutureProvider.family<List<Transaction>, CategoryExpensePageParams>(
+final categoryTransactionsProvider = FutureProvider.autoDispose.family<List<Transaction>, CategoryExpensePageParams>(
   (ref, params) async {
-    ref.keepAlive();
     final repository = ref.watch(categoryTransactionRepositoryProvider);
 
-    print('Provider 호출: budgetPk=${params.budgetPk}, categoryPk=${params.categoryPk}, categoryName=${params.categoryName}');
+    // print('Provider 호출: budgetPk=${params.budgetPk}, categoryPk=${params.categoryPk}, categoryName=${params.categoryName}');
 
     // 카테고리 지출 내역 조회 API 호출
     return repository.getCategoryTransactions(
@@ -150,9 +149,6 @@ class CategoryExpensePage extends ConsumerWidget {
                 category.budgetExpendPercent ?? 0
               ),
           ),
-
-          // // Category Summary
-          // _buildCategorySummary(context, category),
           
           // Transaction List
           Expanded(
@@ -356,6 +352,7 @@ class CategoryExpensePage extends ConsumerWidget {
     final groupedTransactions = <String, List<Transaction>>{};
     for (final transaction in filteredTransactions) {
       final date = transaction.tradeDate;
+
       if (!groupedTransactions.containsKey(date)) {
         groupedTransactions[date] = [];
       }
@@ -373,18 +370,19 @@ class CategoryExpensePage extends ConsumerWidget {
         final date = sortedDates[index];
         final dayTransactions = groupedTransactions[date]!;
         
-        // Parse date for header
-        final dateFormat = DateFormat('yyyyMMdd');
-        final displayFormat = DateFormat('yyyy년 MM월 dd일 (E)', 'ko_KR');
-        
+        // tradeDate : 20250409 형식으로 들어온다
         DateTime dateTime;
         try {
-          dateTime = dateFormat.parse(date);
+          final year = int.parse(date.substring(0, 4));
+          final month = int.parse(date.substring(4, 6));
+          final day = int.parse(date.substring(6, 8));
+          dateTime = DateTime(year, month, day);
         } catch (e) {
           // 날짜 형식이 유효하지 않은 경우 현재 날짜 사용
           dateTime = DateTime.now();
         }
         
+        final displayFormat = DateFormat('yyyy년 MM월 dd일 (E)', 'ko_KR');
         final displayDate = displayFormat.format(dateTime);
         
         return Column(
@@ -396,7 +394,7 @@ class CategoryExpensePage extends ConsumerWidget {
               child: Text(
                 displayDate,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w300,
                 ),
               ),
             ),
@@ -405,7 +403,7 @@ class CategoryExpensePage extends ConsumerWidget {
             ...dayTransactions.map((transaction) => _buildTransactionItem(context, ref, transaction)),
             
             const SizedBox(height: 8),
-            const Divider(),
+            const Divider(thickness: 0.5,),
           ],
         );
       },
@@ -421,8 +419,13 @@ class CategoryExpensePage extends ConsumerWidget {
     
     String displayTime = "";
     try {
-      final time = timeFormat.parse(transaction.tradeTime);
-      displayTime = displayFormat.format(time);
+      String timeStr = transaction.tradeTime;
+
+      final hours = int.parse(timeStr.substring(0, 2));
+      final minutes = int.parse(timeStr.substring(2, 4));
+
+      final time = DateTime(2000, 1, 1, hours, minutes);
+      displayTime = DateFormat('HH:mm').format(time);
     } catch (e) {
       // 시간 형식이 유효하지 않은 경우 원본 문자열 사용
       displayTime = transaction.tradeTime;
@@ -447,8 +450,8 @@ class CategoryExpensePage extends ConsumerWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: AppColors.whiteDark,
-            width: 1,
+            color: AppColors.backgroundBlack,
+            width: 0.5,
           ),
         ),
         child: Row(

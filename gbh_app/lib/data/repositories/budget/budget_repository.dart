@@ -44,7 +44,6 @@ class BudgetRepository {
     required double shoppingExpense,
     required double emergencyExpense,
   }) async {
-    print('📊 Repository: 예산 생성 요청');
     final budgetData = {
       'salary': salary,
       'fixedExpense': fixedExpense,
@@ -57,7 +56,6 @@ class BudgetRepository {
       'shoppingExpense': shoppingExpense,
       'emergencyExpense': emergencyExpense,
     };
-    print('📊 Request Body: $budgetData');
 
     return await _budgetApi.createBudget(budgetData);
   }

@@ -37,7 +37,6 @@ class CategoryTransactionApi {
         'aiCategory': aiCategory,
       };
 
-      print('🍀🍀🍀api 요청 본문: $body');
 
       final response = await _apiClient.post(
         '/mm/budget/detail',
@@ -47,8 +46,6 @@ class CategoryTransactionApi {
       if (response.statusCode == 200) {
         final data = response.data['data'];
         final List<dynamic> households = data['households'] ?? [];
-
-        print('API 응답 데이터 수: ${households.length}');
         
         // 응답 데이터를 Transaction 모델로 변환
         return convertHouseholdToTransactions(households);
@@ -56,7 +53,6 @@ class CategoryTransactionApi {
         throw Exception('Failed to load category transactions: ${response.statusCode}');
       }
     } catch (e) {
-      print('API Error: $e');
       throw Exception('Failed to load category transactions: $e');
     }
   }

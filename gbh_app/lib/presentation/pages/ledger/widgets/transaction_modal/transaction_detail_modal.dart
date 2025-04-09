@@ -110,13 +110,26 @@ class _TransactionDetailModalState
                           IconButton(
                             onPressed: () {
                               // 계산기 키보드 열기
+                              final initialValue =
+                                  (_updatedAmount ?? transaction.amount)
+                                      .toString();
+                              // 초기값이 .0으로 끝나는 경우 소수점 제거
+                              final formattedInitialValue =
+                                  initialValue.endsWith('.0')
+                                      ? initialValue.substring(
+                                          0, initialValue.length - 2)
+                                      : initialValue;
+
                               KeyboardModal.showCalculatorKeyboard(
                                 context: context,
-                                initialValue:
-                                    (_updatedAmount ?? transaction.amount)
-                                        .toString(),
+                                initialValue: formattedInitialValue,
                                 onValueChanged: (value) {
                                   setState(() {
+                                    // 소수점 제거: 값이 정수인 경우 .0 제거
+                                    if (value.endsWith('.0')) {
+                                      value =
+                                          value.substring(0, value.length - 2);
+                                    }
                                     _updatedAmount = int.tryParse(value) ??
                                         transaction.amount.toInt();
                                   });

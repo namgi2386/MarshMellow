@@ -140,18 +140,15 @@ class _AuthMessagePageState extends ConsumerState<AuthMessagePage> {
   }
 
   void _sendAuthMessage(BuildContext context) async {
-    // 문자 내용 웹훅 연결후 사용 예정
-    // final serverEmail = widget.userInfo['serverEmail'] ?? '';
-    // final verificationCode = widget.userInfo['verificationCode'] ?? '';
-    // final messageBody = '$verificationCode';
 
-    // 문자 내용
-    final messageBody = '[MM]본인 확인용 인증메시지 a5923094948jdkcmdske';
+    final serverEmail = widget.userInfo['serverEmail'] ?? '';
+    final verificationCode = widget.userInfo['verificationCode'] ?? '';
+    final messageBody = '$verificationCode';
 
     // SMS 앱 열기
     final uri = Uri(
       scheme: 'sms',
-      path: 'user@mm.com', // 문자 보낼 사람
+      path: serverEmail, // 문자 보낼 사람
       queryParameters: {'body': messageBody},
     );
 

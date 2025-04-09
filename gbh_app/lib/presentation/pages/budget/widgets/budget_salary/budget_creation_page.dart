@@ -10,19 +10,21 @@ import 'package:marshmellow/data/models/budget/budget_type_model.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_bubble_chart.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_type_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/numeric_keyboard.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
 
 class BudgetCreationPage extends ConsumerStatefulWidget {
   final String selectedType;
-  final int salary;
+  // final int salary;
 
   const BudgetCreationPage({
     Key? key,
     required this.selectedType,
-    required this.salary,
+    // required this.salary,
   }) : super(key: key);
 
   @override
@@ -65,6 +67,20 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
     });
 
     try {
+      // UserInfo에서 salary 정보 가져오기
+      final userInfoState = ref.read(userInfoProvider);
+      final salary = userInfoState.userDetail.salaryAmount;
+
+      print('✨✨✨✨내월급 : $salary');
+
+      if (salary == null) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = '월급 정보를 찾을 수 없습니다';
+        });
+        return;
+      }
+
       // 선택된 유형에 따른 지출 비율 가져오기
       final budgetTypeVM = ref.read(budgetTypeProvider.notifier);
       final selectedTypeData = budgetTypeVM.getSelectedTypeData();
@@ -80,7 +96,7 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
       // 비율 데이터 변환
       final expenseData = selectedTypeData.toMap();
       print('🚀 예산 생성 요청 데이터:');
-      print('  - 급여: ${widget.salary}');
+      print('  - 급여: $salary');
       print('  - 식비/외식: ${expenseData['식비/외식']}');
       print('  - 교통/자동차: ${expenseData['교통/자동차']}');
       print('  - 고정지출: ${expenseData['고정지출']}');
@@ -94,7 +110,7 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
       
       // 예산 생성 API 호출
       await ref.read(budgetProvider.notifier).createBudget(
-        salary: widget.salary,
+        salary: salary,
         fixedExpense: expenseData['고정지출'] ?? 0.0,
         foodExpense: expenseData['식비/외식'] ?? 0.0,
         transportationExpense: expenseData['교통/자동차'] ?? 0.0,
@@ -310,8 +326,10 @@ Color _getSelectedCategoryColor() {
     }
 
     return Scaffold(
+      backgroundColor: AppColors.whiteDark,
       appBar: CustomAppbar(
         title: title,
+        backgroundColor: AppColors.whiteDark
         // leading: IconButton(
         //   icon: Icon(Icons.close),
         //   onPressed: () {
@@ -419,8 +437,8 @@ Color _getSelectedCategoryColor() {
                               if (_isEditingAmount) {
                                 _updateCategoryBudget();
                               }
-                              // 메인 예산 페이지로 이동
-                              context.go('/budget');
+                              // 위시 생성 페이지로 이동
+                              context.go(BudgetRoutes.getWishCreatePath());
                             },
                           ),
                         ),// 키보드 공간 확보

@@ -267,13 +267,21 @@ class _DoughnutChartState extends State<DoughnutChart>
       final fontSize = isTouched ? 16.0 : 12.0;
       final fontWeight = isTouched ? FontWeight.bold : FontWeight.normal;
 
+      // 색상의 밝기 계산 (어두운 색상이면 흰색 텍스트, 밝은 색상이면 검정색 텍스트)
+      final brightness = ThemeData.estimateBrightnessForColor(item.color);
+      final textColor = brightness == Brightness.dark
+          ? AppColors.whiteDark
+          : AppColors.textPrimary;
+
       return PieChartSectionData(
         color: item.color,
         value: animatedValue,
-        title: showTitle ? '${item.title}\n${(animatedValue).toInt()}%' : '',
+        title: showTitle
+            ? '${item.title}\n${animatedValue.toStringAsFixed(1)}%'
+            : '',
         radius: radius,
         titleStyle: AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.greyDark,
+          color: textColor,
           fontSize: fontSize,
           fontWeight: fontWeight,
         ),

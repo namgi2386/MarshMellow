@@ -7,7 +7,7 @@ class CalculatorKeyboard extends StatefulWidget {
   final Function(String) onValueChanged;
   final String initialValue;
   final VoidCallback onClose;
-  
+
   const CalculatorKeyboard({
     Key? key,
     required this.onValueChanged,
@@ -22,14 +22,14 @@ class CalculatorKeyboard extends StatefulWidget {
 class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
   late String _currentExpression;
   late String _displayValue;
-  
+
   @override
   void initState() {
     super.initState();
     _currentExpression = widget.initialValue;
     _displayValue = widget.initialValue;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -54,9 +54,12 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
             padding: const EdgeInsets.only(bottom: 16.0),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               decoration: BoxDecoration(
-                border: Border.all(color: const Color.fromARGB(255, 247, 247, 247),),
+                border: Border.all(
+                  color: const Color.fromARGB(255, 247, 247, 247),
+                ),
                 color: const Color.fromARGB(255, 247, 247, 247),
                 borderRadius: BorderRadius.circular(8.0),
               ),
@@ -67,7 +70,7 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
               ),
             ),
           ),
-          
+
           // 계산기 버튼 그리드
           GridView.count(
             crossAxisCount: 4,
@@ -82,25 +85,25 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
               _buildButton('+/-', isFunction: true),
               _buildButton('%', isFunction: true),
               _buildButton('/', isOperator: true),
-              
+
               // 두 번째 행
               _buildButton('1'),
               _buildButton('2'),
               _buildButton('3'),
               _buildButton('×', isOperator: true),
-              
+
               // 세 번째 행
               _buildButton('4'),
               _buildButton('5'),
               _buildButton('6'),
               _buildButton('+', isOperator: true),
-              
+
               // 네 번째 행
               _buildButton('7'),
               _buildButton('8'),
               _buildButton('9'),
               _buildButton('-', isOperator: true),
-              
+
               // 다섯 번째 행
               _buildButton('00'),
               _buildButton('0'),
@@ -112,29 +115,35 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
       ),
     );
   }
-  
-  Widget _buildButton(String text, {bool isOperator = false, bool isFunction = false, IconData? icon}) {
+
+  Widget _buildButton(String text,
+      {bool isOperator = false, bool isFunction = false, IconData? icon}) {
     return ElevatedButton(
       onPressed: () => _handleKeyPress(text),
       style: ElevatedButton.styleFrom(
         shape: const CircleBorder(),
         padding: EdgeInsets.zero,
         backgroundColor: isOperator ? Colors.white : Colors.white,
-        foregroundColor: isOperator ? Colors.black : isFunction ? Colors.black54 : Colors.black,
+        foregroundColor: isOperator
+            ? Colors.black
+            : isFunction
+                ? Colors.black54
+                : Colors.black,
         elevation: 2,
         side: BorderSide(color: AppColors.blackLight, width: 1),
       ),
-      child: icon != null 
-          ? Icon(icon, size: 24 , color: AppColors.blackPrimary,) 
-          : Text(
-              text, 
-              style: AppTextStyles.appBar
-            ),
+      child: icon != null
+          ? Icon(
+              icon,
+              size: 24,
+              color: AppColors.blackPrimary,
+            )
+          : Text(text, style: AppTextStyles.appBar),
     );
   }
-  
+
   void _handleKeyPress(String str) {
-    switch(str) {
+    switch (str) {
       case 'AC':
         setState(() {
           _currentExpression = '';
@@ -144,8 +153,10 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
       case 'BACKSPACE':
         if (_currentExpression.isNotEmpty) {
           setState(() {
-            _currentExpression = _currentExpression.substring(0, _currentExpression.length - 1);
-            _displayValue = _currentExpression.isEmpty ? '0' : _currentExpression;
+            _currentExpression =
+                _currentExpression.substring(0, _currentExpression.length - 1);
+            _displayValue =
+                _currentExpression.isEmpty ? '0' : _currentExpression;
           });
         }
         break;
@@ -181,8 +192,13 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
           // 마지막 문자가 연산자라면 교체, 아니면 추가
           if (_currentExpression.isNotEmpty) {
             final lastChar = _currentExpression[_currentExpression.length - 1];
-            if (lastChar == '+' || lastChar == '-' || lastChar == '×' || lastChar == '/') {
-              _currentExpression = _currentExpression.substring(0, _currentExpression.length - 1) + str;
+            if (lastChar == '+' ||
+                lastChar == '-' ||
+                lastChar == '×' ||
+                lastChar == '/') {
+              _currentExpression = _currentExpression.substring(
+                      0, _currentExpression.length - 1) +
+                  str;
             } else {
               _currentExpression += str;
             }
@@ -197,23 +213,23 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
         });
         break;
     }
-    
+
     // 상위 위젯에 값 전달
     widget.onValueChanged(_displayValue);
   }
-  
+
   void _calculate() {
     try {
       // 계산식 처리
       String expression = _currentExpression;
-      
+
       // 곱셈/나눗셈 기호 변환
       expression = expression.replaceAll('×', '*').replaceAll('÷', '/');
-      
+
       // 계산 결과 구하기
       List<String> numbers = [];
       List<String> operators = [];
-      
+
       String currentNumber = '';
       for (int i = 0; i < expression.length; i++) {
         if ('0123456789.'.contains(expression[i])) {
@@ -226,13 +242,13 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
           operators.add(expression[i]);
         }
       }
-      
+
       if (currentNumber.isNotEmpty) {
         numbers.add(currentNumber);
       }
-      
+
       if (numbers.isEmpty) return;
-      
+
       double result = double.parse(numbers[0]);
       for (int i = 0; i < operators.length; i++) {
         if (i + 1 < numbers.length) {
@@ -255,15 +271,19 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
           }
         }
       }
-      
+
       // 결과 표시 (소수점 처리)
-      _currentExpression = result % 1 == 0 ? result.toInt().toString() : result.toString();
+      _currentExpression =
+          result % 1 == 0 ? result.toInt().toString() : result.toString();
       _displayValue = _currentExpression;
-      
+
       // 상위 위젯에 값 전달
       widget.onValueChanged(_displayValue);
-      
+
       setState(() {});
+
+      // 키보드 닫기
+      widget.onClose();
     } catch (e) {
       // 계산 오류 처리
       setState(() {

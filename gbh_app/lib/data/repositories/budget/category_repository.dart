@@ -30,7 +30,7 @@ class CategoryTransactionApi {
     required String aiCategory,
   }) async {
     try {
-      // API 명세서에 따라 몸체(body)로 파라미터를 전송
+      // API 명세서에 따라 body로 파라미터를 전송
       final Map<String, dynamic> body = {
         'startDate': startDate,
         'endDate': endDate,

@@ -10,13 +10,18 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/completion_message/completion_message.dart';
+import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_category_viewmodel.dart';
 
 class PortfolioForm extends ConsumerStatefulWidget {
   final String fileName;
+  final int? initialCategoryPk;
+  final String? initialCategoryName;
 
   const PortfolioForm({
     super.key,
     this.fileName = "", // 기본 파일명
+    this.initialCategoryPk, // 초기 카테고리 PK
+    this.initialCategoryName, // 초기 카테고리 이름
   });
 
   @override
@@ -40,6 +45,15 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
     // 파일명 초기화
     _fileName = widget.fileName;
     _originalFileName = widget.fileName;
+
+    // 카테고리 초기화 (전달된 경우)
+    if (widget.initialCategoryName != null) {
+      _category = widget.initialCategoryName!;
+    }
+    if (widget.initialCategoryPk != null) {
+      _categoryPk = widget.initialCategoryPk;
+    }
+
     // 포트폴리오 카테고리 목록 불러오기
     _loadCategories();
   }
@@ -47,25 +61,12 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
   // 카테고리 목록 불러오기
   Future<void> _loadCategories() async {
     // 중복 로드 방지를 위한 조건 추가
-    if (!ref.read(portfolioViewModelProvider).isLoading &&
-        ref.read(portfolioViewModelProvider).categories.isEmpty) {
-      await ref.read(portfolioViewModelProvider.notifier).loadCategories();
+    if (!ref.read(portfolioCategoryViewModelProvider).isLoading &&
+        ref.read(portfolioCategoryViewModelProvider).categories.isEmpty) {
+      await ref
+          .read(portfolioCategoryViewModelProvider.notifier)
+          .loadCategories();
     }
-  }
-
-  // 카테고리 업데이트
-  void _updateCategory(String category) {
-    setState(() {
-      _category = category;
-
-      // 카테고리에 해당하는 PK 찾기
-      final categories = ref.read(portfolioViewModelProvider).categories;
-      final selectedCategory = categories.firstWhere(
-        (c) => c.portfolioCategoryName == category,
-        orElse: () => throw Exception('카테고리를 찾을 수 없습니다'),
-      );
-      _categoryPk = selectedCategory.portfolioCategoryPk;
-    });
   }
 
   // 파일명 업데이트
@@ -262,20 +263,17 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
                 _categoryPk = categoryPk;
               });
             },
-            enabled: !_isSaving && !portfolioState.isLoading,
           ),
           // 파일명 필드
           PortfolioFields.editableFileNameField(
             fileName: _fileName,
             onFileNameChanged: _updateFileName,
-            enabled: !_isSaving,
           ),
 
           // 메모/키워드 필드
           PortfolioFields.editableMemoField(
             memo: _memo,
             onMemoChanged: _updateMemo,
-            enabled: !_isSaving,
           ),
 
           // 날짜 필드
@@ -284,7 +282,6 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
             ref: ref,
             selectedDate: _selectedDate,
             onDateChanged: _updateDate,
-            enabled: !_isSaving,
           ),
         ],
       ),
@@ -293,16 +290,11 @@ class _PortfolioFormState extends ConsumerState<PortfolioForm> {
 
   // 저장 버튼 위젯
   Widget _buildSaveButton() {
-    // 포트폴리오 상태 가져오기
-    final portfolioState = ref.watch(portfolioViewModelProvider);
-
     return Container(
       padding: const EdgeInsets.all(16),
       child: Button(
         text: "저장하기",
-        onPressed:
-            (_isSaving || portfolioState.isLoading) ? null : _savePortfolio,
-        isDisabled: _isSaving || portfolioState.isLoading,
+        onPressed: _isSaving ? null : _savePortfolio,
         width: double.infinity,
         height: 50,
       ),

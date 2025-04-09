@@ -15,6 +15,7 @@ import 'package:marshmellow/presentation/widgets/completion_message/completion_m
 import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_edit_modal.dart';
 import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_category_viewmodel.dart';
 import 'package:marshmellow/data/models/cookie/portfolio/portfolio_category_model.dart';
+import 'package:lottie/lottie.dart';
 
 class PortfolioDetailPage extends ConsumerStatefulWidget {
   final int categoryId;
@@ -159,7 +160,14 @@ class _PortfolioDetailPageState extends ConsumerState<PortfolioDetailPage> {
       body: Stack(
         children: [
           if (isLoading)
-            const CircularProgressIndicator()
+            Center(
+              child: Lottie.asset(
+                'assets/images/loading/loading_simple.json',
+                width: 140,
+                height: 140,
+                fit: BoxFit.contain,
+              ),
+            )
           else if (errorMessage != null)
             Center(
               child: Column(

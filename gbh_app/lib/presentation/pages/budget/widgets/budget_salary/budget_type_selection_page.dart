@@ -6,10 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/budget/budget_type_model.dart';
+import 'package:marshmellow/data/models/my/user_detail_info.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_type_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_creation_page.dart'; // Add this import
 
 class BudgetTypeSelectionPage extends ConsumerWidget {
   const BudgetTypeSelectionPage({Key? key}) : super(key: key);
@@ -18,6 +22,7 @@ class BudgetTypeSelectionPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(budgetTypeProvider);
     final viewModel = ref.read(budgetTypeProvider.notifier);
+    final userInfoState = ref.watch(userInfoProvider);
     
     // 로딩 중이거나 분석 결과가 없는 경우 로딩 표시
     if (state.isLoading || state.analysisResult == null) {
@@ -31,6 +36,11 @@ class BudgetTypeSelectionPage extends ConsumerWidget {
 
     // 모든 유형 정보 가져오기
     final allTypeInfos = BudgetTypeInfo.getAllTypeInfos();
+
+    // 사용자 월급 정보 가져오기
+    int salary = userInfoState is UserDetailInfo
+        ? (userInfoState as UserDetailInfo).salaryAmount ?? 3000000
+        : 3000000;
 
     return Scaffold(
       appBar: CustomAppbar(
@@ -89,17 +99,18 @@ class BudgetTypeSelectionPage extends ConsumerWidget {
               onPressed: state.selectedType == null
                   ? null // 선택이 없으면 비활성화
                   : () async {
+                      // 선택한 유형 정보 저장
                       final success = await viewModel.saveSelectedType();
                       if (success && context.mounted) {
-                        // 성공 시 이전 화면으로 돌아가기
-                        context.pop();
-                        
-                        // 선택 완료 메시지
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('예산 유형이 설정되었습니다'),
-                            duration: Duration(seconds: 2),
-                          ),
+                        // 성공 시 예산 생성 페이지로 이동
+
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => BudgetCreationPage(
+                              selectedType: state.selectedType!,
+                              salary: salary
+                            )
+                          )
                         );
                       }
                     },

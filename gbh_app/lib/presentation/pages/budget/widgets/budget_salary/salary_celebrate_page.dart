@@ -6,7 +6,9 @@ import 'package:marshmellow/core/constants/icon_path.dart';
 // 라우트
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/constants/storage_keys.dart';
+import 'package:marshmellow/core/services/user_preferences_service.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_card.dart';
+import 'package:marshmellow/presentation/viewmodels/my/user_secure_info_viewmodel.dart';
 import 'package:marshmellow/router/routes/budget_routes.dart';
 import 'package:marshmellow/router/routes/cookie_routes.dart';
 
@@ -22,7 +24,7 @@ class SalaryCelebratePage extends StatefulWidget {
 }
 
 class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
-  final storage = FlutterSecureStorage();
+  final _secureStorage = FlutterSecureStorage();
   String userName = '';
   bool showCelebration = true;
   bool showBudgetTypeOVerlay = false;
@@ -36,7 +38,7 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
 
   Future<void> _loadSHowCelebration() async {
     try {
-      final name = await storage.read(key: StorageKeys.userName);
+      final name = await _secureStorage.read(key: StorageKeys.userName);
 
       if (name != null) {
         setState(() {
@@ -68,7 +70,9 @@ class _SalaryCelebratePageState extends State<SalaryCelebratePage> {
     }
   }
 
-  void _navigateToBudgetTypePage() {
+  void _navigateToBudgetTypePage() async {
+    // 이 플로우 봣다고 체크하자!
+    await UserPreferencesService.markBudgetFlowAsSeen();
     context.go(BudgetRoutes.getBudgetTypeSelectionPath());
   }
 

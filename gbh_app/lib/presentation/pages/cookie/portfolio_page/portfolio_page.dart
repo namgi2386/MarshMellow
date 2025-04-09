@@ -19,6 +19,7 @@ import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfoli
 import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/portfolio_edit_modal.dart';
 import 'package:marshmellow/presentation/viewmodels/portfolio/portfolio_category_viewmodel.dart';
 import 'package:marshmellow/presentation/pages/cookie/widgets/portfolio/category_form_modal.dart';
+import 'package:lottie/lottie.dart';
 
 class PortfolioPage extends ConsumerStatefulWidget {
   const PortfolioPage({Key? key}) : super(key: key);
@@ -248,9 +249,14 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
         .toList();
 
     if (isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: Lottie.asset(
+            'assets/images/loading/loading_simple.json',
+            width: 140,
+            height: 140,
+            fit: BoxFit.contain,
+          ),
         ),
       );
     }
@@ -483,7 +489,10 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                       const SizedBox(height: 24),
                     ],
 
-                    if (unclassifiedPortfolios.isEmpty && !_isSelectionMode)
+                    // 전체가 비어있는 경우 (카테고리도 없고 미분류 포트폴리오도 없음)
+                    if (regularCategories.isEmpty &&
+                        unclassifiedPortfolios.isEmpty &&
+                        !_isSelectionMode)
                       Center(
                         child: Column(
                           children: [
@@ -494,14 +503,20 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              '우측 상단의 + 버튼을 눌러\n포트폴리오를 추가해보세요.',
+                              '아직 등록된 포트폴리오가 없습니다.\n우측 상단의 + 버튼을 눌러\n포트폴리오나 카테고리를 추가해보세요.',
                               style: AppTextStyles.bodyMedium,
                               textAlign: TextAlign.center,
                             ),
                           ],
                         ),
                       )
-                    else
+                    // 카테고리는 있지만 미분류 포트폴리오가 없는 경우
+                    else if (unclassifiedPortfolios.isEmpty &&
+                        !_isSelectionMode &&
+                        regularCategories.isNotEmpty)
+                      // 아무 내용도 표시하지 않음 (카테고리 그리드만 표시)
+                      const SizedBox()
+                    else if (unclassifiedPortfolios.isNotEmpty)
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),

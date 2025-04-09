@@ -7,6 +7,7 @@ import 'package:marshmellow/di/providers/auth/mydata_provider.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/certification_select_content.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
   마이데이터 연동 동의서 페이지
@@ -84,8 +85,8 @@ class _AuthMydataAgreementPageState extends ConsumerState<AuthMydataAgreementPag
         );
         
         // 완료 페이지로 이동
-        // 여기가 어디야..?
-        context.go('/budget');
+        // 월급 정보를 입력하러 가자!!!
+        context.go(SignupRoutes.getSalaryInputPath());
       } else if (context.mounted) {
         // 실패 시 에러 메시지 표시
         ScaffoldMessenger.of(context).showSnackBar(

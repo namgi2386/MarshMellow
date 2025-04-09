@@ -15,6 +15,8 @@ import 'package:marshmellow/presentation/pages/auth/widgets/pinnum/auth_pinnum_c
 import 'package:marshmellow/presentation/pages/auth/widgets/message/auth_message_verification_loading_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/message/auth_message_complete_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/pinnum/auth_pinnum_login_page.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/salary_input/salary_input_complete_page.dart';
+import 'package:marshmellow/presentation/pages/auth/widgets/salary_input/salary_input_page.dart';
 
 /*
   회원가입 routes
@@ -37,6 +39,8 @@ class SignupRoutes {
   static const String mydatalogin = 'mydatalogin';
   static const String mydataagreement = 'mydataagreement';
   static const String mydataalreadyconn = 'mydataalreadyconn';
+  static const String salaryinput = 'salaryinput';
+  static const String salaryinputcomplete = 'salaryinputcomplete';
 
   // 전체 경로 생성 헬퍼 메서드
   static String getAuthMessagePath() => '$root/$authmessage';
@@ -54,6 +58,8 @@ class SignupRoutes {
   static String getMyDataLoginPath() => '$root/$mydatalogin';
   static String getMyDataAgreementPath() => '$root/$mydataagreement';
   static String getMyDataAlreadyConnPath() => '$root/$mydataalreadyconn';
+  static String getSalaryInputPath() => '$root/$salaryinput';
+  static String getSalaryInputCompletePath() => '$root/$salaryinputcomplete';
 }
 
 List<RouteBase> signupRoutes = [
@@ -141,8 +147,18 @@ List<RouteBase> signupRoutes = [
         path: SignupRoutes.mydataagreement,
         builder: (context, state) => const AuthMydataAgreementPage(),
       ),
+      
+      // 월급 정보 입력 페이지
+      GoRoute(
+        path: SignupRoutes.salaryinput,
+        builder: (context, state) => const SalaryInputPage(),
+      ),
 
-
+      // 월급 정보 입력 완료 확인페이지
+      GoRoute(
+        path: SignupRoutes.salaryinputcomplete,
+        builder: (context, state) => const SalaryInputCompletePage(),
+      ),
 
     ],
   ),

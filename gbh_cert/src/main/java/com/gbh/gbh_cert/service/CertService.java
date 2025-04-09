@@ -16,8 +16,12 @@ import com.gbh.gbh_cert.model.repository.CertficateRepository;
 import com.gbh.gbh_cert.util.CIGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.DigestInfo;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -32,6 +36,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.Cipher;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -227,7 +232,7 @@ public class CertService {
         ByteArrayInputStream stream = new ByteArrayInputStream(pem.getBytes(StandardCharsets.UTF_8));
         return (X509Certificate) factory.generateCertificate(stream);
     }
-    public DigitalSignatureIssueResponseDto createDigitalSignature(DigitalSignatureIssueRequestDto request) {
+    public DigitalSignatureIssueResponseDto verifyDigitalSignature(DigitalSignatureIssueRequestDto request) throws Exception {
 
         User user = userService.lookUpUserByCI(request.getConnectionInformation());
 
@@ -238,7 +243,7 @@ public class CertService {
         }
 
         // 3. 서명 검증
-        boolean verified = verifySignature(request.getOriginalText(), request.getSignedData(), request.getCertificatePem());
+        boolean verified = verifyWithDigestInfoComparison(request.getOriginalText(), request.getSignedData(), convertToX509(certificate.getCertData()));
         if (!verified) {
             return DigitalSignatureIssueResponseDto.builder()
                     .verified(false)
@@ -265,60 +270,36 @@ public class CertService {
                 .build();
     }
 
-    private boolean verifySignature(String originalText, String signedData, String certificatePem) {
+    public boolean verifyWithDigestInfoComparison(String originalText, String signedData, X509Certificate cert) {
         try {
-            log.info("🔐 전자서명 검증 시작");
-
-            // 1. 인증서 파싱
-            log.info("📜 인증서 PEM 길이: " + certificatePem.length());
-            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            ByteArrayInputStream certStream = new ByteArrayInputStream(certificatePem.getBytes(StandardCharsets.UTF_8));
-            X509Certificate cert = (X509Certificate) certFactory.generateCertificate(certStream);
-            log.info("✅ 인증서 파싱 성공");
-            log.info("🧾 인증서 DER(Base64): {}", Base64.getEncoder().encodeToString(cert.getEncoded()));
-            log.info("🧾 인증서 SubjectDN: {}", cert.getSubjectDN());
-            log.info("🧾 인증서 IssuerDN: {}", cert.getIssuerDN());
-            log.info("🧾 인증서 Serial Number: {}", cert.getSerialNumber());
-            log.info("🧾 인증서 NotBefore: {}", cert.getNotBefore());
-            log.info("🧾 인증서 NotAfter: {}", cert.getNotAfter());
-            log.info("🧾 인증서 PublicKey: {}", cert.getPublicKey());
-
-            // 2. 공개키 추출
             PublicKey publicKey = cert.getPublicKey();
-            log.info("🔓 공개키 추출 성공: " + publicKey.getAlgorithm());
-            RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
-            log.info("🔐 서버 공개키 modulus: " + rsaPublicKey.getModulus());
-            log.info("🔐 서버 공개키 exponent: " + rsaPublicKey.getPublicExponent());
-
-            log.info("🧾 [서버 수신 원문] originalText: {}", originalText);
-            log.info("🧾 [서버 수신 원문 Base64]: {}", Base64.getEncoder().encodeToString(originalText.getBytes(StandardCharsets.UTF_8)));
-
-            // 3. 원문 정규화
-            log.info("서버 Base64 원문: {}", Base64.getEncoder().encodeToString(originalText.getBytes(StandardCharsets.UTF_8)));
-            MessageDigest digest = MessageDigest.getInstance("SHA-512");
-            byte[] hash = digest.digest(originalText.getBytes(StandardCharsets.UTF_8));
-            byte[] originalBytes = originalText.getBytes(StandardCharsets.UTF_8); // ← 여기에
-            log.info("📦 서버 원문 바이트: " + Arrays.toString(originalBytes));
-            log.info("🔑 검증용 원문(Base64): " + Base64.getEncoder().encodeToString(hash));
-
-            // 4. 서명 객체 초기화
-            Signature signature = Signature.getInstance("SHA512withRSA", "BC");
-            signature.initVerify(publicKey);
-            signature.update(originalText.getBytes(StandardCharsets.UTF_8));
-            log.info("✍ 원문 데이터 입력 완료");
-
-            // 5. 서명 검증
             byte[] signedBytes = Base64.getDecoder().decode(signedData);
-            log.info("🧾 서명 Base64 디코딩 완료: 길이 " + signedBytes.length);
-            log.info("✅ 재인코딩된 서명(Base64): " + Base64.getEncoder().encodeToString(signedBytes));
-            log.info("🧾 서버에서 받은 서명 바이트: " + Arrays.toString(signedBytes));
-            log.info("서명 프로바이더: " + signature.getProvider());
-            boolean result = !signature.verify(signedBytes);
-            log.info("🎯 서명 검증 결과: " + result);
-            return result;
 
+            // 1. SHA-512 Digest 생성
+            byte[] digest = MessageDigest.getInstance("SHA-512").digest(originalText.getBytes(StandardCharsets.UTF_8));
+
+            // 2. DigestInfo ASN.1 구조 생성
+            AlgorithmIdentifier algId = new AlgorithmIdentifier(
+                    new ASN1ObjectIdentifier("2.16.840.1.101.3.4.2.3"), DERNull.INSTANCE); // SHA-512
+            DigestInfo digestInfo = new DigestInfo(algId, digest);
+            byte[] expected = digestInfo.getEncoded("DER");
+
+            // 3. 복호화
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, publicKey);
+            byte[] decrypted = cipher.doFinal(signedBytes);
+
+            boolean match = Arrays.equals(decrypted, expected);
+
+            if (!match) {
+                log.warn("❌ DigestInfo mismatch!");
+                log.warn("📝 서버 DigestInfo: {}", Base64.getEncoder().encodeToString(expected));
+                log.warn("📥 복호화 결과     : {}", Base64.getEncoder().encodeToString(decrypted));
+            }
+
+            return match;
         } catch (Exception e) {
-            log.error("❌ 전자서명 검증 중 예외 발생: " + e.getMessage(), e);
+            log.error("전자서명 DigestInfo 비교 실패", e);
             return false;
         }
     }

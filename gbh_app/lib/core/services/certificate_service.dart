@@ -311,39 +311,36 @@ ASN1Sequence _encodePublicKey(RSAPublicKey publicKey) {
   }
 
   // 전자서명(SHA-512 + RSA)
-  // 원문 데이터에 대한 전자서명 생성
-  Future<String?> signData(String originalText) async {
-    try {
-      // 1. 개인 키 가져오기
-      final privateKeyPem = await _secureStorage.read(key: StorageKeys.privateKey);
-      if (privateKeyPem == null) {
-        throw Exception('개인 키를 찾을 수 없습니다.');
-      }
-      
-      // 2. PEM 형식의 개인 키를 파싱
-      final privateKey = _parsePrivateKeyFromPem(privateKeyPem);
-      // 3. 원문 정규화
-      print("📦 클라 원문 바이트: ${utf8.encode(originalText)}");
-      print("📝 서명 원문 SHA-512: ${base64.encode(sha512.convert(utf8.encode(originalText)).bytes)}");
+Future<String?> signData(String originalText) async {
+  try {
+    final privateKeyPem = await _secureStorage.read(key: StorageKeys.privateKey);
+    if (privateKeyPem == null) throw Exception('개인 키를 찾을 수 없습니다.');
+    final privateKey = _parsePrivateKeyFromPem(privateKeyPem);
+    final normalizedText = originalText;
 
-      // 4. SHA-512 해시 알고리즘과 RSA 서명 설정
-      final signer = RSASigner(SHA512Digest(), '2a864886f70d01010d'); // SHA512withRSA OID
+    // 1. SHA-512 해시
+    final digest = SHA512Digest().process(utf8.encode(normalizedText) as Uint8List);
 
-      // 5. 개인 키로 서명자 초기화
-      signer.init(true, PrivateKeyParameter<RSAPrivateKey>(privateKey));
-      
-      // 6. 서명 생성
-      final signature = signer.generateSignature(Uint8List.fromList(utf8.encode(originalText)));
-      final signatureBase64 = base64.encode(signature.bytes);
+    // 2. ASN.1 DigestInfo 생성
+    final digestInfo = ASN1Sequence()
+      ..add(ASN1Sequence() // AlgorithmIdentifier
+        ..add(ASN1ObjectIdentifier.fromComponents([2, 16, 840, 1, 101, 3, 4, 2, 3])) // OID: 2.16.840.1.101.3.4.2.3
+        ..add(ASN1Null()))
+      ..add(ASN1OctetString(digest));
 
-      print("📤 클라 원문(Base64): ${base64.encode(utf8.encode(originalText))}");
-      print("📤 클라 서명(Base64): $signatureBase64");
-      return signatureBase64;
-    } catch (e) {
-      print('데이터 서명 실패: $e');
-      return null;
-    }
+    final digestInfoBytes = digestInfo.encodedBytes;
+
+    // 3. RSA PKCS#1 서명 (DigestInfo 전체를 서명)
+    final signer = PKCS1Encoding(RSAEngine());
+    signer.init(true, PrivateKeyParameter<RSAPrivateKey>(privateKey));
+    final signature = signer.process(digestInfoBytes);
+
+    return base64.encode(signature);
+  } catch (e) {
+    print('📛 전자서명 생성 실패: $e');
+    return null;
   }
+}
 
   // PEM 형식의 개인 키를 RSAPrivateKey 객체로 파싱
   RSAPrivateKey _parsePrivateKeyFromPem(String privateKeyPem) {

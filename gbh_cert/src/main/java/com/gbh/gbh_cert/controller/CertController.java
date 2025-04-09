@@ -39,8 +39,8 @@ public class CertController {
     }
 
     @PostMapping("/digital-signature")
-    public DigitalSignatureIssueResponseDto issueDigitalSignature(@RequestBody DigitalSignatureIssueRequestDto digitalSignatureIssueRequestDto){
-        return certService.createDigitalSignature(digitalSignatureIssueRequestDto);
+    public DigitalSignatureIssueResponseDto issueDigitalSignature(@RequestBody DigitalSignatureIssueRequestDto digitalSignatureIssueRequestDto) throws Exception {
+        return certService.verifyDigitalSignature(digitalSignatureIssueRequestDto);
     }
 
 }

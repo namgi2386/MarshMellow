@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:marshmellow/core/utils/back_gesture/controller.dart';
 import 'package:marshmellow/core/services/transaction_classifier_service.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
 
 // 환경설정 import
 import 'core/config/environment_loader.dart';
@@ -21,6 +22,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+// 홈 위젯 관련 import 추가
+import 'package:home_widget/home_widget.dart';
+import 'package:marshmellow/core/utils/widgets/widget_service.dart';
 
 /// Hive 서비스
 class HiveService {
@@ -64,10 +69,13 @@ Future<void> main() async {
   await initLocalNotification(); // 로컬 알림 초기화
   setupFCM(); // FCM 설정 함수 호출
 
+  // 홈 위젯 초기화
+  await _initHomeWidget();
+
   // 환경 설정 및 서비스 초기화
   await Future.wait([EnvironmentLoader.load(), HiveService.init()]);
 
-  // SharedPrefer33es 초기화 (옵셔널)
+  // SharedPreferences 초기화 (옵셔널)
   SharedPreferences? sharedPreferences = await _initSharedPreferences();
 
   // 백 제스처 및 라우터 설정
@@ -76,6 +84,9 @@ Future<void> main() async {
 
   // 트랜잭션 동기화 수행
   await _performTransactionSync();
+
+  // 앱 시작 직전에 위젯 데이터 초기화
+  _initWidgetData();
 
   // 앱 실행
   runApp(
@@ -90,6 +101,53 @@ Future<void> main() async {
       ),
     ),
   );
+}
+
+/// ✨ 홈 위젯 초기화 및 설정
+Future<void> _initHomeWidget() async {
+  try {
+    // Home Widget 초기화
+    await HomeWidget.setAppGroupId('group.com.gbh.marshmellow');
+
+    // 앱 복구 시 콜백 등록
+    HomeWidget.registerBackgroundCallback(_backgroundCallback);
+
+    // 위젯 클릭 시 앱 열림 핸들링 설정
+    HomeWidget.widgetClicked.listen((uri) {
+      // 앱이 위젯을 통해 열렸을 때 특정 화면으로 이동 등의 처리
+      print('위젯 클릭됨: $uri');
+      // 디버그 정보 로깅
+      HomeWidget.getWidgetData<int>('amount').then((value) {
+        print('현재 위젯 데이터 확인: $value');
+      });
+    });
+
+    if (kDebugMode) {
+      print('✅ 홈 위젯 초기화 성공');
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('❌ 홈 위젯 초기화 실패: $e');
+    }
+  }
+}
+
+/// 홈 위젯 백그라운드 콜백 (앱이 백그라운드에 있거나 종료되었을 때)
+@pragma('vm:entry-point')
+void _backgroundCallback(Uri? uri) async {
+  if (uri?.host == 'updatebudget') {
+    // 백그라운드에서 예산 정보 업데이트 로직
+    final container = ProviderContainer();
+    try {
+      // Todo: 예산 정보 업데이트 로직
+      // 기본값으로 표시할 데이터 설정
+      await WidgetService.updateBudgetWidgetDefaults();
+    } catch (e) {
+      print('백그라운드 예산 위젯 업데이트 오류: $e');
+    } finally {
+      container.dispose();
+    }
+  }
 }
 
 /// SharedPreferences 초기화
@@ -243,4 +301,48 @@ Future<void> initLocalNotification() async {
       .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
+}
+
+/// 초기 위젯 데이터 설정
+void _initWidgetData() {
+  try {
+    // 독립적인 비동기 작업으로 예산 데이터 로드
+    _loadBudgetDataForWidget();
+    print('✅ 위젯 데이터 초기화 시작됨');
+  } catch (e) {
+    print('❌ 위젯 데이터 초기화 실패: $e');
+  }
+}
+
+/// 위젯을 위한 예산 데이터 로드 (독립적인 비동기 작업)
+Future<void> _loadBudgetDataForWidget() async {
+  // 프로바이더 컨테이너 생성
+  final container = ProviderContainer();
+
+  try {
+    print('🔄 위젯용 예산 데이터 로드 시작');
+
+    // 예산 정보 로드
+    final budgetNotifier = container.read(budgetProvider.notifier);
+    await budgetNotifier.fetchBudgets();
+
+    // 예산 상태 가져오기
+    final budgetState = container.read(budgetProvider);
+
+    // 일일 예산이 있으면 위젯 업데이트
+    if (!budgetState.isLoading && budgetState.dailyBudget != null) {
+      final dailyBudgetAmount = budgetState.dailyBudget!.dailyBudgetAmount;
+      print('✅ 위젯용 예산 데이터 로드 완료: $dailyBudgetAmount원');
+      await WidgetService.updateBudgetWidget(dailyBudgetAmount);
+    } else {
+      print('⚠️ 위젯용 예산 데이터 없음, 기본값으로 위젯 업데이트');
+      await WidgetService.updateBudgetWidgetDefaults();
+    }
+  } catch (e) {
+    print('❌ 위젯용 예산 데이터 로드 오류: $e');
+    await WidgetService.updateBudgetWidgetDefaults();
+  } finally {
+    // 컨테이너 정리
+    container.dispose();
+  }
 }

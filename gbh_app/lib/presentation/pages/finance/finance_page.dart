@@ -2,11 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/utils/lifecycle/app_lifecycle_manager.dart';
 import 'package:marshmellow/presentation/pages/finance/widgets/TopTriangleBubbleWidget.dart';
 import 'package:marshmellow/presentation/pages/finance/widgets/finance_analytics_widget.dart';
+import 'package:marshmellow/presentation/viewmodels/encryption/encryption_viewmodel.dart';
+import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/loading/loading_manager.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
@@ -131,13 +134,20 @@ class _FinancePageState extends ConsumerState<FinancePage> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: Colors.red),
+          Lottie.asset(
+              'assets/images/loading/secure.json',
+              width: 100,
+              height: 100,
+              fit: BoxFit.contain,
+            ),
           const SizedBox(height: 10),
-          Text('에러 발생: ${state.error}'),
-          ElevatedButton(
-            onPressed: () =>
-                ref.read(financeViewModelProvider.notifier).refreshAssetInfo(),
-            child: const Text('다시 시도'),
+          // Text('에러 발생: ${state.error}'),
+          Button(
+            width: MediaQuery.of(context).size.width *0.5,
+            onPressed: () {
+                ref.read(aesKeyNotifierProvider.notifier).fetchAesKey();
+                ref.read(financeViewModelProvider.notifier).refreshAssetInfo();},
+            text: '보안인증',
           ),
         ],
       );

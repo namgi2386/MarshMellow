@@ -289,7 +289,7 @@ void setupFCM() async {
 /// ✅ 로컬 알림 초기화
 Future<void> initLocalNotification() async {
   const AndroidInitializationSettings androidSettings =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+      AndroidInitializationSettings('@mipmap/ic_stat_notification');
 
   const InitializationSettings initSettings = InitializationSettings(
     android: androidSettings,

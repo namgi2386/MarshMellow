@@ -22,7 +22,14 @@ class FinanceApi {
   
   Future<AssetResponseModel> getAssetInfo() async {
     final response = await _apiClient.get('/asset');
-    print('resp나의onse : ${response}');
+    
+    final jsonString = jsonEncode(response.data);
+    // 1000자씩 나누어 출력
+    for (int i = 0; i < jsonString.length; i += 1000) {
+      int end = (i + 1000 < jsonString.length) ? i + 1000 : jsonString.length;
+      print('Response part ${i ~/ 1000 + 1}: ${jsonString.substring(i, end)}');
+    }
+    
     return AssetResponseModel.fromJson(response.data);
   }
 

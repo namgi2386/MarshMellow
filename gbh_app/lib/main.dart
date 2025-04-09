@@ -11,6 +11,8 @@ import 'package:marshmellow/core/utils/back_gesture/controller.dart';
 import 'package:marshmellow/core/services/transaction_classifier_service.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
+import 'package:marshmellow/di/providers/calendar_providers.dart';
+import 'package:marshmellow/di/providers/my/salary_provider.dart';
 
 // 환경설정 import
 import 'core/config/environment_loader.dart';
@@ -84,6 +86,9 @@ Future<void> main() async {
 
   // 트랜잭션 동기화 수행
   await _performTransactionSync();
+
+  // 월급일 정보 직접 로드
+  await _loadPaydayInfoDirectly();
 
   // 앱 시작 직전에 위젯 데이터 초기화
   _initWidgetData();
@@ -344,5 +349,54 @@ Future<void> _loadBudgetDataForWidget() async {
   } finally {
     // 컨테이너 정리
     container.dispose();
+  }
+}
+
+/// 월급일 정보를 직접 API와 Repository를 통해 로드
+Future<void> _loadPaydayInfoDirectly() async {
+  try {
+    if (kDebugMode) {
+      print('🔄 직접 월급일 정보 로드 중...');
+    }
+
+    // 임시 컨테이너 생성하여 기존 DI 재사용
+    final container = ProviderContainer();
+
+    try {
+      // 기존 DI를 통해 월급일 저장소 가져오기
+      final salaryRepository = container.read(mySalaryRepositoryProvider);
+
+      // 월급일 직접 조회
+      final payday = await salaryRepository.getSalaryDay();
+
+      // 결과 유효성 검사
+      if (payday >= 1 && payday <= 31) {
+        // 상태 업데이트
+        container.read(paydayProvider.notifier).state = payday;
+
+        if (kDebugMode) {
+          print('✅ 직접 월급일 정보 로드 완료: $payday일');
+        }
+      } else {
+        if (kDebugMode) {
+          print('⚠️ 유효하지 않은 월급일: $payday, 기본값 1일 사용');
+        }
+        // 유효하지 않은 값이면 기본값으로 설정
+        container.read(paydayProvider.notifier).state = 1;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️ 직접 월급일 정보 로드 실패: $e, 기본값 1일 사용');
+      }
+      // 오류 시 기본값 설정
+      container.read(paydayProvider.notifier).state = 1;
+    } finally {
+      // 컨테이너 해제
+      container.dispose();
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('❌ 월급일 정보 직접 로드 실패: $e');
+    }
   }
 }

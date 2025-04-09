@@ -17,6 +17,8 @@ import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart
 import 'package:marshmellow/core/constants/icon_path.dart';
 import 'package:marshmellow/presentation/widgets/keyboard/keyboard_modal.dart';
 import 'package:marshmellow/data/models/ledger/category/category_mapping.dart';
+import 'package:marshmellow/presentation/pages/ledger/widgets/picker/transfer_direction_picker.dart';
+import 'package:marshmellow/di/providers/transaction_filter_provider.dart';
 
 // 기존 폼들 import
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/expense_form.dart';
@@ -108,13 +110,26 @@ class _TransactionDetailModalState
                           IconButton(
                             onPressed: () {
                               // 계산기 키보드 열기
+                              final initialValue =
+                                  (_updatedAmount ?? transaction.amount)
+                                      .toString();
+                              // 초기값이 .0으로 끝나는 경우 소수점 제거
+                              final formattedInitialValue =
+                                  initialValue.endsWith('.0')
+                                      ? initialValue.substring(
+                                          0, initialValue.length - 2)
+                                      : initialValue;
+
                               KeyboardModal.showCalculatorKeyboard(
                                 context: context,
-                                initialValue:
-                                    (_updatedAmount ?? transaction.amount)
-                                        .toString(),
+                                initialValue: formattedInitialValue,
                                 onValueChanged: (value) {
                                   setState(() {
+                                    // 소수점 제거: 값이 정수인 경우 .0 제거
+                                    if (value.endsWith('.0')) {
+                                      value =
+                                          value.substring(0, value.length - 2);
+                                    }
                                     _updatedAmount = int.tryParse(value) ??
                                         transaction.amount.toInt();
                                   });
@@ -219,57 +234,84 @@ class _TransactionDetailModalState
                         updateParams['exceptedBudgetYn'] =
                             _updatedExceptedBudgetYn;
                       }
-                      if (_updatedDetailCategoryPk != null) {
-                        updateParams['detailCategoryPk'] =
-                            _updatedDetailCategoryPk;
-                      }
 
-                      // 최소 하나의 업데이트가 있는 경우에만 API 호출
-                      if (updateParams.length > 1) {
-                        // API 호출 먼저 하고
-                        final success = await ref
-                            .read(ledgerViewModelProvider.notifier)
-                            .updateTransaction(
-                              transactionId: updateParams['transactionId'],
-                              amount: updateParams['amount'],
-                              memo: updateParams['memo'],
-                              exceptedBudgetYn:
-                                  updateParams['exceptedBudgetYn'],
-                              detailCategoryPk:
-                                  updateParams['detailCategoryPk'],
-                            );
+                      // API 문서에 따르면 카테고리 고유번호는 필수 필드
+                      int? categoryPkNullable = _updatedDetailCategoryPk ??
+                          CategoryPkMapping.getPkFromCategory(
+                              expenseCategory: transaction.type == TransactionType.withdrawal
+                                  ? ref
+                                      .read(ledgerRepositoryProvider)
+                                      .getWithdrawalCategoryByName(
+                                          transaction.householdCategory)
+                                  : null,
+                              incomeCategory: transaction.type == TransactionType.deposit
+                                  ? ref
+                                      .read(ledgerRepositoryProvider)
+                                      .getDepositCategoryByName(
+                                          transaction.householdCategory)
+                                  : null,
+                              transferCategory: transaction.type == TransactionType.transfer
+                                  ? ref
+                                      .read(ledgerRepositoryProvider)
+                                      .getTransferCategoryByName(
+                                          transaction.householdCategory)
+                                  : null,
+                              transferDirection: transaction.type == TransactionType.transfer
+                                  ? TransferDirection.withdrawal
+                                  : null);
 
-                        if (context.mounted) {
-                          if (success) {
-                            // 성공하면 먼저 캐시 갱신
-                            ref.invalidate(transactionDetailProvider(
-                                transaction.householdPk));
-                            ref.invalidate(transactionsProvider);
-                            ref.invalidate(calendarTransactionsProvider);
+                      // 디폴트 값 설정 (기타 카테고리 사용)
+                      int categoryPk = categoryPkNullable ??
+                          (transaction.type == TransactionType.withdrawal
+                              ? 121
+                              : // 기타 지출
+                              transaction.type == TransactionType.deposit
+                                  ? 138
+                                  : // 기타 수입
+                                  130); // 기타 이체 (출금)
 
-                            // datePickerState와 관련된 데이터도 갱신
-                            final datePickerState =
-                                ref.read(datePickerProvider);
-                            if (datePickerState.selectedRange != null) {
-                              ref
-                                  .read(ledgerViewModelProvider.notifier)
-                                  .loadHouseholdData(
-                                      datePickerState.selectedRange!);
-                            }
+                      updateParams['detailCategoryPk'] = categoryPk;
 
-                            // 그 다음 화면 닫기
-                            Navigator.of(context).pop();
+                      // API 호출
+                      final success = await ref
+                          .read(ledgerViewModelProvider.notifier)
+                          .updateTransaction(
+                            transactionId: transaction.householdPk,
+                            amount: _updatedAmount,
+                            memo: _updatedMemo,
+                            exceptedBudgetYn: _updatedExceptedBudgetYn,
+                            detailCategoryPk: categoryPk,
+                          );
 
-                            // 마지막으로 성공 메시지 표시
-                            CompletionMessage.show(context, message: '수정 완료');
-                          } else {
-                            // 실패 메시지 표시 (여기서는 화면을 닫지 않음)
-                            CompletionMessage.show(context, message: '수정 실패');
+                      if (context.mounted) {
+                        if (success) {
+                          // 성공하면 먼저 캐시 갱신
+                          ref.invalidate(transactionDetailProvider(
+                              transaction.householdPk));
+                          ref.invalidate(transactionsProvider);
+                          ref.invalidate(calendarTransactionsProvider);
+
+                          // filteredTransactionsProvider까지 무효화하여 거래 내역 리스트가 업데이트되도록 함
+                          ref.invalidate(filteredTransactionsProvider);
+
+                          // datePickerState와 관련된 데이터도 갱신
+                          final datePickerState = ref.read(datePickerProvider);
+                          if (datePickerState.selectedRange != null) {
+                            ref
+                                .read(ledgerViewModelProvider.notifier)
+                                .loadHouseholdData(
+                                    datePickerState.selectedRange!);
                           }
+
+                          // 그 다음 화면 닫기
+                          Navigator.of(context).pop();
+
+                          // 마지막으로 성공 메시지 표시
+                          CompletionMessage.show(context, message: '수정 완료');
+                        } else {
+                          // 실패 메시지 표시 (여기서는 화면을 닫지 않음)
+                          CompletionMessage.show(context, message: '수정 실패');
                         }
-                      } else {
-                        // 변경된 내용이 없음을 알림
-                        CompletionMessage.show(context, message: '변경 없음');
                       }
                     },
                   ),

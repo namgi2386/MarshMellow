@@ -174,7 +174,9 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
         try {
           final value = double.parse(_currentExpression) / 100;
           setState(() {
-            _currentExpression = value.toString();
+            // 정수일 경우 소수점 제거
+            _currentExpression =
+                value % 1 == 0 ? value.toInt().toString() : value.toString();
             _displayValue = _currentExpression;
           });
         } catch (e) {
@@ -212,6 +214,12 @@ class _CalculatorKeyboardState extends State<CalculatorKeyboard> {
           _displayValue = _currentExpression;
         });
         break;
+    }
+
+    // 소수점 확인 (.0으로 끝나는 경우 제거)
+    if (_displayValue.endsWith('.0')) {
+      _displayValue = _displayValue.substring(0, _displayValue.length - 2);
+      _currentExpression = _displayValue;
     }
 
     // 상위 위젯에 값 전달

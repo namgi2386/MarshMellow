@@ -36,17 +36,21 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
   Widget build(BuildContext context) {
     final wishlistState = ref.watch(wishlistProvider);
 
+    final availableWishlists = wishlistState.wishlists.where((wishlist) =>
+      wishlist.isSelected == 'N' && wishlist.isCompleted == 'N'
+    ).toList();
+
     return Scaffold(
       appBar: CustomAppbar(
-        title: '이달의 위시 선택',
+        title: '이달의 위시 만들기',
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Text(
-              '이번 달에 모을 위시를 선택해주세요',
-              style: AppTextStyles.bodyLarge,
+              '🍀이번 달에 모을\n위시를 선택해주세요',
+              style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w300), textAlign: TextAlign.center,
             ),
           ),
           if (wishlistState.isLoading)
@@ -76,9 +80,9 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                itemCount: wishlistState.wishlists.length,
+                itemCount: availableWishlists.length,
                 itemBuilder: (context, index) {
-                  final wishlist = wishlistState.wishlists[index];
+                  final wishlist = availableWishlists[index];
                   return _buildWishlistItem(wishlist);
                 },
               ),
@@ -138,14 +142,16 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
                   children: [
                     Text(
                       wishlist.productNickname,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        fontWeight: FontWeight.bold,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       wishlist.productName,
-                      style: AppTextStyles.bodyMedium,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w300
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

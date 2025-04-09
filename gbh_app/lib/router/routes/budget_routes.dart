@@ -11,6 +11,7 @@ import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budg
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_selection_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/salary_celebrate_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/salary_to_wish/wish_complete_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/salary_to_wish/wish_selection_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/salary_to_wish/wish_setup_page.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/wish/wishlist_creation_page.dart';
@@ -38,6 +39,7 @@ class BudgetRoutes {
   // 위시 생성 경로 정의
   static const String wishcreate = 'wish/create';
   static const String wishsetup = 'wish/setup';
+  static const String wishcomplete = 'wish/complete';
 
   // 예산 경로 생성 헬퍼 메서드
   static String getBudgetDetailPath() => '$root/$budgetdetail';
@@ -56,6 +58,7 @@ class BudgetRoutes {
   // 위시 생성 경로 생성 헬퍼 메서드
   static String getWishCreatePath() => '$root/$wishcreate';
   static String getWishSetUpPath() => '$root/$wishsetup';
+  static String getWishCompletePath() => '$root/$wishcomplete';
 }
 
 List<RouteBase> budgetRoutes = [
@@ -157,12 +160,28 @@ List<RouteBase> budgetRoutes = [
         },
       ),
 
-      // 위시 생성 페이지
+      // 위시 날짜 및 계좌 설정 페이지
       GoRoute(
         path: BudgetRoutes.wishsetup,
         builder: (context, state) {
           final wishlist = state.extra as Wishlist;
           return WishSetupPage(wishlist: wishlist);
+        },
+      ),
+
+      // 위시 생성 완료 페이지
+      GoRoute(
+        path: BudgetRoutes.wishcomplete,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return WishCompletePage(      
+            wishlist: extra['wishlist'],
+            selectedMonth: extra['selectedMonth'],
+            dailyAmount: extra['dailyAmount'],
+            withdrawalAccount: extra['withdrawalAccount'],
+            depositAccount: extra['depositAccount'],
+            dueDate: extra['dueDate'],
+          );
         },
       ),
 

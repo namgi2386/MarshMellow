@@ -23,8 +23,8 @@ spring:
       host: <Redis 주소>
       port: 6379
 cert:
-  sa-key: <CI 제작 서버 개인키(RSA)>
-  sk-key: <CI 제작 서버 개인키(RSA)>
+  sa-key: <CI 제작 XOR 연산 사용키(RSA)>
+  sk-key: <CI 제작 서버 암호화 키(RSA)>
   ca-private-key: <ca private key 주소(RSA)>
   ca-cert: <ca 인증키 경로>
 ssafy:

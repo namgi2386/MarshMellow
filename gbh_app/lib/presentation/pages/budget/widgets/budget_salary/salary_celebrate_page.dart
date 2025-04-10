@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:marshmellow/core/constants/icon_path.dart';
 
 // 라우트
 import 'package:go_router/go_router.dart';
-import 'package:marshmellow/core/constants/storage_keys.dart';
-import 'package:marshmellow/core/services/user_preferences_service.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_card.dart';
-import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_secure_info_viewmodel.dart';
-import 'package:marshmellow/router/routes/budget_routes.dart';
-import 'package:marshmellow/router/routes/cookie_routes.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 
 // 위젯
-import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/celebration/celebration.dart';
 
 class SalaryCelebratePage extends ConsumerStatefulWidget {
@@ -76,7 +69,7 @@ class _SalaryCelebratePageState extends ConsumerState<SalaryCelebratePage> {
   void _navigateToBudgetTypePage() async {
     // 이 플로우 봣다고 체크하자!
     // await UserPreferencesService.markBudgetFlowAsSeen();
-    context.go(BudgetRoutes.getBudgetTypeSelectionPath());
+    context.go(SignupRoutes.getBudgetTypeSelectionPath());
   }
 
   @override

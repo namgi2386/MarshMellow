@@ -156,7 +156,7 @@ class WishApi {
   // wish 생성
   Future<Map<String, dynamic>> selectWish(int wishPk, String isSelected) async {
     final data = {'isSelected' : isSelected};
-    final response = await _apiClient.post('/mm/wishlist/detail/$wishPk');
+    final response = await _apiClient.post('/mm/wishlist/detail/$wishPk', data: data);
     return response.data;
   }
 

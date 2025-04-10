@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/data/models/budget/budget_type_model.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_type_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/router/routes/budget_routes.dart';
 
 class BudgetTypePage extends ConsumerWidget {
@@ -82,7 +82,7 @@ class BudgetTypePage extends ConsumerWidget {
               Button(
                 text: '다른 유형으로 설정하기',
                 onPressed: () {
-                  context.push(BudgetRoutes.getBudgetTypeSelectionPath());
+                  context.push(SignupRoutes.getBudgetTypeSelectionPath());
                 },
               ),
             ],

@@ -56,6 +56,7 @@ class BudgetState {
 // Budget ViewModel 프로바이더
 final budgetProvider =
     StateNotifierProvider.autoDispose<BudgetViewModel, BudgetState>((ref) {
+  ref.keepAlive();
   final repository = ref.watch(budgetRepositoryProvider);
   return BudgetViewModel(repository);
 });

@@ -1,0 +1,31 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: gbh_cert
+
+  datasource:
+    url: jdbc:mysql://<DB 주소>:3306/<DB 명>
+    username: root
+    password: <DB 비밀번호>
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  data:
+    redis:
+      host: <Redis 주소>
+      port: 6379
+cert:
+  sa-key: <CI 제작 서버 개인키(RSA)>
+  sk-key: <CI 제작 서버 개인키(RSA)>
+  ca-private-key: <ca private key 주소(RSA)>
+  ca-cert: <ca 인증키 경로>
+ssafy:
+  api-key: <SSAFY 금융망 API KEY>

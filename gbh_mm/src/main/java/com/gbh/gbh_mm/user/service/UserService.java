@@ -331,6 +331,7 @@ public class UserService {
                 && !arr[0].equals("(예금)") && !arr[0].equals("예금") && !arr[0].equals("MarshMellow")) {
                     DepositDto depositDto = DepositDto.builder()
                         .transactionDate((String) stringObjectMap.get("transactionDate"))
+                        .transactionTime((String) stringObjectMap.get("transactionTime"))
                         .transactionBalance(transactionBalance)
                         .transactionMemo((String) stringObjectMap.get("transactionMemo"))
                         .transactionSummary(transactionSummary)

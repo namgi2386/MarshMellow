@@ -5,9 +5,8 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/etc/custom_button.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
-import 'package:marshmellow/presentation/widgets/celebration/celebration.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
-import 'package:marshmellow/router/routes/budget_routes.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:intl/intl.dart';
 
 class SalaryInputCompletePage extends ConsumerWidget {
@@ -101,7 +100,7 @@ class SalaryInputCompletePage extends ConsumerWidget {
                     text: '예산 설정하기',
                     onPressed: () {
                       // 예산 설정 페이지로 이동
-                      context.go(BudgetRoutes.getBudgetTypePath());
+                      context.go(SignupRoutes.getBudgetTypePath());
                     },
                     isEnabled: true,
                   ),

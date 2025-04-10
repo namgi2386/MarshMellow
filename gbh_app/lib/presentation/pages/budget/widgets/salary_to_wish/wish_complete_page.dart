@@ -37,19 +37,15 @@ class WishCompletePage extends ConsumerWidget {
     final formattedDueDate = '$year년 $month월 $day일';
     
     return Scaffold(
-      appBar: const CustomAppbar(
+      appBar: CustomAppbar(
         title: '위시 등록 완료',
+        automaticallyImplyLeading: false
       ),
       body: Stack(
         children: [
-          // 축하 효과
-          const Positioned.fill(
-            child: CelebrationPopup(),
-          ),
-          
           // 메인 콘텐츠
           SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -61,15 +57,16 @@ class WishCompletePage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  '위시 등록이 완료되었습니다!',
-                  style: AppTextStyles.bodyExtraSmall,
+                  '위시 등록과 자동이체 설정이 완료되었습니다!',
+                  style: AppTextStyles.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '자동이체 설정이 완료되었습니다. $selectedMonth개월 동안 매일 저축을 통해 위시 상품을 모아보세요!',
+                  '$selectedMonth개월 동안 매일 저축을 통해\n위시 상품을 모아보세요!',
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w300
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -111,10 +108,10 @@ class WishCompletePage extends ConsumerWidget {
                 ElevatedButton(
                   onPressed: () {
                     // 메인 페이지로 이동
-                    context.go('/main');
+                    context.go('/budget');
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.blueDark,
+                    backgroundColor: AppColors.backgroundBlack,
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -124,6 +121,7 @@ class WishCompletePage extends ConsumerWidget {
                     '메인으로',
                     style: AppTextStyles.bodyLarge.copyWith(
                       color: Colors.white,
+                      fontWeight: FontWeight.w300
                     ),
                   ),
                 ),
@@ -142,13 +140,10 @@ class WishCompletePage extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(
+                  color:AppColors.backgroundBlack,  // 원하는 테두리 색상
+                  width: 0.5,                   // 테두리 두께
+                )
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,10 +151,10 @@ class WishCompletePage extends ConsumerWidget {
           Text(
             title,
             style: AppTextStyles.bodyLarge.copyWith(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w300,
             ),
           ),
-          const Divider(height: 20),
+          const Divider(height: 10),
           child,
         ],
       ),
@@ -173,11 +168,12 @@ class WishCompletePage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 100,
+            width: 150,
             child: Text(
               label,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
+                fontWeight: FontWeight.w300
               ),
             ),
           ),

@@ -8,7 +8,7 @@ import 'package:marshmellow/presentation/viewmodels/wishlist/wishlist_providers.
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
 import 'package:marshmellow/presentation/widgets/modal/modal.dart';
-import 'package:marshmellow/router/routes/budget_routes.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 
 /*
   예산 분배 완료 후, 
@@ -210,7 +210,7 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
                     textAlign: TextAlign.center,
                   ),
                   Text(
-                    '을(를)이달의 위시로 등록하시겠습니까?',
+                    '을(를) 이달의 위시로 등록하시겠습니까?',
                     style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w300),
                     textAlign: TextAlign.center,
                   ),
@@ -254,7 +254,7 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        context.go(BudgetRoutes.getWishSetUpPath(), extra: wishlist);
+                        context.go(SignupRoutes.getWishSetUpPath(), extra: wishlist);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.backgroundBlack,

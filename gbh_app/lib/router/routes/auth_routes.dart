@@ -1,6 +1,7 @@
 // lib/router/routes/signup_routes.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/data/models/wishlist/wishlist_model.dart';
 import 'package:marshmellow/presentation/pages/auth/signup_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_agreement_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/mydata/auth_mydata_already_connected_page.dart';
@@ -17,6 +18,12 @@ import 'package:marshmellow/presentation/pages/auth/widgets/message/auth_message
 import 'package:marshmellow/presentation/pages/auth/widgets/pinnum/auth_pinnum_login_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/salary_input/salary_input_complete_page.dart';
 import 'package:marshmellow/presentation/pages/auth/widgets/salary_input/salary_input_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_selection_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/salary_celebrate_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/salary_to_wish/wish_complete_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/salary_to_wish/wish_selection_page.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/salary_to_wish/wish_setup_page.dart';
 
 /*
   회원가입 routes
@@ -42,6 +49,16 @@ class SignupRoutes {
   static const String salaryinput = 'salaryinput';
   static const String salaryinputcomplete = 'salaryinputcomplete';
 
+  // 위시 생성 경로 정의
+  static const String wishcreate = 'wish/create';
+  static const String wishsetup = 'wish/setup';
+  static const String wishcomplete = 'wish/complete';
+
+  // 예산 분배 유형 선택 경로 정의
+  static const String budgettype = 'type';
+  static const String budgettypeselection = 'type/selection';
+  static const String budgetcelebrate = 'celebrate';
+
   // 전체 경로 생성 헬퍼 메서드
   static String getAuthMessagePath() => '$root/$authmessage';
   static String getAuthLoadingPath() => '$root/$authloading';
@@ -60,6 +77,16 @@ class SignupRoutes {
   static String getMyDataAlreadyConnPath() => '$root/$mydataalreadyconn';
   static String getSalaryInputPath() => '$root/$salaryinput';
   static String getSalaryInputCompletePath() => '$root/$salaryinputcomplete';
+
+  // 위시 생성 경로 생성 헬퍼 메서드
+  static String getWishCreatePath() => '$root/$wishcreate';
+  static String getWishSetUpPath() => '$root/$wishsetup';
+  static String getWishCompletePath() => '$root/$wishcomplete';
+
+  // 예산 분배 경로 생성 헬퍼 메서드
+  static String getBudgetTypePath() => '$root/$budgettype';
+  static String getBudgetTypeSelectionPath() => '$root/$budgettypeselection';
+  static String getBudgetCelebratePath() => '$root/$budgetcelebrate';
 }
 
 List<RouteBase> signupRoutes = [
@@ -159,6 +186,66 @@ List<RouteBase> signupRoutes = [
         path: SignupRoutes.salaryinputcomplete,
         builder: (context, state) => const SalaryInputCompletePage(),
       ),
+
+      // 예산 월급날 축하 페이지
+      GoRoute(
+        path: SignupRoutes.budgetcelebrate,
+        builder: (context, state) {
+          return SalaryCelebratePage();
+        },
+      ),
+
+
+      // 예산 분배 유형 출력 페이지
+      GoRoute(
+        path: SignupRoutes.budgettype,
+        builder: (context, state) {
+          return BudgetTypePage();
+        },
+      ),
+
+      // 예산 분배 유형 선택 페이지
+      GoRoute(
+        path: SignupRoutes.budgettypeselection,
+        builder: (context, state) {
+          return BudgetTypeSelectionPage();
+        },
+      ),
+
+            // 위시 생성 페이지
+      GoRoute(
+        path: SignupRoutes.wishcreate,
+        builder: (context, state) {
+          return WishSelectionPage();
+        },
+      ),
+
+      // 위시 날짜 및 계좌 설정 페이지
+      GoRoute(
+        path: SignupRoutes.wishsetup,
+        builder: (context, state) {
+          final wishlist = state.extra as Wishlist;
+          return WishSetupPage(wishlist: wishlist);
+        },
+      ),
+
+      // 위시 생성 완료 페이지
+      GoRoute(
+        path: SignupRoutes.wishcomplete,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return WishCompletePage(      
+            wishlist: extra['wishlist'],
+            selectedMonth: extra['selectedMonth'],
+            dailyAmount: extra['dailyAmount'],
+            withdrawalAccount: extra['withdrawalAccount'],
+            depositAccount: extra['depositAccount'],
+            dueDate: extra['dueDate'],
+          );
+        },
+      ),
+
+
 
     ],
   ),

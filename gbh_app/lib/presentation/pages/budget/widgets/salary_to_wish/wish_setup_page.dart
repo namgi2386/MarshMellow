@@ -9,7 +9,9 @@ import 'package:marshmellow/presentation/viewmodels/budget/wish_selection_viewmo
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/finance/bank_icon.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/router/routes/budget_routes.dart';
+import 'package:lottie/lottie.dart';
 
 // 이 파일 내에서 선택된 기간, 출금계좌, 입금계좌 상태를 관리하는 프로바이더들
 final selectedMonthProvider = StateProvider<int>((ref) => 1);
@@ -134,7 +136,14 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                 ),
                 const SizedBox(height: 16),
                 if (wishSelectionState.isLoading)
-                  const Center(child: CustomLoadingIndicator())
+                  Center(
+                    child: Lottie.asset(
+                      'assets/images/loading/loading_simple.json',
+                      width: 140,
+                      height: 140,
+                      fit: BoxFit.contain,
+                    ),
+                  )
                 else if (wishSelectionState.accounts.isEmpty)
                   Center(
                     child: Text(
@@ -428,7 +437,7 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
       
       // 성공 시 완료 페이지로 이동
       if (mounted) {
-        context.go(BudgetRoutes.getWishCompletePath(), extra: {
+        context.go(SignupRoutes.getWishCompletePath(), extra: {
           'wishlist': widget.wishlist,
           'selectedMonth': selectedMonth,
           'dailyAmount': _dailyAmounts[_availableMonths.indexOf(selectedMonth)],

@@ -19,52 +19,66 @@ class _CategoryFormModalState extends ConsumerState<CategoryFormModal> {
   String _categoryName = "";
   String _memo = "";
   bool _isSaving = false;
-  
+
   // 카테고리명 업데이트
   void _updateCategoryName(String name) {
     setState(() {
       _categoryName = name;
     });
   }
-  
+
   // 메모 업데이트
   void _updateMemo(String memo) {
     setState(() {
       _memo = memo;
     });
   }
-  
-  // 카테고리 저장 
+
+  // 카테고리 저장
   Future<void> _saveCategory() async {
+    // 필드에서 포커스 해제하여 현재 편집 중인 텍스트 값을 반영
+    FocusScope.of(context).unfocus();
+
+    // 약간의 지연을 주어 onFocusChange 콜백이 실행될 시간을 확보
+    await Future.delayed(const Duration(milliseconds: 100));
+
     // 필수 필드 검증
     if (_categoryName.isEmpty) {
-      CompletionMessage.show(context, message: '카테고리명');
+      CompletionMessage.show(context, message: '카테고리명을 입력해주세요');
       return;
     }
-    
+
+    // 로깅 추가
+    print('저장 시도: 카테고리명=$_categoryName, 메모=$_memo');
+
     // 로딩 상태 설정
     setState(() {
       _isSaving = true;
     });
-    
+
     try {
       // 카테고리 생성 요청
-      final success = await ref.read(portfolioCategoryViewModelProvider.notifier)
+      final success = await ref
+          .read(portfolioCategoryViewModelProvider.notifier)
           .createPortfolioCategory(
             categoryName: _categoryName,
             categoryMemo: _memo,
           );
-      
+
+      print('카테고리 저장 결과: $success');
+
       if (mounted) {
         if (success) {
           CompletionMessage.show(context, message: '등록 완료');
           Navigator.of(context).pop(true); // 성공 결과 반환하며 닫기
         } else {
-          final errorMessage = ref.read(portfolioCategoryViewModelProvider).errorMessage;
+          final errorMessage =
+              ref.read(portfolioCategoryViewModelProvider).errorMessage;
           CompletionMessage.show(context, message: errorMessage ?? '등록 실패');
         }
       }
     } catch (e) {
+      print('카테고리 저장 오류: $e');
       if (mounted) {
         CompletionMessage.show(context, message: '오류 발생: $e');
       }
@@ -77,7 +91,7 @@ class _CategoryFormModalState extends ConsumerState<CategoryFormModal> {
       }
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -98,13 +112,13 @@ class _CategoryFormModalState extends ConsumerState<CategoryFormModal> {
                   ),
                 ),
               ),
-              
+
               const Divider(
-                height: 1, 
-                thickness: 1, 
+                height: 1,
+                thickness: 1,
                 color: AppColors.greyLight,
               ),
-              
+
               // 폼 필드들
               Container(
                 padding: const EdgeInsets.only(bottom: 100),
@@ -115,7 +129,7 @@ class _CategoryFormModalState extends ConsumerState<CategoryFormModal> {
                       categoryName: _categoryName,
                       onCategoryNameChanged: _updateCategoryName,
                     ),
-                    
+
                     // 메모 필드
                     CategoryFields.editableMemoField(
                       memo: _memo,
@@ -127,7 +141,7 @@ class _CategoryFormModalState extends ConsumerState<CategoryFormModal> {
             ],
           ),
         ),
-        
+
         // 하단 저장 버튼
         Positioned(
           bottom: 0,

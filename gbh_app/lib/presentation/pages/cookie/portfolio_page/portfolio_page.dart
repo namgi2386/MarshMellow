@@ -197,7 +197,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
       _loadData();
     } catch (e) {
       if (!mounted) return;
-      CompletionMessage.show(context, message: '오류가 발생했습니다: $e');
+      CompletionMessage.show(context, message: '오류 발생');
     }
   }
 

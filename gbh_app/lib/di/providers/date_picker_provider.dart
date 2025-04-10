@@ -11,6 +11,7 @@ class DatePickerState {
   final DateTime? selectedDate; // 선택된 날짜
   final List<DateTime>? selectedDates; // 선택된 날짜들
   final bool isConfirmed; // 확인 여부
+  final String? lastUpdateKey; // 마지막 업데이트 키
 
   DatePickerState({
     this.isVisible = false,
@@ -20,6 +21,7 @@ class DatePickerState {
     this.selectedDate,
     this.selectedDates,
     this.isConfirmed = false,
+    this.lastUpdateKey,
   });
 
   // 상태 복사본 생성 메서드 (불변성 유지)
@@ -30,7 +32,8 @@ class DatePickerState {
     PickerDateRange? selectedRange,
     DateTime? selectedDate,
     List<DateTime>? selectedDates,
-    bool? isConfirmed, // isConfirmed 매개변수 추가
+    bool? isConfirmed,
+    String? lastUpdateKey,
   }) {
     return DatePickerState(
       isVisible: isVisible ?? this.isVisible,
@@ -39,7 +42,8 @@ class DatePickerState {
       selectedRange: selectedRange ?? this.selectedRange,
       selectedDate: selectedDate ?? this.selectedDate,
       selectedDates: selectedDates ?? this.selectedDates,
-      isConfirmed: isConfirmed ?? this.isConfirmed, // isConfirmed 추가
+      isConfirmed: isConfirmed ?? this.isConfirmed,
+      lastUpdateKey: lastUpdateKey ?? this.lastUpdateKey,
     );
   }
 }
@@ -83,6 +87,19 @@ class DatePickerNotifier extends StateNotifier<DatePickerState> {
       selectedRange: range,
       isVisible: false,
       isConfirmed: true, // 확인 상태 true로 설정
+    );
+  }
+
+  // 선택된 날짜 범위 업데이트 (중복 방지를 위한 키 사용)
+  void updateSelectedRangeWithKey(PickerDateRange range, String updateKey) {
+    // 마지막 업데이트 키와 동일하면 중복 업데이트 방지
+    if (state.lastUpdateKey == updateKey) return;
+
+    state = state.copyWith(
+      selectedRange: range,
+      isVisible: false,
+      isConfirmed: true,
+      lastUpdateKey: updateKey,
     );
   }
 

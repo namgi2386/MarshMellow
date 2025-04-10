@@ -313,7 +313,7 @@ class CategoryExpensePage extends ConsumerWidget {
               value: percentage / 100,
               backgroundColor: AppColors.whiteDark,
               valueColor: AlwaysStoppedAnimation<Color>(
-                percentage > 100 ? AppColors.pinkPrimary : category.color,
+                percentage > 100 ? AppColors.buttonDelete : category.color,
               ),
               minHeight: 8,
             ),
@@ -328,12 +328,12 @@ class CategoryExpensePage extends ConsumerWidget {
                   '사용금액',
                   '$formattedSpent원',
                   percentage > 100
-                      ? AppColors.pinkPrimary
+                      ? AppColors.buttonDelete
                       : AppColors.textPrimary),
               _buildAmountItem(
                 '사용률',
                 '${percentage.toStringAsFixed(0)}%',
-                percentage > 100 ? AppColors.pinkPrimary : category.color,
+                percentage > 100 ? AppColors.buttonDelete : category.color,
               ),
               _buildAmountItem(
                   '예산금액', '$formattedBudget원', AppColors.textSecondary),

@@ -89,6 +89,271 @@ public class AssetServiceImpl implements AssetService {
 
     private final AlertService alertService;
 
+//    @Override
+//    public ResponseFindAssetList findAssetList(CustomUserDetails customUserDetails) {
+//        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+//
+//        ResponseFindAssetList response = new ResponseFindAssetList();
+//
+//        String userKey = customUserDetails.getUserKey();
+//        String aesKey = customUserDetails.getAesKey();
+//        byte[] decodedAes = Base64.getDecoder().decode(aesKey);
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(decodedAes, "AES");
+//
+//        try {
+//            /* 목록 조회 API 호출 */
+//            Map<String, Object> responseCardData =
+//                cardAPI.findUserCardList(userKey);
+//            Map<String, Object> responseDepositDemandData =
+//                demandDepositAPI.findDemandDepositAccountList(userKey);
+//            Map<String, Object> responseLoanData =
+//                loanAPI.findAccountList(userKey);
+//            Map<String, Object> responseSavingsData =
+//                savingsAPI.findAccountList(userKey);
+//            Map<String, Object> responseDepositData =
+//                depositAPI.findAccountList(userKey);
+//
+//            Map<String, Object> cardApiData =
+//                (Map<String, Object>) responseCardData.get("apiResponse");
+//            Map<String, Object> depositDemandApiData =
+//                (Map<String, Object>) responseDepositDemandData.get("apiResponse");
+//            Map<String, Object> loanApiData =
+//                (Map<String, Object>) responseLoanData.get("apiResponse");
+//            Map<String, Object> savingsApiData =
+//                (Map<String, Object>) responseSavingsData.get("apiResponse");
+//            Map<String, Object> depositApiData =
+//                (Map<String, Object>) responseDepositData.get("apiResponse");
+//
+//            List<Map<String, Object>> responseCardList =
+//                (List<Map<String, Object>>) cardApiData.get("REC");
+//            List<Map<String, Object>> responseDemandDepositList =
+//                (List<Map<String, Object>>) depositDemandApiData.get("REC");
+//            List<Map<String, Object>> responseLoanList =
+//                (List<Map<String, Object>>) loanApiData.get("REC");
+//            Map<String, Object> responseSavingsList =
+//                (Map<String, Object>) savingsApiData.get("REC");
+//            List<Map<String, Object>> savings =
+//                (List<Map<String, Object>>) responseSavingsList.get("list");
+//            Map<String, Object> responseDepositList =
+//                (Map<String, Object>) depositApiData.get("REC");
+//            List<Map<String, Object>> deposits =
+//                (List<Map<String, Object>>) responseDepositList.get("list");
+//
+//            List<Card> cardList = responseCardList.stream()
+//                .map(cardMap -> mapper.map(cardMap, Card.class))
+//                .collect(Collectors.toList());
+//
+//            YearMonth current = YearMonth.now();
+//            YearMonth lastMonth = current.minusMonths(1);
+//
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+//            String currentString = current.format(formatter);
+//            String lastMonthString = lastMonth.format(formatter);
+//
+//            byte[] iv = new byte[16];
+//            SecureRandom secureRandom = new SecureRandom();
+//            secureRandom.nextBytes(iv);
+//            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+//
+//            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+//            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+//
+//            String encodedIV = Base64.getEncoder().encodeToString(iv);
+//
+//            long cardAmount = 0;
+//            for (int i = 0; i < cardList.size(); i++) {
+//                RequestFindBilling requestFindBilling = RequestFindBilling.builder()
+//                    .cvc(cardList.get(i).getCvc())
+//                    .cardNo(cardList.get(i).getCardNo())
+//                    .startMonth(lastMonthString)
+//                    .endMonth(currentString)
+//                    .userKey(userKey)
+//                    .build();
+//
+//                byte[] cardNoBytes = cipher
+//                    .doFinal(cardList.get(i).getCardNo().getBytes(StandardCharsets.UTF_8));
+//                byte[] cvcBytes = cipher
+//                    .doFinal(cardList.get(i).getCvc().getBytes(StandardCharsets.UTF_8));
+//
+//                cardList.get(i).setCardNo(Base64.getEncoder().encodeToString(cardNoBytes));
+//                cardList.get(i).setCvc(Base64.getEncoder().encodeToString(cvcBytes));
+//
+//                Map<String, Object> cardBillApi = cardAPI.findBilling(requestFindBilling);
+//                Map<String, Object> cardBillData =
+//                    (Map<String, Object>) cardBillApi.get("apiResponse");
+//                List<Map<String, Object>> recList =
+//                    (List<Map<String, Object>>) cardBillData.get("REC");
+//
+//                if (recList.size() > 0) {
+//                    Map<String, Object> bill = recList.get(0);
+//                    List<Map<String, Object>> billingList =
+//                        (List<Map<String, Object>>) bill.get("billingList");
+//                    Map<String, Object> billing = billingList.get(0);
+//                    long totalAmount = Long.parseLong((String) billing.get("totalBalance"));
+//
+//                    cardAmount += totalAmount;
+//
+//                    String totalAmountString = String.valueOf(totalAmount);
+//                    byte[] cardBalanceBytes = cipher
+//                        .doFinal(totalAmountString.getBytes(StandardCharsets.UTF_8));
+//                    cardList.get(i)
+//                        .setCardBalance(Base64.getEncoder().encodeToString(cardBalanceBytes));
+//                }
+//            }
+//
+//            String totalAmountString = String.valueOf(cardAmount);
+//            byte[] totalAmountBytes = cipher.doFinal(
+//                totalAmountString.getBytes(StandardCharsets.UTF_8));
+//
+//            CardListDto responseCard = CardListDto.builder()
+//                .totalAmount(Base64.getEncoder().encodeToString(totalAmountBytes))
+//                .cardList(cardList)
+//                .build();
+//
+//            /* 데이터 매핑(직렬화) */
+//            List<DemandDeposit> demandDepositList = responseDemandDepositList.stream()
+//                .map(demandDepositMap ->
+//                    mapper.map(demandDepositMap, DemandDeposit.class))
+//                .collect(Collectors.toList());
+//
+//            long demandDepositTotal = 0;
+//            for (DemandDeposit demandDeposit : demandDepositList) {
+//                long accountBalance = demandDeposit.getAccountBalance();
+//                String accountBalanceString = String.valueOf(accountBalance);
+//                demandDepositTotal += accountBalance;
+//                byte[] accountNoBytes =
+//                    cipher.doFinal(demandDeposit.getAccountNo().getBytes(StandardCharsets.UTF_8));
+//                byte[] accountBalanceBytes =
+//                    cipher.doFinal(accountBalanceString.getBytes(StandardCharsets.UTF_8));
+//                demandDeposit.setAccountNo(Base64.getEncoder().encodeToString(accountNoBytes));
+//                demandDeposit
+//                    .setEncodedAccountBalance(
+//                        Base64.getEncoder().encodeToString(accountBalanceBytes));
+//                demandDeposit.setAccountBalance(0);
+//            }
+//
+//            String demandDepositTotalString = String.valueOf(demandDepositTotal);
+//            byte[] demandDepositTotalBytes =
+//                cipher.doFinal(demandDepositTotalString.getBytes(StandardCharsets.UTF_8));
+//
+//            /* 총 금액 계산 */
+//            DemandDepositListDto responseDemandDeposit = DemandDepositListDto.builder()
+//                .demandDepositList(demandDepositList)
+//                .totalAmount(Base64.getEncoder().encodeToString(demandDepositTotalBytes))
+//                .build();
+//
+//            /* 데이터 매핑(직렬화) */
+//            List<Loan> loanList = responseLoanList.stream()
+//                .map(loanMap -> mapper.map(loanMap, Loan.class))
+//                .collect(Collectors.toList());
+//
+//            /* 총 금액 계산 */
+//            long loanTotalAmount = 0;
+//
+//            for (Loan loan : loanList) {
+//                long loanBalance = loan.getLoanBalance();
+//                String loanBalanceString = String.valueOf(loanBalance);
+//                loanTotalAmount += loanBalance;
+//
+//                byte[] loanBalanceByte =
+//                    cipher.doFinal(loanBalanceString.getBytes(StandardCharsets.UTF_8));
+//                byte[] accountNoByte =
+//                    cipher.doFinal(loan.getAccountNo().getBytes(StandardCharsets.UTF_8));
+//
+//                loan.setAccountNo(Base64.getEncoder().encodeToString(accountNoByte));
+//                loan.setEncodeLoanBalance(Base64.getEncoder().encodeToString(loanBalanceByte));
+//                loan.setLoanBalance(0);
+//            }
+//
+//            String stringLoanTotal = String.valueOf(loanTotalAmount);
+//            byte[] loanTotalBytes = cipher.doFinal(
+//                stringLoanTotal.getBytes(StandardCharsets.UTF_8));
+//
+//            LoanListDto responseLoan = LoanListDto.builder()
+//                .totalAmount(Base64.getEncoder().encodeToString(loanTotalBytes))
+//                .loanList(loanList)
+//                .build();
+//
+//            /* 데이터 매핑(직렬화) */
+//            List<Savings> savingsList = savings.stream()
+//                .map(savingsMap -> mapper.map(savingsMap, Savings.class))
+//                .collect(Collectors.toList());
+//
+//            /* 총 금액 계산 */
+//            long savingTotalAmount = 0;
+//
+//            for (Savings savings1 : savingsList) {
+//                long savings1TotalBalance = savings1.getTotalBalance();
+//                String savingsTotalBalanceString = String.valueOf(savings1TotalBalance);
+//                savingTotalAmount += savings1TotalBalance;
+//
+//                byte[] byteTotalBalance =
+//                    cipher.doFinal(savingsTotalBalanceString.getBytes(StandardCharsets.UTF_8));
+//                byte[] accountNoByte =
+//                    cipher.doFinal(savings1.getAccountNo().getBytes(StandardCharsets.UTF_8));
+//
+//                savings1.setAccountNo(Base64.getEncoder().encodeToString(accountNoByte));
+//                savings1.setEncodedTotalBalance(
+//                    Base64.getEncoder().encodeToString(byteTotalBalance));
+//                savings1.setTotalBalance(0);
+//            }
+//
+//            String savingsTotalString = String.valueOf(savingTotalAmount);
+//            byte[] savingsTotalBytes =
+//                cipher.doFinal(savingsTotalString.getBytes(StandardCharsets.UTF_8));
+//
+//            SavingsListDto responseSavings = SavingsListDto.builder()
+//                .totalAmount(Base64.getEncoder().encodeToString(savingsTotalBytes))
+//                .savingsList(savingsList)
+//                .build();
+//
+//            /* 데이터 직렬화 */
+//            List<Deposit> depositList = deposits.stream()
+//                .map(depositMap -> mapper.map(depositMap, Deposit.class))
+//                .collect(Collectors.toList());
+//
+//            /* 총 금액 계산 */
+//            long depositTotalAmount = 0;
+//
+//            for (Deposit deposit : depositList) {
+//                long depositBalance = deposit.getDepositBalance();
+//                String depositBalanceString = String.valueOf(depositBalance);
+//                depositTotalAmount += depositBalance;
+//
+//                byte[] depositBalanceByte =
+//                    cipher.doFinal(depositBalanceString.getBytes(StandardCharsets.UTF_8));
+//                byte[] accountNoByte =
+//                    cipher.doFinal(deposit.getAccountNo().getBytes(StandardCharsets.UTF_8));
+//                deposit.setAccountNo(Base64.getEncoder().encodeToString(accountNoByte));
+//                deposit.setDepositBalance(0);
+//                deposit.setEncodeDepositBalance(
+//                    Base64.getEncoder().encodeToString(depositBalanceByte));
+//            }
+//
+//            String depositTotalString = String.valueOf(depositTotalAmount);
+//            byte[] depositTotalByte =
+//                cipher.doFinal(depositTotalString.getBytes(StandardCharsets.UTF_8));
+//
+//            DepositListDto responseDeposit = DepositListDto.builder()
+//                .totalAmount(Base64.getEncoder().encodeToString(depositTotalByte))
+//                .depositList(depositList)
+//                .build();
+//
+//            response.setCardData(responseCard);
+//            response.setDemandDepositData(responseDemandDeposit);
+//            response.setLoanData(responseLoan);
+//            response.setSavingsData(responseSavings);
+//            response.setDepositData(responseDeposit);
+//            response.setIv(encodedIV);
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return response;
+//    }
+
     @Override
     public ResponseFindAssetList findAssetList(CustomUserDetails customUserDetails) {
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -103,45 +368,45 @@ public class AssetServiceImpl implements AssetService {
         try {
             /* 목록 조회 API 호출 */
             Map<String, Object> responseCardData =
-                cardAPI.findUserCardList(userKey);
+                    cardAPI.findUserCardList(userKey);
             Map<String, Object> responseDepositDemandData =
-                demandDepositAPI.findDemandDepositAccountList(userKey);
+                    demandDepositAPI.findDemandDepositAccountList(userKey);
             Map<String, Object> responseLoanData =
-                loanAPI.findAccountList(userKey);
+                    loanAPI.findAccountList(userKey);
             Map<String, Object> responseSavingsData =
-                savingsAPI.findAccountList(userKey);
+                    savingsAPI.findAccountList(userKey);
             Map<String, Object> responseDepositData =
-                depositAPI.findAccountList(userKey);
+                    depositAPI.findAccountList(userKey);
 
             Map<String, Object> cardApiData =
-                (Map<String, Object>) responseCardData.get("apiResponse");
+                    (Map<String, Object>) responseCardData.get("apiResponse");
             Map<String, Object> depositDemandApiData =
-                (Map<String, Object>) responseDepositDemandData.get("apiResponse");
+                    (Map<String, Object>) responseDepositDemandData.get("apiResponse");
             Map<String, Object> loanApiData =
-                (Map<String, Object>) responseLoanData.get("apiResponse");
+                    (Map<String, Object>) responseLoanData.get("apiResponse");
             Map<String, Object> savingsApiData =
-                (Map<String, Object>) responseSavingsData.get("apiResponse");
+                    (Map<String, Object>) responseSavingsData.get("apiResponse");
             Map<String, Object> depositApiData =
-                (Map<String, Object>) responseDepositData.get("apiResponse");
+                    (Map<String, Object>) responseDepositData.get("apiResponse");
 
             List<Map<String, Object>> responseCardList =
-                (List<Map<String, Object>>) cardApiData.get("REC");
+                    (List<Map<String, Object>>) cardApiData.get("REC");
             List<Map<String, Object>> responseDemandDepositList =
-                (List<Map<String, Object>>) depositDemandApiData.get("REC");
+                    (List<Map<String, Object>>) depositDemandApiData.get("REC");
             List<Map<String, Object>> responseLoanList =
-                (List<Map<String, Object>>) loanApiData.get("REC");
+                    (List<Map<String, Object>>) loanApiData.get("REC");
             Map<String, Object> responseSavingsList =
-                (Map<String, Object>) savingsApiData.get("REC");
+                    (Map<String, Object>) savingsApiData.get("REC");
             List<Map<String, Object>> savings =
-                (List<Map<String, Object>>) responseSavingsList.get("list");
+                    (List<Map<String, Object>>) responseSavingsList.get("list");
             Map<String, Object> responseDepositList =
-                (Map<String, Object>) depositApiData.get("REC");
+                    (Map<String, Object>) depositApiData.get("REC");
             List<Map<String, Object>> deposits =
-                (List<Map<String, Object>>) responseDepositList.get("list");
+                    (List<Map<String, Object>>) responseDepositList.get("list");
 
             List<Card> cardList = responseCardList.stream()
-                .map(cardMap -> mapper.map(cardMap, Card.class))
-                .collect(Collectors.toList());
+                    .map(cardMap -> mapper.map(cardMap, Card.class))
+                    .collect(Collectors.toList());
 
             YearMonth current = YearMonth.now();
             YearMonth lastMonth = current.minusMonths(1);
@@ -162,59 +427,51 @@ public class AssetServiceImpl implements AssetService {
 
             long cardAmount = 0;
             for (int i = 0; i < cardList.size(); i++) {
-                RequestFindBilling requestFindBilling = RequestFindBilling.builder()
-                    .cvc(cardList.get(i).getCvc())
-                    .cardNo(cardList.get(i).getCardNo())
-                    .startMonth(lastMonthString)
-                    .endMonth(currentString)
-                    .userKey(userKey)
-                    .build();
+                com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList requestFindCardTransactionList =
+                        com.gbh.gbh_mm.finance.card.vo.request.RequestFindCardTransactionList.builder()
+                                .cardNo(cardList.get(i).getCardNo())
+                                .userKey(userKey)
+                                .cvc(cardList.get(i).getCvc())
+                                .endDate("20251230")
+                                .startDate("20000101")
+                                .build();
 
                 byte[] cardNoBytes = cipher
-                    .doFinal(cardList.get(i).getCardNo().getBytes(StandardCharsets.UTF_8));
+                        .doFinal(cardList.get(i).getCardNo().getBytes(StandardCharsets.UTF_8));
                 byte[] cvcBytes = cipher
-                    .doFinal(cardList.get(i).getCvc().getBytes(StandardCharsets.UTF_8));
+                        .doFinal(cardList.get(i).getCvc().getBytes(StandardCharsets.UTF_8));
 
                 cardList.get(i).setCardNo(Base64.getEncoder().encodeToString(cardNoBytes));
                 cardList.get(i).setCvc(Base64.getEncoder().encodeToString(cvcBytes));
 
-                Map<String, Object> cardBillApi = cardAPI.findBilling(requestFindBilling);
-                Map<String, Object> cardBillData =
-                    (Map<String, Object>) cardBillApi.get("apiResponse");
-                List<Map<String, Object>> recList =
-                    (List<Map<String, Object>>) cardBillData.get("REC");
+                Map<String, Object> cardTransactionResponseData = cardAPI.findTransactionList(requestFindCardTransactionList);
+                Map<String, Object> cardTransactionApiData =
+                        (Map<String, Object>) cardTransactionResponseData.get("apiResponse");
+                Map<String, Object> cardRecData = (Map<String, Object>) cardTransactionApiData.get("REC");
 
-                if (recList.size() > 0) {
-                    Map<String, Object> bill = recList.get(0);
-                    List<Map<String, Object>> billingList =
-                        (List<Map<String, Object>>) bill.get("billingList");
-                    Map<String, Object> billing = billingList.get(0);
-                    long totalAmount = Long.parseLong((String) billing.get("totalBalance"));
+                String estimatedBalance = (String) cardRecData.get("estimatedBalance");
 
-                    cardAmount += totalAmount;
-
-                    String totalAmountString = String.valueOf(totalAmount);
-                    byte[] cardBalanceBytes = cipher
-                        .doFinal(totalAmountString.getBytes(StandardCharsets.UTF_8));
-                    cardList.get(i)
-                        .setCardBalance(Base64.getEncoder().encodeToString(cardBalanceBytes));
+                if (!estimatedBalance.isEmpty() && estimatedBalance != null) {
+                    byte[] estimatedBalanceByte = cipher.doFinal(estimatedBalance.getBytes(StandardCharsets.UTF_8));
+                        cardList.get(i).setCardBalance(Base64.getEncoder().encodeToString(estimatedBalanceByte));
                 }
+
             }
 
             String totalAmountString = String.valueOf(cardAmount);
             byte[] totalAmountBytes = cipher.doFinal(
-                totalAmountString.getBytes(StandardCharsets.UTF_8));
+                    totalAmountString.getBytes(StandardCharsets.UTF_8));
 
             CardListDto responseCard = CardListDto.builder()
-                .totalAmount(Base64.getEncoder().encodeToString(totalAmountBytes))
-                .cardList(cardList)
-                .build();
+                    .totalAmount(Base64.getEncoder().encodeToString(totalAmountBytes))
+                    .cardList(cardList)
+                    .build();
 
             /* 데이터 매핑(직렬화) */
             List<DemandDeposit> demandDepositList = responseDemandDepositList.stream()
-                .map(demandDepositMap ->
-                    mapper.map(demandDepositMap, DemandDeposit.class))
-                .collect(Collectors.toList());
+                    .map(demandDepositMap ->
+                            mapper.map(demandDepositMap, DemandDeposit.class))
+                    .collect(Collectors.toList());
 
             long demandDepositTotal = 0;
             for (DemandDeposit demandDeposit : demandDepositList) {
@@ -222,30 +479,30 @@ public class AssetServiceImpl implements AssetService {
                 String accountBalanceString = String.valueOf(accountBalance);
                 demandDepositTotal += accountBalance;
                 byte[] accountNoBytes =
-                    cipher.doFinal(demandDeposit.getAccountNo().getBytes(StandardCharsets.UTF_8));
+                        cipher.doFinal(demandDeposit.getAccountNo().getBytes(StandardCharsets.UTF_8));
                 byte[] accountBalanceBytes =
-                    cipher.doFinal(accountBalanceString.getBytes(StandardCharsets.UTF_8));
+                        cipher.doFinal(accountBalanceString.getBytes(StandardCharsets.UTF_8));
                 demandDeposit.setAccountNo(Base64.getEncoder().encodeToString(accountNoBytes));
                 demandDeposit
-                    .setEncodedAccountBalance(
-                        Base64.getEncoder().encodeToString(accountBalanceBytes));
+                        .setEncodedAccountBalance(
+                                Base64.getEncoder().encodeToString(accountBalanceBytes));
                 demandDeposit.setAccountBalance(0);
             }
 
             String demandDepositTotalString = String.valueOf(demandDepositTotal);
             byte[] demandDepositTotalBytes =
-                cipher.doFinal(demandDepositTotalString.getBytes(StandardCharsets.UTF_8));
+                    cipher.doFinal(demandDepositTotalString.getBytes(StandardCharsets.UTF_8));
 
             /* 총 금액 계산 */
             DemandDepositListDto responseDemandDeposit = DemandDepositListDto.builder()
-                .demandDepositList(demandDepositList)
-                .totalAmount(Base64.getEncoder().encodeToString(demandDepositTotalBytes))
-                .build();
+                    .demandDepositList(demandDepositList)
+                    .totalAmount(Base64.getEncoder().encodeToString(demandDepositTotalBytes))
+                    .build();
 
             /* 데이터 매핑(직렬화) */
             List<Loan> loanList = responseLoanList.stream()
-                .map(loanMap -> mapper.map(loanMap, Loan.class))
-                .collect(Collectors.toList());
+                    .map(loanMap -> mapper.map(loanMap, Loan.class))
+                    .collect(Collectors.toList());
 
             /* 총 금액 계산 */
             long loanTotalAmount = 0;
@@ -256,9 +513,9 @@ public class AssetServiceImpl implements AssetService {
                 loanTotalAmount += loanBalance;
 
                 byte[] loanBalanceByte =
-                    cipher.doFinal(loanBalanceString.getBytes(StandardCharsets.UTF_8));
+                        cipher.doFinal(loanBalanceString.getBytes(StandardCharsets.UTF_8));
                 byte[] accountNoByte =
-                    cipher.doFinal(loan.getAccountNo().getBytes(StandardCharsets.UTF_8));
+                        cipher.doFinal(loan.getAccountNo().getBytes(StandardCharsets.UTF_8));
 
                 loan.setAccountNo(Base64.getEncoder().encodeToString(accountNoByte));
                 loan.setEncodeLoanBalance(Base64.getEncoder().encodeToString(loanBalanceByte));
@@ -267,17 +524,17 @@ public class AssetServiceImpl implements AssetService {
 
             String stringLoanTotal = String.valueOf(loanTotalAmount);
             byte[] loanTotalBytes = cipher.doFinal(
-                stringLoanTotal.getBytes(StandardCharsets.UTF_8));
+                    stringLoanTotal.getBytes(StandardCharsets.UTF_8));
 
             LoanListDto responseLoan = LoanListDto.builder()
-                .totalAmount(Base64.getEncoder().encodeToString(loanTotalBytes))
-                .loanList(loanList)
-                .build();
+                    .totalAmount(Base64.getEncoder().encodeToString(loanTotalBytes))
+                    .loanList(loanList)
+                    .build();
 
             /* 데이터 매핑(직렬화) */
             List<Savings> savingsList = savings.stream()
-                .map(savingsMap -> mapper.map(savingsMap, Savings.class))
-                .collect(Collectors.toList());
+                    .map(savingsMap -> mapper.map(savingsMap, Savings.class))
+                    .collect(Collectors.toList());
 
             /* 총 금액 계산 */
             long savingTotalAmount = 0;
@@ -288,29 +545,29 @@ public class AssetServiceImpl implements AssetService {
                 savingTotalAmount += savings1TotalBalance;
 
                 byte[] byteTotalBalance =
-                    cipher.doFinal(savingsTotalBalanceString.getBytes(StandardCharsets.UTF_8));
+                        cipher.doFinal(savingsTotalBalanceString.getBytes(StandardCharsets.UTF_8));
                 byte[] accountNoByte =
-                    cipher.doFinal(savings1.getAccountNo().getBytes(StandardCharsets.UTF_8));
+                        cipher.doFinal(savings1.getAccountNo().getBytes(StandardCharsets.UTF_8));
 
                 savings1.setAccountNo(Base64.getEncoder().encodeToString(accountNoByte));
                 savings1.setEncodedTotalBalance(
-                    Base64.getEncoder().encodeToString(byteTotalBalance));
+                        Base64.getEncoder().encodeToString(byteTotalBalance));
                 savings1.setTotalBalance(0);
             }
 
             String savingsTotalString = String.valueOf(savingTotalAmount);
             byte[] savingsTotalBytes =
-                cipher.doFinal(savingsTotalString.getBytes(StandardCharsets.UTF_8));
+                    cipher.doFinal(savingsTotalString.getBytes(StandardCharsets.UTF_8));
 
             SavingsListDto responseSavings = SavingsListDto.builder()
-                .totalAmount(Base64.getEncoder().encodeToString(savingsTotalBytes))
-                .savingsList(savingsList)
-                .build();
+                    .totalAmount(Base64.getEncoder().encodeToString(savingsTotalBytes))
+                    .savingsList(savingsList)
+                    .build();
 
             /* 데이터 직렬화 */
             List<Deposit> depositList = deposits.stream()
-                .map(depositMap -> mapper.map(depositMap, Deposit.class))
-                .collect(Collectors.toList());
+                    .map(depositMap -> mapper.map(depositMap, Deposit.class))
+                    .collect(Collectors.toList());
 
             /* 총 금액 계산 */
             long depositTotalAmount = 0;
@@ -321,23 +578,23 @@ public class AssetServiceImpl implements AssetService {
                 depositTotalAmount += depositBalance;
 
                 byte[] depositBalanceByte =
-                    cipher.doFinal(depositBalanceString.getBytes(StandardCharsets.UTF_8));
+                        cipher.doFinal(depositBalanceString.getBytes(StandardCharsets.UTF_8));
                 byte[] accountNoByte =
-                    cipher.doFinal(deposit.getAccountNo().getBytes(StandardCharsets.UTF_8));
+                        cipher.doFinal(deposit.getAccountNo().getBytes(StandardCharsets.UTF_8));
                 deposit.setAccountNo(Base64.getEncoder().encodeToString(accountNoByte));
                 deposit.setDepositBalance(0);
                 deposit.setEncodeDepositBalance(
-                    Base64.getEncoder().encodeToString(depositBalanceByte));
+                        Base64.getEncoder().encodeToString(depositBalanceByte));
             }
 
             String depositTotalString = String.valueOf(depositTotalAmount);
             byte[] depositTotalByte =
-                cipher.doFinal(depositTotalString.getBytes(StandardCharsets.UTF_8));
+                    cipher.doFinal(depositTotalString.getBytes(StandardCharsets.UTF_8));
 
             DepositListDto responseDeposit = DepositListDto.builder()
-                .totalAmount(Base64.getEncoder().encodeToString(depositTotalByte))
-                .depositList(depositList)
-                .build();
+                    .totalAmount(Base64.getEncoder().encodeToString(depositTotalByte))
+                    .depositList(depositList)
+                    .build();
 
             response.setCardData(responseCard);
             response.setDemandDepositData(responseDemandDeposit);

@@ -27,9 +27,15 @@ class _BudgetPageState extends ConsumerState<BudgetPage> with WidgetsBindingObse
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // 화면이 처음 로드될 때 위시리스트 데이터 가져오기
+
+    // 화면이 처음 로드될 때 
     Future.microtask(() {
-      _loadData();
+      // 위시리스트 데이터 가져오기
+      ref.read(wishProvider.notifier).fetchCurrentWish();
+      // 모든 예산 목록 가져오기
+      ref.read(budgetProvider.notifier).fetchBudgets();
+      // 오늘의 예산 데이터 명시적으로 새로고침
+      ref.read(budgetProvider.notifier).fetchDailyBudget();
     });
   }
 
@@ -43,16 +49,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> with WidgetsBindingObse
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // 앱이 포그라운드로 돌아왔을 때 데이터 새로고침
-      _loadData();
-    }
-  }
-
-  void _loadData() {
-    try {
-      ref.read(wishProvider.notifier).fetchCurrentWish();
-      ref.read(budgetProvider.notifier).fetchBudgets();
-    } catch (e) {
-      print('데이터 로드 중 오류: $e');
+      ref.read(budgetProvider.notifier).fetchDailyBudget();
     }
   }
 

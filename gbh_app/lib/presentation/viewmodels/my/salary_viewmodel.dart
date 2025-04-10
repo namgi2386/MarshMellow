@@ -106,6 +106,16 @@ class SalaryNotifier extends StateNotifier<SalaryState> {
     state = state.copyWith(selectedDeposit: deposit);
   }
 
+  // 선택된 내역 확인 메서드 추가
+  bool isDepositSelected(DepositModel deposit) {
+    if (state.selectedDeposit == null) return false;
+    
+    // 날짜, 시간, 금액으로 비교
+    return state.selectedDeposit!.transactionDate == deposit.transactionDate &&
+          state.selectedDeposit!.transactionTime == deposit.transactionTime &&
+          state.selectedDeposit!.transactionBalance == deposit.transactionBalance;
+  }
+
   // 월급 등록 (선택한 입금 내역 기준)
   Future<bool> registerSalaryFromDeposit() async {
     if (state.selectedDeposit == null) {

@@ -14,6 +14,8 @@ import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dar
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/router/routes/finance_routes.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 
 class MyPage extends ConsumerStatefulWidget {
   const MyPage({super.key});
@@ -152,23 +154,23 @@ class _MyPageState extends ConsumerState<MyPage> {
     }
   }
   
-  Widget _buildInfoButton({
-    required String label, 
-    required String value, 
-    required VoidCallback onPressed,
-    bool showIcon = false,
-    bool isHighlighted = false,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        elevation: 0,
-        backgroundColor: isHighlighted ? Colors.grey[100] : Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        side: BorderSide(color: Colors.grey[300]!, width: 1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+Widget _buildInfoButton({
+  required String label, 
+  required String value, 
+  required VoidCallback onPressed,
+  VoidCallback? onLongPress,  // 추가: 길게 누르기 콜백
+  bool showIcon = false,
+  bool isHighlighted = false,
+}) {
+  return GestureDetector(  // ElevatedButton 대신 GestureDetector 사용
+    onTap: onPressed,
+    onLongPress: onLongPress,  // 길게 누르기 처리
+    child: Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isHighlighted ? Colors.grey[100] : Colors.transparent,
+        border: Border.all(color: Colors.grey[300]!, width: 1),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,8 +195,9 @@ class _MyPageState extends ConsumerState<MyPage> {
           if (showIcon) SvgPicture.asset(IconPath.caretRight),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
   
 // 편집 모드용 필드 위젯
 Widget _buildEditField({
@@ -518,28 +521,85 @@ Widget _buildEditField({
                           ),
                         ),
                         SizedBox(height: 16),
-                        _buildInfoButton(
-                          label: '인증서',
-                          value: '내 금융인증서 관리',
-                          onPressed: () {
-                            // 먼저 AES 키를 가져옴
-                            ref.read(aesKeyNotifierProvider.notifier).fetchAesKey();
-                            
-                            // 그 다음 인증서 모달 표시
-                            showCertificateModal(
-                              context: context, 
-                              ref: ref, 
-                              userName: userSecureInfoState.userName ?? '사용자', 
-                              title: '금융인증서 관리',
-                              expiryDate: '2028.03.14.', 
-                              onConfirm: () {
-                                // 인증서 확인 후 처리할 로직
-                              }
-                            );
-                          },
-                          showIcon: true,
-                          isHighlighted: true,
-                        ),
+_buildInfoButton(
+  label: '인증서',
+  value: '내 금융인증서 관리',
+  onPressed: () {
+    // 기존 코드 유지
+    ref.read(aesKeyNotifierProvider.notifier).fetchAesKey();
+    
+    showCertificateModal(
+      context: context, 
+      ref: ref, 
+      userName: userSecureInfoState.userName ?? '사용자', 
+      title: '금융인증서 관리',
+      expiryDate: '2028.03.14.', 
+      onConfirm: () {
+        // 인증서 확인 후 처리할 로직
+      }
+    );
+  },
+  onLongPress: () async {
+    // FCM 토큰 새로 요청 및 출력
+    String? token = await FirebaseMessaging.instance.getToken();
+    
+    if (token != null) {
+      // 콘솔에 출력 (디버그 모드에서만 확인 가능)
+      print("📱 FCM Token refreshed: $token");
+      
+      // 릴리스 모드에서도 확인할 수 있도록 팝업 표시
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('FCM 토큰 새로고침'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('새로 발급된 FCM 토큰:'),
+              SizedBox(height: 8),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: SelectableText(
+                  token,
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: token));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('토큰이 클립보드에 복사되었습니다')),
+                );
+              },
+              child: Text('복사'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('닫기'),
+            ),
+          ],
+        ),
+      );
+
+      // 원하는 경우: 토큰을 서버로 직접 전송하는 로직 추가
+      // await sendTokenToServer(token);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('FCM 토큰을 가져올 수 없습니다')),
+      );
+    }
+  },
+  showIcon: true,
+  isHighlighted: true,
+),
                         SizedBox(height: 32),
                         // Button(
                         //   onPressed: () => ref.read(userInfoProvider.notifier).loadAllUserInfo(),

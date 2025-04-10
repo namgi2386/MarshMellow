@@ -17,7 +17,7 @@ class MySalaryApi {
   // 2. 입금내역조회
   Future<Response> getDepositList(String accountNo) async {
     return await _apiClient
-        .post('/api/mm/auth/deposit-list', data: {'accountNo': accountNo});
+        .getWithBody('/api/mm/auth/deposit-list', data: {'accountNo': accountNo});
   }
 
   // 3. 월급등록

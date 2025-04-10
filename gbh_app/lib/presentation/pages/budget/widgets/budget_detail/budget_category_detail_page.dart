@@ -125,7 +125,10 @@ class BudgetCategoryDetailPage extends ConsumerStatefulWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildSummaryItem('사용금액', '$totalSpentFormatted원', AppColors.pinkPrimary),
+                    _buildSummaryItem(
+                      '사용금액', 
+                      '$totalSpentFormatted원',
+                      totalSpent > totalBudget ? AppColors.buttonDelete : AppColors.pinkPrimary),
                     _buildSummaryItem('남은금액', '$remainingBudgetFormatted원', AppColors.bluePrimary),
                   ],
                 ),
@@ -161,7 +164,7 @@ class BudgetCategoryDetailPage extends ConsumerStatefulWidget {
                 final categoryColor = category.color;
                 
                 // 지출량 계산
-                final percentage = category.budgetExpendPercent ?? 0;
+                final percentage = (category.budgetExpendPercent ?? 0) * 100;
                 final formattedBudget = _formatAmount(category.budgetCategoryPrice);
                 final formattedSpent = _formatAmount(category.budgetExpendAmount ?? 0);
                 
@@ -216,7 +219,7 @@ class BudgetCategoryDetailPage extends ConsumerStatefulWidget {
                               '${percentage.toStringAsFixed(0)}%',
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: percentage > 100 
-                                    ? AppColors.pinkPrimary 
+                                    ? AppColors.buttonDelete 
                                     : AppColors.textSecondary,
                                 fontWeight: percentage > 100 
                                     ? FontWeight.bold 
@@ -234,7 +237,7 @@ class BudgetCategoryDetailPage extends ConsumerStatefulWidget {
                             value: percentage / 100,
                             backgroundColor: AppColors.whiteDark,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              percentage > 100 ? AppColors.pinkPrimary : categoryColor,
+                              percentage > 100 ? AppColors.buttonDelete : categoryColor,
                             ),
                             minHeight: 8,
                           ),

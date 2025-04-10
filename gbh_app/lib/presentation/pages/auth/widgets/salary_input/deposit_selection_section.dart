@@ -85,8 +85,10 @@ class DepositSelectionSection extends StatelessWidget {
             separatorBuilder: (context, index) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final deposit = deposits[index];
-              final isSelected = selectedDeposit?.transactionDate == deposit.transactionDate && 
-                               selectedDeposit?.transactionBalance == deposit.transactionBalance;
+              final isSelected = selectedDeposit != null && 
+                                selectedDeposit?.transactionDate == deposit.transactionDate &&
+                                selectedDeposit?.transactionTime == deposit.transactionTime &&
+                                selectedDeposit?.transactionBalance == deposit.transactionBalance;
 
               return _buildDepositItem(deposit, isSelected);
             },
@@ -102,6 +104,10 @@ class DepositSelectionSection extends StatelessWidget {
     // 날짜 포맷팅 (예: "20250328" -> "2025.03.28")
     final dateStr = deposit.transactionDate;
     final formattedDate = "${dateStr.substring(0, 4)}.${dateStr.substring(4, 6)}.${dateStr.substring(6, 8)}";
+    
+    // 시간 포맷팅 (예: "101452" -> "10:14:52")
+    final timeStr = deposit.transactionTime;
+    final formattedTime = "${timeStr.substring(0, 2)}:${timeStr.substring(2, 4)}:${timeStr.substring(4, 6)}";
 
     return InkWell(
       onTap: () => onDepositSelected(deposit),
@@ -114,11 +120,22 @@ class DepositSelectionSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    formattedDate,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        formattedDate,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        formattedTime,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(

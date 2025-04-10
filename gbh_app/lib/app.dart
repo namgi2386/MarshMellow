@@ -81,9 +81,6 @@ class _AppState extends ConsumerState<App> {
     ref.read(appLifecycleManagerProvider);
     ref.read(paydayFetchProvider);
 
-    // 오늘이 월급날인지 확인
-    _checkSalaryDay();
-
     // ✨ 위젯 업데이트 리스너 설정
     _setupWidgetUpdateListener();
   }
@@ -114,44 +111,6 @@ class _AppState extends ConsumerState<App> {
         }
       },
     ));
-  }
-
-  // 월급날 확인 메서드
-  Future<void> _checkSalaryDay() async {
-    print('Ⓜ️Ⓜ️월급일 확인 로직 시작');
-    // 이미 이번 달에 플로우를 봤으면 무시
-    // if (await UserPreferencesService.hasSeenSalaryFlowThisMonth()) {
-    //   return;
-    // }
-
-    // 사용자 정보 가져오기
-    await Future.delayed(const Duration(seconds: 1)); // 사용자 정보 로드 대기
-
-    final userInfostate = ref.read(userInfoProvider);
-    final userDetail = userInfostate.userDetail;
-    final salaryDate = userDetail.salaryDate;
-    
-      print('Ⓜ️Ⓜ️오늘이 월급날인지 확인하겠습니다 사용자 월급날 = $salaryDate');
-
-      if (salaryDate != null) {
-        // 오늘이 월급날인지 확인
-        final now = DateTime.now();
-        if (now.day == salaryDate) {
-          print('Ⓜ️Ⓜ️오늘은 월급날입니다.: ${now.day} = $salaryDate');
-          // 월급날이면 플로우 시작
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _startSalaryFlow(context);
-          });
-        } else {
-          print('Ⓜ️Ⓜ️오늘은 월급날이 아닙니다! : ${now.day} != $salaryDate');
-        }
-      }
-
-  }
-
-  // 월급날에만 동작하는 월급 축하 및 예산 분배 플로우
-  void _startSalaryFlow(BuildContext context) {
-    widget.router.go(SignupRoutes.getBudgetCelebratePath());
   }
 
   // 위시 크롤링 자동생성 : 메서드 채널 리스너 설정

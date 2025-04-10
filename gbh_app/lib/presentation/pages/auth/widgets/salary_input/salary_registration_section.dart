@@ -80,12 +80,13 @@ class SalaryRegistrationSection extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildInfoRow('메모', deposit.transactionMemo),
                 ],
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
                 Text(
                   '* 월급 정보는 나중에 마이페이지에서 수정할 수 있습니다.',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                     fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w300
                   ),
                 ),
               ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/core/constants/icon_path.dart';
+import 'package:flutter/foundation.dart';
 
 // 패키지
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,6 +18,7 @@ import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart
 import 'package:marshmellow/di/providers/date_picker_provider.dart';
 import 'package:marshmellow/di/providers/transaction_filter_provider.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/transaction_list_viewmodel.dart';
+import 'package:marshmellow/core/services/transaction_classifier_service.dart';
 
 // 위젯
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
@@ -101,6 +103,20 @@ class _LedgerPageState extends ConsumerState<LedgerPage> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
+            // 트랜잭션 동기화 수행
+            final syncService = ref.read(transactionSyncServiceProvider);
+            try {
+              final hasUnsortedTransactions =
+                  await syncService.hasUnsortedTransactions();
+              if (hasUnsortedTransactions) {
+                await syncService.performFullSync();
+              }
+            } catch (e) {
+              if (kDebugMode) {
+                print('❌ 트랜잭션 동기화 중 오류 발생: $e');
+              }
+            }
+
             // 데이터 새로고침
             ref.invalidate(transactionsProvider);
             ref.invalidate(filteredTransactionsProvider);

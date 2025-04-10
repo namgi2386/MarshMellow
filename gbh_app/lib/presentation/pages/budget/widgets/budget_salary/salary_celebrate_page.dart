@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // 라우트
 import 'package:go_router/go_router.dart';
+import 'package:marshmellow/core/services/user_preferences_service.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_salary/budget_type_card.dart';
 import 'package:marshmellow/presentation/viewmodels/my/user_secure_info_viewmodel.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
@@ -68,7 +69,7 @@ class _SalaryCelebratePageState extends ConsumerState<SalaryCelebratePage> {
 
   void _navigateToBudgetTypePage() async {
     // 이 플로우 봣다고 체크하자!
-    // await UserPreferencesService.markBudgetFlowAsSeen();
+    await UserPreferencesService.markBudgetFlowAsSeen();
     context.go(SignupRoutes.getBudgetTypeSelectionPath());
   }
 

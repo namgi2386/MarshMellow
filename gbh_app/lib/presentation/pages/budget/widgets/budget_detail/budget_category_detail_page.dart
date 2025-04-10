@@ -161,7 +161,7 @@ class BudgetCategoryDetailPage extends ConsumerStatefulWidget {
                 final categoryColor = category.color;
                 
                 // 지출량 계산
-                final percentage = category.budgetExpendPercent ?? 0;
+                final percentage = (category.budgetExpendPercent ?? 0) * 100;
                 final formattedBudget = _formatAmount(category.budgetCategoryPrice);
                 final formattedSpent = _formatAmount(category.budgetExpendAmount ?? 0);
                 

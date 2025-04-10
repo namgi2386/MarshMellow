@@ -82,21 +82,21 @@ class _LunchRunPageState extends ConsumerState<LunchRunPage> {
             ),
 
         // 상단 앱바 (게임 위에 오버레이)
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: SafeArea(
-            child: Container(
-              height: 70,
-              alignment: Alignment.center,
-              child: Text(
-                '[ 여기에 Text 입력 ]', 
-                style: AppTextStyles.mainMoneyTitle.copyWith(color: AppColors.background),
-              ),
-            ),
-          ),
-        ),
+        // Positioned(
+        //   top: 0,
+        //   left: 0,
+        //   right: 0,
+        //   child: SafeArea(
+        //     child: Container(
+        //       height: 70,
+        //       alignment: Alignment.center,
+        //       child: Text(
+        //         '[ 여기에 Text 입력 ]', 
+        //         style: AppTextStyles.mainMoneyTitle.copyWith(color: AppColors.background),
+        //       ),
+        //     ),
+        //   ),
+        // ),
         
         // 경기장 타입 선택 드롭다운 (왼쪽 상단)
         // Positioned(

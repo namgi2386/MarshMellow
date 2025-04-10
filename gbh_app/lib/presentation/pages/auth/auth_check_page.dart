@@ -29,32 +29,26 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
 
   // 인증 상태 확인
   Future<void> _checkAuthStatus() async {
-    ;
+    
 
     // 개발용 자동 로그인 코드 (출시 전 제거)
     // TODO: 출시 전 이 부분 삭제
     final secureStorage = ref.read(secureStorageProvider);
     await secureStorage.write(
-        key: StorageKeys.phoneNumber, value: '01056297169');
-    await secureStorage.write(key: StorageKeys.userName, value: '윤잰큰');
-    // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
-    await secureStorage.write(
-        key: StorageKeys.accessToken,
-        value:
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDE4MzE2MiwiZXhwIjoxNzQ1OTgzMTYyfQ.4E3fbpJJbKEO4f36DgZBAIzN5VdjHhcPE7ghMoUXzridQG4tt1b2Uf7Yxcqfx_YTnj_92bqq5Xjd3qUPoAiAiA');
-    await secureStorage.write(
-        key: StorageKeys.refreshToken,
-        value:
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0MTgzMTYyLCJleHAiOjE3NzAxMDMxNjJ9.w-FEj8ZEvArO9dmoamEUAiE9t_sEi1v1Cuf8r-YiRY1J839N7NIccgjw2VJUIWN_0LfDNEBIQDye0OhK0Rs2vQ                     ');
-    await secureStorage.write(
-        key: StorageKeys.certificatePem,
-        value:
-            '-----BEGIN CERTIFICATE-----MIIC4DCCAcigAwIBAgIGAZYOtqPzMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcwNTI2MTJaFw0yNjA0MDcwNTI2MTJaMDYxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxGTAXBgNVBAMTEGhhcHB5MUBnbWFpbC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCBhA73b93l5Ymt4eDYuklKDCmU8C38vba/GUNT4E0M5B99jQZASCc/9wghPqEXdy/8REREl1n3hKxOR/1/u9MMFJ8aLuUfCtZzEtyQqIKsoChQ6ZwxrzoyLvEUG5QyCLy9rFWsM/cvW3cxGA/N3li3Z2XeBrON+YZvtXwsyzVlazXMOsTz1CSrcPVnDA0zQtqmHFvvgMpzWOhIoiYwq9hsJq+tyya0/eBbHEQG59DI8K5AeXKG4Pg1jO4kKBX8zRrL+Wwk98lLO2OUeDgFr6sIyT32MwfGETiuBuBclTbjYx3AXk+/ktlTBGApMSC56pNVypq5e7uMwWQIZ53TeHWDAgMBAAEwDQYJKoZIhvcNAQENBQADggEBAAPqdfZ5/9pJWKkOyr3EOUoSCaUIDpSP4Gx32ptcGiB8cRLrmAzX8ZPQ1nVOZvO8X8gxvyskxW4AH7gH0rrAdhXXyp6o0eT/nrv/ONYEDFNixy5P/ws7lBykZJkaTmzQtZL2ow4PVX9KfzWSMNF4geljBi7xPNxCLOGOORl7PyI49FjURMH1pZV3BxV4439YzPLlPCcs/+cTzaO/KECAPt2Tgj4HtEu1P4OaKjVvIeAH/WcNgnN377V1UTKfd1RJQo4zT/gbyLX5r3vXqk5IikXh05U8VN9Ht60UzYDtvOof1RgXNnnc7Uv/yaufdtjG16Ty0r3BxdXIWuTprZQQWl8=-----END CERTIFICATE-----');
-    await secureStorage.write(
-        key: StorageKeys.userkey,
-        value: '2c2fd595-4118-4b6c-9fd7-fc811910bb75');
+        key: StorageKeys.phoneNumber, value: '01001080108');
+    await secureStorage.write(key: StorageKeys.userName, value: '윤재은');
+    await secureStorage.write(key: StorageKeys.certificatePassword, value: '123456');
 
+    // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
+    await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjc4LCJzdWIiOiJhY2Nlc3MtdG9rZW4iLCJpYXQiOjE3NDQxNzc5MjYsImV4cCI6MTc0NTk3NzkyNn0.O4lXcq6nhpVHbKVLEgts1r4l6FKjErW1CGLZUlki_HcPHN-RYd_Wdb2P0bZoVQ4_5PhU1ug6QnxISVnVJ534PQ'); 
+    await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjo3OCwic3ViIjoicmVmcmVzaC10b2tlbiIsImlhdCI6MTc0NDE3NzkyNiwiZXhwIjoxNzcwMDk3OTI2fQ.6DAx9SI6gBA49B782rgXXM2k5LjpoDZjCHPTdpsn1hKNKTRCn777uu9LDf8ogE9wndWJyY5kgema5QoEHDfrbQ');
+    await secureStorage.write(key: StorageKeys.certificatePem, value: '-----BEGIN CERTIFICATE-----MIIC5DCCAcygAwIBAgIGAZYQxKmeMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcxNTAwNDZaFw0yNjA0MDcxNTAwNDZaMDoxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxHTAbBgNVBAMTFGdpbmllZTE3NTBAbmF2ZXIuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAufEYp+EbHTLEW24swo/4/zuNNLz+nczUcLGnNImlCOgbza0Tt3VpDW0aNLRLm8K742UxCWXH3oLSOiyjVifyzlKNfsC2+4fJ8QDvONaXImhFCV9teckb+zwhypYbMlDcpFDNiVf1++nEqzmLZzZ1j8r9xmxeRNfkdt8hikbaLaPGIKcWrC7HKeBPvUijZhx5J5WZajGIUjajz46Gz6sPN6cq28DY4TxdZgQRTSlALnUGlG6oyX8WqFdwJf5WsdZ5l5GmotsouPmcIQZ8BswELLIYKes1LZ11fHEgLl2tW5PF8xL+3gMzyJ5IFV/BHuyKQx3HRAqNDNlobt66h3z5BQIDAQABMA0GCSqGSIb3DQEBDQUAA4IBAQAuZfE4JiTeN/ML51WwgHvQ3TwrR8bFVHZp3TWbjWh6jTUsv+4o5i751g8UONFYNNhe8mCNECyjXeAi1R75+iUGE9I6NTovg6vugvFo0rqukX8Nx2t2n/af2M1YETPxy26UfSG8quwTUgWn/RSRHusYQ0CxKx7MQ7kS1RR14uIastrcZUyGr/Od+zA9MClETQ/xTDWkIr4CZp8w1pcrJKGnW7eWYPPL2UOMGmJ6KBszZ3q7fWf59rfU2qRqM+YDrgSJKjyrzEXJ1c//OIS6eT+8k+soN6C6xPddj4qqRy+pW6Ff7Ngl2/271/aMb2KJfmBZz9eCgMtUy5QpSan39rYy-----END CERTIFICATE-----'); 
+    await secureStorage.write(key: StorageKeys.userkey, value: '-----BEGIN CERTIFICATE-----MIIC5DCCAcygAwIBAgIGAZYQxKmeMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcxNTAwNDZaFw0yNjA0MDcxNTAwNDZaMDoxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxHTAbBgNVBAMTFGdpbmllZTE3NTBAbmF2ZXIuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAufEYp+EbHTLEW24swo/4/zuNNLz+nczUcLGnNImlCOgbza0Tt3VpDW0aNLRLm8K742UxCWXH3oLSOiyjVifyzlKNfsC2+4fJ8QDvONaXImhFCV9teckb+zwhypYbMlDcpFDNiVf1++nEqzmLZzZ1j8r9xmxeRNfkdt8hikbaLaPGIKcWrC7HKeBPvUijZhx5J5WZajGIUjajz46Gz6sPN6cq28DY4TxdZgQRTSlALnUGlG6oyX8WqFdwJf5WsdZ5l5GmotsouPmcIQZ8BswELLIYKes1LZ11fHEgLl2tW5PF8xL+3gMzyJ5IFV/BHuyKQx3HRAqNDNlobt66h3z5BQIDAQABMA0GCSqGSIb3DQEBDQUAA4IBAQAuZfE4JiTeN/ML51WwgHvQ3TwrR8bFVHZp3TWbjWh6jTUsv+4o5i751g8UONFYNNhe8mCNECyjXeAi1R75+iUGE9I6NTovg6vugvFo0rqukX8Nx2t2n/af2M1YETPxy26UfSG8quwTUgWn/RSRHusYQ0CxKx7MQ7kS1RR14uIastrcZUyGr/Od+zA9MClETQ/xTDWkIr4CZp8w1pcrJKGnW7eWYPPL2UOMGmJ6KBszZ3q7fWf59rfU2qRqM+YDrgSJKjyrzEXJ1c//OIS6eT+8k+soN6C6xPddj4qqRy+pW6Ff7Ngl2/271/aMb2KJfmBZz9eCgMtUy5QpSan39rYy-----END CERTIFICATE-----');
+    final certificateNUm = await secureStorage.read(key: StorageKeys.certificatePassword);
+    print('🥁🥁🥁🥁🥁남기정신차려! $certificateNUm');
+                                                                                                                                                                                                                                            
     // secure storage에서 필요한 정보 불러오기
+    
     // final secureStorage = ref.read(secureStorageProvider);
     final phoneNumber = await secureStorage.read(key: StorageKeys.phoneNumber);
     final accessToken = await secureStorage.read(key: StorageKeys.accessToken);
@@ -140,8 +134,8 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
 
       // <<<<<<<<<<<< [ 잰큰 사용할 때 여기도 수정! ] <<<<<<<<<<<<<<<<<<<<<<<<
       // 개발용 자동 로그인 코드 (출시 전 제거)
-      // final isValid = await authRepository.reissueToken();
-      final isValid = true;
+      final isValid = await authRepository.reissueToken();
+      // final isValid = true;
       print('토큰 재발급 결과: $isValid');
 
       if (mounted) {

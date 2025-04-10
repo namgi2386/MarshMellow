@@ -59,7 +59,6 @@ public class BudgetService {
                                 long totalAmount = householdRepository.findHouseholdsByBudget(userPk, startDateFormatted, endDateFormatted, category.getBudgetCategoryName())
                                         .stream().mapToLong(Household::getHouseholdAmount).sum();
 
-                                System.out.println(category.getBudgetCategoryName() + totalAmount);
                                 return ResponseFindBudgetList.BudgetData.BudgetCategoryData.builder()
                                     .budgetCategoryPk(category.getBudgetCategoryPk())
                                     .budgetCategoryName(category.getBudgetCategoryName())
@@ -193,22 +192,34 @@ public class BudgetService {
     // 세부 예산 조회
     public ResponseFindBudgetCategoryList getBudgetCategoryList(Long budgetPk) {
 
-        budgetRepository.findById(budgetPk)
+        DateTimeFormatter dashFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter noDashFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        Budget budget = budgetRepository.findById(budgetPk)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
         List<ResponseFindBudgetCategoryList.BudgetCategoryData> categoryDataList =
                 budgetCategoryRepository.findAllByBudget_BudgetPk(budgetPk)
                         .stream()
-                        .map(budgetCategory -> ResponseFindBudgetCategoryList.BudgetCategoryData.builder()
+                        .map(budgetCategory -> {
+
+                            String startDateFormatted = LocalDate.parse(budget.getStartDate(), dashFormatter).format(noDashFormatter);
+                            String endDateFormatted = LocalDate.parse(budget.getEndDate(), dashFormatter).format(noDashFormatter);
+
+                            long totalAmount = householdRepository.findHouseholdsByBudget(budget.getUser().getUserPk(), startDateFormatted, endDateFormatted, budgetCategory.getBudgetCategoryName())
+                                    .stream().mapToLong(Household::getHouseholdAmount).sum();
+                            System.out.println(budgetCategory.getBudgetCategoryName() + ": " + totalAmount);
+
+                            return ResponseFindBudgetCategoryList.BudgetCategoryData.builder()
                                 .budgetCategoryPk(budgetCategory.getBudgetCategoryPk())
                                 .budgetCategoryName(budgetCategory.getBudgetCategoryName())
                                 .budgetCategoryPrice(budgetCategory.getBudgetCategoryPrice())
-                                .budgetExpendAmount(budgetCategory.getBudgetExpendAmount())
+                                .budgetExpendAmount(totalAmount)
                                 .budgetExpendPercent(
                                         (float) Math.round(
-                                                (double) budgetCategory.getBudgetExpendAmount() / (double) budgetCategory.getBudgetCategoryPrice() * 100) / 100.0
+                                                (double) totalAmount / (double) budgetCategory.getBudgetCategoryPrice() * 100) / 100.0
                                 )
-                                .build()
+                                .build();}
                         )
                         .collect(Collectors.toList()); // 변환 결과 저장
         if (categoryDataList.isEmpty()) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/constants/storage_keys.dart';
+import 'package:marshmellow/core/services/user_preferences_service.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/di/providers/auth/pin_provider.dart';
 import 'package:marshmellow/di/providers/auth/user_provider.dart';
@@ -41,8 +42,8 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
     
 
     // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
-    await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDI4NTU4NCwiZXhwIjoxNzQ2MDg1NTg0fQ.aop1wb8pf-WRcvkwmrZY14sBtWfrxwAysYpRRaS-pvM0OafLAWpRjoGxZIB4X2641Q5aqZqs07bbSRhCOz0TyA'); 
-    await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0Mjg1NTg0LCJleHAiOjE3NzAyMDU1ODR9.WjP5-ec67d5bg-_mvx_pIetbo8z12x7zKga_my2e9syRtuCKj3JVBJS5kV-Tz5jepuhooJQmi84qx_9lssL_Lw');
+    await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDI5NTU0NSwiZXhwIjoxNzQ2MDk1NTQ1fQ.gXwkqoQjoGypnx2HM3DDBTs1U5oIYO5xLKQX_f3sbonvzY5uR5j-whzaI5FwmE5iTybffAWgFWK6C0MnKhhC-w'); 
+    await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0Mjk1NTQ1LCJleHAiOjE3NzAyMTU1NDV9.AIH90MmA-pFiAdRM-KbG0w4d75PXqLu5jSP_itA7IZakXdB_kZCwxqQe6tAMFiLQWFyyfknewt4V8omvYyDo9w');
     await secureStorage.write(key: StorageKeys.certificatePem, value: '-----BEGIN CERTIFICATE-----MIIC5DCCAcygAwIBAgIGAZYQxKmeMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcxNTAwNDZaFw0yNjA0MDcxNTAwNDZaMDoxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxHTAbBgNVBAMTFGdpbmllZTE3NTBAbmF2ZXIuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAufEYp+EbHTLEW24swo/4/zuNNLz+nczUcLGnNImlCOgbza0Tt3VpDW0aNLRLm8K742UxCWXH3oLSOiyjVifyzlKNfsC2+4fJ8QDvONaXImhFCV9teckb+zwhypYbMlDcpFDNiVf1++nEqzmLZzZ1j8r9xmxeRNfkdt8hikbaLaPGIKcWrC7HKeBPvUijZhx5J5WZajGIUjajz46Gz6sPN6cq28DY4TxdZgQRTSlALnUGlG6oyX8WqFdwJf5WsdZ5l5GmotsouPmcIQZ8BswELLIYKes1LZ11fHEgLl2tW5PF8xL+3gMzyJ5IFV/BHuyKQx3HRAqNDNlobt66h3z5BQIDAQABMA0GCSqGSIb3DQEBDQUAA4IBAQAuZfE4JiTeN/ML51WwgHvQ3TwrR8bFVHZp3TWbjWh6jTUsv+4o5i751g8UONFYNNhe8mCNECyjXeAi1R75+iUGE9I6NTovg6vugvFo0rqukX8Nx2t2n/af2M1YETPxy26UfSG8quwTUgWn/RSRHusYQ0CxKx7MQ7kS1RR14uIastrcZUyGr/Od+zA9MClETQ/xTDWkIr4CZp8w1pcrJKGnW7eWYPPL2UOMGmJ6KBszZ3q7fWf59rfU2qRqM+YDrgSJKjyrzEXJ1c//OIS6eT+8k+soN6C6xPddj4qqRy+pW6Ff7Ngl2/271/aMb2KJfmBZz9eCgMtUy5QpSan39rYy-----END CERTIFICATE-----'); 
     await secureStorage.write(key: StorageKeys.userkey, value: '2c2fd595-4118-4b6c-9fd7-fc811910bb75');
                                                                                                                                                                                                                                             
@@ -148,8 +149,10 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
           print('🪪🪪유저키 확인: ${userkey != null ? '있음' : '없음'}');
 
           if (certificatePem != null && userkey != null) {
-            print('인증서와 유저키 모두 있음: budget 페이지로 이동');
-            context.go('/budget');
+            print('인증서와 유저키 모두 있음: 월급날 체크 시작!');
+            
+            await _checkSalaryDay();
+
           } else {
             // 토큰 유효하고
             // 인증서나 유저키가 없으면 인증서 만들러 가기
@@ -169,6 +172,63 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
         // 오류 발생시 로그인 페이지로 이동
         print('오류로 인해 PIN 로그인 페이지로 이동');
         context.go(SignupRoutes.getPinLoginPath());
+      }
+    }
+  }
+
+  // 월급날 확인 메서드 (새로 추가)
+  Future<void> _checkSalaryDay() async {
+    print('Ⓜ️Ⓜ️월급일 확인 로직 시작');
+    
+    // 이번 달에 이미 월급날 플로우를 봤는지 확인 (옵션)
+    bool hasSeenThisMonth = await UserPreferencesService.hasSeenSalaryFlowThisMonth();
+    if (hasSeenThisMonth) {
+      print('Ⓜ️Ⓜ️이번 달에 이미 월급날 플로우를 확인함');
+      context.go('/budget');
+      return;
+    }
+
+    try {
+      // 사용자 정보 로드
+      final userInfoState = ref.read(userInfoProvider);
+      
+      // 유저 정보가 로드될 때까지 잠시 대기
+      if (userInfoState.isLoading) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
+      
+      // 사용자의 월급날 확인
+      final userDetail = userInfoState.userDetail;
+      final salaryDate = userDetail.salaryDate ?? 11; // 기본값 11일
+      
+      print('Ⓜ️Ⓜ️오늘이 월급날인지 확인하겠습니다. 사용자 월급날 = $salaryDate');
+      
+      // 오늘이 월급날인지 확인
+      final now = DateTime.now();
+      if (now.day == salaryDate) {
+        print('Ⓜ️Ⓜ️오늘은 월급날입니다!: ${now.day} = $salaryDate');
+        
+        // 월급날이면 축하 플로우로 이동
+        if (mounted) {
+          context.go(SignupRoutes.getBudgetCelebratePath());
+          
+          // 이번 달에 본 것으로 표시 (옵션)
+          // await UserPreferencesService.markSalaryFlowSeenThisMonth();
+        }
+      } else {
+        print('Ⓜ️Ⓜ️오늘은 월급날이 아닙니다!: ${now.day} != $salaryDate');
+        
+        // 월급날이 아니면 일반 예산 페이지로 이동
+        if (mounted) {
+          context.go('/budget');
+        }
+      }
+    } catch (e) {
+      print('Ⓜ️Ⓜ️월급날 확인 중 오류 발생: $e');
+      
+      // 오류 발생 시 일반 예산 페이지로 이동
+      if (mounted) {
+        context.go('/budget');
       }
     }
   }

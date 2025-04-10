@@ -26,7 +26,8 @@ class WalletDetailWidget extends StatefulWidget {
   State<WalletDetailWidget> createState() => _WalletDetailWidgetState();
 }
 
-class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTickerProviderStateMixin {
+class _WalletDetailWidgetState extends State<WalletDetailWidget>
+    with SingleTickerProviderStateMixin {
   late PageController _pageController;
   int _currentIndex = 0;
   late AnimationController _animationController;
@@ -36,15 +37,16 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
   void initState() {
     super.initState();
     _pageController = PageController(viewportFraction: 0.85);
-    
+
     // 애니메이션 컨트롤러 설정
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    
-    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
-    
+
+    _animation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+
     // 초기 애니메이션 실행
     _animationController.forward();
   }
@@ -66,7 +68,12 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4))
+          ],
         ),
         child: const Text('지갑 정보를 불러올 수 없습니다.'),
       );
@@ -80,7 +87,12 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4))
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -105,11 +117,17 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4))
+          ],
         ),
         child: Column(
           children: [
-            Text('${widget.walletType} 정보가 없습니다', style: TextStyle(fontSize: 18)),
+            Text('${widget.walletType} 정보가 없습니다',
+                style: TextStyle(fontSize: 18)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: widget.onBackPressed,
@@ -126,14 +144,15 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
     // 구현에 필요한 제스처 감지기를 포함한 컨테이너
     return GestureDetector(
       onVerticalDragEnd: (details) {
-        if (details.velocity.pixelsPerSecond.dy > 1000) {  // 속도 임계값을 높임
+        if (details.velocity.pixelsPerSecond.dy > 1000) {
+          // 속도 임계값을 높임
           // 아래로 빠르게 스와이프하면 뒤로가기
           widget.onBackPressed();
         }
       },
       child: Container(
         // margin: const EdgeInsets.all(16),
-        width: MediaQuery.of(context).size.width*0.9,
+        width: MediaQuery.of(context).size.width * 0.9,
         height: MediaQuery.of(context).size.height * 0.6,
         // color: Colors.amber,
         child: Column(
@@ -148,24 +167,23 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
             //   ),
             // ),
             // Text('@@ee@@${accountList[0].toString()}'), // Map<String, dynamic> Instance of 'DemandDepositItem'
-            // Text('@@ee@@${accountList[0].encodedAccountBalance}'), 
-            // Text('@@ee@@${accountList[0].demandDepositData.totalAmount}'), 
+            // Text('@@ee@@${accountList[0].encodedAccountBalance}'),
+            // Text('@@ee@@${accountList[0].demandDepositData.totalAmount}'),
             Expanded(
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-
                   // // 지갑 모양 뒷부분 (항상 같은 위치)
                   Positioned(
-                    bottom: 0,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width*0.9,
-                      height: 300,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 46, 45, 45),
-                        borderRadius: BorderRadius.all(Radius.circular(30))
-                    ),)
-                  ),
+                      bottom: 0,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: 300,
+                        decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 46, 45, 45),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30))),
+                      )),
 
                   // 스와이핑되는 카드들만 PageView로 처리
                   Positioned.fill(
@@ -186,27 +204,31 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
 
                   // 지갑 모양 앞아래부분 (항상 같은 위치)
                   Positioned(
-                    bottom: 0,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width*0.9,
-                      height: 190,
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundBlack,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30))
-                      ),
-                    )
-                  ),
+                      bottom: 0,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: 190,
+                        decoration: BoxDecoration(
+                            color: AppColors.backgroundBlack,
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(30),
+                                bottomRight: Radius.circular(30))),
+                      )),
                   // 지갑 모양 앞위 부분 (항상 같은 위치)
                   Positioned(
                     bottom: 160,
-                    child: _buildWalletShape(AppColors.backgroundBlack, MediaQuery.of(context).size.width),
+                    child: _buildWalletShape(AppColors.backgroundBlack,
+                        MediaQuery.of(context).size.width),
                   ),
 
                   Positioned(
                     bottom: 55,
-                    child: SvgPicture.asset(IconPath.caretdoubledown,
-                      colorFilter: ColorFilter.mode(AppColors.background, BlendMode.srcIn), height: 20,),
+                    child: SvgPicture.asset(
+                      IconPath.caretdoubledown,
+                      colorFilter: ColorFilter.mode(
+                          AppColors.background, BlendMode.srcIn),
+                      height: 20,
+                    ),
                   ),
                 ],
               ),
@@ -218,17 +240,18 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
   }
 
   // 카드 컨텐츠만 생성 (지갑 모양 없이)
-  Widget _buildCardContent(BuildContext context, List accountList, int mainIndex) {
+  Widget _buildCardContent(
+      BuildContext context, List accountList, int mainIndex) {
     final item = accountList[mainIndex];
     // print('@@@@@here@ : ${item.accountName}');
     // print('@@@@@her2e@ : ${item.accountBalance}');
-    
+
     // 계좌 정보 추출
     String bankName = '';
     String accountNo = '';
     String accountName = '';
     dynamic balance;
-    
+
     // 지갑 유형에 따라 다른 필드 사용
     switch (widget.walletType) {
       case '입출금':
@@ -253,7 +276,8 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
         bankName = item.cardIssuerName;
         accountNo = item.cardNo;
         accountName = item.cardName;
-        balance = item.cardBalance != null ? int.tryParse(item.cardBalance!) ?? 0 : 0;
+        balance =
+            item.cardBalance != null ? int.tryParse(item.cardBalance!) ?? 0 : 0;
         break;
       case '대출':
         bankName = ""; // 대출은 bankName이 없음
@@ -266,10 +290,11 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
         accountName = '정보 없음';
         balance = 0;
     }
-    
+
     // 계좌 스택 생성 (메인 카드와 하위 카드들)
     return GestureDetector(
-      onTap: () => _onItemTap(context, accountNo, bankName, accountName, balance),
+      onTap: () =>
+          _onItemTap(context, accountNo, bankName, accountName, balance),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -284,8 +309,8 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
                   accountName: accountName,
                   accountNo: accountNo,
                   balance: balance,
-                  mainIndex : mainIndex,
-                  length : accountList.length.toString(),
+                  mainIndex: mainIndex,
+                  length: accountList.length.toString(),
                 ),
               );
             },
@@ -299,7 +324,7 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
           //       Text(
           //         "${mainIndex + 1}",
           //         style: TextStyle(
-          //           color: const Color.fromARGB(255, 44, 44, 44), 
+          //           color: const Color.fromARGB(255, 44, 44, 44),
           //           fontWeight: FontWeight.w400,
           //           fontSize: 26,
           //         ),
@@ -324,7 +349,7 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
     required dynamic balance,
   }) {
     return Container(
-      width: MediaQuery.of(context).size.width*0.8,
+      width: MediaQuery.of(context).size.width * 0.8,
       height: 200,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -355,8 +380,9 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
                     Expanded(
                       child: Text(
                         accountName,
-                        style: AppTextStyles.appBar.copyWith(color: const Color.fromARGB(255, 31, 30, 30))
-                        ,overflow: TextOverflow.clip,
+                        style: AppTextStyles.appBar.copyWith(
+                            color: const Color.fromARGB(255, 31, 30, 30)),
+                        overflow: TextOverflow.clip,
                       ),
                     ),
                     if (widget.walletType == '카드')
@@ -365,24 +391,23 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    accountNo,
-                    style: AppTextStyles.bodyMediumLight.copyWith(color: const Color.fromARGB(255, 91, 91, 91))
-                  ),
+                  child: Text(accountNo,
+                      style: AppTextStyles.bodyMediumLight.copyWith(
+                          color: const Color.fromARGB(255, 91, 91, 91))),
                 ),
                 Spacer(),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '${_formatCurrency(balance)}원',
-                    style: AppTextStyles.moneyBodyLarge.copyWith(color: const Color.fromARGB(255, 25, 25, 25))
-                  
-                    // style: TextStyle(
-                    //   fontSize: 24,
-                    //   fontWeight: FontWeight.bold,
-                    //   color: widget.walletType == '대출' ? Colors.red : Colors.black,
-                    // ),
-                  ),
+                  child: Text('${_formatCurrency(balance)}원',
+                      style: AppTextStyles.moneyBodyLarge.copyWith(
+                          color: const Color.fromARGB(255, 25, 25, 25))
+
+                      // style: TextStyle(
+                      //   fontSize: 24,
+                      //   fontWeight: FontWeight.bold,
+                      //   color: widget.walletType == '대출' ? Colors.red : Colors.black,
+                      // ),
+                      ),
                 ),
               ],
             ),
@@ -412,13 +437,19 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
                     Text(
                       "${mainIndex + 1}",
                       style: TextStyle(
-                        color: const Color.fromARGB(255, 44, 44, 44), 
+                        color: const Color.fromARGB(255, 44, 44, 44),
                         fontWeight: FontWeight.w400,
                         fontSize: 26,
                       ),
                     ),
-                    Text('/', style: AppTextStyles.appBar,),
-                    Text(length, style: AppTextStyles.appBar,)
+                    Text(
+                      '/',
+                      style: AppTextStyles.appBar,
+                    ),
+                    Text(
+                      length,
+                      style: AppTextStyles.appBar,
+                    )
                   ],
                 ),
               ),
@@ -450,23 +481,43 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
   // 통화 형식 변환 헬퍼 메서드
   String _formatCurrency(dynamic amount) {
     if (amount == null) return '0';
-    
+
     // 문자열로 변환하고 쉼표 추가
     String amountStr = amount.toString().replaceAll(RegExp(r'[^0-9]'), '');
     if (amountStr.isEmpty) return '0';
-    
+
     // 3자리마다 쉼표 추가
     final regex = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
     return amountStr.replaceAllMapped(regex, (Match match) => '${match[1]},');
   }
 
   // 항목 클릭 처리 메서드
-  void _onItemTap(BuildContext context, String accountNo, String bankName, String accountName, dynamic balance) {
+  void _onItemTap(BuildContext context, String accountNo, String bankName,
+      String accountName, dynamic balance) {
     print("항목 클릭: 유형=${widget.walletType}, 계좌번호=$accountNo");
-    
+
     // noMoneyMan 값은 예시로 false로 설정. 실제 데이터에 맞게 조정 필요
     bool noMoneyMan = false;
-    
+
+    // balance를 반드시 정수로 변환
+    int balanceInt = 0;
+
+    // balance가 문자열이든 숫자든 안전하게 int로 변환
+    if (balance != null) {
+      if (balance is int) {
+        balanceInt = balance;
+      } else if (balance is String) {
+        // 쉼표(,) 제거 후 정수로 변환 시도
+        balanceInt =
+            int.tryParse(balance.replaceAll(RegExp(r'[^\d]'), '')) ?? 0;
+      } else {
+        // 다른 타입일 경우 toString 후 정수 변환 시도
+        balanceInt =
+            int.tryParse(balance.toString().replaceAll(RegExp(r'[^\d]'), '')) ??
+                0;
+      }
+    }
+
     // 자산 유형에 따라 다른 경로로 이동
     switch (widget.walletType) {
       case '입출금':
@@ -476,7 +527,7 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
             'bankName': bankName,
             'accountName': accountName,
             'accountNo': accountNo,
-            'balance': balance,
+            'balance': balanceInt, // int로 변환된 balance 사용
             'noMoneyMan': noMoneyMan,
           },
         );
@@ -488,7 +539,7 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
             'bankName': bankName,
             'accountName': accountName,
             'accountNo': accountNo,
-            'balance': balance,
+            'balance': balanceInt, // int로 변환된 balance 사용
             'noMoneyMan': noMoneyMan,
           },
         );
@@ -500,7 +551,7 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
             'bankName': bankName,
             'accountName': accountName,
             'accountNo': accountNo,
-            'balance': balance,
+            'balance': balanceInt, // int로 변환된 balance 사용
             'noMoneyMan': noMoneyMan,
           },
         );
@@ -512,8 +563,8 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
             'bankName': bankName,
             'cardName': accountName,
             'cardNo': accountNo,
-            // 'cvc': '123', // CVC 값은 실제 데이터에 맞게 조정 필요
-            'balance': balance,
+            'cvc': '123', // CVC 값은 실제 데이터에 맞게 조정 필요
+            'balance': balanceInt, // int로 변환된 balance 사용
           },
         );
         break;
@@ -525,7 +576,7 @@ class _WalletDetailWidgetState extends State<WalletDetailWidget> with SingleTick
             'bankName': bankName,
             'accountName': accountName,
             'accountNo': accountNo,
-            'balance': balance,
+            'balance': balanceInt, // int로 변환된 balance 사용
             'noMoneyMan': noMoneyMan,
           },
         );
@@ -542,28 +593,28 @@ class BoxClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final path = Path();
-    
+
     // 곡선 깊이 조절 (값을 조절하여 곡선의 정도를 바꿀 수 있습니다)
     final curveHeight = size.height * 0.35;
-    
+
     // 시작점 (왼쪽 하단)
     path.moveTo(0, size.height);
-    
+
     // 왼쪽 상단 곡선
     path.quadraticBezierTo(0, curveHeight, curveHeight, curveHeight);
-    
+
     // 상단 직선
     path.lineTo(size.width - curveHeight, curveHeight);
-    
+
     // 오른쪽 상단 곡선
     path.quadraticBezierTo(size.width, curveHeight, size.width, size.height);
-    
+
     // 완성
     path.close();
-    
+
     return path;
   }
-  
+
   @override
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
     return false;

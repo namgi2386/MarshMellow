@@ -132,10 +132,14 @@ class PortfolioRepository {
     required String categoryMemo,
   }) async {
     try {
+      print('🔍 Repository: 카테고리 생성 요청 - 이름: $categoryName, 메모: $categoryMemo');
       final response = await _portfolioApi.createPortfolioCategory(
         categoryName: categoryName,
         categoryMemo: categoryMemo,
       );
+
+      print(
+          '📋 Repository: API 응답 - ${response['code']} ${response['message']}');
 
       if (response['code'] == 200 && response['data'] != null) {
         final data = response['data'];
@@ -143,50 +147,53 @@ class PortfolioRepository {
             .map((item) => PortfolioCategoryModel.fromJson(item))
             .toList();
 
+        print('✅ Repository: 카테고리 생성 성공 - 카테고리 수: ${categoryListData.length}');
         return categoryListData;
       }
 
+      print('❌ Repository: API 응답 오류 - ${response['message']}');
       throw Exception('API 응답 에러: ${response['message']}');
     } catch (e) {
+      print('❌ Repository: 카테고리 생성 예외 발생 - $e');
       throw Exception('포트폴리오 카테고리 등록에 실패했습니다: $e');
     }
   }
 
   // 포트폴리오 카테고리 삭제
-Future<bool> deletePortfolioCategories({
-  required List<int> portfolioCategoryPkList,
-}) async {
-  try {
-    final response = await _portfolioApi.deletePortfolioCategories(
-      portfolioCategoryPkList: portfolioCategoryPkList,
-    );
+  Future<bool> deletePortfolioCategories({
+    required List<int> portfolioCategoryPkList,
+  }) async {
+    try {
+      final response = await _portfolioApi.deletePortfolioCategories(
+        portfolioCategoryPkList: portfolioCategoryPkList,
+      );
 
-    if (response['code'] == 200 && response['data']['message'] == 'SUCCESS') {
-      return true;
+      if (response['code'] == 200 && response['data']['message'] == 'SUCCESS') {
+        return true;
+      }
+
+      throw Exception('카테고리 삭제 실패: ${response['message']}');
+    } catch (e) {
+      throw Exception('포트폴리오 카테고리 삭제에 실패했습니다: $e');
     }
-
-    throw Exception('카테고리 삭제 실패: ${response['message']}');
-  } catch (e) {
-    throw Exception('포트폴리오 카테고리 삭제에 실패했습니다: $e');
   }
-}
 
 // 포트폴리오 목록 삭제
-Future<bool> deletePortfolios({
-  required List<int> portfolioPkList,
-}) async {
-  try {
-    final response = await _portfolioApi.deletePortfolios(
-      portfolioPkList: portfolioPkList,
-    );
+  Future<bool> deletePortfolios({
+    required List<int> portfolioPkList,
+  }) async {
+    try {
+      final response = await _portfolioApi.deletePortfolios(
+        portfolioPkList: portfolioPkList,
+      );
 
-    if (response['code'] == 200 && response['data']['message'] == 'SUCCESS') {
-      return true;
+      if (response['code'] == 200 && response['data']['message'] == 'SUCCESS') {
+        return true;
+      }
+
+      throw Exception('포트폴리오 삭제 실패: ${response['message']}');
+    } catch (e) {
+      throw Exception('포트폴리오 목록 삭제에 실패했습니다: $e');
     }
-
-    throw Exception('포트폴리오 삭제 실패: ${response['message']}');
-  } catch (e) {
-    throw Exception('포트폴리오 목록 삭제에 실패했습니다: $e');
   }
-}
 }

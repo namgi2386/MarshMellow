@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:marshmellow/presentation/viewmodels/ledger/ledger_viewmodel.dart';
 import 'package:marshmellow/di/providers/calendar_providers.dart';
 import 'package:marshmellow/di/providers/my/salary_provider.dart';
+import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 
 class DateRangeSelector extends ConsumerWidget {
   final String? dateRange;
@@ -34,7 +35,25 @@ class DateRangeSelector extends ConsumerWidget {
     final containerWidth = width ?? screenWidth * 0.52;
     final datePickerState = ref.watch(datePickerProvider);
     final selectedRange = datePickerState.selectedRange;
-    final payday = ref.watch(paydayProvider);
+
+    // 사용자 정보에서 월급일 직접 가져오기
+    final userInfoState = ref.watch(userInfoProvider);
+    int payday =
+        userInfoState.userDetail.salaryDate ?? ref.watch(paydayProvider);
+
+    // 월급일 값이 유효하지 않으면 기본값 사용
+    if (payday <= 0 || payday > 31) {
+      // 유효하지 않은 값이 감지되면 사용자 정보 다시 로드 요청
+      if (!userInfoState.isLoading) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(userInfoProvider.notifier).loadAllUserInfo();
+          print('⚠️ 월급일 정보가 유효하지 않음: $payday, 기본값 1 사용 및 정보 리로드 요청');
+        });
+      }
+      payday = 1; // 기본값
+    } else {
+      print('💰 사용자 월급일: $payday일');
+    }
 
     // 표시할 날짜 문자열 계산
     String displayDateRange = dateRange ?? '';
@@ -56,37 +75,52 @@ class DateRangeSelector extends ConsumerWidget {
       DateTime startDate;
       DateTime endDate;
 
-      // 현재 날짜가 월급일 이전이면 전 달의 월급일부터
-      if (now.day < payday) {
-        startDate = DateTime(now.year, now.month - 1, payday);
-        endDate = DateTime(now.year, now.month, payday - 1);
-      } else {
-        // 현재 날짜가 월급일 이후면 현재 달의 월급일부터
-        startDate = DateTime(now.year, now.month, payday);
-
-        // 다음 달의 월급일 이전 날까지
-        if (startDate.month == 12) {
-          endDate = DateTime(startDate.year + 1, 1, payday - 1);
+      try {
+        // 현재 날짜가 월급일 이전이면 전 달의 월급일부터
+        if (now.day < payday) {
+          startDate = DateTime(now.year, now.month - 1, payday);
+          endDate = DateTime(now.year, now.month, payday - 1);
         } else {
-          endDate = DateTime(now.year, now.month + 1, payday - 1);
+          // 현재 날짜가 월급일 이후면 현재 달의 월급일부터
+          startDate = DateTime(now.year, now.month, payday);
+
+          // 다음 달의 월급일 이전 날까지
+          if (startDate.month == 12) {
+            endDate = DateTime(startDate.year + 1, 1, payday - 1);
+          } else {
+            endDate = DateTime(now.year, now.month + 1, payday - 1);
+          }
         }
+      } catch (e) {
+        // 날짜 계산 중 오류 발생 시 (예: 존재하지 않는 날짜)
+        print('❌ 날짜 계산 오류: $e');
+        // 기본 날짜 범위 설정 (이번 달 1일부터 말일까지)
+        final lastDayOfMonth = DateTime(now.year, now.month + 1, 0).day;
+        startDate = DateTime(now.year, now.month, 1);
+        endDate = DateTime(now.year, now.month, lastDayOfMonth);
       }
 
       final formatter = DateFormat('yy.MM.dd');
       displayDateRange =
           '${formatter.format(startDate)} - ${formatter.format(endDate)}';
 
-      // 범위 업데이트 (선택적)
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref
-            .read(datePickerProvider.notifier)
-            .updateSelectedRange(PickerDateRange(startDate, endDate));
+      // 범위 업데이트 (한 번만 수행하도록 key 사용)
+      final stateKey = '${startDate.toString()}-${endDate.toString()}';
+      if (datePickerState.lastUpdateKey != stateKey) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          print(
+              '📅 날짜 범위 자동 설정: ${formatter.format(startDate)} - ${formatter.format(endDate)} (월급일: $payday)');
 
-        // 초기 데이터 로드 추가
-        ref
-            .read(ledgerViewModelProvider.notifier)
-            .loadHouseholdData(PickerDateRange(startDate, endDate));
-      });
+          // 날짜 범위 업데이트
+          ref.read(datePickerProvider.notifier).updateSelectedRangeWithKey(
+              PickerDateRange(startDate, endDate), stateKey);
+
+          // 데이터 로드
+          ref
+              .read(ledgerViewModelProvider.notifier)
+              .loadHouseholdData(PickerDateRange(startDate, endDate));
+        });
+      }
     }
 
     // 이전 기간으로 이동하는 함수
@@ -118,9 +152,9 @@ class DateRangeSelector extends ConsumerWidget {
           newEndDate = startDate.subtract(const Duration(days: 1));
         }
 
-        ref
-            .read(datePickerProvider.notifier)
-            .updateSelectedRange(PickerDateRange(newStartDate, newEndDate));
+        ref.read(datePickerProvider.notifier).updateSelectedRangeWithKey(
+            PickerDateRange(newStartDate, newEndDate),
+            '${newStartDate.toString()}-${newEndDate.toString()}');
 
         // 캘린더 프로바이더도 함께 업데이트
         ref.read(calendarPeriodProvider.notifier).state =
@@ -168,9 +202,9 @@ class DateRangeSelector extends ConsumerWidget {
           newEndDate = newStartDate.add(duration);
         }
 
-        ref
-            .read(datePickerProvider.notifier)
-            .updateSelectedRange(PickerDateRange(newStartDate, newEndDate));
+        ref.read(datePickerProvider.notifier).updateSelectedRangeWithKey(
+            PickerDateRange(newStartDate, newEndDate),
+            '${newStartDate.toString()}-${newEndDate.toString()}');
 
         // 캘린더 프로바이더도 함께 업데이트
         ref.read(calendarPeriodProvider.notifier).state =

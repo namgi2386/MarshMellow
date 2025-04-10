@@ -80,6 +80,7 @@ class PortfolioCategoryViewModel extends StateNotifier<PortfolioCategoryState> {
     required String categoryName,
     required String categoryMemo,
   }) async {
+    print('🔍 ViewModel: 카테고리 생성 시작 - 이름: $categoryName, 메모: $categoryMemo');
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
@@ -88,6 +89,7 @@ class PortfolioCategoryViewModel extends StateNotifier<PortfolioCategoryState> {
         categoryMemo: categoryMemo,
       );
 
+      print('✅ ViewModel: 카테고리 생성 성공 - 결과 항목 수: ${updatedCategories.length}');
       state = state.copyWith(
         isLoading: false,
         categories: updatedCategories,
@@ -95,6 +97,7 @@ class PortfolioCategoryViewModel extends StateNotifier<PortfolioCategoryState> {
 
       return true;
     } catch (e) {
+      print('❌ ViewModel: 카테고리 생성 실패 - 오류: $e');
       state = state.copyWith(
         isLoading: false,
         errorMessage: e.toString(),
@@ -103,33 +106,34 @@ class PortfolioCategoryViewModel extends StateNotifier<PortfolioCategoryState> {
     }
   }
 
-  // 포트폴리오 카테고리 삭제 
-Future<bool> deletePortfolioCategories({
-  required List<int> portfolioCategoryPkList,
-}) async {
-  state = state.copyWith(isLoading: true, errorMessage: null);
+  // 포트폴리오 카테고리 삭제
+  Future<bool> deletePortfolioCategories({
+    required List<int> portfolioCategoryPkList,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
 
-  try {
-    final result = await _repository.deletePortfolioCategories(
-      portfolioCategoryPkList: portfolioCategoryPkList,
-    );
+    try {
+      final result = await _repository.deletePortfolioCategories(
+        portfolioCategoryPkList: portfolioCategoryPkList,
+      );
 
-    // 성공 시 해당 카테고리들을 목록에서 제거
-    final updatedCategories = state.categories
-        .where((category) => !portfolioCategoryPkList.contains(category.portfolioCategoryPk))
-        .toList();
+      // 성공 시 해당 카테고리들을 목록에서 제거
+      final updatedCategories = state.categories
+          .where((category) =>
+              !portfolioCategoryPkList.contains(category.portfolioCategoryPk))
+          .toList();
 
-    state = state.copyWith(
-      isLoading: false,
-      categories: updatedCategories,
-    );
+      state = state.copyWith(
+        isLoading: false,
+        categories: updatedCategories,
+      );
 
-    return result;
-  } catch (e) {
-    state = state.copyWith(
-      isLoading: false,
-      errorMessage: e.toString(),
-    );
+      return result;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       return false;
     }
   }

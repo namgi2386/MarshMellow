@@ -119,39 +119,54 @@ class PortfolioApi {
     required String categoryName,
     required String categoryMemo,
   }) async {
-    final response = await _apiClient.post(
-      '/portfolio/category',
-      data: {
+    print('🔍 API: 카테고리 생성 요청 - 이름: $categoryName, 메모: $categoryMemo');
+
+    try {
+      final data = {
         'categoryName': categoryName,
         'categoryMemo': categoryMemo,
+      };
+
+      print('📤 API: 요청 데이터 - $data');
+
+      final response = await _apiClient.post(
+        '/portfolio/category',
+        data: data,
+      );
+
+      print('📥 API: 응답 상태 코드 - ${response.statusCode}');
+      print('📥 API: 응답 데이터 - ${response.data}');
+
+      return response.data;
+    } catch (e) {
+      print('❌ API: 카테고리 생성 오류 - $e');
+      rethrow;
+    }
+  }
+
+  // 포트폴리오 카테고리 삭제 메서드
+  Future<Map<String, dynamic>> deletePortfolioCategories({
+    required List<int> portfolioCategoryPkList,
+  }) async {
+    final response = await _apiClient.delete(
+      '/portfolio/category-list',
+      data: {
+        'portfolioCategoryPkList': portfolioCategoryPkList,
       },
     );
     return response.data;
   }
 
-  // 포트폴리오 카테고리 삭제 메서드
-Future<Map<String, dynamic>> deletePortfolioCategories({
-  required List<int> portfolioCategoryPkList,
-}) async {
-  final response = await _apiClient.delete(
-    '/portfolio/category-list',
-    data: {
-      'portfolioCategoryPkList': portfolioCategoryPkList,
-    },
-  );
-  return response.data;
-}
-
 // 포트폴리오 목록 삭제 메서드
-Future<Map<String, dynamic>> deletePortfolios({
-  required List<int> portfolioPkList,
-}) async {
-  final response = await _apiClient.delete(
-    '/portfolio/list',
-    data: {
-      'portfolioPkList': portfolioPkList,
-    },
-  );
-  return response.data;
-}
+  Future<Map<String, dynamic>> deletePortfolios({
+    required List<int> portfolioPkList,
+  }) async {
+    final response = await _apiClient.delete(
+      '/portfolio/list',
+      data: {
+        'portfolioPkList': portfolioPkList,
+      },
+    );
+    return response.data;
+  }
 }

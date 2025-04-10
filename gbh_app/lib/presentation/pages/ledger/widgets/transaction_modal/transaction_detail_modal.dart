@@ -36,10 +36,12 @@ final transactionDetailProvider =
 
 class TransactionDetailModal extends ConsumerStatefulWidget {
   final int householdPk;
+  final bool readOnly;
 
   const TransactionDetailModal({
     Key? key,
     required this.householdPk,
+    this.readOnly = false,
   }) : super(key: key);
 
   @override
@@ -89,7 +91,7 @@ class _TransactionDetailModalState
           children: [
             // 콘텐츠 영역
             Padding(
-              padding: const EdgeInsets.only(bottom: 70),
+              padding: EdgeInsets.only(bottom: widget.readOnly ? 0 : 70),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -109,37 +111,38 @@ class _TransactionDetailModalState
                             ' 원',
                             style: AppTextStyles.bodyMedium,
                           ),
-                          IconButton(
-                            onPressed: () {
-                              // 계산기 키보드 열기
-                              final initialValue =
-                                  (_updatedAmount ?? transaction.amount)
-                                      .toString();
-                              // 초기값이 .0으로 끝나는 경우 소수점 제거
-                              final formattedInitialValue =
-                                  initialValue.endsWith('.0')
-                                      ? initialValue.substring(
-                                          0, initialValue.length - 2)
-                                      : initialValue;
+                          if (!widget.readOnly)
+                            IconButton(
+                              onPressed: () {
+                                // 계산기 키보드 열기
+                                final initialValue =
+                                    (_updatedAmount ?? transaction.amount)
+                                        .toString();
+                                // 초기값이 .0으로 끝나는 경우 소수점 제거
+                                final formattedInitialValue =
+                                    initialValue.endsWith('.0')
+                                        ? initialValue.substring(
+                                            0, initialValue.length - 2)
+                                        : initialValue;
 
-                              KeyboardModal.showCalculatorKeyboard(
-                                context: context,
-                                initialValue: formattedInitialValue,
-                                onValueChanged: (value) {
-                                  setState(() {
-                                    // 소수점 제거: 값이 정수인 경우 .0 제거
-                                    if (value.endsWith('.0')) {
-                                      value =
-                                          value.substring(0, value.length - 2);
-                                    }
-                                    _updatedAmount = int.tryParse(value) ??
-                                        transaction.amount.toInt();
-                                  });
-                                },
-                              );
-                            },
-                            icon: SvgPicture.asset(IconPath.pencilSimple),
-                          ),
+                                KeyboardModal.showCalculatorKeyboard(
+                                  context: context,
+                                  initialValue: formattedInitialValue,
+                                  onValueChanged: (value) {
+                                    setState(() {
+                                      // 소수점 제거: 값이 정수인 경우 .0 제거
+                                      if (value.endsWith('.0')) {
+                                        value = value.substring(
+                                            0, value.length - 2);
+                                      }
+                                      _updatedAmount = int.tryParse(value) ??
+                                          transaction.amount.toInt();
+                                    });
+                                  },
+                                );
+                              },
+                              icon: SvgPicture.asset(IconPath.pencilSimple),
+                            ),
                           const SizedBox(width: 10),
                         ],
                       ),
@@ -169,160 +172,163 @@ class _TransactionDetailModalState
               ),
             ),
 
-            // 하단 고정 버튼
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Center(
-                  child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Button(
-                    text: '삭제',
-                    width: MediaQuery.of(context).size.width * 0.43,
-                    onPressed: () async {
-                      // 삭제 처리
-                      final success = await ref
-                          .read(ledgerViewModelProvider.notifier)
-                          .deleteTransaction(widget.householdPk);
+            // 하단 고정 버튼 (readOnly가 아닐 때만 표시)
+            if (!widget.readOnly)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Center(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Button(
+                      text: '삭제',
+                      width: MediaQuery.of(context).size.width * 0.43,
+                      onPressed: () async {
+                        // 삭제 처리
+                        final success = await ref
+                            .read(ledgerViewModelProvider.notifier)
+                            .deleteTransaction(widget.householdPk);
 
-                      if (context.mounted) {
-                        if (success) {
-                          // 성공 메시지 표시
-                          CompletionMessage.show(context, message: '삭제 완료');
-                          // 모달 닫기
-                          Navigator.of(context).pop();
+                        if (context.mounted) {
+                          if (success) {
+                            // 성공 메시지 표시
+                            CompletionMessage.show(context, message: '삭제 완료');
+                            // 모달 닫기
+                            Navigator.of(context).pop();
 
-                          // 트랜잭션 목록 새로고침
-                          ref.refresh(transactionsProvider);
+                            // 트랜잭션 목록 새로고침
+                            ref.refresh(transactionsProvider);
 
-                          // 캘린더 데이터 새로고침
-                          ref.refresh(calendarTransactionsProvider);
+                            // 캘린더 데이터 새로고침
+                            ref.refresh(calendarTransactionsProvider);
 
-                          // 카테고리 트랜잭션 데이터 새로고침
-                          ref.invalidate(categoryTransactionsProvider);
+                            // 카테고리 트랜잭션 데이터 새로고침
+                            ref.invalidate(categoryTransactionsProvider);
 
-                          // ledgerViewModel 새로고침 (수입/지출 카드 업데이트)
-                          final datePickerState = ref.read(datePickerProvider);
-                          if (datePickerState.selectedRange != null) {
-                            ref
-                                .read(ledgerViewModelProvider.notifier)
-                                .loadHouseholdData(
-                                    datePickerState.selectedRange!);
+                            // ledgerViewModel 새로고침 (수입/지출 카드 업데이트)
+                            final datePickerState =
+                                ref.read(datePickerProvider);
+                            if (datePickerState.selectedRange != null) {
+                              ref
+                                  .read(ledgerViewModelProvider.notifier)
+                                  .loadHouseholdData(
+                                      datePickerState.selectedRange!);
+                            }
+                          } else {
+                            // 실패 메시지 표시
+                            CompletionMessage.show(context, message: '삭제 실패');
                           }
-                        } else {
-                          // 실패 메시지 표시
-                          CompletionMessage.show(context, message: '삭제 실패');
                         }
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 10), // 버튼 사이 간격
-                  Button(
-                    text: '수정',
-                    width: MediaQuery.of(context).size.width * 0.43,
-                    onPressed: () async {
-                      // 변경된 값만 업데이트하기 위한 매개변수 준비
-                      Map<String, dynamic> updateParams = {};
-                      updateParams['transactionId'] = transaction.householdPk;
+                      },
+                    ),
+                    const SizedBox(width: 10), // 버튼 사이 간격
+                    Button(
+                      text: '수정',
+                      width: MediaQuery.of(context).size.width * 0.43,
+                      onPressed: () async {
+                        // 변경된 값만 업데이트하기 위한 매개변수 준비
+                        Map<String, dynamic> updateParams = {};
+                        updateParams['transactionId'] = transaction.householdPk;
 
-                      if (_updatedAmount != null) {
-                        updateParams['amount'] = _updatedAmount;
-                      }
+                        if (_updatedAmount != null) {
+                          updateParams['amount'] = _updatedAmount;
+                        }
 
-                      if (_updatedMemo != null) {
-                        updateParams['memo'] = _updatedMemo;
-                      }
+                        if (_updatedMemo != null) {
+                          updateParams['memo'] = _updatedMemo;
+                        }
 
-                      if (_updatedExceptedBudgetYn != null) {
-                        updateParams['exceptedBudgetYn'] =
-                            _updatedExceptedBudgetYn;
-                      }
+                        if (_updatedExceptedBudgetYn != null) {
+                          updateParams['exceptedBudgetYn'] =
+                              _updatedExceptedBudgetYn;
+                        }
 
-                      // API 문서에 따르면 카테고리 고유번호는 필수 필드
-                      int? categoryPkNullable = _updatedDetailCategoryPk ??
-                          CategoryPkMapping.getPkFromCategory(
-                              expenseCategory: transaction.type == TransactionType.withdrawal
-                                  ? ref
-                                      .read(ledgerRepositoryProvider)
-                                      .getWithdrawalCategoryByName(
-                                          transaction.householdCategory)
-                                  : null,
-                              incomeCategory: transaction.type == TransactionType.deposit
-                                  ? ref
-                                      .read(ledgerRepositoryProvider)
-                                      .getDepositCategoryByName(
-                                          transaction.householdCategory)
-                                  : null,
-                              transferCategory: transaction.type == TransactionType.transfer
-                                  ? ref
-                                      .read(ledgerRepositoryProvider)
-                                      .getTransferCategoryByName(
-                                          transaction.householdCategory)
-                                  : null,
-                              transferDirection: transaction.type == TransactionType.transfer
-                                  ? TransferDirection.withdrawal
-                                  : null);
+                        // API 문서에 따르면 카테고리 고유번호는 필수 필드
+                        int? categoryPkNullable = _updatedDetailCategoryPk ??
+                            CategoryPkMapping.getPkFromCategory(
+                                expenseCategory: transaction.type == TransactionType.withdrawal
+                                    ? ref
+                                        .read(ledgerRepositoryProvider)
+                                        .getWithdrawalCategoryByName(
+                                            transaction.householdCategory)
+                                    : null,
+                                incomeCategory: transaction.type == TransactionType.deposit
+                                    ? ref
+                                        .read(ledgerRepositoryProvider)
+                                        .getDepositCategoryByName(
+                                            transaction.householdCategory)
+                                    : null,
+                                transferCategory: transaction.type == TransactionType.transfer
+                                    ? ref
+                                        .read(ledgerRepositoryProvider)
+                                        .getTransferCategoryByName(
+                                            transaction.householdCategory)
+                                    : null,
+                                transferDirection: transaction.type == TransactionType.transfer
+                                    ? TransferDirection.withdrawal
+                                    : null);
 
-                      // 디폴트 값 설정 (기타 카테고리 사용)
-                      int categoryPk = categoryPkNullable ??
-                          (transaction.type == TransactionType.withdrawal
-                              ? 121
-                              : // 기타 지출
-                              transaction.type == TransactionType.deposit
-                                  ? 138
-                                  : // 기타 수입
-                                  130); // 기타 이체 (출금)
+                        // 디폴트 값 설정 (기타 카테고리 사용)
+                        int categoryPk = categoryPkNullable ??
+                            (transaction.type == TransactionType.withdrawal
+                                ? 121
+                                : // 기타 지출
+                                transaction.type == TransactionType.deposit
+                                    ? 138
+                                    : // 기타 수입
+                                    130); // 기타 이체 (출금)
 
-                      updateParams['detailCategoryPk'] = categoryPk;
+                        updateParams['detailCategoryPk'] = categoryPk;
 
-                      // API 호출
-                      final success = await ref
-                          .read(ledgerViewModelProvider.notifier)
-                          .updateTransaction(
-                            transactionId: transaction.householdPk,
-                            amount: _updatedAmount,
-                            memo: _updatedMemo,
-                            exceptedBudgetYn: _updatedExceptedBudgetYn,
-                            detailCategoryPk: categoryPk,
-                          );
+                        // API 호출
+                        final success = await ref
+                            .read(ledgerViewModelProvider.notifier)
+                            .updateTransaction(
+                              transactionId: transaction.householdPk,
+                              amount: _updatedAmount,
+                              memo: _updatedMemo,
+                              exceptedBudgetYn: _updatedExceptedBudgetYn,
+                              detailCategoryPk: categoryPk,
+                            );
 
-                      if (context.mounted) {
-                        if (success) {
-                          // 성공하면 먼저 캐시 갱신
-                          ref.invalidate(transactionDetailProvider(
-                              transaction.householdPk));
-                          ref.invalidate(transactionsProvider);
-                          ref.invalidate(calendarTransactionsProvider);
-                          ref.invalidate(filteredTransactionsProvider);
-                          ref.invalidate(categoryTransactionsProvider);
-                          ref.invalidate(budgetProvider);
+                        if (context.mounted) {
+                          if (success) {
+                            // 성공하면 먼저 캐시 갱신
+                            ref.invalidate(transactionDetailProvider(
+                                transaction.householdPk));
+                            ref.invalidate(transactionsProvider);
+                            ref.invalidate(calendarTransactionsProvider);
+                            ref.invalidate(filteredTransactionsProvider);
+                            ref.invalidate(categoryTransactionsProvider);
+                            ref.invalidate(budgetProvider);
 
-                          // datePickerState와 관련된 데이터도 갱신
-                          final datePickerState = ref.read(datePickerProvider);
-                          if (datePickerState.selectedRange != null) {
-                            ref
-                                .read(ledgerViewModelProvider.notifier)
-                                .loadHouseholdData(
-                                    datePickerState.selectedRange!);
+                            // datePickerState와 관련된 데이터도 갱신
+                            final datePickerState =
+                                ref.read(datePickerProvider);
+                            if (datePickerState.selectedRange != null) {
+                              ref
+                                  .read(ledgerViewModelProvider.notifier)
+                                  .loadHouseholdData(
+                                      datePickerState.selectedRange!);
+                            }
+
+                            // 그 다음 화면 닫기
+                            Navigator.of(context).pop();
+
+                            // 마지막으로 성공 메시지 표시
+                            CompletionMessage.show(context, message: '수정 완료');
+                          } else {
+                            // 실패 메시지 표시 (여기서는 화면을 닫지 않음)
+                            CompletionMessage.show(context, message: '수정 실패');
                           }
-
-                          // 그 다음 화면 닫기
-                          Navigator.of(context).pop();
-
-                          // 마지막으로 성공 메시지 표시
-                          CompletionMessage.show(context, message: '수정 완료');
-                        } else {
-                          // 실패 메시지 표시 (여기서는 화면을 닫지 않음)
-                          CompletionMessage.show(context, message: '수정 실패');
                         }
-                      }
-                    },
-                  ),
-                ],
-              )),
-            ),
+                      },
+                    ),
+                  ],
+                )),
+              ),
           ],
         );
       },
@@ -356,7 +362,7 @@ class _TransactionDetailModalState
             _updatedExceptedBudgetYn = exceptedBudgetYn;
             _updatedDetailCategoryPk = categoryPk;
           },
-          readOnly: true,
+          readOnly: widget.readOnly,
         );
       case '이체':
         return TransferForm(

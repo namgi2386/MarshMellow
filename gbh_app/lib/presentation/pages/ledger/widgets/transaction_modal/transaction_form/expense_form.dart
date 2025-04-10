@@ -150,13 +150,13 @@ class ExpenseFormState extends ConsumerState<ExpenseForm> {
           context: context,
           selectedCategory: _selectedExpenseCategory?.name,
           onCategorySelected: _updateExpenseCategory,
-          enabled: true,
+          enabled: !widget.readOnly,
         ),
         // 상호명 필드
         TransactionFields.editableMerchantField(
           merchantName: _merchant,
           onMerchantChanged: _updateMerchant,
-          enabled: !widget.readOnly, // 비활성화 여부
+          enabled: false, // 항상 비활성화
         ),
         // 결제수단 필드
         TransactionFields.paymentMethodField(
@@ -168,7 +168,7 @@ class ExpenseFormState extends ConsumerState<ExpenseForm> {
               onPaymentMethodSelected: _updatePaymentMethod,
             );
           },
-          enabled: !widget.readOnly, // 비활성화 여부
+          enabled: false, // 항상 비활성화
         ),
         // 날짜 필드
         TransactionFields.dateField(
@@ -176,19 +176,19 @@ class ExpenseFormState extends ConsumerState<ExpenseForm> {
           ref: ref,
           selectedDate: _selectedDate,
           onDateChanged: _updateDate,
-          enabled: !widget.readOnly, // 비활성화 여부
+          enabled: false, // 항상 비활성화
         ),
         // 메모 필드
         TransactionFields.editableMemoField(
           memo: _memo,
           onMemoChanged: _updateMemo,
-          enabled: true, // 메모는 항상 수정 가능
+          enabled: !widget.readOnly,
         ),
         // 예산에서 제외 필드
         TransactionFields.excludeFromBudgetField(
           value: _isExcludedFromBudget,
           onChanged: _updateExcludeFromBudget,
-          enabled: true, // 예산 제외는 항상 수정 가능
+          enabled: !widget.readOnly,
         ),
       ],
     );

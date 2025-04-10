@@ -501,6 +501,7 @@ class CategoryExpensePage extends ConsumerWidget {
           backgroundColor: AppColors.background,
           child: TransactionDetailModal(
             householdPk: transaction.householdPk,
+            readOnly: true,
           ),
         );
       },

@@ -294,19 +294,29 @@ Widget _buildEditField({
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: userInfoState.isLoading
-            ? Center(child: CircularProgressIndicator())
-            : userInfoState.error != null
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(child: Text('오류: ${userInfoState.error}')),
-                      SizedBox(height: 16),
+            ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/characters/char_angry_notebook.png', 
+                width: 180,
+                height: 180,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '앗! 마이 데이터를 불러올 수 없어요',
+                style: AppTextStyles.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
                       Button(
                         onPressed: () => ref.read(userInfoProvider.notifier).loadAllUserInfo(),
-                        text: '다시 시도',
+                        text: '보안 인증',
                       ),
-                    ],
-                  )
+            ],
+          ),
+        )
                 : SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

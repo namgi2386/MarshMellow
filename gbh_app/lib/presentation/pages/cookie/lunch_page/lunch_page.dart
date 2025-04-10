@@ -30,13 +30,24 @@ class LunchPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 상단 타이틀
-            const Text(
-              '[ 여기에 Text 입력 ]',
-              style: TextStyle(
-                color: AppColors.disabled,
-                fontSize: 24,
-                fontWeight: FontWeight.w400,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  width: 200,
+                  child: Text(
+                    lunchViewModel.selectedMenus.isNotEmpty 
+                        ? lunchViewModel.selectedMenus.last.name
+                        : '메뉴를 선택해주세요',
+                    style: TextStyle(
+                      color: AppColors.disabled,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
             ),
             // const SizedBox(height: 24),
             

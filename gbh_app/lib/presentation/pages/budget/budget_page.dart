@@ -12,6 +12,7 @@ import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart
 import 'package:marshmellow/presentation/viewmodels/wishlist/wish_provider.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/modal/modal.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BudgetPage extends ConsumerStatefulWidget {
   const BudgetPage({super.key});
@@ -20,18 +21,39 @@ class BudgetPage extends ConsumerStatefulWidget {
   ConsumerState<BudgetPage> createState() => _BudgetPageState();
 }
 
-class _BudgetPageState extends ConsumerState<BudgetPage> {
+class _BudgetPageState extends ConsumerState<BudgetPage> with WidgetsBindingObserver {
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // 화면이 처음 로드될 때 위시리스트 데이터 가져오기
     Future.microtask(() {
-      try {
-        ref.read(wishProvider.notifier).fetchCurrentWish();
-      } catch (e) {
-        print('위시 데이터 로드 중 오류: $e');
-      }
+      _loadData();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // 앱이 포그라운드로 돌아왔을 때 데이터 새로고침
+      _loadData();
+    }
+  }
+
+  void _loadData() {
+    try {
+      ref.read(wishProvider.notifier).fetchCurrentWish();
+      ref.read(budgetProvider.notifier).fetchBudgets();
+    } catch (e) {
+      print('데이터 로드 중 오류: $e');
+    }
   }
 
   @override
@@ -48,26 +70,6 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
       );
     }
 
-    if (state.errorMessage != null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('오류: ${state.errorMessage}'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  ref.read(budgetProvider.notifier).fetchBudgets();
-                },
-                child: const Text('다시 시도'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     if (state.budgets.isEmpty) {
       return Scaffold(
         // backgroundColor: Colors.white,
@@ -79,7 +81,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/characters/char_angry_notebook.png', // 실제 이미지 경로로 변경
+                'assets/images/characters/char_angry_notebook.png', 
                 width: 180,
                 height: 180,
               ),
@@ -116,7 +118,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/characters/char_angry_notebook.png', // 실제 이미지 경로로 변경
+                'assets/images/characters/char_angry_notebook.png', 
                 width: 180,
                 height: 180,
               ),

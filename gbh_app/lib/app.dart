@@ -121,23 +121,24 @@ class _AppState extends ConsumerState<App> {
   Future<void> _checkSalaryDay() async {
     print('Ⓜ️Ⓜ️월급일 확인 로직 시작');
     // 이미 이번 달에 플로우를 봤으면 무시
-    if (await UserPreferencesService.hasSeenSalaryFlowThisMonth()) {
-      return;
-    }
+    // if (await UserPreferencesService.hasSeenSalaryFlowThisMonth()) {
+    //   return;
+    // }
 
     // 사용자 정보 가져오기
     await Future.delayed(const Duration(seconds: 1)); // 사용자 정보 로드 대기
 
     final userInfostate = ref.read(userInfoProvider);
-    if (userInfostate is UserDetailInfo) {
-      final salaryDate = (userInfostate as UserDetailInfo).salaryDate;
+    final userDetail = userInfostate.userDetail;
+    final salaryDate = userDetail.salaryDate;
+    
       print('Ⓜ️Ⓜ️오늘이 월급날인지 확인하겠습니다 사용자 월급날 = $salaryDate');
 
       if (salaryDate != null) {
         // 오늘이 월급날인지 확인
         final now = DateTime.now();
         if (now.day == salaryDate) {
-          print('오늘은 월급날입니다.: ${now.day} = $salaryDate');
+          print('Ⓜ️Ⓜ️오늘은 월급날입니다.: ${now.day} = $salaryDate');
           // 월급날이면 플로우 시작
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _startSalaryFlow(context);
@@ -146,7 +147,7 @@ class _AppState extends ConsumerState<App> {
           print('Ⓜ️Ⓜ️오늘은 월급날이 아닙니다! : ${now.day} != $salaryDate');
         }
       }
-    }
+
   }
 
   // 월급날에만 동작하는 월급 축하 및 예산 분배 플로우

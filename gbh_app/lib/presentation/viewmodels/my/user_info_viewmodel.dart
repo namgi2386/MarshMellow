@@ -62,8 +62,17 @@ class UserInfoNotifier extends StateNotifier<UserInfoState> {
     try {
       state = state.copyWith(isLoading: true, error: null);
       
-      final data = await _mySalaryApi.getMyInfoDetail();
-      // data는 이미 응답의 'data' 부분만 들어있으므로 바로 사용
+final data = await _mySalaryApi.getMyInfoDetail();
+// 안전한 타입 확인 후 처리
+if (data is Map<String, dynamic>) {
+  final userDetail = UserDetailInfo.fromJson(data);
+  state = state.copyWith(userDetail: userDetail, isLoading: false);
+} else {
+  state = state.copyWith(
+    isLoading: false,
+    error: "API 응답 형식이 올바르지 않습니다."
+  );
+}      // data는 이미 응답의 'data' 부분만 들어있으므로 바로 사용
       final userDetail = UserDetailInfo.fromJson(data as Map<String, dynamic>);
       
       state = state.copyWith(

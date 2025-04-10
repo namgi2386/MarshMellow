@@ -16,16 +16,20 @@ class UserDetailInfo {
     this.userKeyYn,
   });
 
-  factory UserDetailInfo.fromJson(Map<String, dynamic> json) {
-    return UserDetailInfo(
-      salaryAccount: json['salaryAccount'] as String?,
-      salaryAmount: json['salaryAmount'] as int?,
-      salaryDate: json['salaryDate'] as int?,
-      budgetFeature: json['budgetFeature'] as String?,
-      budgetAlarmTime: json['budgetAlarmTime'] as String?,
-      userKeyYn: json['userKeyYn'] as String?,
-    );
-  }
+factory UserDetailInfo.fromJson(Map<String, dynamic> json) {
+  return UserDetailInfo(
+    salaryAccount: json['salaryAccount'] as String?,
+    salaryAmount: json['salaryAmount'] is String ? 
+                  int.tryParse(json['salaryAmount']) : 
+                  json['salaryAmount'] as int?,
+    salaryDate: json['salaryDate'] is String ? 
+                int.tryParse(json['salaryDate']) : 
+                json['salaryDate'] as int?,
+    budgetFeature: json['budgetFeature'] as String?,
+    budgetAlarmTime: json['budgetAlarmTime'] as String?,
+    userKeyYn: json['userKeyYn'] as String?,
+  );
+}
 
   factory UserDetailInfo.empty() {
     return UserDetailInfo(

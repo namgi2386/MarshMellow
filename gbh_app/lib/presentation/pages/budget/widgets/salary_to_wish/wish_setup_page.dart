@@ -66,6 +66,7 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
     return Scaffold(
       appBar: CustomAppbar(
         title: '위시 설정',
+        automaticallyImplyLeading: false,
       ),
       body: Stepper(
         currentStep: _currentStep,

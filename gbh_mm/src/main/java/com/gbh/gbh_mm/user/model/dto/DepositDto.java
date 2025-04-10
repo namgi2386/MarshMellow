@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DepositDto {
     private String transactionDate;
+    private String transactionTime;
     private long transactionBalance;
     private String transactionSummary;
     private String transactionMemo;

@@ -62,12 +62,14 @@ class AccountListData {
 // 입금 내역 모델
 class DepositModel {
   final String transactionDate;
+  final String transactionTime;
   final int transactionBalance;
   final String transactionSummary;
   final String transactionMemo;
 
   DepositModel({
     required this.transactionDate,
+    required this.transactionTime,
     required this.transactionBalance,
     required this.transactionSummary,
     required this.transactionMemo,
@@ -76,6 +78,7 @@ class DepositModel {
   factory DepositModel.fromJson(Map<String, dynamic> json) {
     return DepositModel(
       transactionDate: json['transactionDate'] as String,
+      transactionTime: json['transactionTime'] as String,
       transactionBalance: json['transactionBalance'] as int,
       transactionSummary: json['transactionSummary'] as String,
       transactionMemo: json['transactionMemo'] as String,

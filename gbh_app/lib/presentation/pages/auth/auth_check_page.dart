@@ -41,10 +41,10 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
     
 
     // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
-    await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDI2MzY3MSwiZXhwIjoxNzQ2MDYzNjcxfQ.0f1ipa_CMXUpM2tdAwAiAsO7FKRtXXYfNpkbT-OacLc9RWrUWMETMPsEPVfKdSLpZu8zSTjKaZqgdie0g03mzA'); 
-    await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0MjYzNjcxLCJleHAiOjE3NzAxODM2NzF9.Gisy5j5XsBycbm8i7vlYBLM4iTfOnhOOrM7eQj90PARtoc1NM-Hl21PruBqD-ql9OcR7N8ANGrFkpa2suLyx7g');
+    await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDI4NTU4NCwiZXhwIjoxNzQ2MDg1NTg0fQ.aop1wb8pf-WRcvkwmrZY14sBtWfrxwAysYpRRaS-pvM0OafLAWpRjoGxZIB4X2641Q5aqZqs07bbSRhCOz0TyA'); 
+    await secureStorage.write(key: StorageKeys.refreshToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIIiwidXNlclBrIjozLCJzdWIiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzQ0Mjg1NTg0LCJleHAiOjE3NzAyMDU1ODR9.WjP5-ec67d5bg-_mvx_pIetbo8z12x7zKga_my2e9syRtuCKj3JVBJS5kV-Tz5jepuhooJQmi84qx_9lssL_Lw');
     await secureStorage.write(key: StorageKeys.certificatePem, value: '-----BEGIN CERTIFICATE-----MIIC5DCCAcygAwIBAgIGAZYQxKmeMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcxNTAwNDZaFw0yNjA0MDcxNTAwNDZaMDoxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxHTAbBgNVBAMTFGdpbmllZTE3NTBAbmF2ZXIuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAufEYp+EbHTLEW24swo/4/zuNNLz+nczUcLGnNImlCOgbza0Tt3VpDW0aNLRLm8K742UxCWXH3oLSOiyjVifyzlKNfsC2+4fJ8QDvONaXImhFCV9teckb+zwhypYbMlDcpFDNiVf1++nEqzmLZzZ1j8r9xmxeRNfkdt8hikbaLaPGIKcWrC7HKeBPvUijZhx5J5WZajGIUjajz46Gz6sPN6cq28DY4TxdZgQRTSlALnUGlG6oyX8WqFdwJf5WsdZ5l5GmotsouPmcIQZ8BswELLIYKes1LZ11fHEgLl2tW5PF8xL+3gMzyJ5IFV/BHuyKQx3HRAqNDNlobt66h3z5BQIDAQABMA0GCSqGSIb3DQEBDQUAA4IBAQAuZfE4JiTeN/ML51WwgHvQ3TwrR8bFVHZp3TWbjWh6jTUsv+4o5i751g8UONFYNNhe8mCNECyjXeAi1R75+iUGE9I6NTovg6vugvFo0rqukX8Nx2t2n/af2M1YETPxy26UfSG8quwTUgWn/RSRHusYQ0CxKx7MQ7kS1RR14uIastrcZUyGr/Od+zA9MClETQ/xTDWkIr4CZp8w1pcrJKGnW7eWYPPL2UOMGmJ6KBszZ3q7fWf59rfU2qRqM+YDrgSJKjyrzEXJ1c//OIS6eT+8k+soN6C6xPddj4qqRy+pW6Ff7Ngl2/271/aMb2KJfmBZz9eCgMtUy5QpSan39rYy-----END CERTIFICATE-----'); 
-    await secureStorage.write(key: StorageKeys.userkey, value: '-----BEGIN CERTIFICATE-----MIIC5DCCAcygAwIBAgIGAZYQxKmeMA0GCSqGSIb3DQEBDQUAMCwxDjAMBgNVBAMMBU1NIENBMQ0wCwYDVQQKDARNeUNBMQswCQYDVQQGEwJLUjAeFw0yNTA0MDcxNTAwNDZaFw0yNjA0MDcxNTAwNDZaMDoxCzAJBgNVBAYTAktSMQwwCgYDVQQKEwNHQkgxHTAbBgNVBAMTFGdpbmllZTE3NTBAbmF2ZXIuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAufEYp+EbHTLEW24swo/4/zuNNLz+nczUcLGnNImlCOgbza0Tt3VpDW0aNLRLm8K742UxCWXH3oLSOiyjVifyzlKNfsC2+4fJ8QDvONaXImhFCV9teckb+zwhypYbMlDcpFDNiVf1++nEqzmLZzZ1j8r9xmxeRNfkdt8hikbaLaPGIKcWrC7HKeBPvUijZhx5J5WZajGIUjajz46Gz6sPN6cq28DY4TxdZgQRTSlALnUGlG6oyX8WqFdwJf5WsdZ5l5GmotsouPmcIQZ8BswELLIYKes1LZ11fHEgLl2tW5PF8xL+3gMzyJ5IFV/BHuyKQx3HRAqNDNlobt66h3z5BQIDAQABMA0GCSqGSIb3DQEBDQUAA4IBAQAuZfE4JiTeN/ML51WwgHvQ3TwrR8bFVHZp3TWbjWh6jTUsv+4o5i751g8UONFYNNhe8mCNECyjXeAi1R75+iUGE9I6NTovg6vugvFo0rqukX8Nx2t2n/af2M1YETPxy26UfSG8quwTUgWn/RSRHusYQ0CxKx7MQ7kS1RR14uIastrcZUyGr/Od+zA9MClETQ/xTDWkIr4CZp8w1pcrJKGnW7eWYPPL2UOMGmJ6KBszZ3q7fWf59rfU2qRqM+YDrgSJKjyrzEXJ1c//OIS6eT+8k+soN6C6xPddj4qqRy+pW6Ff7Ngl2/271/aMb2KJfmBZz9eCgMtUy5QpSan39rYy-----END CERTIFICATE-----');
+    await secureStorage.write(key: StorageKeys.userkey, value: '2c2fd595-4118-4b6c-9fd7-fc811910bb75');
                                                                                                                                                                                                                                             
     // secure storage에서 필요한 정보 불러오기
     
@@ -178,7 +178,7 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
     print('===== AuthCheckPage build 메서드 실행 =====');
     return Scaffold(
         body: CustomLoadingIndicator(
-          text: '사회초년생을 위한 금융 서비스, MarshMellow',
+          text: '사회생활의 첫걸음. 재정 관리의 첫걸음.\nMarshMellow',
           backgroundColor: AppColors.whiteLight,
         ));
   }

@@ -41,9 +41,18 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
       wishlist.isSelected == 'N' && wishlist.isCompleted == 'N'
     ).toList();
 
+    if (wishlistState.isLoading) {
+      return Scaffold(
+        body: CustomLoadingIndicator(
+          backgroundColor: AppColors.whiteLight,
+          text: '위시리스트 목록 불러오는 중',
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: CustomAppbar(
-        title: '이달의 위시 만들기',
+        title: '위시 만들기',
       ),
       body: Column(
         children: [
@@ -96,8 +105,10 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
   Widget _buildWishlistItem(Wishlist wishlist) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
+      elevation: 0, // 박스 쉐도우 삭제
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.backgroundBlack, width: 0.5),
       ),
       child: InkWell(
         onTap: () => _showConfirmationModal(wishlist),
@@ -150,7 +161,7 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
                     const SizedBox(height: 4),
                     Text(
                       wishlist.productName,
-                      style: AppTextStyles.bodyMedium.copyWith(
+                      style: AppTextStyles.bodySmall.copyWith(
                         fontWeight: FontWeight.w300
                       ),
                       maxLines: 2,
@@ -184,33 +195,45 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
       backgroundColor: Colors.transparent,
       builder: (context) => Modal(
         backgroundColor: AppColors.modalBackground,
+        showDivider: false,
         title: '위시 등록',
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '${wishlist.productNickname}을(를) 이달의 위시로 등록하시겠습니까?',
-                style: AppTextStyles.bodyLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
+              // Row(
+              //   children: [
+                  Text(
+                    '${wishlist.productNickname}',
+                    style: AppTextStyles.bodyLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  Text(
+                    '을(를)이달의 위시로 등록하시겠습니까?',
+                    style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w300),
+                    textAlign: TextAlign.center,
+                  ),
+              //   ],
+              // ),
+              
+              const SizedBox(height: 20),
               Text(
                 '등록 시 해당 상품을 위해 자동이체를 설정하게 됩니다.',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
+                  color: AppColors.backgroundBlack,
+                  fontWeight: FontWeight.w300
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 36),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.blueLight),
+                        side: BorderSide(color: AppColors.backgroundBlack),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -219,7 +242,9 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
                       child: Text(
                         '취소',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.blueLight,
+                          color: AppColors.backgroundBlack,
+                          fontWeight: FontWeight.w300
+
                         ),
                       ),
                     ),
@@ -232,7 +257,7 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
                         context.go(BudgetRoutes.getWishSetUpPath(), extra: wishlist);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.blueDark,
+                        backgroundColor: AppColors.backgroundBlack,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -242,6 +267,7 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
                         '등록하기',
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: Colors.white,
+                          fontWeight: FontWeight.w300
                         ),
                       ),
                     ),

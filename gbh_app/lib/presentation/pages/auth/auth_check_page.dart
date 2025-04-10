@@ -6,6 +6,7 @@ import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/di/providers/auth/pin_provider.dart';
 import 'package:marshmellow/di/providers/auth/user_provider.dart';
 import 'package:marshmellow/di/providers/core_providers.dart';
+import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
 import 'package:marshmellow/router/routes/auth_routes.dart';
 
@@ -37,6 +38,7 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
     await secureStorage.write(
         key: StorageKeys.phoneNumber, value: '01056297169');
     await secureStorage.write(key: StorageKeys.userName, value: '윤잰큰');
+    
 
     // <<<<<<<<<<<< [ 어세스 토큰을 이 아래에 넣으세요 ] <<<<<<<<<<<<<<<<<<<<<<<<
     await secureStorage.write(key: StorageKeys.accessToken, value: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJ1c2VyUGsiOjMsInN1YiI6ImFjY2Vzcy10b2tlbiIsImlhdCI6MTc0NDI2MzY3MSwiZXhwIjoxNzQ2MDYzNjcxfQ.0f1ipa_CMXUpM2tdAwAiAsO7FKRtXXYfNpkbT-OacLc9RWrUWMETMPsEPVfKdSLpZu8zSTjKaZqgdie0g03mzA'); 
@@ -176,8 +178,8 @@ class _AuthCheckPageState extends ConsumerState<AuthCheckPage> {
     print('===== AuthCheckPage build 메서드 실행 =====');
     return Scaffold(
         body: CustomLoadingIndicator(
-      text: '안녕하세요?',
-      backgroundColor: AppColors.whiteLight,
-    ));
+          text: '사회초년생을 위한 금융 서비스, MarshMellow',
+          backgroundColor: AppColors.whiteLight,
+        ));
   }
 }

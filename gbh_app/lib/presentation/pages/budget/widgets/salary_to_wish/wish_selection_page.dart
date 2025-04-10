@@ -53,6 +53,7 @@ class _WishSelectionPageState extends ConsumerState<WishSelectionPage> {
     return Scaffold(
       appBar: CustomAppbar(
         title: '위시 만들기',
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [

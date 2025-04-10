@@ -115,18 +115,7 @@ class _SalaryInputPageState extends ConsumerState<SalaryInputPage> {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-        onPressed: () {
-          if (currentStep > 0) {
-            // 이전 단계로 이동
-            ref.read(salaryInputStepProvider.notifier).state--;
-          } else {
-            // 첫 단계면 이전 페이지로 이동
-            Navigator.pop(context);
-          }
-        },
-      ),
+      automaticallyImplyLeading: false,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

@@ -56,7 +56,7 @@ class BankIcon extends StatelessWidget {
       case "우리은행":
       case "woori bank":
         return IconPath.wooriBank;
-      case "SC제일은행":
+      case "sc제일은행":
       case "standard chartered bank":
       case "sc bank":
         return IconPath.scBank;
@@ -81,7 +81,7 @@ class BankIcon extends StatelessWidget {
       case "새마을금고":
       case "mg":
         return IconPath.mgBank;
-      case "KEB하나은행":
+      case "keb하나은행":
       case "hana bank":
         return IconPath.hanaBank;
       case "신한은행":
@@ -95,7 +95,7 @@ class BankIcon extends StatelessWidget {
       case "toss bank":
         return IconPath.ssafyBank2;
       case "-":
-        return IconPath.kakaoBank; // 대출일 때 bankName 대신 "-"를 줌
+        return IconPath.gnBank; // 대출일 때 bankName 대신 "-"를 줌
       default:
         return IconPath.ibkBank; // 기본값으로 IBK 아이콘 사용
     }

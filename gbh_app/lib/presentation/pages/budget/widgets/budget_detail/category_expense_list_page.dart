@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/budget/budget_model.dart';
@@ -14,12 +15,12 @@ import 'package:marshmellow/data/repositories/budget/category_repository.dart';
 /*
   예산 카테고리별 지출 프로바이더
 */
-final categoryTransactionsProvider = FutureProvider.family<List<Transaction>, CategoryExpensePageParams>(
+final categoryTransactionsProvider = FutureProvider.autoDispose
+    .family<List<Transaction>, CategoryExpensePageParams>(
   (ref, params) async {
-    ref.keepAlive();
     final repository = ref.watch(categoryTransactionRepositoryProvider);
 
-    print('Provider 호출: budgetPk=${params.budgetPk}, categoryPk=${params.categoryPk}, categoryName=${params.categoryName}');
+    // print('Provider 호출: budgetPk=${params.budgetPk}, categoryPk=${params.categoryPk}, categoryName=${params.categoryName}');
 
     // 카테고리 지출 내역 조회 API 호출
     return repository.getCategoryTransactions(
@@ -46,25 +47,26 @@ class CategoryExpensePageParams {
     required String rawStartDate,
     required String rawEndDate,
     required this.categoryName,
-  }) :
-
-    startDate = rawStartDate.replaceAll('-', ''),
-    endDate = rawEndDate.replaceAll('-', '');
+  })  : startDate = rawStartDate.replaceAll('-', ''),
+        endDate = rawEndDate.replaceAll('-', '');
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is CategoryExpensePageParams &&
-           other.budgetPk == budgetPk &&
-           other.categoryPk == categoryPk &&
-           other.startDate == startDate &&
-           other.endDate == endDate &&
-           other.categoryName == categoryName;
+        other.budgetPk == budgetPk &&
+        other.categoryPk == categoryPk &&
+        other.startDate == startDate &&
+        other.endDate == endDate &&
+        other.categoryName == categoryName;
   }
 
   @override
   int get hashCode {
-    return budgetPk.hashCode ^ categoryPk.hashCode ^ startDate.hashCode ^ endDate.hashCode;
+    return budgetPk.hashCode ^
+        categoryPk.hashCode ^
+        startDate.hashCode ^
+        endDate.hashCode;
   }
 }
 
@@ -88,11 +90,46 @@ class CategoryExpensePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Get the budget to determine date range
     final budgetState = ref.watch(budgetProvider);
-    final selectedBudget = budgetState.budgets.firstWhere(
-      (budget) => budget.budgetPk == budgetPk,
-      orElse: () => budgetState.selectedBudget!,
-    );
 
+    // 안전하게 selectedBudget 찾기
+    BudgetModel? selectedBudget;
+
+    try {
+      // 먼저 budgetPk로 찾기 시도
+      if (budgetState.budgets.isNotEmpty) {
+        selectedBudget = budgetState.budgets.firstWhere(
+          (budget) => budget.budgetPk == budgetPk,
+          orElse: () => throw Exception("Budget not found"),
+        );
+      }
+    } catch (e) {
+      // 찾지 못한 경우 selectedBudget 사용
+      selectedBudget = budgetState.selectedBudget;
+    }
+
+    // 여전히 null인 경우 (예: budgets가 비어있고 selectedBudget도 null)
+    // category 객체에서 날짜 데이터를 추출하거나 현재 날짜 사용
+    if (selectedBudget == null) {
+      // 현재 날짜를 기준으로 한 달 기간 설정
+      final now = DateTime.now();
+      final startDate = DateTime(now.year, now.month, 1);
+      final endDate = DateTime(now.year, now.month + 1, 0);
+
+      final params = CategoryExpensePageParams(
+        budgetPk: budgetPk,
+        categoryPk: categoryPk,
+        rawStartDate: DateFormat('yyyy-MM-dd').format(startDate),
+        rawEndDate: DateFormat('yyyy-MM-dd').format(endDate),
+        categoryName: category.budgetCategoryName,
+      );
+
+      // 트랜잭션 데이터 로드
+      final transactionsAsync = ref.watch(categoryTransactionsProvider(params));
+
+      return _buildScaffold(context, ref, transactionsAsync, category, params);
+    }
+
+    // 정상적으로 예산 데이터를 찾은 경우
     final params = CategoryExpensePageParams(
       budgetPk: budgetPk,
       categoryPk: categoryPk,
@@ -100,9 +137,20 @@ class CategoryExpensePage extends ConsumerWidget {
       rawEndDate: selectedBudget.endDate,
       categoryName: category.budgetCategoryName,
     );
+
     // autoDispose 모디파이어 사용하여 불필요한 api 호출 방지
     final transactionsAsync = ref.watch(categoryTransactionsProvider(params));
 
+    return _buildScaffold(context, ref, transactionsAsync, category, params);
+  }
+
+  // Scaffold 구성을 별도의 메서드로 분리
+  Widget _buildScaffold(
+      BuildContext context,
+      WidgetRef ref,
+      AsyncValue<List<Transaction>> transactionsAsync,
+      BudgetCategoryModel category,
+      CategoryExpensePageParams params) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(
@@ -115,45 +163,39 @@ class CategoryExpensePage extends ConsumerWidget {
           transactionsAsync.when(
             data: (transactions) {
               // 지출 트랜잭션만 필터링하고 총 금액 계산
-              final filteredTransactions = transactions.where(
-                (transaction) => transaction.classification == TransactionClassification.WITHDRAWAL
-                  && transaction.exceptedBudgetYn != 'Y' // 예산 제외 아닌 것만 계산
-              ).toList();
+              final filteredTransactions = transactions
+                  .where((transaction) =>
+                          transaction.classification ==
+                              TransactionClassification.WITHDRAWAL &&
+                          transaction.exceptedBudgetYn != 'Y' // 예산 제외 아닌 것만 계산
+                      )
+                  .toList();
 
               // 총 지출액 계산
               final totalSpent = filteredTransactions.fold<int>(
-                0, (sum, transaction) => sum + transaction.householdAmount
-              );
+                  0, (sum, transaction) => sum + transaction.householdAmount);
 
               // 예산 대비 지출 비율 계산
               final percentage = category.budgetCategoryPrice > 0
-                ? (totalSpent / category.budgetCategoryPrice * 100)
-                : 0.0;
+                  ? (totalSpent / category.budgetCategoryPrice * 100)
+                  : 0.0;
 
               return _buildCategorySummary(
-                context, 
-                category,
-                totalSpent,
-                percentage
-                );
-              },
-              loading: () => _buildCategorySummary(
-                context, 
+                  context, category, totalSpent, percentage);
+            },
+            loading: () => _buildCategorySummary(
+              context,
+              category,
+              category.budgetExpendAmount ?? 0,
+              category.budgetExpendPercent ?? 0,
+            ),
+            error: (_, __) => _buildCategorySummary(
+                context,
                 category,
                 category.budgetExpendAmount ?? 0,
-                category.budgetExpendPercent ?? 0,
-              ),
-              error: (_, __) => _buildCategorySummary(
-                context, 
-                category, 
-                category.budgetExpendAmount ?? 0, 
-                category.budgetExpendPercent ?? 0
-              ),
+                category.budgetExpendPercent ?? 0),
           ),
 
-          // // Category Summary
-          // _buildCategorySummary(context, category),
-          
           // Transaction List
           Expanded(
             child: transactionsAsync.when(
@@ -163,12 +205,20 @@ class CategoryExpensePage extends ConsumerWidget {
                 }
                 return _buildTransactionList(context, ref, transactions);
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => Center(
+                child: Lottie.asset(
+                  'assets/images/loading/loading_simple.json',
+                  width: 140,
+                  height: 140,
+                  fit: BoxFit.contain,
+                ),
+              ),
               error: (error, stackTrace) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 48, color: AppColors.pinkPrimary),
+                    const Icon(Icons.error_outline,
+                        size: 48, color: AppColors.pinkPrimary),
                     const SizedBox(height: 16),
                     Text(
                       '오류가 발생했습니다',
@@ -177,7 +227,8 @@ class CategoryExpensePage extends ConsumerWidget {
                     const SizedBox(height: 8),
                     Text(
                       error.toString(),
-                      style: AppTextStyles.bodyExtraSmall.copyWith(color: AppColors.disabled),
+                      style: AppTextStyles.bodyExtraSmall
+                          .copyWith(color: AppColors.disabled),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -198,11 +249,11 @@ class CategoryExpensePage extends ConsumerWidget {
   }
 
   Widget _buildCategorySummary(
-    BuildContext context, 
-    BudgetCategoryModel category,
-    int actualSpent, // 예산별 가계부 조회로부터 가지고 온 카테고리별 지출금액
-    double actualPercentage // 예산별 가계부 조회로부터 가지고 온 카테고리별 지출 비율(카테고리의 예산에 대한)
-  ) {
+      BuildContext context,
+      BudgetCategoryModel category,
+      int actualSpent, // 예산별 가계부 조회로부터 가지고 온 카테고리별 지출금액
+      double actualPercentage // 예산별 가계부 조회로부터 가지고 온 카테고리별 지출 비율(카테고리의 예산에 대한)
+      ) {
     final formattedBudget = _formatAmount(category.budgetCategoryPrice);
     final formattedSpent = _formatAmount(actualSpent);
     final percentage = actualPercentage;
@@ -242,13 +293,11 @@ class CategoryExpensePage extends ConsumerWidget {
                     style: AppTextStyles.bodyLarge,
                   ),
                   Text(
-                    percentage > 100 
-                      ? '예산 초과' 
-                      : '예산 내에서 사용 중',
+                    percentage > 100 ? '예산 초과' : '예산 내에서 사용 중',
                     style: AppTextStyles.bodyExtraSmall.copyWith(
-                      color: percentage > 100 
-                        ? AppColors.buttonDelete 
-                        : AppColors.backgroundBlack,
+                      color: percentage > 100
+                          ? AppColors.buttonDelete
+                          : AppColors.backgroundBlack,
                     ),
                   ),
                 ],
@@ -256,7 +305,7 @@ class CategoryExpensePage extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Progress Bar
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
@@ -270,19 +319,24 @@ class CategoryExpensePage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Budget vs Spent
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildAmountItem('사용금액', '$formattedSpent원', 
-                percentage > 100 ? AppColors.pinkPrimary : AppColors.textPrimary),
               _buildAmountItem(
-                '사용률', 
-                '${percentage.toStringAsFixed(0)}%', 
+                  '사용금액',
+                  '$formattedSpent원',
+                  percentage > 100
+                      ? AppColors.pinkPrimary
+                      : AppColors.textPrimary),
+              _buildAmountItem(
+                '사용률',
+                '${percentage.toStringAsFixed(0)}%',
                 percentage > 100 ? AppColors.pinkPrimary : category.color,
               ),
-              _buildAmountItem('예산금액', '$formattedBudget원', AppColors.textSecondary),
+              _buildAmountItem(
+                  '예산금액', '$formattedBudget원', AppColors.textSecondary),
             ],
           ),
         ],
@@ -342,20 +396,23 @@ class CategoryExpensePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildTransactionList(BuildContext context, WidgetRef ref, List<Transaction> transactions) {
+  Widget _buildTransactionList(
+      BuildContext context, WidgetRef ref, List<Transaction> transactions) {
     // 지출(WITHDRAWAL) 트랜잭션만 필터링
-    final filteredTransactions = transactions.where(
-      (transaction) => transaction.classification == TransactionClassification.WITHDRAWAL
-    ).toList();
-    
+    final filteredTransactions = transactions
+        .where((transaction) =>
+            transaction.classification == TransactionClassification.WITHDRAWAL)
+        .toList();
+
     if (filteredTransactions.isEmpty) {
       return _buildEmptyState();
     }
-    
+
     // Group transactions by date
     final groupedTransactions = <String, List<Transaction>>{};
     for (final transaction in filteredTransactions) {
       final date = transaction.tradeDate;
+
       if (!groupedTransactions.containsKey(date)) {
         groupedTransactions[date] = [];
       }
@@ -372,21 +429,22 @@ class CategoryExpensePage extends ConsumerWidget {
       itemBuilder: (context, index) {
         final date = sortedDates[index];
         final dayTransactions = groupedTransactions[date]!;
-        
-        // Parse date for header
-        final dateFormat = DateFormat('yyyyMMdd');
-        final displayFormat = DateFormat('yyyy년 MM월 dd일 (E)', 'ko_KR');
-        
+
+        // tradeDate : 20250409 형식으로 들어온다
         DateTime dateTime;
         try {
-          dateTime = dateFormat.parse(date);
+          final year = int.parse(date.substring(0, 4));
+          final month = int.parse(date.substring(4, 6));
+          final day = int.parse(date.substring(6, 8));
+          dateTime = DateTime(year, month, day);
         } catch (e) {
           // 날짜 형식이 유효하지 않은 경우 현재 날짜 사용
           dateTime = DateTime.now();
         }
-        
+
+        final displayFormat = DateFormat('yyyy년 MM월 dd일 (E)', 'ko_KR');
         final displayDate = displayFormat.format(dateTime);
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -396,33 +454,39 @@ class CategoryExpensePage extends ConsumerWidget {
               child: Text(
                 displayDate,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w300,
                 ),
               ),
             ),
-            
+
             // Transactions for this date
-            ...dayTransactions.map((transaction) => _buildTransactionItem(context, ref, transaction)),
-            
+            ...dayTransactions.map((transaction) =>
+                _buildTransactionItem(context, ref, transaction)),
+
             const SizedBox(height: 8),
-            const Divider(),
+            const Divider(
+              thickness: 0.5,
+            ),
           ],
         );
       },
     );
   }
 
-  Widget _buildTransactionItem(BuildContext context, WidgetRef ref, Transaction transaction) {
+  Widget _buildTransactionItem(
+      BuildContext context, WidgetRef ref, Transaction transaction) {
     final formattedAmount = _formatAmount(transaction.householdAmount);
-    
+
     // Format time
-    final timeFormat = DateFormat('HHmm');
-    final displayFormat = DateFormat('HH:mm');
-    
     String displayTime = "";
     try {
-      final time = timeFormat.parse(transaction.tradeTime);
-      displayTime = displayFormat.format(time);
+      String timeStr = transaction.tradeTime;
+
+      final hours = int.parse(timeStr.substring(0, 2));
+      final minutes = int.parse(timeStr.substring(2, 4));
+
+      final time = DateTime(2000, 1, 1, hours, minutes);
+      displayTime = DateFormat('HH:mm').format(time);
     } catch (e) {
       // 시간 형식이 유효하지 않은 경우 원본 문자열 사용
       displayTime = transaction.tradeTime;
@@ -447,8 +511,8 @@ class CategoryExpensePage extends ConsumerWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: AppColors.whiteDark,
-            width: 1,
+            color: AppColors.backgroundBlack,
+            width: 0.5,
           ),
         ),
         child: Row(
@@ -468,7 +532,7 @@ class CategoryExpensePage extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-            
+
             // Transaction details
             Expanded(
               child: Column(
@@ -512,7 +576,8 @@ class CategoryExpensePage extends ConsumerWidget {
                           if (transaction.exceptedBudgetYn == 'Y')
                             Container(
                               margin: const EdgeInsets.only(left: 4),
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppColors.yellowLight,
                                 borderRadius: BorderRadius.circular(4),
@@ -563,8 +628,6 @@ class CategoryExpensePage extends ConsumerWidget {
 
   String _formatAmount(int amount) {
     return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},'
-    );
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
   }
 }

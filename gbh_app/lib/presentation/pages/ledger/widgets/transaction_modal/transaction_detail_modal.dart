@@ -19,6 +19,8 @@ import 'package:marshmellow/presentation/widgets/keyboard/keyboard_modal.dart';
 import 'package:marshmellow/data/models/ledger/category/category_mapping.dart';
 import 'package:marshmellow/presentation/pages/ledger/widgets/picker/transfer_direction_picker.dart';
 import 'package:marshmellow/di/providers/transaction_filter_provider.dart';
+import 'package:marshmellow/presentation/pages/budget/widgets/budget_detail/category_expense_list_page.dart';
+import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
 
 // 기존 폼들 import
 import 'package:marshmellow/presentation/pages/ledger/widgets/transaction_modal/transaction_form/expense_form.dart';
@@ -198,6 +200,9 @@ class _TransactionDetailModalState
                           // 캘린더 데이터 새로고침
                           ref.refresh(calendarTransactionsProvider);
 
+                          // 카테고리 트랜잭션 데이터 새로고침
+                          ref.invalidate(categoryTransactionsProvider);
+
                           // ledgerViewModel 새로고침 (수입/지출 카드 업데이트)
                           final datePickerState = ref.read(datePickerProvider);
                           if (datePickerState.selectedRange != null) {
@@ -290,9 +295,9 @@ class _TransactionDetailModalState
                               transaction.householdPk));
                           ref.invalidate(transactionsProvider);
                           ref.invalidate(calendarTransactionsProvider);
-
-                          // filteredTransactionsProvider까지 무효화하여 거래 내역 리스트가 업데이트되도록 함
                           ref.invalidate(filteredTransactionsProvider);
+                          ref.invalidate(categoryTransactionsProvider);
+                          ref.invalidate(budgetProvider);
 
                           // datePickerState와 관련된 데이터도 갱신
                           final datePickerState = ref.read(datePickerProvider);

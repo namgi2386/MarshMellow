@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
 import 'package:marshmellow/core/theme/app_text_styles.dart';
 import 'package:marshmellow/data/models/ledger/category/transactions.dart';
@@ -292,7 +293,14 @@ class _LedgerCalendarState extends ConsumerState<LedgerCalendar> {
           ],
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => Center(
+        child: Lottie.asset(
+          'assets/images/loading/loading_simple.json',
+          width: 140,
+          height: 140,
+          fit: BoxFit.contain,
+        ),
+      ),
       error: (error, stack) => Center(
         child: Text('오류가 발생했습니다: $error'),
       ),

@@ -11,7 +11,7 @@ import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dar
   예산 카테고리 리스트 페이지
   : 버블 차트의 배경을 탭하면 랜딩
 */
-class BudgetCategoryDetailPage extends ConsumerWidget {
+class BudgetCategoryDetailPage extends ConsumerStatefulWidget {
   final int budgetPk;
 
   const BudgetCategoryDetailPage({
@@ -20,12 +20,26 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BudgetCategoryDetailPage> createState() => _BudgetCategoryDetailPageState();
+}
+
+  class _BudgetCategoryDetailPageState extends ConsumerState<BudgetCategoryDetailPage> {
+    @override
+    void initState() {
+      super.initState();
+      // 페이지 로드 될때 데이터 로드
+      Future.microtask(() {
+        ref.read(budgetProvider.notifier).fetchBudgets();
+      });
+    }
+
+  @override
+  Widget build(BuildContext context) {
     final budgetState = ref.watch(budgetProvider);
 
     // 선택된 예산 찾기
     final selectedBudget = budgetState.budgets.firstWhere(
-      (budget) => budget.budgetPk == budgetPk,
+      (budget) => budget.budgetPk == widget.budgetPk,
       orElse: () => budgetState.selectedBudget!,
     );
 
@@ -158,7 +172,7 @@ class BudgetCategoryDetailPage extends ConsumerWidget {
                       '/budget/category/expenses/${category.budgetCategoryPk}',
                       extra: {
                         'category': category,
-                        'budgetPk': budgetPk,
+                        'budgetPk': widget.budgetPk,
                       },
                     );
                   },

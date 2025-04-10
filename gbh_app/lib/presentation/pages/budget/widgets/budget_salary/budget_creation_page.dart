@@ -1,6 +1,7 @@
 // lib/presentation/pages/budget/widgets/budget_salary/budget_creation_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:marshmellow/core/theme/app_colors.dart';
@@ -10,19 +11,19 @@ import 'package:marshmellow/data/models/budget/budget_type_model.dart';
 import 'package:marshmellow/presentation/pages/budget/widgets/budget_bubble_chart.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_type_viewmodel.dart';
 import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart';
+import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart';
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
-import 'package:marshmellow/presentation/widgets/keyboard/numeric_keyboard.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
 
 class BudgetCreationPage extends ConsumerStatefulWidget {
   final String selectedType;
-  final int salary;
+  // final int salary;
 
   const BudgetCreationPage({
     Key? key,
     required this.selectedType,
-    required this.salary,
   }) : super(key: key);
 
   @override
@@ -65,6 +66,20 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
     });
 
     try {
+      // UserInfo에서 salary 정보 가져오기
+      final userInfoState = ref.read(userInfoProvider);
+      final salary = userInfoState.userDetail.salaryAmount;
+
+      print('✨✨✨✨내월급 : $salary✨✨✨✨');
+
+      if (salary == null) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = '월급 정보를 찾을 수 없습니다';
+        });
+        return;
+      }
+
       // 선택된 유형에 따른 지출 비율 가져오기
       final budgetTypeVM = ref.read(budgetTypeProvider.notifier);
       final selectedTypeData = budgetTypeVM.getSelectedTypeData();
@@ -79,22 +94,10 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
       
       // 비율 데이터 변환
       final expenseData = selectedTypeData.toMap();
-      print('🚀 예산 생성 요청 데이터:');
-      print('  - 급여: ${widget.salary}');
-      print('  - 식비/외식: ${expenseData['식비/외식']}');
-      print('  - 교통/자동차: ${expenseData['교통/자동차']}');
-      print('  - 고정지출: ${expenseData['고정지출']}');
-      print('  - 편의점/마트: ${expenseData['편의점/마트']}');
-      print('  - 금융: ${expenseData['금융']}');
-      print('  - 여가비: ${expenseData['여가비']}');
-      print('  - 커피/디저트: ${expenseData['커피/디저트']}');
-      print('  - 쇼핑: ${expenseData['쇼핑']}');
-      print('  - 비상금: ${expenseData['비상금']}');
-
       
       // 예산 생성 API 호출
       await ref.read(budgetProvider.notifier).createBudget(
-        salary: widget.salary,
+        salary: salary,
         fixedExpense: expenseData['고정지출'] ?? 0.0,
         foodExpense: expenseData['식비/외식'] ?? 0.0,
         transportationExpense: expenseData['교통/자동차'] ?? 0.0,
@@ -185,6 +188,16 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
   
   // 카테고리 선택 및 편집 모드 진입
   void _selectCategory(int categoryPk, int initialAmount) {
+    // 이미 선택된 카테고리를 다시 선택했을 경우 선택 해제
+    if (_selectedCategoryPk == categoryPk && _isEditingAmount) {
+      setState(() {
+        _selectedCategoryPk = null;
+        _isEditingAmount = false;
+        _amountController.clear();
+      });
+      return;
+    }
+
     setState(() {
       _selectedCategoryPk = categoryPk;
       _amountController.text = initialAmount.toString();
@@ -195,6 +208,9 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
     Future.delayed(Duration(milliseconds: 100), () {
       _amountFocusNode.requestFocus();
     });
+
+    // 선택된 카테고리가 화면에 보이도록 스크롤 조정
+    // 이 부분은 필요에 따라 구현할 수 있습니다
   }
   
   // 금액 포맷팅 (천 단위 쉼표)
@@ -206,37 +222,38 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
   }
 
   // 선택된 카테고리 이름 가져오기
-String _getSelectedCategoryName() {
-  if (_selectedCategoryPk == null || _createdBudget == null) return '';
-  
-  final selectedCategory = _createdBudget!.budgetCategoryList.firstWhere(
-    (category) => category.budgetCategoryPk == _selectedCategoryPk,
-    orElse: () => BudgetCategoryModel(
-      budgetCategoryPk: 0,
-      budgetCategoryName: '',
-      budgetCategoryPrice: 0,
-    ),
-  );
-  
-  return selectedCategory.budgetCategoryName;
-}
+  String _getSelectedCategoryName() {
+    if (_selectedCategoryPk == null || _createdBudget == null) return '';
+    
+    final selectedCategory = _createdBudget!.budgetCategoryList.firstWhere(
+      (category) => category.budgetCategoryPk == _selectedCategoryPk,
+      orElse: () => BudgetCategoryModel(
+        budgetCategoryPk: 0,
+        budgetCategoryName: '',
+        budgetCategoryPrice: 0,
+      ),
+    );
+    
+    return selectedCategory.budgetCategoryName;
+  }
 
-// 선택된 카테고리 색상 가져오기
-Color _getSelectedCategoryColor() {
-  if (_selectedCategoryPk == null || _createdBudget == null) return Colors.grey;
+  // 선택된 카테고리 색상 가져오기
+  Color _getSelectedCategoryColor() {
+    if (_selectedCategoryPk == null || _createdBudget == null) return Colors.grey;
+    
+    final selectedCategory = _createdBudget!.budgetCategoryList.firstWhere(
+      (category) => category.budgetCategoryPk == _selectedCategoryPk,
+      orElse: () => BudgetCategoryModel(
+        budgetCategoryPk: 0,
+        budgetCategoryName: '',
+        budgetCategoryPrice: 0,
+      ),
+    );
+    
+    // BudgetModel의 정적 메서드 사용
+    return BudgetModel.getCategoryColor(selectedCategory.budgetCategoryName);
+  }
   
-  final selectedCategory = _createdBudget!.budgetCategoryList.firstWhere(
-    (category) => category.budgetCategoryPk == _selectedCategoryPk,
-    orElse: () => BudgetCategoryModel(
-      budgetCategoryPk: 0,
-      budgetCategoryName: '',
-      budgetCategoryPrice: 0,
-    ),
-  );
-  
-  // BudgetModel의 정적 메서드 사용
-  return BudgetModel.getCategoryColor(selectedCategory.budgetCategoryName);
-}
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -310,15 +327,10 @@ Color _getSelectedCategoryColor() {
     }
 
     return Scaffold(
+      backgroundColor: AppColors.whiteDark,
       appBar: CustomAppbar(
         title: title,
-        // leading: IconButton(
-        //   icon: Icon(Icons.close),
-        //   onPressed: () {
-        //     // 확인 다이얼로그 표시 후 메인 예산 페이지로 이동
-        //     _showConfirmationDialog(context);
-        //   },
-        // ),
+        backgroundColor: AppColors.whiteDark
       ),
       body: GestureDetector(
         onTap: () {
@@ -362,9 +374,6 @@ Color _getSelectedCategoryColor() {
                       ],
                     ),
                   ),
-                  
-                  // // 선택된 유형 정보
-                  // _buildSelectedTypeInfo(),
 
                   const SizedBox(height: 8),
 
@@ -399,7 +408,7 @@ Color _getSelectedCategoryColor() {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Center (
+                        Center(
                           child: Text(
                           '카테고리',
                           style: AppTextStyles.bodyLargeLight.copyWith(
@@ -419,8 +428,8 @@ Color _getSelectedCategoryColor() {
                               if (_isEditingAmount) {
                                 _updateCategoryBudget();
                               }
-                              // 메인 예산 페이지로 이동
-                              context.go('/budget');
+                              // 위시 생성 페이지로 이동
+                              context.go(BudgetRoutes.getWishCreatePath());
                             },
                           ),
                         ),// 키보드 공간 확보
@@ -431,87 +440,22 @@ Color _getSelectedCategoryColor() {
               ),
             ),
             
-            // 하단 버튼 고정
-            // Positioned(
-            //   left: 0,
-            //   right: 0,
-            //   bottom: 0,
-            //   child: 
-            // ),
-            
-            // 수정 중일 때 키보드 표시
+            // 수정 중일 때 안내 메시지 표시 (선택적)
             if (_isEditingAmount)
               Positioned(
                 left: 0,
                 right: 0,
                 bottom: 0,
                 child: Container(
-                  color: Colors.white,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 선택된 카테고리 정보 표시
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        color: AppColors.whiteLight,
-                        child: Row(
-                          children: [
-                            // 선택된 카테고리 색상 원
-                            Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: _getSelectedCategoryColor(),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            // 선택된 카테고리 이름
-                            Text(
-                              '${_getSelectedCategoryName()} 카테고리 금액 수정',
-                              style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w200),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // 금액 입력 필드
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _amountController,
-                                focusNode: _amountFocusNode,
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.end,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  suffixText: '원',
-                                ),
-                                readOnly: true, // 시스템 키보드 대신 커스텀 키보드 사용
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            IconButton(
-                              icon: const Icon(Icons.check),
-                              onPressed: _updateCategoryBudget,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      NumericKeyboard(
-                        initialValue: _amountController.text,
-                        onValueChanged: (value) {
-                          // 입력값을 직접 컨트롤러에 설정
-                          setState(() {
-                            _amountController.text = value;
-                          });
-                        },
-                        onClose: _updateCategoryBudget,
-                      ),
-                    ],
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  color: AppColors.whiteLight,
+                  child: Text(
+                    '${_getSelectedCategoryName()} 카테고리의 금액을 수정 중입니다',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      fontWeight: FontWeight.w300,
+                      color: AppColors.greyLight,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -599,7 +543,7 @@ Color _getSelectedCategoryColor() {
               width: 0.5,
             ),
           ),
-          color: isSelected ? AppColors.whiteLight : Colors.transparent,
+          // color: isSelected ? AppColors.whiteLight : Colors.transparent,
         ),
         child: Row(
           children: [
@@ -620,14 +564,46 @@ Color _getSelectedCategoryColor() {
                 style: AppTextStyles.bodyMediumLight.copyWith(fontWeight: FontWeight.w300),
               ),
             ),
-            // 금액
-            Text(
-              '$formattedAmount 원',
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontWeight: FontWeight.w300,
+            // 금액 표시 (수정 모드일 때는 TextField, 아닐 때는 Text)
+            isSelected && _isEditingAmount
+                ? Expanded(
+                    child: TextField(
+                      controller: _amountController,
+                      focusNode: _amountFocusNode,
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.end,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                        suffixText: '원',
+                      ),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w300,
+                        color: AppColors.textPrimary,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      onSubmitted: (_) => _updateCategoryBudget(),
+                    ),
+                  )
+                : Text(
+                    '$formattedAmount 원',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+            // 편집 아이콘 (수정 모드일 때만 표시)
+            if (isSelected && _isEditingAmount)
+              IconButton(
+                icon: const Icon(Icons.check, size: 20),
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
+                onPressed: _updateCategoryBudget,
               ),
-            ),
-            // 편집 아이콘
             const SizedBox(width: 6),
           ],
         ),

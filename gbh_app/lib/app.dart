@@ -18,9 +18,8 @@ import 'package:marshmellow/presentation/viewmodels/budget/budget_viewmodel.dart
 
 // Flutter 로컬라이제이션 패키지 추가
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/router/routes/budget_routes.dart';
-
-import 'package:home_widget/home_widget.dart';
 import 'package:marshmellow/core/utils/widgets/widget_service.dart';
 
 // LifecycleEventHandler 클래스 구현
@@ -152,7 +151,7 @@ class _AppState extends ConsumerState<App> {
 
   // 월급날에만 동작하는 월급 축하 및 예산 분배 플로우
   void _startSalaryFlow(BuildContext context) {
-    widget.router.go(BudgetRoutes.getBudgetCelebratePath());
+    widget.router.go(SignupRoutes.getBudgetCelebratePath());
   }
 
   // 위시 크롤링 자동생성 : 메서드 채널 리스너 설정

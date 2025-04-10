@@ -233,8 +233,8 @@ class _AuthMydataSplashPageState extends ConsumerState<AuthMydataSplashPage>
     const double iconSize = 75;
 
     final List<Widget> firstRowIcons = _createDuplicatedIconRow(bankIconPaths.sublist(0, 4), iconSize);
-    final List<Widget> secondRowIcons = _createDuplicatedIconRow(bankIconPaths.sublist(5, 9), iconSize);
-    final List<Widget> thirdRowIcons = _createDuplicatedIconRow(bankIconPaths.sublist(10, 14), iconSize);
+    final List<Widget> secondRowIcons = _createDuplicatedIconRow(bankIconPaths.sublist(4, 8), iconSize);
+    final List<Widget> thirdRowIcons = _createDuplicatedIconRow(bankIconPaths.sublist(8, bankIconPaths.length), iconSize);
 
     return Scaffold(
       body: Stack(

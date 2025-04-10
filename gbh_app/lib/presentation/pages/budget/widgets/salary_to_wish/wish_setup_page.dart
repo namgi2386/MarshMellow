@@ -9,6 +9,9 @@ import 'package:marshmellow/presentation/viewmodels/budget/wish_selection_viewmo
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/finance/bank_icon.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
+import 'package:marshmellow/router/routes/budget_routes.dart';
+import 'package:lottie/lottie.dart';
 
 // 이 파일 내에서 선택된 기간, 출금계좌, 입금계좌 상태를 관리하는 프로바이더들
 final selectedMonthProvider = StateProvider<int>((ref) => 1);
@@ -133,7 +136,14 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                 ),
                 const SizedBox(height: 16),
                 if (wishSelectionState.isLoading)
-                  const Center(child: CustomLoadingIndicator())
+                  Center(
+                    child: Lottie.asset(
+                      'assets/images/loading/loading_simple.json',
+                      width: 140,
+                      height: 140,
+                      fit: BoxFit.contain,
+                    ),
+                  )
                 else if (wishSelectionState.accounts.isEmpty)
                   Center(
                     child: Text(
@@ -197,7 +207,7 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                     child: OutlinedButton(
                       onPressed: details.onStepCancel,
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.blueLight),
+                        side: BorderSide(color: AppColors.backgroundBlack),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -206,7 +216,8 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                       child: Text(
                         '이전',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.blueLight,
+                          color: AppColors.backgroundBlack,
+                          fontWeight: FontWeight.w300
                         ),
                       ),
                     ),
@@ -216,7 +227,7 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                   child: ElevatedButton(
                     onPressed: details.onStepContinue,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.blueDark,
+                      backgroundColor: AppColors.backgroundBlack,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -226,6 +237,7 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                       _currentStep < 2 ? '다음' : '완료',
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.white,
+                        fontWeight: FontWeight.w300
                       ),
                     ),
                   ),
@@ -252,11 +264,12 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
         
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: isSelected ? AppColors.blueDark : Colors.transparent,
-              width: 2,
+              color: isSelected ? AppColors.backgroundBlack : AppColors.disabled,
+              width: 0.5,
             ),
           ),
           child: InkWell(
@@ -274,7 +287,7 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                         ref.read(selectedMonthProvider.notifier).state = value;
                       }
                     },
-                    activeColor: AppColors.blueDark,
+                    activeColor: AppColors.backgroundBlack,
                   ),
                   Expanded(
                     child: Column(
@@ -283,7 +296,7 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                         Text(
                           '$month개월',
                           style: AppTextStyles.bodyLarge.copyWith(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w300,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -293,7 +306,8 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                                 (Match m) => '${m[1]},',
                               )} 원',
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
+                            color: AppColors.backgroundBlack,
+                            fontWeight: FontWeight.w300
                           ),
                         ),
                       ],
@@ -323,11 +337,12 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
         
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: isSelected ? AppColors.blueDark : Colors.transparent,
-              width: 2,
+              color: isSelected ? AppColors.backgroundBlack : AppColors.disabled,
+              width: isSelected ? 1 : 0.5,
             ),
           ),
           child: InkWell(
@@ -345,7 +360,7 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                         onSelect(account);
                       }
                     },
-                    activeColor: AppColors.blueDark,
+                    activeColor: AppColors.backgroundBlack,
                   ),
                   BankIcon(
                     bankName: account.bankName,
@@ -359,13 +374,16 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
                         Text(
                           account.bankName,
                           style: AppTextStyles.bodyLarge.copyWith(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           _formatAccountNumber(account.accountNo),
-                          style: AppTextStyles.bodyMedium,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w300
+                          ),
                         ),
                       ],
                     ),
@@ -419,7 +437,7 @@ class _WishSetupPageState extends ConsumerState<WishSetupPage> {
       
       // 성공 시 완료 페이지로 이동
       if (mounted) {
-        context.push('/wish/complete', extra: {
+        context.go(SignupRoutes.getWishCompletePath(), extra: {
           'wishlist': widget.wishlist,
           'selectedMonth': selectedMonth,
           'dailyAmount': _dailyAmounts[_availableMonths.indexOf(selectedMonth)],

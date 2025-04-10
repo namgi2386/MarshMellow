@@ -14,7 +14,8 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget> actions;
   final VoidCallback? onNofiticationTap;
   final Color backgroundColor;
-  final bool hideNotificaiotnIcon; // 알림페이지에서는 알림 아이콘을 표시하지 않을겁니다
+  final bool hideNotificaiotnIcon;
+  final bool automaticallyImplyLeading; // 알림페이지에서는 알림 아이콘을 표시하지 않을겁니다
 
   const CustomAppbar({
     Key? key,
@@ -23,6 +24,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
     this.onNofiticationTap,
     this.backgroundColor = AppColors.background,
     this.hideNotificaiotnIcon = false,
+    this.automaticallyImplyLeading = true,
   }) : super(key: key);
 
   @override

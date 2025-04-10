@@ -15,6 +15,7 @@ import 'package:marshmellow/presentation/viewmodels/my/user_info_viewmodel.dart'
 import 'package:marshmellow/presentation/widgets/custom_appbar/custom_appbar.dart';
 import 'package:marshmellow/presentation/widgets/button/button.dart';
 import 'package:marshmellow/presentation/widgets/loading/custom_loading_indicator.dart';
+import 'package:marshmellow/router/routes/auth_routes.dart';
 import 'package:marshmellow/router/routes/budget_routes.dart';
 
 class BudgetCreationPage extends ConsumerStatefulWidget {
@@ -429,7 +430,7 @@ class _BudgetCreationPageState extends ConsumerState<BudgetCreationPage> {
                                 _updateCategoryBudget();
                               }
                               // 위시 생성 페이지로 이동
-                              context.go(BudgetRoutes.getWishCreatePath());
+                              context.go(SignupRoutes.getWishCreatePath());
                             },
                           ),
                         ),// 키보드 공간 확보

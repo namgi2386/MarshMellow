@@ -269,15 +269,30 @@ public class BudgetService {
             throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        long remainDay = ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(budget.getEndDate(), formatter)) + 1;
+        DateTimeFormatter dashFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter noDashFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-        System.out.println(remainDay);
+        String startDateFormatted = LocalDate.parse(budget.getStartDate(), dashFormatter).format(noDashFormatter);
+        String endDateFormatted = LocalDate.parse(budget.getEndDate(), dashFormatter).format(noDashFormatter);
+
+        long remainDay = ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(budget.getEndDate(), dashFormatter)) + 1;
+        System.out.println("남은 일 수 = 예산 종료일 - 현재 일: " + remainDay + " = " + LocalDate.parse(budget.getEndDate()) + " - " + LocalDate.now());
         List<BudgetCategory> budgetCategories = budgetCategoryRepository.findAllByBudget_BudgetPk(budget.getBudgetPk());
 
+        // 각 카테고리별로 가계부에서 지출을 조회하여 합산
+        long totalExpendAmount = budgetCategories.stream()
+                .mapToLong(category ->
+                        householdRepository.findHouseholdsByBudget(
+                                userPk,
+                                startDateFormatted,
+                                endDateFormatted,
+                                category.getBudgetCategoryName()
+                        ).stream().mapToLong(Household::getHouseholdAmount).sum()
+                )
+                .sum();
+
         long budgetAmount = budget.getBudgetAmount();
-        // 전체 지출량
-        long totalExpendAmount = budgetCategories.stream().mapToLong(BudgetCategory::getBudgetExpendAmount).sum();
+
         return ResponseFindDailyBudget.builder()
                 .message("오늘의 예산 조회")
                 .budgetPk(budget.getBudgetPk())

@@ -146,9 +146,23 @@ class FinanceTestPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   // GoRouter를 사용하여 테스트 페이지로 이동
-                  context.push(BudgetRoutes.getBudgetEventPath());
+                  context.push(SignupRoutes.getBudgetCelebratePath());
                 },
                 child: const Text('월급날 테스트페이지'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // GoRouter를 사용하여 테스트 페이지로 이동
+                  context.push(SignupRoutes.getWishCreatePath());
+                },
+                child: const Text('위시 등록 테스트페이지'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // GoRouter를 사용하여 테스트 페이지로 이동
+                  context.push(SignupRoutes.getSalaryInputPath());
+                },
+                child: const Text('월급정보 입력 테스트페이지'),
               ),
         // <<<<<<<<<<<<<<<<<<<<<<<<<<<< 로딩 인디케이터 테스트  <<<<<<<<<<<<<<<<<<
               const SizedBox(height: 20),

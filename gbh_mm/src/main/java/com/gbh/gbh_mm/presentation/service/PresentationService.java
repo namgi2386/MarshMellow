@@ -9,6 +9,8 @@ import com.gbh.gbh_mm.household.repo.HouseholdDetailCategoryRepository;
 import com.gbh.gbh_mm.household.repo.HouseholdRepository;
 import com.gbh.gbh_mm.presentation.request.RequestHouseholdForPre;
 import com.gbh.gbh_mm.presentation.request.RequestSendAlert;
+import com.gbh.gbh_mm.presentation.request.RequestUpdateFcmToken;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import com.gbh.gbh_mm.user.model.entity.User;
 import com.gbh.gbh_mm.user.repo.UserRepository;
 import com.gbh.gbh_mm.user.service.UserService;
@@ -76,6 +78,21 @@ public class PresentationService {
         } catch (Exception e) {
             e.printStackTrace();
 
+            return "FAIL";
+        }
+    }
+
+    public String updateFcmToken(RequestUpdateFcmToken request, CustomUserDetails customUserDetails) {
+        try {
+            User user = userRepository.findByUserPk(customUserDetails.getUserPk())
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+            user.setFcmToken(request.getToken());
+
+            userRepository.save(user);
+
+            return "SUCCESS";
+        } catch (Exception e) {
             return "FAIL";
         }
     }

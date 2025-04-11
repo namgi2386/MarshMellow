@@ -2,9 +2,13 @@ package com.gbh.gbh_mm.presentation.controller;
 
 import com.gbh.gbh_mm.presentation.request.RequestHouseholdForPre;
 import com.gbh.gbh_mm.presentation.request.RequestSendAlert;
+import com.gbh.gbh_mm.presentation.request.RequestUpdateFcmToken;
 import com.gbh.gbh_mm.presentation.service.PresentationService;
+import com.gbh.gbh_mm.user.model.entity.CustomUserDetails;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,5 +35,13 @@ public class PresentationController {
             @RequestBody RequestHouseholdForPre request
     ) {
         return presentationService.createHousehold(request);
+    }
+
+    @PatchMapping("/fcm-token")
+    public String sendFcmToken(
+        @RequestBody RequestUpdateFcmToken request,
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return presentationService.updateFcmToken(request, customUserDetails);
     }
 }

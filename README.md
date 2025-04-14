@@ -1,4 +1,5 @@
 # 🍡 MM (Marsh Mellow)  
+## 📌 팀명: GBH (효자손: Good Boy Hand) 
 ### 사회초년생 맞춤형 예산 관리 핀테크 플랫폼
 
 > 💬 “한 달 예산을 체계적으로 관리하고 싶은데, 방법을 모르겠어요!”
@@ -10,11 +11,6 @@
 📊 소비 유형 분석,  
 🎯 목표 저축 기능까지 한 번에!
 
-
----
-
-## 📌 팀명: GBH (효자손: Good Boy Hand)  
-## 💡 프로젝트명: MM (Marsh Mellow)
 
 ---
 
@@ -35,7 +31,7 @@
 급여 수령 후 자동화된 예산 분배를 통해 재정적 안정과 경제적 자립을 유도합니다.
 
 ---
-
+## 📱 주요 기능 소개
 <table>
   <thead>
     <tr>
@@ -46,13 +42,29 @@
   </thead>
   <tbody>
     <tr>
+      <td align="center"><strong>0번 로그인 및 인증서 발급</strong></td>
+      <td align="center">
+        <strong><em>두 번의 인증 체계로 소중한 데이터를 보호해줘요!</em></strong><br><br> 
+          - 문자인증을 통한 1차 본인인증<br> 
+          - 핀번호 로그인과 보안키패드로 2차 인증<br> 
+          - 인증서를 통한 자산 불러오기!
+      </td>
+      <td align="center">
+        <img src="readme_image/function_gif/회원가입.gif" alt="회원가입" width="200" />
+      </td>
+      <td align="center">
+        <img src="readme_image/function_gif/mm인증서생성및마이데이터가입.gif" alt="인증서" width="200" />
+      </td>
+    </tr>
+    <tr>
       <td align="center"><strong>① 통장 응원단</strong></td>
       <td align="center">
         <strong><em>귀여운 캐릭터가 나의 재정생활을 함께해줘요!</em></strong><br><br>
         - 월급 입금 시 캐릭터 등장 및 축하 알림 제공<br>
         - 소비 유형 기반 예산 자동 분배 추천<br>
-        - 데일리 예산 및 초과 시 실시간 지출 알림 제공
+        - 링크 공유하기로 위시리스트 자동 등록
       </td>
+      <td><img src="readme_image/function_gif/예산생성.gif" alt="위시리스트" width="200" /></td>
       <td><img src="readme_image/function_gif/위시리스트.gif" alt="위시리스트" width="200" /></td>
       <td></td>
     </tr>
@@ -85,7 +97,7 @@
         <strong><em>일상과 커리어도 함께 챙겨요!</em></strong><br><br>
         - 점심 메뉴 추천으로 결정장애 해결<br>
         - 퇴사 시뮬레이션으로 스트레스 해소<br>
-        - 커리어 포트폴리오 정리로 성장 추적
+        - 포트폴리오 정리로 커리어 정리
       </td>
       <td><img src="readme_image/function_gif/점메추.gif" alt="점메추" width="200" /></td>
       <td><img src="readme_image/function_gif/퇴사망상.gif" alt="퇴사 망상" width="200" /></td>

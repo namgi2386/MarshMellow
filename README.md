@@ -36,26 +36,63 @@
 
 ---
 
-## 📱 주요 기능 소개
-
-### 🍑 통장 응원단
-귀여운 마시멜로 캐릭터가 사용자의 예산 관리를 응원합니다!
-
-- **월급 축하 기능**  
-  입금 시 캐릭터 등장 및 알림 제공
-- **예산 분배**  
-  소비 유형 기반 예산 추천
-- **위시리스트**  
-  원하는 상품을 등록하고 자동 저축 연동
-- **지출 알림**  
-  데일리 예산 및 초과 시 실시간 알림 제공
-
-### 🍑 자산 관리단
-자산 현황을 직관적으로 확인할 수 있는 시각화 및 리포트 기능 제공
-
-### 🍑 가계부 매니저
-- 월별 지출 패턴 분석
-- 예산 대비 사용량 그래프 시각화
+<table>
+  <thead>
+    <tr>
+      <th align="center">기능 이름</th>
+      <th align="center">기능 설명</th>
+      <th colspan="2" align="center">Screenshots</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><strong>① 통장 응원단</strong></td>
+      <td align="center">
+        <strong><em>귀여운 캐릭터가 나의 재정생활을 함께해줘요!</em></strong><br><br>
+        - 월급 입금 시 캐릭터 등장 및 축하 알림 제공<br>
+        - 소비 유형 기반 예산 자동 분배 추천<br>
+        - 데일리 예산 및 초과 시 실시간 지출 알림 제공
+      </td>
+      <td><img src="readme_image/function_gif/위시리스트.gif" alt="위시리스트" width="200" /></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td align="center"><strong>② 자산 관리단</strong></td>
+      <td align="center">
+        <strong><em>자산을 한눈에 보고 분석까지!</em></strong><br><br>
+        - 직관적인 자산 현황 시각화 및 리포트<br>
+        - 자산 간편 조회 기능으로 빠른 확인<br>
+        - 송금 기능으로 Marsh Mellow에서 간편 송금!
+      </td>
+      <td><img src="readme_image/function_gif/자산조회.gif" alt="자산 조회" width="200" /></td>
+      <td><img src="readme_image/function_gif/자산간편.gif" alt="자산 간편 조회" width="200" /></td>
+      <td><img src="readme_image/function_gif/송금.gif" alt="송금" width="200" /></td>
+    </tr>
+    <tr>
+      <td align="center"><strong>③ 가계부 매니저</strong></td>
+      <td align="center">
+        <strong><em>AI가 도와주는 똑똑한 지출 관리</em></strong><br><br>
+        - AI 기반 카테고리 자동 분류<br>
+        - 월별 지출 패턴 분석<br>
+        - 검색 필터링 기능 제공
+      </td>
+      <td><img src="readme_image/function_gif/가계부.gif" alt="가계부" width="200" /></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td align="center"><strong>④ 점메추 / 퇴사 망상록 / 포트폴리오</strong></td>
+      <td align="center">
+        <strong><em>일상과 커리어도 함께 챙겨요!</em></strong><br><br>
+        - 점심 메뉴 추천으로 결정장애 해결<br>
+        - 퇴사 시뮬레이션으로 스트레스 해소<br>
+        - 커리어 포트폴리오 정리로 성장 추적
+      </td>
+      <td><img src="readme_image/function_gif/점메추.gif" alt="점메추" width="200" /></td>
+      <td><img src="readme_image/function_gif/퇴사망상.gif" alt="퇴사 망상" width="200" /></td>
+      <td><img src="readme_image/function_gif/포트폴리오.gif" alt="포트폴리오" width="200" /></td>
+    </tr>
+  </tbody>
+</table>
 
 
 ---
@@ -100,7 +137,7 @@
 
 
 ### 🏗 시스템 아키텍처
-![alt text](readme_image/MM_아키텍처.png)
+<img src="readme_image/MM_아키텍처.png" alt="아키텍처" width="800">
 
 ---
 
@@ -142,6 +179,6 @@
 > 본 프로젝트는 청년 재정교육과 소비 개선을 목표로 합니다.  
 
 ### 추후 추가 내용 
-- 기능 화면
+
 - AI 모델 소개(카테고리 분류 모델, 소비패턴 유형 분석)
 - 인증서, 데이터 암호화 및 보안 로직 추가가

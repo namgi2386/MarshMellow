@@ -151,17 +151,74 @@
 든든한 **재정 파트너**가 되어드립니다!
 
 
-| 이름 | 역할 | 담당 업무 |
-|------|------|-----------|
-| **신희원** | Back-End / AI | - 🧮 예산 및 위시리스트 API 구현<br>- 🧠 AI 모델 개발 (카테고리 분류, 소비 유형 분석)<br>- 🔔 FCM 기반 알림 로직 구현 |
-| **윤재은** | Infra / Back-End | - 💰 자산, 가계부, 포트폴리오 API 구현<br>- 🔧 CI/CD 파이프라인 구축 (MM, 인증, AI 모듈 배포) |
-| **김한주** | Back-End Leader | - 👤 회원 및 인증 API, 📝 퇴사망상록 기능 개발<br>- 🔐 RSA 및 SHA-512 기반 전자서명 검증 로직 구현 |
-| **임남기** | Front-End Leader | - 💳 자산 관련 UI/UX 설계 및 API 연동<br>- 🍱 점심 메뉴 추천 기능 구현<br>- 🛡️ AES 기반 금융데이터 암호화 로직 구축 |
-| **유한슬** | Front-End / Designer | - 📝 회원가입, 예산, 위시리스트 UI/UX 및 API 연동<br>- 🔑 RSA 키 페어 생성 및 암호화 로직 구현<br>- 🔍 소비 유형 분석 모델 연동 |
-| **이지은** | Front-End / Designer | - 📒 가계부, 포트폴리오, 퇴사망상록 UI/UX 및 API 연동<br>- 🧾 소비 카테고리 분류 모델 연동<br>- 📱 위젯 UI / UX |
- 
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+  <thead>
+    <tr>
+      <th style="text-align: center; padding: 10px;">이름</th>
+      <th style="text-align: center; padding: 10px;">역할</th>
+      <th style="text-align: center; padding: 10px;">담당 업무</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center; padding: 10px;"><strong>신희원</strong></td>
+      <td style="text-align: center; padding: 10px;">Back-End / AI</td>
+      <td style="padding: 10px;">
+        - 🧮 예산 및 위시리스트 API 구현<br>
+        - 🧠 AI 모델 개발 (카테고리 분류, 소비 유형 분석)<br>
+        - 🔔 FCM 기반 알림 로직 구현
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; padding: 10px;"><strong>윤재은</strong></td>
+      <td style="text-align: center; padding: 10px;">Infra / Back-End</td>
+      <td style="padding: 10px;">
+        - 💰 자산, 가계부, 포트폴리오 API 구현<br>
+        - 🔧 CI/CD 파이프라인 구축 (MM, 인증, AI 모듈 배포)
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; padding: 10px;"><strong>김한주</strong></td>
+      <td style="text-align: center; padding: 10px;">Back-End Leader</td>
+      <td style="padding: 10px;">
+        - 👤 회원 및 인증 API, 📝 퇴사망상록 기능 개발<br>
+        - 🔐 RSA 및 SHA-512 기반 전자서명 검증 로직 구현
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; padding: 10px;"><strong>임남기</strong></td>
+      <td style="text-align: center; padding: 10px;">Front-End Leader</td>
+      <td style="padding: 10px;">
+        - 💳 자산 관련 UI/UX 설계 및 API 연동<br>
+        - 🍱 점심 메뉴 추천 기능 구현<br>
+        - 🛡️ AES 기반 금융데이터 암호화 로직 구축
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; padding: 10px;"><strong>유한슬</strong></td>
+      <td style="text-align: center; padding: 10px;">Front-End / Designer</td>
+      <td style="padding: 10px;">
+        - 📝 회원가입, 예산, 위시리스트 UI/UX 및 API 연동<br>
+        - 🔑 RSA 키 페어 생성 및 암호화 로직 구현<br>
+        - 🔍 소비 유형 분석 모델 연동
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; padding: 10px;"><strong>이지은</strong></td>
+      <td style="text-align: center; padding: 10px;">Front-End / Designer</td>
+      <td style="padding: 10px;">
+        - 📒 가계부, 포트폴리오, 퇴사망상록 UI/UX 및 API 연동<br>
+        - 🧾 소비 카테고리 분류 모델 연동<br>
+        - 📱 위젯 UI / UX
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-![alt text](readme_image/team.png)
+<div style="text-align: center;">
+  <img src="readme_image/team.png" alt="팀 이미지" style="width: 70%; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"/>
+</div>
+
 
 ---
 

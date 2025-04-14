@@ -1,8 +1,15 @@
-# MM (Marsh Mellow) - 사회초년생 맞춤형 예산 관리 핀테크 플랫폼
+# 🍡 MM (Marsh Mellow)  
+### 사회초년생 맞춤형 예산 관리 핀테크 플랫폼
 
-> "한 달 예산을 체계적으로 관리하고 싶은데, 방법을 모르겠어요!"
+> 💬 “한 달 예산을 체계적으로 관리하고 싶은데, 방법을 모르겠어요!”
 
-사회초년생이 쉽고 재미있게 예산을 관리할 수 있도록 돕는 **개인 맞춤형 재정관리 앱**, **MM**을 소개합니다.
+🙋‍♀️🙋‍♂️ **사회초년생**이 쉽고 재미있게 예산을 관리할 수 있도록 도와주는  
+💡 **개인 맞춤형 재정관리 앱**, 바로 **MM**을 소개합니다!
+
+✨ AI 기반 예산 분배부터  
+📊 소비 유형 분석,  
+🎯 목표 저축 기능까지 한 번에!
+
 
 ---
 
@@ -64,46 +71,31 @@
 - Z세대 및 사회초년생
 - 재정관리를 처음 접하는 20~30대 직장인
 
-### 🔍 경쟁사와 차별점
-| 항목              | 기존 앱                       | MM                           |
-|-------------------|-------------------------------|------------------------------|
-| 예산 설정         | 수동 입력                     | AI 기반 자동 분배            |
-| 예산 초과 알림    | 제한적 or 미지원              | 지출 비율 알림을 통해 과지출 예방              |
-| UI/UX             | 딱딱하고 지루함               | 캐릭터 기반, 직관적 인터페이스 |
-| 위시리스트 관리   | 미지원 또는 단순 메모         | 자동/수동 등록 + 자동 저축   |
+### 🔍 경쟁사와의 차별점
 
----
+| 🧩 항목            | 🏢 기존 앱 특징                        | 🚀 **MM(우리 앱)**                            |
+|--------------------|----------------------------------------|-----------------------------------------------|
+| 💰 **예산 설정**     | ✍️ 수동 입력                          | 🤖 **AI 기반 자동 예산 분배** |
+| 🔔 **예산 초과 알림** | ⚠️ 제한적 or 미지원                   | 📊 **지출 비율 알림으로 과지출 예방**        |
+| 🎨 **UI / UX**       | 😐 딱딱하고 지루한 화면 구성          | 🧸 **캐릭터 기반 + 직관적 인터페이스**       |
+| 🎁 **위시리스트 관리** | 📝 미지원 or 단순 메모 기능           | ✨ **자동/수동 등록 + 목표 기반 자동 저축**  |
+
 
 ## 🛠 기술 스택 및 아키텍처
-
 ### 🎨 Frontend
-- Flutter
-- Android Studio
+<p> <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" /> <img src="https://img.shields.io/badge/Android%20Studio-3DDC84?style=for-the-badge&logo=android-studio&logoColor=white" /> </p>
 
 ### ⚙️ Backend
-- Java 21
-- SpringBoot 3.1.4(Gradle)
-- JPA
-- Spring Security
-- Spring Batch
+<p> <img src="https://img.shields.io/badge/Java%2021-007396?style=for-the-badge&logo=openjdk&logoColor=white" /> <img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" /> <img src="https://img.shields.io/badge/JPA-59666C?style=for-the-badge" /> <img src="https://img.shields.io/badge/Spring%20Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white" /> <img src="https://img.shields.io/badge/Spring%20Batch-6DB33F?style=for-the-badge" /> </p>
 
 ### 🗄 Infra
-- Docker
-- Jenkins
-- Grafana
-- Prometheus
-- Nginx
-- Certbot
-- AWS (EC2, S3)
-- Firebase (FCM)
+<p> <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" /> <img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white" /> <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" /> <img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" /> <img src="https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white" /> <img src="https://img.shields.io/badge/Certbot-003A70?style=for-the-badge&logo=letsencrypt&logoColor=white" /> <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white" /> <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" /> </p>
 
-### Database
-- MySQL
-- Redis
+### 🗃️ Database
+<p> <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" /> <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" /> </p>
 
 ### 🧠 AI
-- Python 기반 소비 유형 분석 모델(K-means)
-- 카테고리 분류 모델(DecisionTreeClassifier)
+<p> <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" /> <img src="https://img.shields.io/badge/K--means-FFD43B?style=for-the-badge&logo=scikit-learn&logoColor=black" /> <img src="https://img.shields.io/badge/DecisionTreeClassifier-76B900?style=for-the-badge&logo=python&logoColor=white" /> </p>
 
 
 
@@ -114,8 +106,13 @@
 
 ## 👥 팀 소개
 
-**GBH (효자손)**  
-> 젊은 세대를 위한 실질적인 재정 도우미를 만들고자 하는 팀
+## 👨‍👩‍👧‍👦 GBH (효자손)
+
+> 💼 **"젊은 세대를 위한 실질적인 재정 도우미를 만들고자 하는 팀"**
+
+🔥 **GBH**, 당신의 경제적 독립을 위한  
+든든한 **재정 파트너**가 되어드립니다!
+
 
 | 이름 | 역할 | 담당 업무 |
 |------|------|-----------|

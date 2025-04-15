@@ -37,72 +37,86 @@
     <tr>
       <th align="center">기능 이름</th>
       <th align="center">기능 설명</th>
-      <th colspan="2" align="center">Screenshots</th>
+      <th colspan="2" align="center">화면</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td align="center"><strong>0번 로그인 및 인증서 발급</strong></td>
-      <td align="center">
-        <strong><em>두 번의 인증 체계로 소중한 데이터를 보호해줘요!</em></strong><br><br> 
-          - 문자인증을 통한 1차 본인인증<br> 
-          - 핀번호 로그인과 보안키패드로 2차 인증<br> 
-          - 인증서를 통한 자산 불러오기!
-      </td>
-      <td align="center">
-        <img src="readme_image/function_gif/회원가입.gif" alt="회원가입" width="200" />
-      </td>
-      <td align="center">
-        <img src="readme_image/function_gif/mm인증서생성및마이데이터가입.gif" alt="인증서" width="200" />
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><strong>① 통장 응원단</strong></td>
-      <td align="center">
-        <strong><em>귀여운 캐릭터가 나의 재정생활을 함께해줘요!</em></strong><br><br>
-        - 월급 입금 시 캐릭터 등장 및 축하 알림 제공<br>
-        - 소비 유형 기반 예산 자동 분배 추천<br>
-        - 링크 공유하기로 위시리스트 자동 등록
-      </td>
-      <td><img src="readme_image/function_gif/예산생성.gif" alt="위시리스트" width="200" /></td>
-      <td><img src="readme_image/function_gif/위시리스트.gif" alt="위시리스트" width="200" /></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td align="center"><strong>② 자산 관리단</strong></td>
-      <td align="center">
-        <strong><em>자산을 한눈에 보고 분석까지!</em></strong><br><br>
-        - 직관적인 자산 현황 시각화 및 리포트<br>
-        - 자산 간편 조회 기능으로 빠른 확인<br>
-        - 송금 기능으로 Marsh Mellow에서 간편 송금!
-      </td>
-      <td><img src="readme_image/function_gif/자산조회.gif" alt="자산 조회" width="200" /></td>
-      <td><img src="readme_image/function_gif/자산간편.gif" alt="자산 간편 조회" width="200" /></td>
-      <td><img src="readme_image/function_gif/송금.gif" alt="송금" width="200" /></td>
-    </tr>
-    <tr>
-      <td align="center"><strong>③ 가계부 매니저</strong></td>
-      <td align="center">
-        <strong><em>AI가 도와주는 똑똑한 지출 관리</em></strong><br><br>
-        - AI 기반 카테고리 자동 분류<br>
-        - 월별 지출 패턴 분석<br>
-        - 검색 필터링 기능 제공
-      </td>
-      <td><img src="readme_image/function_gif/가계부.gif" alt="가계부" width="200" /></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td align="center"><strong>④ 점메추 / 퇴사 망상록 / 포트폴리오</strong></td>
-      <td align="center">
-        <strong><em>일상과 커리어도 함께 챙겨요!</em></strong><br><br>
-        - 점심 메뉴 추천으로 결정장애 해결<br>
-        - 퇴사 시뮬레이션으로 스트레스 해소<br>
-        - 포트폴리오 정리로 커리어 정리
-      </td>
-      <td><img src="readme_image/function_gif/점메추.gif" alt="점메추" width="200" /></td>
-      <td><img src="readme_image/function_gif/퇴사망상.gif" alt="퇴사 망상" width="200" /></td>
-      <td><img src="readme_image/function_gif/포트폴리오.gif" alt="포트폴리오" width="200" /></td>
-    </tr>
+  <td align="center"><strong>🔐 ⓪ 로그인 및 인증서 발급</strong></td>
+  <td align="center">
+    <strong><em>두 번의 인증 체계로 소중한 데이터를 보호해줘요!</em></strong><br><br>
+    <ul style="list-style: none; padding: 0;">
+      <li>✅ <strong>1차 인증</strong>: 문자인증을 통한 본인 확인</li>
+      <li>🔑 <strong>2차 인증</strong>: 핀번호 로그인 & 보안 키패드</li>
+      <li>📄 <strong>마이데이터 연동</strong>: 인증서로 자산 불러오기</li>
+    </ul>
+  </td>
+  <td align="center">
+    <img src="readme_image/function_gif/회원가입.gif" alt="회원가입" width="200" />
+  </td>
+  <td align="center">
+    <img src="readme_image/function_gif/mm인증서생성및마이데이터가입.gif" alt="인증서" width="200" />
+  </td>
+<tr>
+  <td align="center"><strong>🧸 ① 통장 응원단</strong></td>
+  <td align="center">
+    <strong><em>귀여운 캐릭터가 나의 재정생활을 함께해줘요!</em></strong><br><br>
+    <ul style="list-style: none; padding: 0;">
+      <li>🎉 <strong>입금 축하</strong>: 월급 입금 시 캐릭터 알림</li>
+      <li>📊 <strong>예산 추천</strong>: 소비 유형 기반 자동 분배</li>
+      <li>📎 <strong>위시리스트 공유</strong>: 링크로 자동 등록</li>
+    </ul>
+  </td>
+  <td align="center"><img src="readme_image/function_gif/예산생성.gif" alt="예산 생성" width="200" /></td>
+  <td align="center"><img src="readme_image/function_gif/위시리스트.gif" alt="위시리스트" width="200" /></td>
+  <td></td>
+</tr>
+
+<tr>
+  <td align="center"><strong>💰 ② 자산 관리단</strong></td>
+  <td align="center">
+    <strong><em>자산을 한눈에 보고 분석까지!</em></strong><br><br>
+    <ul style="list-style: none; padding: 0;">
+      <li>📈 <strong>자산 시각화</strong>: 리포트 기반 현황 제공</li>
+      <li>🔍 <strong>간편 조회</strong>: 빠르게 확인 가능한 자산 정보</li>
+      <li>💸 <strong>송금 기능</strong>: Marsh Mellow에서 바로 송금</li>
+    </ul>
+  </td>
+  <td align="center"><img src="readme_image/function_gif/자산조회.gif" alt="자산 조회" width="200" /></td>
+  <td align="center"><img src="readme_image/function_gif/자산간편.gif" alt="자산 간편 조회" width="200" /></td>
+  <td align="center"><img src="readme_image/function_gif/송금.gif" alt="송금" width="200" /></td>
+</tr>
+
+<tr>
+  <td align="center"><strong>📒 ③ 가계부 매니저</strong></td>
+  <td align="center">
+    <strong><em>AI가 도와주는 똑똑한 지출 관리</em></strong><br><br>
+    <ul style="list-style: none; padding: 0;">
+      <li>🤖 <strong>자동 분류</strong>: AI가 카테고리 분석</li>
+      <li>📆 <strong>월별 분석</strong>: 지출 패턴 파악</li>
+      <li>🔎 <strong>검색 기능</strong>: 필터링으로 손쉬운 조회</li>
+    </ul>
+  </td>
+  <td align="center"><img src="readme_image/function_gif/가계부.gif" alt="가계부" width="200" /></td>
+  <td></td>
+  <td></td>
+</tr>
+
+<tr>
+  <td align="center"><strong>🌟 ④ 점메추 / 퇴사 망상록 / 포트폴리오</strong></td>
+  <td align="center">
+    <strong><em>일상과 커리어도 함께 챙겨요!</em></strong><br><br>
+    <ul style="list-style: none; padding: 0;">
+      <li>🍱 <strong>점메추</strong>: 점심 메뉴 추천으로 결정장애 탈출</li>
+      <li>🧠 <strong>퇴사 망상록</strong>: 스트레스 해소를 위한 시뮬레이션</li>
+      <li>🧳 <strong>포트폴리오</strong>: 내 커리어, 한눈에 정리</li>
+    </ul>
+  </td>
+  <td align="center"><img src="readme_image/function_gif/점메추.gif" alt="점메추" width="200" /></td>
+  <td align="center"><img src="readme_image/function_gif/퇴사망상.gif" alt="퇴사 망상" width="200" /></td>
+  <td align="center"><img src="readme_image/function_gif/포트폴리오.gif" alt="포트폴리오" width="200" /></td>
+</tr>
+
   </tbody>
 </table>
 
@@ -250,4 +264,4 @@
 ### 추후 추가 내용 
 
 - AI 모델 소개(카테고리 분류 모델, 소비패턴 유형 분석)
-- 인증서, 데이터 암호화 및 보안 로직 추가가
+- 인증서, 데이터 암호화 및 보안 로직 추가

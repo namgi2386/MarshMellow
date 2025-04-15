@@ -212,6 +212,107 @@ cluster_to_type = {
 
 
 
+## 🔐 본인인증 및 인증서 발급/전자서명 검증
+> “나의 금융 정보, 제대로 인증된 사람만 확인할 수 있도록!”
+
+---
+
+### 📌 개요
+MM은 민감한 마이데이터 및 자산 정보를 다루는 서비스이기 때문에,  
+**이중 보안 체계**를 통해 사용자 본인 인증 및 인증서 기반 서명 검증을 철저히 수행합니다.
+
+---
+
+### ✅ 본인인증 흐름
+
+<table>
+  <thead>
+    <tr>
+      <th align="center">단계</th>
+      <th align="center">내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><strong>1단계: 휴대폰 본인확인</strong></td>
+      <td align="center">
+        사용자의 <strong>이름 / 생년월일 / 통신사 / 전화번호</strong>를 입력하고,<br>
+        문자인증을 통해 1차 본인 확인을 진행합니다.
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><strong>2단계: PIN 입력</strong></td>
+      <td align="center">
+        사용자가 설정한 <strong>보안 PIN 4자리</strong>를 입력합니다.<br>
+        <strong>보안 키패드</strong>를 통해 입력값을 보호합니다.
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><strong>CI (연계정보) 발급</strong></td>
+      <td align="center">
+        본인 확인이 완료되면 사용자 고유의 <strong>CI값</strong>이 발급되어<br>
+        이후 인증서 및 마이데이터 연동에 사용됩니다.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p align="center">
+  <img src="readme_image/본인인증.png" width="500" alt="본인인증"/>
+  <img src="readme_image/CI 발급.png" width="400" alt="CI 발급"/>
+</p>
+
+---
+
+### 📄 인증서 발급 및 전자서명 검증
+
+<table>
+  <thead>
+    <tr>
+      <th align="center">기능</th>
+      <th align="center">설명</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><strong>인증서 발급</strong></td>
+      <td align="center">
+        MM은 사용자의 <strong>CI값을 기반으로 자체 인증서를 발급</strong>합니다.<br>
+        발급된 인증서는 <strong>앱 내 저장소 또는 보안 모듈</strong>에 안전하게 저장됩니다.
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><strong>전자서명 생성</strong></td>
+      <td align="center">
+        사용자 요청(마이데이터 연동 등) 시, <strong>전자서명 요청을 생성</strong>하고,<br>
+        사용자는 통합인증을 요청합니다.
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><strong>전자서명 검증</strong></td>
+      <td align="center">
+        인증서버 측에서 전자서명의 <strong>검증 과정</strong>을 시행합니다.<br>
+        이를 통해 위변조 방지 및 사용자의 요청 진위를 검증합니다.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p align="center">
+  <img src="readme_image/인증서발급.png" width="600" alt="인증서 발급"/>
+  <img src="readme_image/전자서명 검증.png" width="400" alt="전자서명 검증"/>
+</p>
+
+---
+
+### 🔐 보안 강화 포인트
+
+- ✅ CI 기반 고유 사용자 식별  
+- 🔑 PIN 기반 사용자 인증  
+- 📄 전자서명 기반 요청 위조 방지  
+- 🧰 향후 FIDO / 생체인증 연동 기능 추가 예정
+
+
 ## 📊 시장 분석
 
 ### 💰 시장 트렌드
@@ -345,12 +446,3 @@ cluster_to_type = {
 - [20대 4명 중 1명 "저축, 한 달에 한 푼도 못한다"](https://www.chosun.com/site/data/html_dir/2019/08/09/2019080901888.html)
 
 ---
-
-## 📌 기타
-
-> 본 프로젝트는 청년 재정교육과 소비 개선을 목표로 합니다.  
-
-### 추후 추가 내용 
-
-- AI 모델 소개(카테고리 분류 모델, 소비패턴 유형 분석)
-- 인증서, 데이터 암호화 및 보안 로직 추가

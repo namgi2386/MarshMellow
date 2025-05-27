@@ -493,3 +493,9 @@ obj/
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,flutter,dart,androidstudio,intellij,android,macos,windows,linux,web,dotenv,kotlin
+
+
+# namgi 
+
+bfg-1.14.0.jar
+*.bfg-report/
